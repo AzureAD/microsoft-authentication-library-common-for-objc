@@ -429,24 +429,18 @@
                                                                     state:@"state"
                                                 fallbackRequestAccountUpn:nil];
 
-    NSDictionary *expectedJson = @{
-        @"access_token": @"cached-access-token",
-        @"token_type": @"Bearer",
-        @"id_token": @"cached-id-token",
-        @"scope": @"openid profile",
-        @"expires_on": @"2000000000",
-        @"expires_in": response.jsonDictionary[@"expires_in"],
-        @"account": @{
-            @"id": @"uid.utid",
-            @"userName": @"user@contoso.com"
-        },
-        @"state": @"state",
-        @"properties": @{
-            @"UPN": @"user@contoso.com"
-        }
-    };
+    NSDictionary *json = [response jsonDictionary];
 
-    XCTAssertEqualObjects(expectedJson, response.jsonDictionary);
+    XCTAssertEqualObjects(json[@"access_token"], @"cached-access-token");
+    XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
+    XCTAssertEqualObjects(json[@"id_token"], @"cached-id-token");
+    XCTAssertEqualObjects(json[@"scope"], @"openid profile");
+    XCTAssertEqualObjects(json[@"expires_on"], @"2000000000");
+    XCTAssertTrue([json[@"expires_in"] isKindOfClass:NSString.class]);
+    XCTAssertEqualObjects(json[@"account"][@"id"], @"uid.utid");
+    XCTAssertEqualObjects(json[@"account"][@"userName"], @"user@contoso.com");
+    XCTAssertEqualObjects(json[@"properties"][@"UPN"], @"user@contoso.com");
+    XCTAssertEqualObjects(json[@"state"], @"state");
 }
 
 - (void)testJsonDictionary_whenCachedResultHasNoOptionalValues_shouldOmitEmptyFields

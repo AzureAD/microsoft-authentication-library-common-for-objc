@@ -1,5 +1,5 @@
 You are executing step 'fix' in the Forge validation loop.
-Iteration: 1
+Iteration: 2
 
 ## Your Task: Apply Code Fixes
 You are the **fix agent**. Your job is to **edit source files** to address the findings from upstream steps.
@@ -33,28 +33,6 @@ After you edit files, the next step will `git commit && git push` your fixes to 
 ## Upstream Step Outputs
 Use `get_step_output(stepId)` with one of these step ids to read the captured output:
 - `"review"` — output from 'review' step (provides: review_findings)
-
-## Current Findings to Fix
-3 finding(s) require fixes:
-
-### 🟡 `missing-owner-tag-flight-constant`
-**File:** IdentityCore/src/MSIDConstants.h
-**Step:** synthesis | **Action:** fix
-
-Flagged by: review-standards, validate-pr. All sibling flight constants include /// Owner: <alias> for on-call accountability. The new constant at line 277 is missing this tag.
-
-### 🟢 `weak-assertion-legacy-path-test`
-**File:** IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m
-**Step:** synthesis | **Action:** fix
-
-Flagged by: validate-pr, review-fresh-eyes. First code path test uses full dictionary equality but second uses spot-checks -- inconsistent test rigor that could miss future regressions.
-
-### 🟢 `missing-test-cached-path-flight-enabled`
-**File:** IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m
-**Step:** synthesis | **Action:** fix
-
-Flagged by: review-fresh-eyes. Cached-token path is currently safe but has no flight-enabled test to prevent future regression.
-
 
 ## Your Role: Fix Agent
 You are a **fix agent**. Your job is to fix the specific findings reported to you.

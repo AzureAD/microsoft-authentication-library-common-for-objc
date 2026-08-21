@@ -1,22 +1,35 @@
 {
-  "iteration": 1,
+  "iteration": 2,
   "stepsTotal": 5,
   "stepsCompleted": [
     "review",
-    "fix",
-    "commit-push",
-    "test-fix"
+    "fix"
   ],
   "stepsFailed": [],
   "stepsSkipped": [],
   "stepsRunning": [
+    "commit-push",
+    "test-fix"
+  ],
+  "stepsWaiting": [
     "commit-push-tests"
   ],
-  "stepsWaiting": [],
   "findingsCount": 3,
-  "elapsedSeconds": 928.1442203,
-  "lastCompletedStep": "test-fix",
-  "lastUpdate": "2026-08-21T23:08:15.9024Z",
+  "elapsedSeconds": 876.1489313,
+  "lastCompletedStep": "fix",
+  "lastUpdate": "2026-08-21T23:22:58.603207Z",
+  "iterations": [
+    {
+      "iteration": 1,
+      "findingCount": 3,
+      "blockingCount": 3,
+      "fixedCount": 0,
+      "stepsCompleted": [],
+      "stepsFailed": [],
+      "stepsSkipped": [],
+      "criteriaPassed": false
+    }
+  ],
   "findings": [
     {
       "id": "missing-owner-tag-flight-constant",
@@ -54,13 +67,78 @@
     },
     {
       "path": ".forge/loops/review-fix/20260821-225246/review-fix-status.json",
-      "added": 15,
-      "removed": 10
+      "added": 85,
+      "removed": 12
+    },
+    {
+      "path": ".forge/loops/review-fix/20260821-225246/review-fix.review-status.json",
+      "added": 65,
+      "removed": 27
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/check-done-result.txt",
+      "added": 21,
+      "removed": 4
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/context-build-result.txt",
+      "added": 332,
+      "removed": 313
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/fix-prompt.txt",
+      "added": 1,
+      "removed": 23
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/fix-result.txt",
+      "added": 11,
+      "removed": 18
     },
     {
       "path": ".forge/output/review-fix-20260821-225246/forge-loop.log",
-      "added": 44,
+      "added": 137,
       "removed": 0
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/privacy-review-result.txt",
+      "added": 14,
+      "removed": 80
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/review-fresh-eyes-result.txt",
+      "added": 38,
+      "removed": 85
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/review-logic-result.txt",
+      "added": 12,
+      "removed": 112
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/review-standards-result.txt",
+      "added": 34,
+      "removed": 41
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/security-review-result.txt",
+      "added": 216,
+      "removed": 236
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/synthesis-result.txt",
+      "added": 66,
+      "removed": 13
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/validate-pr-result.txt",
+      "added": 33,
+      "removed": 47
+    },
+    {
+      "path": "IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m",
+      "added": 11,
+      "removed": 17
     }
   ]
 }

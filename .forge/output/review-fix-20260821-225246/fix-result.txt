@@ -1,27 +1,20 @@
-Now let me look at the relevant files to understand context for each fix:
+Now I see the issue. Line 438 uses `response.jsonDictionary[@"expires_in"]` to build `expectedJson`, then line 449 calls `response.jsonDictionary` again. Since `expires_in` is computed from `timeIntervalSinceNow`, the two calls can produce different values, causing flaky failures. Let me fix this using the same pattern as the test above (individual assertions with type-check for `expires_in`).
 
-Now let me see the rest of the test file and the implementation for the cached path:
+Now let me verify the fix looks correct:
 
-Now I have full context. Let me apply all three fixes:
+The fix looks correct. Now let me also check the other findings from the synthesis and check if any of the iteration-1 findings need re-fixing. Let me verify the owner tag fix from iteration 1 is still in place:
 
-Now fix #2 — strengthen the legacy path test to use full dictionary equality like the first test:
+Good — the owner tag fix from iteration 1 is already in place (line 279). Now let me record decisions for the findings. Let me check what findings exist for this iteration:
 
-Now fix #3 — add a test for the cached-token path with flight enabled. Let me look at how the cached path works (the `else` branch in `jsonDictionary` when `self.operationTokenResponse` is nil and there's no `tokenResponse` on the `tokenResult`, using `accessToken` directly):
+Now let me report and decide on the findings. The self-referential assertion is the key finding from this iteration's review:
 
-Let me check how to construct a token result with an access token but no token response:
+Let me verify the file content is clean (the `[m` in the diff is just a terminal escape artifact):
 
-Now I have the full picture. Let me add the cached-path flight-enabled test. The cached path (no `tokenResponse`, only `accessToken`) doesn't go through `tokenResponseJson` at all, so the flight doesn't affect it — but we need a test to guard against future regressions. I'll insert it after the existing cached test:
+File content is clean. Now let me record the finding and decisions:
 
-Now let me verify the changes look correct:
+**Fix applied.** The `testJsonDictionary_whenCachedPathWithSanitizationFlightEnabled` test had a self-referential assertion where `expectedJson[@"expires_in"]` was populated from `response.jsonDictionary[@"expires_in"]`, then the whole dictionary was asserted equal to a second call to `response.jsonDictionary`. This was:
 
-Now let me record decisions for all three findings:
+1. **Circular** — `expires_in` validated against itself (zero coverage)
+2. **Flaky** — `jsonDictionary` called twice; `expires_in` computed from `timeIntervalSinceNow` could differ between calls on slow CI
 
-All three fixes look correct. Let me record the decisions:
-
-All three findings have been fixed:
-
-1. **`missing-owner-tag-flight-constant`** — Added `/// Owner: maagubuzo` tag to the `MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION` constant, matching the pattern of sibling flight constants.
-
-2. **`weak-assertion-legacy-path-test`** — Replaced spot-check assertions in `testJsonDictionary_whenLegacyResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` with full dictionary equality (`XCTAssertEqualObjects(expectedJson, response.jsonDictionary)`), consistent with the first code path test.
-
-3. **`missing-test-cached-path-flight-enabled`** — Added `testJsonDictionary_whenCachedPathWithSanitizationFlightEnabled_shouldBuildResponseFromResult` to exercise the cached-token path (`accessToken` without `tokenResponse`) with the sanitization flight enabled, using full dictionary equality.
+**Fix:** Replaced with individual field assertions and `isKindOfClass:NSString.class` for `expires_in`, matching the pattern of the existing non-flight cached-path test at line 393-402.

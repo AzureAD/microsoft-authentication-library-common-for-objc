@@ -1,7 +1,24 @@
-The PR is in **draft** status. Per the pre-flight rules, Definition of Done check is skipped for draft PRs.
+The PR is **draft** — the Definition of Done gate should be skipped per pre-flight rules. Let me emit the appropriate finding.
 
-Since I'm in the review loop (Mode B), SKIP rows are omitted — no blocking findings to emit. I'll record a single info observation.
+## Definition of Done — SKIP
 
-**PR is in draft — Definition of Done check skipped. I'll run when it's marked ready.**
+**PR:** #1947 — Sanitize browser native GetToken responses behind a flight
+**Mode:** Pre-flight filtered
+**Repo overrides:** none — no `repo-context.md` or `definition-of-done.md` found; using defaults
 
-No ❌ findings to report. The gate does not apply to draft PRs.
+### Summary
+PR is in **draft** status. Definition of Done check skipped — all invariants deferred until the PR is marked ready for review.
+
+### Invariants
+
+| # | Invariant | Result | Notes |
+|---|-----------|--------|-------|
+| 1 | Feature flag | ⏭️ | Draft PR — skipped |
+| 2 | Release notes | ⏭️ | Draft PR — skipped |
+| 3 | Rollout plan | ⏭️ | Draft PR — skipped |
+| 4 | Linked work item | ⏭️ | Draft PR — skipped |
+| 5 | Test coverage | ⏭️ | Draft PR — skipped |
+| 6 | User-facing docs | ⏭️ | Draft PR — skipped |
+
+### Verdict
+**SKIP** — PR is in draft. Definition of Done check will run when it's marked ready.

@@ -1,123 +1,23 @@
-Now let me get the full diffs and examine the implementation in detail.
+Now let me examine the full source file to understand all code paths:
 
-Let me verify the OAuth2 constant values used in the allow-list to ensure they map correctly.
+Let me verify the OAuth2 constants used in the allowlist and check for any missing imports:
 
-I'll search for these classes and methods in the repository. Let me start with parallel searches to locate the relevant files.
+I've reviewed all four changed source files in this PR. The change introduces a flight-gated sanitization of browser GetToken responses, filtering the token response dictionary to an allowlist of 7 OAuth2 keys.
 
-Let me fix the grep call and look at the actual file:
+**Analysis summary:**
 
-Perfect! I found all the constants in the `MSIDOAuth2Constants.m` file. Here are the string values for each OAuth2 constant:
+1. **`MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary`** — Correctly iterates an allowlist, copies only present values. Called only after nil-guards on `tokenResponseJson`, so no nil input risk.
 
-## OAuth2 Constants String Values
+2. **`jsonDictionary` — `operationTokenResponse` path (line 132):** Flight check at line 130, sanitization applied at line 142. Account/state/properties are added *after* sanitization — correct, as these are structural metadata, not server token fields.
 
-| Constant | String Value | Line |
-|----------|--------------|------|
-| **MSID_OAUTH2_ACCESS_TOKEN** | `"access_token"` | 26 |
-| **MSID_OAUTH2_ID_TOKEN** | `"id_token"` | 57 |
-| **MSID_OAUTH2_TOKEN_TYPE** | `"token_type"` | 55 |
-| **MSID_OAUTH2_EXPIRES_IN** | `"expires_in"` | 43 |
-| **MSID_OAUTH2_EXPIRES_ON** | `"expires_on"` | 78 |
-| **MSID_OAUTH2_SCOPE** | `"scope"` | 50 |
-| **MSID_OAUTH2_REQUEST_CONFIRMATION** | `"req_cnf"` | 74 |
+3. **`jsonDictionary` — `tokenResult` path with `tokenResponse` (line 166):** Same pattern, correctly applied at line 175.
 
-**File location:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/MSIDOAuth2Constants.m`
+4. **`jsonDictionary` — cached path without `tokenResponse` (line 179-208):** No sanitization applied here, which is **correct** — this path manually constructs the response from cached values and only includes fields (`access_token`, `token_type`, `id_token`, `scope`, `expires_on`, `expires_in`) that are all in the allowlist. No server fields can leak through.
 
-Now let me view the key files:
+5. **Flight default behavior:** `boolForKey:` returns `NO` when no provider is set or key is absent (verified in `MSIDFlightManager.m:140`), so the flight defaults to OFF — preserving legacy passthrough behavior.
 
-Perfect! Now let me verify the behavior by checking the NSNumber's boolValue behavior with nil:
+6. **All 7 OAuth2 constants** in the allowlist verified to exist in `MSIDOAuth2Constants.h/.m`.
 
-Let me check the test file to see how this is tested:
+7. **Tests** cover all paths: flight ON, flight OFF, flight absent, nil response, both initializer paths, and the cached path with sanitization enabled.
 
-Perfect! Now I have all the information needed. Let me provide you with a comprehensive answer:
-
-## Summary
-
-### 1. **`boolForKey:` Method Implementation in `MSIDFlightManager`**
-**File:** `/IdentityCore/src/MSIDFlightManager.m` (lines 138-153)
-
-```objc
-- (BOOL)boolForKey:(nonnull NSString *)flightKey
-{
-    __block BOOL result = NO;
-    // Read the provider only from within the synchronization queue. Testing it via the
-    // unsynchronized property getter first would race the barrier write in setFlightProvider:,
-    // and capturing it into a strong local keeps it alive for the duration of the call.
-    dispatch_sync(self.synchronizationQueue, ^{
-        id<MSIDFlightManagerInterface> flightProvider = self->_flightProvider;
-        if (flightProvider)
-        {
-            result = [flightProvider boolForKey:flightKey];
-        }
-    });
-    
-    return result;
-}
-```
-
-**Key behavior:**
-- Initializes `result` to `NO` (false)
-- If a `flightProvider` exists, delegates to the provider's `boolForKey:` method
-- If **no provider is set**, it returns the default value of `NO` (false)
-- Thread-safe through synchronization queue
-
----
-
-### 2. **`MSIDFlightManagerMockProvider` Class**
-**File:** `/IdentityCore/tests/mocks/MSIDFlightManagerMockProvider.m` (lines 30-33)
-
-```objc
-- (BOOL)boolForKey:(NSString *)flightKey
-{
-    return [self.boolForKeyContainer[flightKey] boolValue];
-}
-```
-
-**What happens when a key is absent:**
-
-- `boolForKeyContainer` is an `NSDictionary` property
-- When accessing a key that doesn't exist: `self.boolForKeyContainer[flightKey]` returns `nil`
-- Calling `boolValue` on `nil` in Objective-C returns **`NO` (false)**
-  - This is because `nil` doesn't respond to `boolValue`, and messaging `nil` returns a default value (0/false for BOOLs)
-
----
-
-## **Answer to Your Question: What does `boolForKey:` return when the flight key is not set?**
-
-**When a key is absent from the provider, `boolForKey:` returns `NO` (false).**
-
-This happens in two scenarios:
-
-1. **No provider set**: `MSIDFlightManager.boolForKey:` defaults to `NO` (line 140)
-2. **Provider set but key missing**: `MSIDFlightManagerMockProvider.boolForKey:` sends `boolValue` to `nil`, which returns `NO`
-
-The test at line 102-109 in `MSIDFlightManagerTests.swift` confirms this:
-```swift
-func testBoolForKey_WithoutFlightProvider_ReturnsFalse() {
-    let flightManager = MSIDFlightManager.sharedInstance()
-    flightManager.flightProvider = nil
-    let result = flightManager.bool(forKey: "test-key")
-    XCTAssertFalse(result, "Should return false when no flight provider is set")
-}
-```
-
-I've completed a thorough review of all 4 changed files. Let me summarize my analysis:
-
-**Files reviewed:**
-1. `MSIDConstants.h` — New flight constant declaration
-2. `MSIDConstants.m` — New flight constant definition
-3. `MSIDBrowserNativeMessageGetTokenResponse.m` — Core sanitization logic
-4. `MSIDBrowserNativeMessageGetTokenResponseTests.m` — Tests
-
-**What I verified:**
-- All 7 allow-list constants (`MSID_OAUTH2_ACCESS_TOKEN` through `MSID_OAUTH2_REQUEST_CONFIRMATION`) map to correct string values
-- `MSIDFlightManager.boolForKey:` returns `NO` when no provider is set or key is absent — preserves legacy behavior
-- Both code paths in `jsonDictionary` (operationTokenResponse path and tokenResult path) correctly apply sanitization
-- The `else` branch (no tokenResponse, builds from accessToken) only constructs from known-safe fields, so no leak there even without explicit sanitization
-- Null safety is preserved: `tokenResponseJson` nil check happens before sanitization call
-- `mutableCopy` on the sanitization result is correct (NSDictionary → NSMutableDictionary)
-- `account`, `state`, and `properties` wrappers are added *after* sanitization, not stripped by it
-- Test teardown properly resets global `flightProvider` state
-- No collection mutation during iteration (iterates `allowedKeys`, not input dictionary)
-- Thread safety maintained via `MSIDFlightManager`'s synchronization queue
-
-**No correctness bugs found.** The implementation is a clean allow-list filter with proper flight gating. Both serialization paths are correctly handled, edge cases (nil response, absent flight, disabled flight) all preserve legacy behavior, and the sanitization function is straightforward with no logic errors.
+**No correctness bugs found.** The implementation is clean — the sanitization function is straightforward, the flight gating defaults safely to OFF, and all code paths are properly covered.

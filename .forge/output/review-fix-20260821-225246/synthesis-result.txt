@@ -1,21 +1,74 @@
-Good. Now let me call the MCP tools to get changed files and prior findings.
+Let me check the specific line numbers for the findings I need to report.
 
-Now I have all the data. Let me report the synthesized findings via MCP.
+Now I have all the data needed. Let me synthesize and report the validated findings.
 
-All 3 findings reported successfully. Here's the synthesis summary:
+Now I have all upstream outputs and the changed files. Let me produce the synthesis.
 
-## Synthesis Complete — 3 Findings Reported
+## Synthesis Report — PR #1947: Sanitize browser native GetToken responses behind flight
 
-**Changed files (4):** `MSIDConstants.h`, `MSIDConstants.m`, `MSIDBrowserNativeMessageGetTokenResponse.m`, `MSIDBrowserNativeMessageGetTokenResponseTests.m`
+### Scope
+**Changed files (authoritative, from git):**
+1. `IdentityCore/src/MSIDConstants.h` (MODIFIED)
+2. `IdentityCore/src/MSIDConstants.m` (MODIFIED)  
+3. `IdentityCore/src/broker_operation/response/browser_native_message_response/MSIDBrowserNativeMessageGetTokenResponse.m` (MODIFIED)
+4. `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m` (MODIFIED)
 
-**Upstream reviewers read:** 7 (logic ✅, standards ✅, fresh-eyes ✅, security ✅, privacy ✅, validate-pr ✅, check-done ✅)
+### Upstream Review Summary
+- **review-logic**: ✅ No bugs found. All code paths verified correct.
+- **review-standards**: ✅ All conventions followed. Clean review.
+- **review-fresh-eyes**: 6 findings (1 🟡, 3 🟢, 1 ℹ️, 1 🟡 out-of-scope)
+- **security-review**: 3 🔴 + 1 🟡 — all either by-design or out-of-scope
+- **privacy-review**: ✅ No violations. PR improves privacy posture.
+- **validate-pr**: All 9 acceptance criteria met. `.forge` artifacts flagged (out-of-scope).
+- **check-done**: Skipped (draft PR).
 
-| # | ID | Sev | File | Action | Sources |
-|---|---|---|---|---|---|
-| 1 | `missing-owner-tag-flight-constant` | 🟡 | MSIDConstants.h:277 | fix | standards, validate-pr |
-| 2 | `weak-assertion-legacy-path-test` | 🟢 | Tests.m | fix | validate-pr, fresh-eyes |
-| 3 | `missing-test-cached-path-flight-enabled` | 🟢 | Tests.m | fix | fresh-eyes |
+### Findings Rejected (with reasons)
 
-**Dropped:** ~8 findings — no logic bugs (review-logic clean), no security issues (security clean), no privacy issues (privacy clean), check-done skipped (draft PR). Low-confidence suggestions (diagnostic logging, explicit flight-disabled test for legacy path, sensitive field passthrough assertion) dropped per quality bar. No out-of-scope findings detected.
+**Dropped for out-of-scope (6 findings):**
+- security-review 🔴 `additionalServerInfo` pass-through — references `MSIDTokenResponse.m` (not changed)
+- security-review 🔴 `MSIDBrokerOperationTokenResponse` bypass — references `MSIDBrokerOperationTokenResponse.m` (not changed)  
+- fresh-eyes 🟡 `.forge/` directory committed — `.forge/*` files not in PR source scope
+- validate-pr 🔴 `.forge/` artifacts — same as above
+- validate-pr 🟡 CI Size Check / CI in-progress — not actionable by fix agent
 
-**No 🔴 Critical findings.** The implementation is sound — allow-list pattern is correct, both serialization paths covered, flight defaults safely to OFF.
+**Dropped for design-intent (2 findings):**
+- security-review 🔴 Default unsanitized response — flight defaults to OFF by design (staged rollout per PBI)
+- security-review 🟡 Forward compatibility risk — this is exactly what the allow-list approach addresses
+
+**Dropped for low confidence (1 finding):**
+- fresh-eyes 🟢 No nil+flight test — logic reviewer already confirmed nil check precedes flight branch; adding the test adds no real protection
+
+### Accepted Findings
+
+**Finding 1 — 🟡 Concern: Self-referential `expires_in` test assertion**
+- **File:** `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m`
+- **Line:** 438
+- **Action:** fix
+- **Source:** review-fresh-eyes (HIGH confidence)
+- **Details:** `testJsonDictionary_whenCachedPathWithSanitizationFlightEnabled` builds `expectedJson[@"expires_in"]` from `response.jsonDictionary[@"expires_in"]`, then asserts `expectedJson == response.jsonDictionary`. This is circular — `expires_in` validates against itself. Worse, `jsonDictionary` is called twice and `expires_in` is computed from `timeIntervalSinceNow`, so the two calls can produce different values on slow CI, causing flaky failures. Fix: assert individual fields and use `isKindOfClass:NSString.class` for `expires_in` (matching the pattern at line 398).
+
+**Finding 2 — 🟢 Suggestion: Make `allowedKeys` static**
+- **File:** `IdentityCore/src/broker_operation/response/browser_native_message_response/MSIDBrowserNativeMessageGetTokenResponse.m`
+- **Line:** 49
+- **Action:** info
+- **Source:** review-fresh-eyes (HIGH confidence)
+- **Details:** `allowedKeys` NSArray in `MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary` is re-created on every call. Declaring as `static NSArray *` (with `dispatch_once`) signals the list is an invariant contract. Not a performance issue (not a hot path), but communicates intent to maintainers.
+
+**Finding 3 — 🟢 Suggestion: Rename misleading `whenLegacyResponse` test**
+- **File:** `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m`
+- **Line:** 241
+- **Action:** info
+- **Source:** review-fresh-eyes (HIGH confidence)
+- **Details:** `testJsonDictionary_whenLegacyResponseSanitizationFlightEnabled_...` uses "Legacy" to mean the `operationTokenResponse` init path. Readers unfamiliar with this history will interpret "legacy" as "flight-disabled/old behavior." Consider `whenOperationTokenResponsePathWithSanitizationFlightEnabled`.
+
+**Finding 4 — ℹ️ Observation: Cached path needs explanatory comment**
+- **File:** `IdentityCore/src/broker_operation/response/browser_native_message_response/MSIDBrowserNativeMessageGetTokenResponse.m`
+- **Line:** 179
+- **Action:** info
+- **Source:** review-fresh-eyes (MEDIUM confidence)
+- **Details:** The `else` branch (cache hit, no `tokenResponse`) constructs the response from explicit per-field assignments — inherently an allow-list. The `sanitizeResponse` flag has no effect here, which is correct. A one-line comment like `// Cached path: explicit field construction is already an allow-list, no sanitization needed` would prevent maintainer confusion.
+
+### Summary
+- **1 finding requires fix** (🟡 self-referential test assertion — potential flakiness)
+- **3 findings are informational** (🟢/ℹ️ — improvements worth considering)
+- The core implementation is correct and well-tested per logic, standards, and privacy reviewers

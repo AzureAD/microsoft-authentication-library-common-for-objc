@@ -1,118 +1,71 @@
-Now let me read the full implementation files to understand the surrounding context:
+Now let me read the full implementation file and understand both code paths:
 
-Let me also check how `MSIDFlightManager.boolForKey:` behaves and the cached access-token code path:
+Let me read the base version and the test file to compare:
 
-I'll help you understand these three aspects of the codebase. Let me start by locating the relevant files.
+Now let me look at the cached path test more closely:
 
-Now let me read these files to answer all three questions:
+Now I have a thorough understanding of the changes. Let me also check if the `.forge` directory is supposed to be ignored:
 
-Now let me search for the actual string values of these constants:
+Now I have a complete understanding of the changes. Let me report my findings.
 
-Perfect! Let me get the constants file to see all the relevant mappings:
+Here are my findings from reviewing PR #1947:
 
-Excellent! Now I have all the information needed. Let me provide comprehensive answers to all three questions:
-
-## Summary of Findings
-
-### 1. **How `MSIDFlightManager`'s `boolForKey:` works and what it returns when the key is absent**
-
-**MSIDFlightManager.m (lines 138-153):**
-- The `boolForKey:` method **initializes `result` to `NO`** at line 140
-- It checks if a `flightProvider` is set (line 146)
-- If a provider exists, it delegates to `[flightProvider boolForKey:flightKey]`
-- **If no provider is set, or the key is not found, the method returns `NO`** (the default initialized value)
-
-**MSIDFlightManagerMockProvider.m (lines 30-33):**
-- The mock provider calls `[self.boolForKeyContainer[flightKey] boolValue]`
-- **When a key is absent**, dictionary lookup returns `nil`, and calling `boolValue` on `nil` returns **`NO`**
-- This confirms the same behavior: absent keys default to `NO`
-
-**Key insight:** Both the real manager and the mock provider follow a consistent pattern — any undefined/absent flight key safely defaults to `NO` (boolean false).
+**Summary**: This PR adds a flighted sanitization path for browser native GetToken responses, filtering out broker-internal fields behind `MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION`. The core logic is clean and correct — the allow-list approach is sound, the flight defaults to off, and both code paths are protected. I found a few issues, mostly in tests and repo hygiene.
 
 ---
 
-### 2. **Sanitization in the cached access-token path of `MSIDBrowserNativeMessageGetTokenResponse.jsonDictionary`**
+**Finding 1 — Self-referential `expires_in` test assertion** 🟡
 
-**Location:** MSIDBrowserNativeMessageGetTokenResponse.m, lines 179-208 (the `else` branch)
+**File**: `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m`, line ~438  
+**Confidence**: High
 
-**Answer: NO, sanitization does NOT apply in the cached access-token path.**
+The test `testJsonDictionary_whenCachedPathWithSanitizationFlightEnabled` builds `expectedJson` using `response.jsonDictionary[@"expires_in"]`, then asserts the full dict equals `response.jsonDictionary`. This means:
+1. `expires_in` is compared against itself — zero validation of correctness
+2. `jsonDictionary` is called twice; since `expires_in` is computed from `timeIntervalSinceNow`, the two calls can produce different values on slow CI, causing flaky failures
 
-- The `sanitizeResponse` boolean is set at line 130 based on the flight flag
-- When `tokenResponse` is `nil` but `accessToken` is present (lines 179-208), the code manually constructs the response dictionary WITHOUT calling `MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary()`
-- The fields are added directly:
-  - Line 184: `response[@"access_token"]` 
-  - Line 189: `response[@"token_type"]`
-  - Line 194: `response[@"id_token"]`
-  - Line 200: `response[@"scope"]`
-  - Lines 205-206: `response[@"expires_on"]` and `response[@"expires_in"]`
-
-**Critical difference:** The sanitization function (lines 47-67) only allows specific keys (`MSID_OAUTH2_ACCESS_TOKEN`, `MSID_OAUTH2_ID_TOKEN`, `MSID_OAUTH2_TOKEN_TYPE`, `MSID_OAUTH2_EXPIRES_IN`, `MSID_OAUTH2_EXPIRES_ON`, `MSID_OAUTH2_SCOPE`, `MSID_OAUTH2_REQUEST_CONFIRMATION`). In the else branch, these same fields are added by name with hardcoded string keys like `@"access_token"`, bypassing the sanitization check entirely. **This could be a potential security/validation gap if the `sanitizeResponse` flag is meant to enforce stricter output.**
+The existing pre-PR test correctly uses `isKindOfClass:NSString.class` for this time-dependent field. The new test should follow the same pattern — assert individual fields and use a type check for `expires_in`.
 
 ---
 
-### 3. **OAuth2 Constants and Their String Mappings**
+**Finding 2 — `.forge` directory committed to repository** 🟡
 
-All constants are defined in `MSIDOAuth2Constants.m`. Here are the key ones used in the sanitization function:
+**File**: `.forge/` (26 files)  
+**Confidence**: High
 
-| Constant | String Value |
-|----------|--------------|
-| `MSID_OAUTH2_ACCESS_TOKEN` | `@"access_token"` |
-| `MSID_OAUTH2_ID_TOKEN` | `@"id_token"` |
-| `MSID_OAUTH2_TOKEN_TYPE` | `@"token_type"` |
-| `MSID_OAUTH2_EXPIRES_IN` | `@"expires_in"` |
-| `MSID_OAUTH2_EXPIRES_ON` | `@"expires_on"` |
-| `MSID_OAUTH2_SCOPE` | `@"scope"` |
-| `MSID_OAUTH2_REQUEST_CONFIRMATION` | `@"req_cnf"` |
-
-✅ **Verification:** The constants map to the expected OAuth2 string keys as per the OAuth2 specification.
-
-Now I have a thorough understanding of the change. Let me report my findings:
-
-Now I'll report my findings. Let me use the report_finding format specified:
-
-Here are my review findings for PR #1947:
-
-**Finding 1 — Cached-token path ignores sanitization flag (🟡 Concern)**
-
-In `jsonDictionary`, the `else` branch (line ~179) that builds the response from a cached `MSIDAccessToken` never consults the `sanitizeResponse` boolean. The flag is read at line 130 but only used in the two `tokenResponse`-present branches. While the manual construction currently only emits allow-listed fields by design, the sanitization intent isn't enforced — if a future change adds a field to this `else` branch, it silently bypasses the flight gate. This also creates a semantic inconsistency: reading the flight at the top implies all paths respect it.
-
-**File:** `IdentityCore/src/broker_operation/response/browser_native_message_response/MSIDBrowserNativeMessageGetTokenResponse.m`  
-**Line:** 179  
-**Confidence:** high  
-**Action:** fix — add a code comment documenting why the else branch is inherently safe (it only emits known contract fields), or restructure so the sanitization function is consistently applied.
-
-**Finding 2 — No test for cached-access-token path with flight enabled (🟢 Suggestion)**
-
-All flight-enabled tests route through branches where `tokenResponse` is non-nil. The cached-access-token code path (where `tokenResponse` is nil, `accessToken` is present — exercised by `testJsonDictionary_whenAccessTokenComesFromCache_shouldBuildResponseFromResult`) is only tested with the flight implicitly off. Adding a flight-enabled variant of this test would document the expected behavior and guard against regressions if the cached path is later modified.
-
-**File:** `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m`  
-**Line:** null  
-**Confidence:** high
-
-**Finding 3 — No diagnostic logging when sanitization strips fields (🟢 Suggestion)**
-
-When the flight is enabled and `MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary()` filters the token response, there is no log entry indicating sanitization was active. If a browser caller breaks because a field they depended on was removed, diagnosing the issue would require code-level investigation. A single debug-level log like `MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Browser GetToken response sanitization enabled")` (no token/PII values) would aid production debugging.
-
-**File:** `IdentityCore/src/broker_operation/response/browser_native_message_response/MSIDBrowserNativeMessageGetTokenResponse.m`  
-**Line:** 130  
-**Confidence:** medium
-
-**Finding 4 — Flight-disabled test doesn't verify sensitive fields pass through (🟢 Suggestion)**
-
-`testJsonDictionary_whenResponseSanitizationFlightDisabled_shouldPreserveLegacyPassthrough` only asserts a single arbitrary key (`future_server_field`). Including sensitive fields like `refresh_token`, `client_info`, and `foci` in the mock response and asserting they ARE present when the flight is OFF would make this a stronger regression test — proving the flight-off path preserves the exact legacy behavior the bug describes.
-
-**File:** `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m`  
-**Line:** null  
-**Confidence:** high
-
-**Finding 5 — Legacy `operationTokenResponse` path has no explicit flight-disabled test (ℹ️ Observation)**
-
-The `testJsonDictionary_whenInitializedWithLegacyTokenResponse_shouldPreserveLegacyShape` test doesn't set up a flight provider, so the flight is implicitly OFF. While functionally equivalent, there's no test that explicitly sets the flight to `@NO` for this code path (like the tokenResult tests do). This means the tests don't prove that explicit `@NO` behaves identically to absent for the legacy initializer path.
-
-**File:** `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m`  
-**Line:** null  
-**Confidence:** medium
+26 files under `.forge/` are included in this PR. These are Forge pipeline review/fix artifacts (HTML status pages, JSON logs, prompt/result text files). They are internal CI tooling outputs, not source code, and the repo's `.gitignore` has no `.forge` entry. These files should be removed from the PR and `.forge/` should be added to `.gitignore`.
 
 ---
 
-**Summary:** The core sanitization logic is sound — the allow-list approach is correct and the security fix is well-structured. The main concern is that the cached-access-token code path doesn't enforce the sanitization flag, creating an inconsistency that could lead to future regressions. Test coverage is good but has gaps around the cached-token path with flight enabled and explicit sensitive-field passthrough verification.
+**Finding 3 — `allowedKeys` array allocated on every sanitization call** 🟢
+
+**File**: `IdentityCore/src/broker_operation/response/browser_native_message_response/MSIDBrowserNativeMessageGetTokenResponse.m`, line ~49  
+**Confidence**: High
+
+The `allowedKeys` NSArray inside `MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary` is re-created on every invocation. Declaring it as `static NSArray *` (initialized once via `dispatch_once` or `static` initialization) would avoid the repeated allocation and make the intent clearer — this is a fixed, compile-time contract list. Not a performance concern in practice (this isn't a hot path), but it would signal to future maintainers that the list is deliberate and invariant.
+
+---
+
+**Finding 4 — No test for nil token response with sanitization flight enabled** 🟢
+
+**File**: `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m`  
+**Confidence**: Medium
+
+`testJsonDictionary_whenTokenResponseDictionaryIsNil_shouldReturnNil` runs without a flight provider (flight defaults to off). Code inspection shows the nil check precedes the sanitization branch, so enabling the flight wouldn't change the outcome. However, adding a test case with sanitization enabled + nil token response would defend against future refactoring that might reorder the nil check and the sanitization call.
+
+---
+
+**Finding 5 — Cached access-token path silently ignores the sanitization flag** ℹ️
+
+**File**: `IdentityCore/src/broker_operation/response/browser_native_message_response/MSIDBrowserNativeMessageGetTokenResponse.m`, lines ~175-210  
+**Confidence**: Medium
+
+The `else` branch (cache hit, no `tokenResponse`) constructs the response from explicit per-field assignments, which is inherently an allow-list and therefore safe. The `sanitizeResponse` flag is read at the top of the method but has no effect on this path. This is correct behavior, but there's no code comment explaining why — a future maintainer might wonder if sanitization was accidentally omitted. A one-line comment like `// Cached path: explicit field construction is already an allow-list, no sanitization needed` would prevent confusion.
+
+---
+
+**Finding 6 — Test name `whenLegacyResponse...` is misleading** 🟢
+
+**File**: `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m`, line ~241  
+**Confidence**: High
+
+The test `testJsonDictionary_whenLegacyResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` uses the name "LegacyResponse" to describe the `operationTokenResponse` code path, while `testJsonDictionary_whenResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` tests the `tokenResult` code path. The word "Legacy" here refers to the `initWithTokenResponse:` initializer (as opposed to the newer `initWithTokenResult:` one), but a reader unfamiliar with this history would interpret "legacy" as "flight disabled / old behavior." Consider naming it `whenOperationTokenResponsePathWithSanitizationFlightEnabled` to match the code structure.

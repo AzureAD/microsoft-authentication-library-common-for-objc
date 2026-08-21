@@ -1,62 +1,48 @@
-Now let me check the flight constant conventions and the source files more carefully.
+Now I have all the information I need. Let me verify the `.forge/` directory situation and emit findings.
 
-Now I have the complete picture. Let me emit findings for the validate-pr scan.
+Now let me emit the findings for the validation loop:
 
-Now I have all the data I need. Let me emit the findings.
+Based on my thorough analysis of PR #1947, here are my validation findings:
 
-Here is my validate-pr analysis for PR #1947:
+## Validate-PR Findings for PR #1947
 
-**PBI**: AB#3661547 — Sanitize browser native GetToken responses behind a flight
-**Repo**: AzureAD/microsoft-authentication-library-common-for-objc
-**Changes**: +185 −4 across 4 files
+**PBI**: AB#3661547 — Information disclosure in `MSIDBrowserNativeMessageGetTokenResponse.jsonDictionary`
 
-### Acceptance Criteria — All 9 criteria addressed ✅
+### Acceptance Criteria Status
 
-All PBI requirements are met:
-- ✅ Flight constant `MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION` added consistently with existing constants
-- ✅ Disabled by default; absent/false values preserve legacy behavior (tested)
-- ✅ Flight queried once at top of `jsonDictionary`
-- ✅ Allow-list approach (not copy-and-remove) — 7 contract fields only
-- ✅ Sensitive fields (`refresh_token`, `client_info`, `foci`, `adi`, `provider_type`, `additionalServerInfo`) excluded
-- ✅ `account`, `state`, `properties` wrappers preserved in both code paths
-- ✅ No PII logging added
-- ✅ No public API changes outside flighted path
+All 9 acceptance criteria from the PBI are **✅ Addressed**:
 
-### File Coverage — All expected files present ✅
+| # | Criterion | Status | Evidence |
+|---|-----------|--------|----------|
+| 1 | Follow repo instructions strictly | ✅ | Braces on new lines, `MSID` prefix, dot notation |
+| 2 | Add flight constant `MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION` | ✅ | `MSIDConstants.h:277-280`, `MSIDConstants.m:120` |
+| 3 | Flight disabled by default via `MSIDFlightManager` | ✅ | Uses `boolForKey:` which defaults to NO |
+| 4 | Query flight once in `jsonDictionary` | ✅ | Single `boolForKey:` call at top of method |
+| 5 | Allow-list approach (not copy-and-remove) | ✅ | `MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary` iterates explicit allow-list |
+| 6 | Correct allow-list: `access_token`, `id_token`, `token_type`, `expires_in`, `expires_on`, `scope`, `req_cnf` | ✅ | Matches exactly |
+| 7 | Preserve `account`, `state`, `properties` wrappers | ✅ | Both code paths preserve wrappers after sanitization |
+| 8 | No PII logging added | ✅ | No new logging of sensitive data |
+| 9 | No public API changes outside flighted path | ✅ | Ternary preserves legacy path when flight is off |
 
-| Expected | In PR? |
-|---|---|
-| MSIDConstants.h | ✅ |
-| MSIDConstants.m | ✅ |
-| MSIDBrowserNativeMessageGetTokenResponse.m | ✅ |
-| MSIDBrowserNativeMessageGetTokenResponseTests.m | ✅ |
+### Test Coverage
 
-No unexpected files changed.
-
-### Convention Checks
-
-| Check | Status |
-|---|---|
-| Tests included | ✅ 6 new test cases covering enabled/disabled/absent/nil/both-paths |
-| Feature flag gating | ✅ Behind `MSIDFlightManager` flight |
-| CI status | 🟡 Core pipelines pass; 4 external submodule checks still pending |
+| Test | Status |
+|------|--------|
+| tearDown resets flight provider | ✅ |
+| Flight enabled — only allow-listed fields emitted | ✅ |
+| Flight disabled — legacy passthrough preserved | ✅ |
+| Absent flight value — legacy passthrough preserved | ✅ |
+| Nil token response — returns nil | ✅ |
+| Legacy (operationTokenResponse) path with flight | ✅ |
+| Cached result path with flight | ✅ |
+| Existing UPN fallback coverage preserved | ✅ |
 
 ### Findings
 
-I have two concerns to flag:
+**🔴 Blocking: 26 `.forge/` artifacts committed to the PR.** The PR includes Forge loop internal artifacts (`.forge/loops/`, `.forge/output/`) — prompt logs, review results, status files. These are internal tooling artifacts that should not be merged into the repository. They inflate the PR to +3830 lines when the actual code change is only +238/-4 across 4 files, and triggered the PR Size Check failure.
 
-**1. Missing `/// Owner:` tag on flight constant** (🟡 Concern)
+**🟡 Concern: CI "PR Size Check" failed** — likely caused by the `.forge/` artifacts inflating the changeset to 30 files. Once artifacts are removed, the actual change is 4 files and should pass.
 
-Every neighboring flight constant in `MSIDConstants.h` (lines 254–316) includes a `/// Owner: <alias>` comment. The new constant at line 277–279 is missing this tag. This is important for accountability — when the flight needs to be promoted/rolled-back, the owner tag tells the on-call who to contact.
+**🟡 Concern: Several CI checks still in progress** — Broker submodule check, MSAL submodule check, Common Core iOS validation, and MSAL C++ subtree checks are queued or running. Final CI status is unknown.
 
-**2. Weaker assertion on operationTokenResponse-path flight test** (🟡 Concern)
-
-`testJsonDictionary_whenResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` uses full dictionary equality (`XCTAssertEqualObjects(expectedJson, response.jsonDictionary)`) — excellent. But the other code path's test `testJsonDictionary_whenLegacyResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` only spot-checks individual keys (`XCTAssertNil(json[@"refresh_token"])`), which wouldn't catch a future key leak. Consider adding a full dictionary equality assertion for parity.
-
-**3. CI still pending** (ℹ️)
-
-Core pipelines pass (Common Core PR Validation ✅, MSAL submodule ✅, CodeQL ✅, Changelogs ✅). Broker submodule and MSAL C++ subtree checks still pending.
-
-### Summary
-
-**Overall**: 🟢 Looks good — implementation is clean and meets all acceptance criteria. Human reviewer should verify the two 🟡 items: add an `/// Owner:` tag and consider strengthening the `operationTokenResponse`-path test assertion.
+**🟢 Info: Implementation is correct and surgical.** The actual code change (4 files) is well-scoped, uses an allow-list approach as required, and covers both code paths (`operationTokenResponse` and legacy `tokenResponse`). The cached-result path is inherently safe since it constructs from individual fields.

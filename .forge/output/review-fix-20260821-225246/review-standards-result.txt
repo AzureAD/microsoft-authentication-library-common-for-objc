@@ -1,41 +1,34 @@
-Now let me look at the full changed files and verify sibling patterns:
+Now let me examine the actual source files to verify conventions in context.
 
-Let me verify the test name concern by examining the init methods and code paths more carefully:
+Now let me check the test file and look at the existing test patterns for comparison:
 
-Now I have a clear understanding of the naming convention. The existing test `testJsonDictionary_whenInitializedWithLegacyTokenResponse_shouldPreserveLegacyShape` at line 130 uses `initWithTokenResponse:` (broker/operation path) and calls it "Legacy." So the new test naming is actually **consistent** with the existing convention — "Legacy" refers to the `initWithTokenResponse:` init path.
+I've now completed a thorough review of all 4 changed code files against the coding guidelines in `.clinerules/01-Code-style-guidelines.md`. Here's my assessment:
 
-Let me verify one final thing — the `/// Owner:` pattern:
+**Convention Compliance — All pass:**
+- ✅ Opening braces on new line throughout all new code
+- ✅ 4-space indentation (no tabs)
+- ✅ All conditionals use braces
+- ✅ `MSID` prefix on the new static function and flight constant
+- ✅ Dot notation for property access (`MSIDFlightManager.sharedInstance`)
+- ✅ Pointer asterisks attached to variable names
+- ✅ Constants declared as `static`/`extern` with proper pattern
+- ✅ Imports not grouped (flat style matches repo convention)
+- ✅ `_Nonnull` qualifier in `.h` matches sibling declarations
+- ✅ `.m` definition matches sibling pattern (no `_Nonnull`)
 
-## Review Summary — PR #1947
+**Companion Files — Complete:**
+- ✅ Tests added in `MSIDBrowserNativeMessageGetTokenResponseTests.m` covering flight-enabled, flight-disabled, absent-flight, legacy path, cached path, and nil-response scenarios
+- ✅ `tearDown` resets the flight provider to prevent test pollution
+- ✅ No new public API; only internal behavior change
 
-**Clean review** with one minor observation.
+**Migration Completeness — Complete:**
+- ✅ Flight constant declared in `.h` and defined in `.m`
+- ✅ Both code paths in `jsonDictionary` (operationTokenResponse and tokenResult) apply sanitization
+- ✅ The cached-access-token-only path doesn't need sanitization (it manually constructs the response from typed properties, no arbitrary server fields pass through)
 
-### Conventions Verified ✅
-- **Opening braces on new line**: All control flow and function definitions comply
-- **4-space indentation**: Consistent throughout
-- **Braces on all conditionals**: Every `if` has braces, even single-line bodies
-- **MSID prefix**: Function name `MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary` and constant name follow convention
-- **Error handling**: Checks return values (`if (!tokenResponseJson)`), not error variables
-- **Dot notation**: Uses `MSIDFlightManager.sharedInstance` properly
-- **Pointer asterisk placement**: Attached to variable names (`NSString *key`, `NSDictionary *tokenResponseJson`)
-- **Constants pattern**: `extern NSString * _Nonnull const` in .h, `NSString *const` in .m — matches siblings
-- **Imports not grouped**: New `#import` lines follow existing flat style
+**Blast Radius — Low:**
+- Change is surgical — only `jsonDictionary` in one class
+- Gated behind a disabled-by-default flight flag
+- No public API surface changes
 
-### Companion Files ✅
-- Tests added in `MSIDBrowserNativeMessageGetTokenResponseTests.m` covering enabled, disabled, absent, nil-response, and both init paths
-- `tearDown` properly resets `flightProvider` to avoid test pollution
-- Test naming follows existing file convention (e.g., "Legacy" = `initWithTokenResponse:` path, matching `testJsonDictionary_whenInitializedWithLegacyTokenResponse_shouldPreserveLegacyShape` at line 130)
-
-### Migration Completeness ✅
-- Constant declared in `.h` and defined in `.m`
-- Flight gating applied to both code paths in `jsonDictionary` (operationTokenResponse and legacy)
-
-### Blast Radius ✅
-- Changes scoped to one method (`jsonDictionary`) in one class
-- Flight disabled by default — zero behavior change at merge
-
-### Observation
-
-**Missing `/// Owner:` comment** — The four immediately preceding browser-core flight constants (lines 264–275) all include `/// Owner: <alias>` comments. The new constant at line 277 has a description comment but no owner. Since this PR was authored by an agent, a human owner should be assigned before merge to maintain the sibling pattern.
-
-No actionable findings. This is a clean, well-structured change.
+**No issues found.** The code changes follow all documented conventions, have complete companion tests, and the migration is thorough across both serialization paths. This is a clean review.
