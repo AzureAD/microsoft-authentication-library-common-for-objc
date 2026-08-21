@@ -314,3 +314,47 @@
 [23:22:58] [ERR ] [#1947] [run-tests] Attempt 1 failed: Step 'run-tests' references test suite 'unit' which is not defined in forge.json testSuites
 [23:22:58] [WARN] [#1947] [run-tests] Retrying step (attempt 2/3) after 5000ms...
 [23:22:58] [INFO] [#1947] [fix-tests] Waiting for dependencies: [run-tests]
+[23:23:01] [ OK ] [#1947] [commit-push] Exit code 0 (expected 0)
+[23:23:01] [ OK ] [#1947] [commit-push] Completed (255 chars, 14:38)
+[23:23:03] [INFO] [#1947] [run-tests] Starting step 'run-tests' (agent: unit)
+[23:23:03] [INFO] [#1947] [run-tests] Executing step 'run-tests' as testSuite
+[23:23:03] [INFO] [#1947] [run-tests] Running test suite 'unit' (type: )
+[23:23:03] [ERR ] [#1947] [run-tests] Attempt 2 failed: Step 'run-tests' references test suite 'unit' which is not defined in forge.json testSuites
+[23:23:03] [WARN] [#1947] [run-tests] Retrying step (attempt 3/3) after 10000ms...
+[23:23:13] [INFO] [#1947] [run-tests] Starting step 'run-tests' (agent: unit)
+[23:23:13] [INFO] [#1947] [run-tests] Executing step 'run-tests' as testSuite
+[23:23:13] [INFO] [#1947] [run-tests] Running test suite 'unit' (type: )
+[23:23:13] [ERR ] [#1947] [run-tests] Attempt 3 failed: Step 'run-tests' references test suite 'unit' which is not defined in forge.json testSuites
+[23:23:13] [ERR ] [#1947] [run-tests] Failed after 3 attempts
+[23:23:13] [ERR ] [#1947] [run-tests] FAILED: Step 'run-tests' references test suite 'unit' which is not defined in forge.json testSuites — aborting DAG
+[23:23:13] [WARN] [#1947] [Loop] DAG failed on iteration 1 — restarting server and retrying: DAG aborted: step 'run-tests' failed after retry
+[23:23:13] [WARN] [#1947] [CopilotServer] Restarting Copilot server...
+[23:23:13] [INFO] [#1947] [CopilotServer] Stopping Copilot server...
+[23:23:13] [INFO] [#1947] [CopilotServer] Starting Copilot headless server on port 63567...
+[23:23:13] [INFO] [#1947] [CopilotServer] Waiting for server ready on port 63567...
+[23:23:15] [ OK ] [#1947] [CopilotServer] Server started on port 63567 (PID 99578)
+[23:23:18] [INFO] [#1947] [DAG] Starting DAG execution (2 steps, concurrency 4)
+[23:23:18] [INFO] [#1947] [run-tests] Starting step 'run-tests' (agent: unit)
+[23:23:18] [INFO] [#1947] [run-tests] Executing step 'run-tests' as testSuite
+[23:23:18] [INFO] [#1947] [run-tests] Running test suite 'unit' (type: )
+[23:23:18] [ERR ] [#1947] [run-tests] Attempt 1 failed: Step 'run-tests' references test suite 'unit' which is not defined in forge.json testSuites
+[23:23:18] [WARN] [#1947] [run-tests] Retrying step (attempt 2/3) after 5000ms...
+[23:23:18] [INFO] [#1947] [fix-tests] Waiting for dependencies: [run-tests]
+[23:23:23] [INFO] [#1947] [run-tests] Starting step 'run-tests' (agent: unit)
+[23:23:23] [INFO] [#1947] [run-tests] Executing step 'run-tests' as testSuite
+[23:23:23] [INFO] [#1947] [run-tests] Running test suite 'unit' (type: )
+[23:23:23] [ERR ] [#1947] [run-tests] Attempt 2 failed: Step 'run-tests' references test suite 'unit' which is not defined in forge.json testSuites
+[23:23:23] [WARN] [#1947] [run-tests] Retrying step (attempt 3/3) after 10000ms...
+[23:23:33] [INFO] [#1947] [run-tests] Starting step 'run-tests' (agent: unit)
+[23:23:33] [INFO] [#1947] [run-tests] Executing step 'run-tests' as testSuite
+[23:23:33] [INFO] [#1947] [run-tests] Running test suite 'unit' (type: )
+[23:23:33] [ERR ] [#1947] [run-tests] Attempt 3 failed: Step 'run-tests' references test suite 'unit' which is not defined in forge.json testSuites
+[23:23:33] [ERR ] [#1947] [run-tests] Failed after 3 attempts
+[23:23:33] [ERR ] [#1947] [run-tests] FAILED: Step 'run-tests' references test suite 'unit' which is not defined in forge.json testSuites — aborting DAG
+[23:23:33] [ERR ] [#1947] [Loop] DAG retry also failed on iteration 1: DAG aborted: step 'run-tests' failed after retry
+[23:23:33] [ERR ] [#1947] [Loop] DAG failed on iteration 1: DAG aborted: step 'run-tests' failed after retry
+[23:23:33] [ OK ] [#1947] [test-fix] Completed (65 chars, 15:11)
+[23:23:33] [INFO] [#1947] [commit-push-tests] Starting step 'commit-push-tests' (agent: unknown)
+[23:23:33] [INFO] [#1947] [commit-push-tests] Executing step 'commit-push-tests' as command
+[23:23:33] [INFO] [#1947] [commit-push-tests] Running command: git add -A && (git diff --cached --quiet && echo NO_CHANGES || (git commit -m "fix: address test failures (Forge review-fix)" --trailer "Co-authored-by: Forge <forge-bot@entra.github.io>" --trailer "Forge-Agent: Coder" && git push origin HEAD))
+[23:23:33] [INFO] [#1947] [commit-push-tests] Running: git add -A && (git diff --cached --quiet && echo NO_CHANGES || (git commit -m "fix: address test failures (Forge review-fix)" --trailer "Co-authored-by: Forge <forge-bot@entra.github.io>" --trailer "Forge-Agent: Coder" && git push origin HEAD))
