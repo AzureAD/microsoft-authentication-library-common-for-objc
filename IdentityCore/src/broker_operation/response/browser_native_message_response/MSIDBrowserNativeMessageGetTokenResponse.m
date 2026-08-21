@@ -34,6 +34,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDBrowserNativeMessageGetTokenResponse()
 
@@ -41,6 +43,28 @@
 @property (nonatomic) MSIDTokenResult *tokenResult;
 
 @end
+
+static NSDictionary *MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary(NSDictionary *tokenResponseJson)
+{
+    NSArray<NSString *> *allowedKeys = @[MSID_OAUTH2_ACCESS_TOKEN,
+                                         MSID_OAUTH2_ID_TOKEN,
+                                         MSID_OAUTH2_TOKEN_TYPE,
+                                         MSID_OAUTH2_EXPIRES_IN,
+                                         MSID_OAUTH2_EXPIRES_ON,
+                                         MSID_OAUTH2_SCOPE,
+                                         MSID_OAUTH2_REQUEST_CONFIRMATION];
+    NSMutableDictionary *sanitizedResponse = [NSMutableDictionary new];
+    for (NSString *key in allowedKeys)
+    {
+        id value = tokenResponseJson[key];
+        if (value)
+        {
+            sanitizedResponse[key] = value;
+        }
+    }
+
+    return sanitizedResponse;
+}
 
 @implementation MSIDBrowserNativeMessageGetTokenResponse
 
@@ -103,15 +127,21 @@
 // placeholder values. The account, state, and properties blocks are shared across both sources.
 - (NSDictionary *)jsonDictionary
 {
+    BOOL sanitizeResponse = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION];
+
     if (self.operationTokenResponse)
     {
         MSIDTokenResponse *tokenResponse = self.operationTokenResponse.tokenResponse;
-        NSMutableDictionary *response = [[tokenResponse jsonDictionary] mutableCopy];
-        if (!response)
+        NSDictionary *tokenResponseJson = [tokenResponse jsonDictionary];
+        if (!tokenResponseJson)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create token json response.");
             return nil;
         }
+
+        NSMutableDictionary *response = sanitizeResponse
+        ? [MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary(tokenResponseJson) mutableCopy]
+        : [tokenResponseJson mutableCopy];
 
         NSMutableDictionary *accountJson = [NSMutableDictionary new];
         accountJson[@"userName"] = tokenResponse.accountUpn ?: self.requestAccountUpn;
@@ -135,12 +165,16 @@
     NSMutableDictionary *response;
     if (tokenResponse)
     {
-        response = [[tokenResponse jsonDictionary] mutableCopy];
-        if (!response)
+        NSDictionary *tokenResponseJson = [tokenResponse jsonDictionary];
+        if (!tokenResponseJson)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create token json response.");
             return nil;
         }
+
+        response = sanitizeResponse
+        ? [MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary(tokenResponseJson) mutableCopy]
+        : [tokenResponseJson mutableCopy];
     }
     else
     {
