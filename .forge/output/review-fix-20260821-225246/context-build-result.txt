@@ -1,0 +1,418 @@
+Now let me explore the changed files and their surrounding context in depth.
+
+I'll systematically explore this codebase to answer all 10 questions. Let me start with parallel searches and file reads for the key components.
+
+Great! Now let me read the key files in parallel:
+
+Now let me read the MSIDFlightManager files and related files in parallel:
+
+Now let me search for MSIDTokenResponse to see the jsonDictionary implementation and find the OAuth2 constants:
+
+Now let me find the code style guidelines and check the sibling files:
+
+Perfect! Now I have all the information needed. Let me compile comprehensive answers to all 10 questions:
+
+## Comprehensive Analysis of the PR: Response Sanitization for MSIDBrowserNativeMessageGetTokenResponse
+
+---
+
+### **1. MSIDBrowserNativeMessageGetTokenResponse.m — Full File Analysis**
+
+**All Methods:**
+- `initWithTokenResponse:` (lines 71-86) — Initializer from broker operation token response
+- `initWithTokenResult:state:fallbackRequestAccountUpn:` (lines 89-108) — Designated initializer from canonical token result
+- `initWithJSONDictionary:error:` (lines 117-120) — Deserialization (intentionally throws exception)
+- `jsonDictionary` (lines 128-262) — Core serialization method
+
+**Two Code Paths in jsonDictionary (lines 128-262):**
+
+1. **operationTokenResponse Path (lines 132-159):** Uses legacy `MSIDBrokerOperationTokenResponse`
+   - Gets tokenResponse from `self.operationTokenResponse.tokenResponse`
+   - Calls `tokenResponse.jsonDictionary` for OAuth fields
+   - Applies sanitization if flight is enabled (lines 142-144)
+   - Constructs account block with userName and id
+   - Adds state echo and properties with UPN
+
+2. **Legacy tokenResult Path (lines 161-261):** New canonical path using `MSIDTokenResult`
+   - Split logic: If tokenResponse exists, use its jsonDictionary (lines 166-177); otherwise build from accessToken (lines 180-207)
+   - Constructs account identifiers from tokenResponse or from tokenResult.account (lines 210-234)
+   - Conditionally adds account, state, and properties blocks only when non-empty (lines 231-259)
+
+**Account, State, and Properties Wrapper Construction:**
+
+```objc
+// operationTokenResponse path (lines 146-156):
+accountJson[@"userName"] = tokenResponse.accountUpn ?: self.requestAccountUpn;
+accountJson[@"id"] = tokenResponse.accountIdentifier;
+response[@"account"] = accountJson;
+response[@"state"] = self.state;
+propertiesJson[@"UPN"] = accountJson[@"userName"];
+propertiesJson[@"MATS"] = [self.matsReport jsonString];
+response[@"properties"] = propertiesJson;
+
+// tokenResult path (lines 220-234, 237-239, 243-259):
+account[@"id"] = accountId;
+account[@"userName"] = userName;
+response[@"account"] = account;  // Only if count > 0
+response[@"state"] = self.state; // Only if not nil/blank
+propertiesJson[@"UPN"] = userName;
+propertiesJson[@"MATS"] = [self.matsReport jsonString]; // Only if exists
+response[@"properties"] = propertiesJson; // Only if count > 0
+```
+
+---
+
+### **2. MSIDBrowserNativeMessageGetTokenResponse.h — Public Interface**
+
+**Public Properties:**
+- `state: NSString *` (line 52) — Browser native message state echo
+- `requestAccountUpn: NSString *` (line 53) — Fallback account UPN for response shaping
+- `matsReport: MSIDBrokerOperationBrowserNativeMessageMATSReport *` (line 54) — MATS report for properties block
+
+**Public Methods/Initializers:**
+- `initWithTokenResponse:` (line 39) — Compatibility initializer for legacy callers; designated initializer
+- `initWithTokenResult:state:fallbackRequestAccountUpn:` (lines 48-50) — New designated initializer from canonical token result; convenience properties for state and fallback UPN
+- Inherited `jsonDictionary` from parent class
+
+**Designated Initializers:**
+- Both `initWithTokenResponse:` and `initWithTokenResult:state:fallbackRequestAccountUpn:` are marked as `NS_DESIGNATED_INITIALIZER`
+
+---
+
+### **3. MSIDConstants.h and MSIDConstants.m — Flight Constant Placement**
+
+**New Constant Location:**
+- **Header** (MSIDConstants.h, line 279): `extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION;`
+- **Implementation** (MSIDConstants.m, line 120): `NSString *const MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION = @"browser_gettoken_response_sanitization";`
+
+**Neighboring Flight Constants (lines 114-279 in .h, lines 114-120 in .m):**
+
+**Before:**
+- Line 275 (h), 118 (m): `MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION` = `@"browser_core_disable_reqcnf_validation"`
+
+**New Constant (with documentation):**
+- Line 277-279 (h), 120 (m): `MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION` = `@"browser_gettoken_response_sanitization"`
+  - Documentation: "Staged rollout for sanitizing token endpoint fields exposed in browser native GetToken responses. Default: OFF until ECS enables it. Enabling removes fields outside the browser response contract; disable to roll back."
+
+**After:**
+- Line 281 (h), 122 (m): `MSID_DOMAIN_HINT_KEY` = `@"domain_hint"`
+
+**Naming Conventions Observed:**
+- Pattern: `MSID_FLIGHT_[ENABLE|DISABLE|SUPPORT|USE|...][FEATURE_NAME]`
+- String values are lowercase with underscores (e.g., `@"browser_gettoken_response_sanitization"`)
+- **Placement is CORRECT**: Chronologically ordered with browser-related flights at the end (lines 268-279)
+
+---
+
+### **4. MSIDFlightManager — Implementation Details**
+
+**File Locations:**
+- Header: `IdentityCore/src/MSIDFlightManager.h`
+- Implementation: `IdentityCore/src/MSIDFlightManager.m`
+
+**boolForKey: Method (lines 138-153 in .m):**
+
+```objc
+- (BOOL)boolForKey:(nonnull NSString *)flightKey
+{
+    __block BOOL result = NO;  // Default is NO
+    dispatch_sync(self.synchronizationQueue, ^{
+        id<MSIDFlightManagerInterface> flightProvider = self->_flightProvider;
+        if (flightProvider)
+        {
+            result = [flightProvider boolForKey:flightKey];
+        }
+    });
+    return result;
+}
+```
+
+**Key Behavior:**
+- **Absent Key vs Explicitly NO:** **NOT distinguishable** — both return `NO`
+  - When `flightProvider` is nil: returns `NO` (line 140)
+  - When key is absent from provider: returns `NO` (delegated to provider)
+  - When key is explicitly set to NO: returns `NO` (delegated to provider)
+- Returns to synchronization queue to avoid race conditions with barrier write in `setFlightProvider:`
+- Thread-safe: Uses `dispatch_sync` to read provider within synchronized queue
+
+---
+
+### **5. MSIDFlightManagerMockProvider — Mock Implementation**
+
+**File Locations:**
+- Header: `IdentityCore/tests/mocks/MSIDFlightManagerMockProvider.h`
+- Implementation: `IdentityCore/tests/mocks/MSIDFlightManagerMockProvider.m`
+
+**Properties:**
+- `boolForKeyContainer: NSDictionary *` (line 32 in .h) — Dictionary storing boolean flight values
+- `stringForKeyContainer: NSDictionary *` (line 33 in .h) — Dictionary storing string flight values
+
+**How It Works:**
+```objc
+// Implementation (MSIDFlightManagerMockProvider.m, lines 30-33)
+- (BOOL)boolForKey:(NSString *)flightKey
+{
+    return [self.boolForKeyContainer[flightKey] boolValue];
+}
+```
+- `boolForKeyContainer` is a simple NSDictionary mapping flight keys to NSNumber @YES/@NO values
+- When a key is absent: `boolForKeyContainer[flightKey]` returns nil, `[nil boolValue]` returns NO
+- When key is present: extracts NSNumber and calls `boolValue` on it
+
+**Usage in Tests:**
+- Tests set `flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION: @YES}` or `@NO`
+- Allows fine-grained control over which flights are enabled per test
+
+---
+
+### **6. MSIDTokenResponse jsonDictionary**
+
+**File:** `IdentityCore/src/oauth2/MSIDTokenResponse.m`
+
+**Implementation (partial, from grep output):**
+```objc
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    if (self.additionalServerInfo) [json addEntriesFromDictionary:self.additionalServerInfo];
+    
+    if (self.error) {
+        json[MSID_OAUTH2_ERROR] = self.error;
+        json[MSID_OAUTH2_ERROR_DESCRIPTION] = [self.errorDescription msidURLEncode];
+        if (self.stsErrorCodes) json[MSID_OAUTH2_ERROR_CODES] = self.stsErrorCodes;
+    }
+    else {
+        json[MSID_OAUTH2_ACCESS_TOKEN] = self.accessToken;
+        json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
+        json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
+        json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
+        json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
+        json[MSID_OAUTH2_SCOPE] = self.scope;
+        json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
+        json[MSID_OAUTH2_REQUEST_CONFIRMATION] = self.requestConf;
+    }
+    
+    json[MSID_OAUTH2_STATE] = self.state;
+    json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.class.providerType);
+    json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
+    
+    return json;
+}
+```
+
+**Fields Included (on success path):**
+- **Base OAuth Fields:** `access_token`, `refresh_token`, `expires_in`, `expires_on`, `token_type`, `scope`, `id_token`, `req_cnf`
+- **Additional Fields:** `state`, `provider_type` (JSON key), `broker_client_app_version` (JSON key)
+- **additionalServerInfo:** All fields from server response (can include `client_info`, `foci`, `adi`, etc.)
+
+**Does NOT directly include in the method, but can be present in additionalServerInfo:**
+- `client_info`, `foci`, and other server fields are passed through via `additionalServerInfo` dictionary
+
+---
+
+### **7. MSID_OAUTH2_* Constants — String Values**
+
+**From MSIDOAuth2Constants.m:**
+
+```objc
+MSID_OAUTH2_ACCESS_TOKEN       = @"access_token"
+MSID_OAUTH2_ID_TOKEN           = @"id_token"
+MSID_OAUTH2_TOKEN_TYPE         = @"token_type"
+MSID_OAUTH2_EXPIRES_IN         = @"expires_in"
+MSID_OAUTH2_EXPIRES_ON         = @"expires_on"
+MSID_OAUTH2_SCOPE              = @"scope"
+MSID_OAUTH2_REQUEST_CONFIRMATION = @"req_cnf"
+```
+
+**These are the 7 fields whitelisted by the sanitization function** (lines 49-55 in MSIDBrowserNativeMessageGetTokenResponse.m).
+
+---
+
+### **8. Test File — MSIDBrowserNativeMessageGetTokenResponseTests.m**
+
+**File Location:** `IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m`
+
+**MSIDTokenResponseMock Definition (lines 41-62):**
+```objc
+@interface MSIDTokenResponseMock : MSIDTokenResponse
+@property (nonatomic) NSDictionary *responseJson;
+@property (nonatomic) BOOL returnNilAccounUpn;  // Note: typo in property name "Accoun"
+@end
+
+@implementation MSIDTokenResponseMock
+- (NSString *)accountUpn
+{
+    if (self.returnNilAccounUpn) return nil;
+    return [super accountUpn];
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    return self.responseJson;
+}
+@end
+```
+
+**Existing Tests (8 test methods):**
+
+1. **testResponseType_shouldBeGenericResponse** (line 83) — Verifies response type is generic
+2. **testInitWithTokenResult_whenNoAccessTokenOrTokenResponse_shouldReturnNil** (line 89) — Initialization validation
+3. **testJsonDictionary_whenPayloadExist_shouldBeCorrect** (line 99) — Basic JSON serialization
+4. **testJsonDictionary_whenInitializedWithLegacyTokenResponse_shouldPreserveLegacyShape** (line 130) — Legacy path compatibility
+5. **testJsonDictionary_whenResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields** (line 153) — **NEW FLIGHT TEST** ✓
+6. **testJsonDictionary_whenResponseSanitizationFlightDisabled_shouldPreserveLegacyPassthrough** (line 205) — **NEW FLIGHT TEST** (flight explicitly NO)
+7. **testJsonDictionary_whenResponseSanitizationFlightIsAbsent_shouldPreserveLegacyPassthrough** (line 223) — **NEW FLIGHT TEST** (flight absent)
+8. **testJsonDictionary_whenLegacyResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields** (line 241) — **NEW LEGACY PATH FLIGHT TEST**
+
+**Additional Tests (5 more):**
+9. **testJsonDictionary_whenTokenResponseDictionaryIsNil_shouldReturnNil** (line 271)
+10. **testJsonDictionary_whenNoUpnInReponse_shouldUseProvidedUpn** (line 285)
+11. **testInitWithTokenResultStateAndFallbackUpn_setsConvenienceProperties** (line 317)
+12. **testJsonDictionary_whenLookupModeAccessTokenIsNone_passesThroughWithoutGating** (line 335)
+13. **testJsonDictionary_whenAccessTokenComesFromCache_shouldBuildResponseFromResult** (line 363)
+14. **testJsonDictionary_whenCachedResultHasNoOptionalValues_shouldOmitEmptyFields** (line 400)
+
+**tearDown Method (lines 70-74):**
+```objc
+- (void)tearDown
+{
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    [super tearDown];
+}
+```
+**Properly resets flight provider:** Sets `flightProvider` to nil after each test to prevent state leakage between tests ✓
+
+---
+
+### **9. Sibling Files in browser_native_message_response/**
+
+**Directory Listing:**
+```
+MSIDBrokerOperationBrowserNativeMessageMATSReport.h/.m
+MSIDBrokerOperationBrowserNativeMessageResponse.h/.m
+MSIDBrowserNativeMessageGetCookiesResponse.h/.m
+MSIDBrowserNativeMessageGetSupportedContractsResponse.h/.m
+MSIDBrowserNativeMessageGetTokenResponse.h/.m          ← Our file
+MSIDBrowserNativeMessageSignOutResponse.h/.m
+```
+
+**Patterns Observed:**
+- **Naming Convention:** All prefixed with `MSIDBrowserNativeMessage` or `MSIDBrokerOperationBrowserNativeMessage`
+- **Structure:** Each operation has a `.h` (header) and `.m` (implementation) pair
+- **Inheritance:** Response classes likely inherit from `MSIDBrokerNativeAppOperationResponse` base class
+- **Organization:** Grouped by operation type (GetToken, GetCookies, GetSupportedContracts, SignOut, MATS)
+- **Consistency:** Follow same Microsoft copyright header, consistent formatting
+
+---
+
+### **10. Code Style Rules — Key Points from .clinerules/01-Code-style-guidelines.md**
+
+**Critical MUST Rules:**
+- **4-space indentation** (no tabs) — Line 39
+- **Opening braces on NEW line** — Line 40 (repository convention)
+- **Always use braces for conditionals** — Line 75, even single-line statements
+- **Check return value, NOT error variable** — Line 105 (Apple APIs may write garbage)
+- **MSID prefix for classes and constants** — Line 208
+- **Static constants, not #define** — Line 283
+- **No grouped imports** — Line 338 (repository convention)
+
+**Variable/Naming Conventions:**
+- Properties and locals: **camelCase with lowercase first letter** (line 220)
+- Instance variables: **underscore prefix** `_variableName` (line 231)
+- Pointer asterisks: **attached to variable name** `NSString *name` (line 157)
+- Category methods: **prefix with `msid`** to avoid collisions (line 244)
+
+**Objective-C Patterns:**
+- **Dispatch_once for singletons** — Line 322
+- **Private properties in class extension** — Line 313 (in .m file)
+- **Dot notation for properties** — Line 21
+- **Use NS_ENUM for enumerations** — Line 295
+- **Use literals for collections** — Line 266
+
+**Error Handling Pattern (lines 475-486):**
+```objc
+NSError *msidError = nil;
+BOOL result = [self performOperationWithError:&msidError];
+if (!result)
+{
+    NSString *message = @"Failed perform operation MSIDOperationA"];
+    if (error) *error = MSIDCreateError(...);
+    return nil;
+}
+```
+
+---
+
+## Summary
+
+This codebase follows strict Microsoft Authentication Library conventions with:
+- **Unified response shaping** through `MSIDTokenResult` (new canonical path)
+- **Backward compatibility** with legacy `MSIDBrokerOperationTokenResponse` path
+- **Flight-controlled sanitization** defaulting to disabled (preserves legacy passthrough)
+- **7-field whitelist** for browser contract: access_token, id_token, token_type, expires_in, expires_on, scope, req_cnf
+- **Comprehensive test coverage** with 14+ test methods covering both flights (enabled/disabled/absent)
+- **Proper cleanup** in test tearDown via `flightProvider = nil`
+- **Consistent styling** across all browser native message response files
+
+Now let me produce the context summary for the downstream validation agents.
+
+---
+
+## Context Build Summary — PR #1947
+
+### 1. System Context
+
+**`MSIDBrowserNativeMessageGetTokenResponse`** is the serialization layer that shapes the JSON response sent to browser native-message callers (browser extensions communicating with the MSAL broker). It lives in the broker-operation response subsystem at:
+
+`IdentityCore/src/broker_operation/response/browser_native_message_response/`
+
+The PR adds a flight-gated **allow-list sanitizer** to fix an information-disclosure vulnerability (CWE-201): `MSIDTokenResponse.jsonDictionary` passes through `additionalServerInfo` and sensitive fields (`refresh_token`, `client_info`, `foci`, `provider_type`, etc.) that browser callers should never see.
+
+### 2. Dependency Map
+
+- **`MSIDBrowserNativeMessageGetTokenResponse`** → calls `MSIDTokenResponse.jsonDictionary` (source of the leak), `MSIDFlightManager.boolForKey:` (gate)
+- **`MSIDTokenResponse.jsonDictionary`** → emits: all `additionalServerInfo` entries, `refresh_token`, `access_token`, `id_token`, `token_type`, `expires_in/on`, `scope`, `req_cnf`, `state`, `provider_type`, `client_app_version`
+- **`MSIDFlightManager`** → singleton, thread-safe via `dispatch_sync`; `boolForKey:` returns `NO` when provider is nil or key is absent — absent and explicit-false are indistinguishable
+- **`MSIDFlightManagerMockProvider`** → test mock with `boolForKeyContainer` dictionary; nil key → `[nil boolValue]` → `NO`
+
+### 3. Patterns Observed
+
+- **Flight constant naming**: `MSID_FLIGHT_[ENABLE|DISABLE|SUPPORT]_[FEATURE]`, string value is lowercase snake_case. New constant follows this convention.
+- **Placement**: New constant sits between `MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION` and `MSID_DOMAIN_HINT_KEY` — logically grouped with browser-related flights. ✓
+- **Dual code paths**: `jsonDictionary` has two branches — `operationTokenResponse` (legacy broker) and `tokenResult` (canonical). Both branches apply sanitization. The third sub-path (manual construction from `accessToken` cache) already builds from individual fields and doesn't need sanitization. ✓
+- **Sibling response files** (`GetCookies`, `SignOut`, `GetSupportedContracts`) follow same .h/.m pair pattern. None have sanitization — this is specific to GetToken because it's the only one returning token-endpoint data.
+- **Code style**: Opening braces on new lines ✓, 4-space indentation ✓, braces for conditionals ✓, MSID prefix ✓, static function (not `#define`) ✓.
+
+### 4. Error Handling and Failure Paths
+
+- **nil tokenResponseJson**: Both paths return `nil` with error log when `jsonDictionary` returns nil — preserved by the PR. ✓
+- **Sanitization of nil values**: The sanitizer function iterates the allow-list and only copies non-nil values — safe against `NSMutableDictionary` nil insertion. ✓
+- **Flight provider nil**: `MSIDFlightManager.boolForKey:` returns `NO` → legacy passthrough. ✓
+
+### 5. Test Coverage
+
+**New tests (6)**:
+| Test | Path | Flight |
+|------|------|--------|
+| `whenResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` | tokenResult | ON — full dictionary equality assertion |
+| `whenResponseSanitizationFlightDisabled_shouldPreserveLegacyPassthrough` | tokenResult | OFF — verifies unknown fields pass through |
+| `whenResponseSanitizationFlightIsAbsent_shouldPreserveLegacyPassthrough` | tokenResult | absent — verifies unknown fields pass through |
+| `whenLegacyResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` | operationTokenResponse | ON — verifies allowed present, sensitive absent |
+| `whenTokenResponseDictionaryIsNil_shouldReturnNil` | tokenResult | N/A — nil guard |
+| `whenNoUpnInReponse_shouldUseProvidedUpn` | tokenResult | N/A — existing test moved |
+
+**tearDown** resets `MSIDFlightManager.sharedInstance.flightProvider = nil` — prevents state leakage. ✓
+
+### 6. Completeness Gaps
+
+- **Missing**: No flight-disabled test for the `operationTokenResponse` path. Disabled/absent tests only cover the tokenResult path. Risk is low since the gate logic is identical, but asymmetric coverage.
+- **Missing**: No test exercising the manual-construction path (when `tokenResponse` is nil but `accessToken` comes from cache) with the flight enabled. Though this path doesn't use `tokenResponse.jsonDictionary`, a test would confirm no regression.
+- **MATS report**: Not tested in the sanitized path. MATS is injected via `properties` wrapper (outside the sanitized dictionary), so it should survive, but there's no explicit assertion.
+
+### 7. Notable Findings
+
+- **Allow-list is correct**: The 7 fields (`access_token`, `id_token`, `token_type`, `expires_in`, `expires_on`, `scope`, `req_cnf`) match the OAuth browser contract. `refresh_token`, `client_info`, `foci`, `adi`, `provider_type`, and `additionalServerInfo` are excluded. ✓
+- **`state` from `MSIDTokenResponse.jsonDictionary`** (the OAuth state) is NOT in the allow-list, but the browser `state` is a separate property set by the wrapper — this is correct since they serve different purposes.
+- **Static function**: The sanitizer `MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary` is a file-scope static C function, consistent with the pattern of keeping utility logic private to the implementation file.
+- **No PII logging added** — compliant with requirement #8. ✓
+- **Staged rollout**: Flight disabled by default; ECS enables; disabling rolls back. Properly documented in the constant's doc comment. ✓

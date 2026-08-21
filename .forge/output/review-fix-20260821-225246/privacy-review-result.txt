@@ -1,0 +1,93 @@
+Now let me examine the implementation more closely for any PII-related concerns.
+
+I'll help you analyze the logging and data handling in this repository. Let me search for the relevant files and examine their contents.
+
+Now let me examine the specific files in detail:
+
+Now let me get the test constants values and check the test file:
+
+Perfect! Now let me check what PII fields are being included and verify what's in the account and properties blocks more carefully:
+
+Perfect! Now let me examine what PII is included in the account and properties blocks more carefully, and check for any new additions:
+
+Let me stop that git command and check the git history more efficiently:
+
+Let me check the commit that added UPN to response to understand what was there before:
+
+Now let me check what was in MSIDTokenResponse.jsonDictionary to verify what PII it includes:
+
+Now I have all the information I need. Let me provide a comprehensive answer:
+
+## Analysis Results
+
+### 1. **Logging Statements in MSIDBrowserNativeMessageGetTokenResponse.m**
+
+There are **4 logging statements** in the file, **NONE of which log PII** (tokens, account identifiers, UPNs, etc.):
+
+| Line | Logging Statement |
+|------|-------------------|
+| 75 | `MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create browser 'GetToken' response: operation token response is nil.");` |
+| 95 | `MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create browser 'GetToken' response: result has no access token or token response.");` |
+| 138 | `MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create token json response.");` |
+| 171 | `MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create token json response.");` |
+
+**All logging is generic error messages only** - no sensitive data is logged.
+
+---
+
+### 2. **Test Constants Values**
+
+Both constants are **synthetic/fake values** used for testing:
+
+- **`DEFAULT_TEST_ID_TOKEN_USERNAME`** = `@"user@contoso.com"` (fake test email)
+- **`DEFAULT_TEST_ID_TOKEN_SUBJECT`** = `@"sub"` (literal string "sub", not a real subject)
+
+These are defined in `/IdentityCore/tests/util/MSIDTestIdentifiers.h` and are clearly test fixtures, not real user data.
+
+---
+
+### 3. **PII Fields in `account` and `properties` Blocks**
+
+**Account block** contains:
+- `userName` - User's UPN/email (PII)
+- `id` - Account identifier/homeAccountId (PII)
+
+**Properties block** contains:
+- `UPN` - User's UPN/email (PII - duplicate from account.userName)
+- `MATS` - MATS report JSON string
+
+**These fields are PRE-EXISTING**, not new. They were introduced in commit `a4f9471c` ("Add upn to response") and have been in place since the initial implementation of the response shaping feature. The current code (lines 146-156 and 243-248) shows both the operationTokenResponse path and the tokenResult path include these same fields.
+
+---
+
+### 4. **PII in MSIDTokenResponse.jsonDictionary**
+
+**MSIDTokenResponse.jsonDictionary includes the following tokens/sensitive data:**
+
+- **Access Token** (`access_token`) - OAuth credential (PII)
+- **Refresh Token** (`refresh_token`) - OAuth credential (PII)
+- **ID Token** (`id_token`) - Contains claims with user info (PII)
+- **Request Confirmation** (`req_cnf`) - Optional binding key
+- **Expiration times** (`expires_in`, `expires_on`) - Not PII
+- **Scope**, **Token Type**, **State** - Not PII
+- **Additional Server Info** - Pass-through of any extra server fields
+- **Error information** if present
+- **Provider Type** and **Client App Version** - Not PII
+
+**Note:** The ID token itself contains PII (username, name, subject, etc.) encoded within it, but the `jsonDictionary` doesn't extract/expose individual claims—it just passes the entire token as-is.
+
+---
+
+### Summary
+
+**Security posture:** The logging is clean (no PII logged). However, the response payload **intentionally includes PII** (UPN in both `account.userName` and `properties.UPN`, plus account ID). This appears to be by design based on the browser native message protocol requirements, not a new vulnerability. The fields are protected by a sanitization flight (lines 130, 142-144, 175-177) that can strip non-essential fields when enabled.
+
+The PR is a **privacy improvement** — it adds an allow-list sanitization to prevent information disclosure of broker-internal fields (refresh tokens, client_info, FoCI, ADI, provider metadata) to browser native-message callers. My analysis:
+
+- **No new PII logged** — all 4 log statements are generic error messages, no tokens or identifiers
+- **No new PII collected or stored** — the change only restricts what's emitted
+- **Test data is synthetic** — uses `@"synthetic-access-token"`, `user@contoso.com`, etc.
+- **Existing PII in `account`/`properties` blocks is pre-existing** and part of the browser contract
+- **Allow-list approach** is the correct data-minimization pattern
+
+No privacy violations found. This change is a net positive for privacy — it implements data minimization (GDPR Art. 5(1)(c)) by restricting token response fields exposed to browser callers to only those in the browser contract.

@@ -1,0 +1,62 @@
+{
+  "iteration": 1,
+  "stepsTotal": 5,
+  "stepsCompleted": [
+    "review",
+    "fix"
+  ],
+  "stepsFailed": [],
+  "stepsSkipped": [],
+  "stepsRunning": [
+    "commit-push",
+    "test-fix"
+  ],
+  "stepsWaiting": [
+    "commit-push-tests"
+  ],
+  "findingsCount": 3,
+  "elapsedSeconds": 892.9707916,
+  "lastCompletedStep": "fix",
+  "lastUpdate": "2026-08-21T23:07:40.728989Z",
+  "findings": [
+    {
+      "id": "missing-owner-tag-flight-constant",
+      "severity": "\uD83D\uDFE1",
+      "file": "IdentityCore/src/MSIDConstants.h",
+      "action": "fix",
+      "details": "Flagged by: review-standards, validate-pr. All sibling flight constants include /// Owner: \u003Calias\u003E for on-call accountability. The new constant at line 277 is missing this tag.",
+      "stepId": "synthesis",
+      "iteration": 1
+    },
+    {
+      "id": "weak-assertion-legacy-path-test",
+      "severity": "\uD83D\uDFE2",
+      "file": "IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m",
+      "action": "fix",
+      "details": "Flagged by: validate-pr, review-fresh-eyes. First code path test uses full dictionary equality but second uses spot-checks -- inconsistent test rigor that could miss future regressions.",
+      "stepId": "synthesis",
+      "iteration": 1
+    },
+    {
+      "id": "missing-test-cached-path-flight-enabled",
+      "severity": "\uD83D\uDFE2",
+      "file": "IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m",
+      "action": "fix",
+      "details": "Flagged by: review-fresh-eyes. Cached-token path is currently safe but has no flight-enabled test to prevent future regression.",
+      "stepId": "synthesis",
+      "iteration": 1
+    }
+  ],
+  "fileChanges": [
+    {
+      "path": "IdentityCore/src/MSIDConstants.h",
+      "added": 1,
+      "removed": 0
+    },
+    {
+      "path": "IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m",
+      "added": 59,
+      "removed": 7
+    }
+  ]
+}

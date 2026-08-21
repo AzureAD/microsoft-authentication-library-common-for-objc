@@ -1,0 +1,21 @@
+Good. Now let me call the MCP tools to get changed files and prior findings.
+
+Now I have all the data. Let me report the synthesized findings via MCP.
+
+All 3 findings reported successfully. Here's the synthesis summary:
+
+## Synthesis Complete — 3 Findings Reported
+
+**Changed files (4):** `MSIDConstants.h`, `MSIDConstants.m`, `MSIDBrowserNativeMessageGetTokenResponse.m`, `MSIDBrowserNativeMessageGetTokenResponseTests.m`
+
+**Upstream reviewers read:** 7 (logic ✅, standards ✅, fresh-eyes ✅, security ✅, privacy ✅, validate-pr ✅, check-done ✅)
+
+| # | ID | Sev | File | Action | Sources |
+|---|---|---|---|---|---|
+| 1 | `missing-owner-tag-flight-constant` | 🟡 | MSIDConstants.h:277 | fix | standards, validate-pr |
+| 2 | `weak-assertion-legacy-path-test` | 🟢 | Tests.m | fix | validate-pr, fresh-eyes |
+| 3 | `missing-test-cached-path-flight-enabled` | 🟢 | Tests.m | fix | fresh-eyes |
+
+**Dropped:** ~8 findings — no logic bugs (review-logic clean), no security issues (security clean), no privacy issues (privacy clean), check-done skipped (draft PR). Low-confidence suggestions (diagnostic logging, explicit flight-disabled test for legacy path, sensitive field passthrough assertion) dropped per quality bar. No out-of-scope findings detected.
+
+**No 🔴 Critical findings.** The implementation is sound — allow-list pattern is correct, both serialization paths covered, flight defaults safely to OFF.

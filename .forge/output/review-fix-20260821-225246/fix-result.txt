@@ -1,0 +1,27 @@
+Now let me look at the relevant files to understand context for each fix:
+
+Now let me see the rest of the test file and the implementation for the cached path:
+
+Now I have full context. Let me apply all three fixes:
+
+Now fix #2 — strengthen the legacy path test to use full dictionary equality like the first test:
+
+Now fix #3 — add a test for the cached-token path with flight enabled. Let me look at how the cached path works (the `else` branch in `jsonDictionary` when `self.operationTokenResponse` is nil and there's no `tokenResponse` on the `tokenResult`, using `accessToken` directly):
+
+Let me check how to construct a token result with an access token but no token response:
+
+Now I have the full picture. Let me add the cached-path flight-enabled test. The cached path (no `tokenResponse`, only `accessToken`) doesn't go through `tokenResponseJson` at all, so the flight doesn't affect it — but we need a test to guard against future regressions. I'll insert it after the existing cached test:
+
+Now let me verify the changes look correct:
+
+Now let me record decisions for all three findings:
+
+All three fixes look correct. Let me record the decisions:
+
+All three findings have been fixed:
+
+1. **`missing-owner-tag-flight-constant`** — Added `/// Owner: maagubuzo` tag to the `MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION` constant, matching the pattern of sibling flight constants.
+
+2. **`weak-assertion-legacy-path-test`** — Replaced spot-check assertions in `testJsonDictionary_whenLegacyResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` with full dictionary equality (`XCTAssertEqualObjects(expectedJson, response.jsonDictionary)`), consistent with the first code path test.
+
+3. **`missing-test-cached-path-flight-enabled`** — Added `testJsonDictionary_whenCachedPathWithSanitizationFlightEnabled_shouldBuildResponseFromResult` to exercise the cached-token path (`accessToken` without `tokenResponse`) with the sanitization flight enabled, using full dictionary equality.

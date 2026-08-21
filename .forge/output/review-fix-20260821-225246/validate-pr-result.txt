@@ -1,0 +1,62 @@
+Now let me check the flight constant conventions and the source files more carefully.
+
+Now I have the complete picture. Let me emit findings for the validate-pr scan.
+
+Now I have all the data I need. Let me emit the findings.
+
+Here is my validate-pr analysis for PR #1947:
+
+**PBI**: AB#3661547 — Sanitize browser native GetToken responses behind a flight
+**Repo**: AzureAD/microsoft-authentication-library-common-for-objc
+**Changes**: +185 −4 across 4 files
+
+### Acceptance Criteria — All 9 criteria addressed ✅
+
+All PBI requirements are met:
+- ✅ Flight constant `MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION` added consistently with existing constants
+- ✅ Disabled by default; absent/false values preserve legacy behavior (tested)
+- ✅ Flight queried once at top of `jsonDictionary`
+- ✅ Allow-list approach (not copy-and-remove) — 7 contract fields only
+- ✅ Sensitive fields (`refresh_token`, `client_info`, `foci`, `adi`, `provider_type`, `additionalServerInfo`) excluded
+- ✅ `account`, `state`, `properties` wrappers preserved in both code paths
+- ✅ No PII logging added
+- ✅ No public API changes outside flighted path
+
+### File Coverage — All expected files present ✅
+
+| Expected | In PR? |
+|---|---|
+| MSIDConstants.h | ✅ |
+| MSIDConstants.m | ✅ |
+| MSIDBrowserNativeMessageGetTokenResponse.m | ✅ |
+| MSIDBrowserNativeMessageGetTokenResponseTests.m | ✅ |
+
+No unexpected files changed.
+
+### Convention Checks
+
+| Check | Status |
+|---|---|
+| Tests included | ✅ 6 new test cases covering enabled/disabled/absent/nil/both-paths |
+| Feature flag gating | ✅ Behind `MSIDFlightManager` flight |
+| CI status | 🟡 Core pipelines pass; 4 external submodule checks still pending |
+
+### Findings
+
+I have two concerns to flag:
+
+**1. Missing `/// Owner:` tag on flight constant** (🟡 Concern)
+
+Every neighboring flight constant in `MSIDConstants.h` (lines 254–316) includes a `/// Owner: <alias>` comment. The new constant at line 277–279 is missing this tag. This is important for accountability — when the flight needs to be promoted/rolled-back, the owner tag tells the on-call who to contact.
+
+**2. Weaker assertion on operationTokenResponse-path flight test** (🟡 Concern)
+
+`testJsonDictionary_whenResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` uses full dictionary equality (`XCTAssertEqualObjects(expectedJson, response.jsonDictionary)`) — excellent. But the other code path's test `testJsonDictionary_whenLegacyResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields` only spot-checks individual keys (`XCTAssertNil(json[@"refresh_token"])`), which wouldn't catch a future key leak. Consider adding a full dictionary equality assertion for parity.
+
+**3. CI still pending** (ℹ️)
+
+Core pipelines pass (Common Core PR Validation ✅, MSAL submodule ✅, CodeQL ✅, Changelogs ✅). Broker submodule and MSAL C++ subtree checks still pending.
+
+### Summary
+
+**Overall**: 🟢 Looks good — implementation is clean and meets all acceptance criteria. Human reviewer should verify the two 🟡 items: add an `/// Owner:` tag and consider strengthening the `operationTokenResponse`-path test assertion.

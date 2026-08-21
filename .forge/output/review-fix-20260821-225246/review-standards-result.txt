@@ -1,0 +1,41 @@
+Now let me look at the full changed files and verify sibling patterns:
+
+Let me verify the test name concern by examining the init methods and code paths more carefully:
+
+Now I have a clear understanding of the naming convention. The existing test `testJsonDictionary_whenInitializedWithLegacyTokenResponse_shouldPreserveLegacyShape` at line 130 uses `initWithTokenResponse:` (broker/operation path) and calls it "Legacy." So the new test naming is actually **consistent** with the existing convention — "Legacy" refers to the `initWithTokenResponse:` init path.
+
+Let me verify one final thing — the `/// Owner:` pattern:
+
+## Review Summary — PR #1947
+
+**Clean review** with one minor observation.
+
+### Conventions Verified ✅
+- **Opening braces on new line**: All control flow and function definitions comply
+- **4-space indentation**: Consistent throughout
+- **Braces on all conditionals**: Every `if` has braces, even single-line bodies
+- **MSID prefix**: Function name `MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary` and constant name follow convention
+- **Error handling**: Checks return values (`if (!tokenResponseJson)`), not error variables
+- **Dot notation**: Uses `MSIDFlightManager.sharedInstance` properly
+- **Pointer asterisk placement**: Attached to variable names (`NSString *key`, `NSDictionary *tokenResponseJson`)
+- **Constants pattern**: `extern NSString * _Nonnull const` in .h, `NSString *const` in .m — matches siblings
+- **Imports not grouped**: New `#import` lines follow existing flat style
+
+### Companion Files ✅
+- Tests added in `MSIDBrowserNativeMessageGetTokenResponseTests.m` covering enabled, disabled, absent, nil-response, and both init paths
+- `tearDown` properly resets `flightProvider` to avoid test pollution
+- Test naming follows existing file convention (e.g., "Legacy" = `initWithTokenResponse:` path, matching `testJsonDictionary_whenInitializedWithLegacyTokenResponse_shouldPreserveLegacyShape` at line 130)
+
+### Migration Completeness ✅
+- Constant declared in `.h` and defined in `.m`
+- Flight gating applied to both code paths in `jsonDictionary` (operationTokenResponse and legacy)
+
+### Blast Radius ✅
+- Changes scoped to one method (`jsonDictionary`) in one class
+- Flight disabled by default — zero behavior change at merge
+
+### Observation
+
+**Missing `/// Owner:` comment** — The four immediately preceding browser-core flight constants (lines 264–275) all include `/// Owner: <alias>` comments. The new constant at line 277 has a description comment but no owner. Since this PR was authored by an agent, a human owner should be assigned before merge to maintain the sibling pattern.
+
+No actionable findings. This is a clean, well-structured change.

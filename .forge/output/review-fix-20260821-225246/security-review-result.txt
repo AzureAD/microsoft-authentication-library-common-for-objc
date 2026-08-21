@@ -1,0 +1,347 @@
+Now let me examine the full implementation files and understand the existing code patterns:
+
+Now let me examine the flight manager behavior and OAuth2 constants to verify the implementation:
+
+I'll search through the codebase to find these implementations. Let me start with parallel searches for the key files.
+
+Now let me read the key files in parallel:
+
+Now let me check the MSIDFlightManagerMockProvider header file to understand its properties:
+
+Perfect! Now let me create a comprehensive summary document with all the findings:
+
+## Summary of Codebase Analysis
+
+### 1. **MSIDFlightManager's `boolForKey:` Method**
+
+**File:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/MSIDFlightManager.m` (Lines 138-153)
+
+**Implementation:**
+```objc
+- (BOOL)boolForKey:(nonnull NSString *)flightKey
+{
+    __block BOOL result = NO;
+    // Read the provider only from within the synchronization queue. Testing it via the
+    // unsynchronized property getter first would race the barrier write in setFlightProvider:,
+    // and capturing it into a strong local keeps it alive for the duration of the call.
+    dispatch_sync(self.synchronizationQueue, ^{
+        id<MSIDFlightManagerInterface> flightProvider = self->_flightProvider;
+        if (flightProvider)
+        {
+            result = [flightProvider boolForKey:flightKey];
+        }
+    });
+    
+    return result;
+}
+```
+
+**Behavior:**
+- **When key is absent:** Returns **`NO` (false)** by default
+- If no flight provider is set, it returns `NO`
+- If a flight provider exists, it delegates to the provider's `boolForKey:` method
+- Thread-safe: Uses a synchronization queue with `dispatch_sync` to avoid race conditions with the barrier write in `setFlightProvider:`
+
+---
+
+### 2. **OAuth2 Constants Values**
+
+**File:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/MSIDOAuth2Constants.m`
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `MSID_OAUTH2_ACCESS_TOKEN` | `@"access_token"` | 26 |
+| `MSID_OAUTH2_ID_TOKEN` | `@"id_token"` | 57 |
+| `MSID_OAUTH2_TOKEN_TYPE` | `@"token_type"` | 55 |
+| `MSID_OAUTH2_EXPIRES_IN` | `@"expires_in"` | 43 |
+| `MSID_OAUTH2_EXPIRES_ON` | `@"expires_on"` | 78 |
+| `MSID_OAUTH2_SCOPE` | `@"scope"` | 50 |
+| `MSID_OAUTH2_REQUEST_CONFIRMATION` | `@"req_cnf"` | 74 |
+| `MSID_OAUTH2_REFRESH_TOKEN` | `@"refresh_token"` | 46 |
+| `MSID_OAUTH2_CLIENT_INFO` | `@"client_info"` | 92 |
+
+**Note:** Both `MSID_OAUTH2_REFRESH_TOKEN` and `MSID_OAUTH2_CLIENT_INFO` are **excluded** from the allow-list in the `setAdditionalServerInfo:` method (see next section), which filters known fields out of the additional server info dictionary.
+
+---
+
+### 3. **MSIDFlightManagerMockProvider Implementation**
+
+**File:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/tests/mocks/MSIDFlightManagerMockProvider.m`
+
+**Header:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/tests/mocks/MSIDFlightManagerMockProvider.h`
+
+**Structure:**
+```objc
+@interface MSIDFlightManagerMockProvider : NSObject <MSIDFlightManagerInterface>
+
+@property (nonatomic) NSDictionary *boolForKeyContainer;
+@property (nonatomic) NSDictionary *stringForKeyContainer;
+
+@end
+```
+
+**Implementation:**
+```objc
+- (BOOL)boolForKey:(NSString *)flightKey
+{
+    return [self.boolForKeyContainer[flightKey] boolValue];
+}
+
+- (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
+{
+    return self.stringForKeyContainer[flightKey];
+}
+```
+
+**How it Works:**
+- **Mock provider for testing** that implements the `MSIDFlightManagerInterface` protocol
+- Stores mock flight data in two dictionaries: `boolForKeyContainer` and `stringForKeyContainer`
+- `boolForKey:` - looks up the key in `boolForKeyContainer` and converts the value to a BOOL using `-boolValue`
+  - If key is absent, returns `nil` which converts to `NO` when `-boolValue` is called
+- `stringForKey:` - returns the value from `stringForKeyContainer` directly (returns `nil` if key is absent)
+- Used in unit tests to control flight behavior without requiring an actual flight provider implementation
+
+---
+
+### 4. **MSIDTokenResponse's `jsonDictionary` Serialization**
+
+**File:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/oauth2/MSIDTokenResponse.m` (Lines 180-208)
+
+**Implementation:**
+```objc
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    if (self.additionalServerInfo) [json addEntriesFromDictionary:self.additionalServerInfo];
+    
+    if (self.error)
+    {
+        json[MSID_OAUTH2_ERROR] = self.error;
+        json[MSID_OAUTH2_ERROR_DESCRIPTION] = [self.errorDescription msidURLEncode];
+        if (self.stsErrorCodes) json[MSID_OAUTH2_ERROR_CODES] = self.stsErrorCodes;
+    }
+    else
+    {
+        json[MSID_OAUTH2_ACCESS_TOKEN] = self.accessToken;
+        json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
+        json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
+        json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
+        json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
+        json[MSID_OAUTH2_SCOPE] = self.scope;
+        json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
+        json[MSID_OAUTH2_REQUEST_CONFIRMATION] = self.requestConf;
+    }
+    
+    json[MSID_OAUTH2_STATE] = self.state;
+    json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.class.providerType);
+    json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
+    
+    return json;
+}
+```
+
+**Serialized Fields:**
+
+| Field | OAuth2 Constant | Value Type | Condition |
+|-------|-----------------|-----------|-----------|
+| `additional_server_info` | Various | Dictionary | Always added first |
+| **Error Response** (if `self.error` is set) |
+| `error` | `MSID_OAUTH2_ERROR` | String | When error exists |
+| `error_description` | `MSID_OAUTH2_ERROR_DESCRIPTION` | String (URL-encoded) | When error exists |
+| `error_codes` | `MSID_OAUTH2_ERROR_CODES` | Array | When error codes exist |
+| **Success Response** (if no error) |
+| `access_token` | `MSID_OAUTH2_ACCESS_TOKEN` | String | On success |
+| `refresh_token` | `MSID_OAUTH2_REFRESH_TOKEN` | String | **SENSITIVE** - On success |
+| `expires_in` | `MSID_OAUTH2_EXPIRES_IN` | String (numeric) | On success |
+| `expires_on` | `MSID_OAUTH2_EXPIRES_ON` | String (numeric) | On success |
+| `token_type` | `MSID_OAUTH2_TOKEN_TYPE` | String | On success |
+| `scope` | `MSID_OAUTH2_SCOPE` | String | On success |
+| `id_token` | `MSID_OAUTH2_ID_TOKEN` | String | **SENSITIVE** - On success |
+| `req_cnf` | `MSID_OAUTH2_REQUEST_CONFIRMATION` | String | On success |
+| **Always included** |
+| `state` | `MSID_OAUTH2_STATE` | String | Always |
+| `provider_type` | `MSID_PROVIDER_TYPE_JSON_KEY` | String | Always |
+| `client_app_version` | `MSID_BROKER_CLIENT_APP_VERSION_KEY` | String | Always |
+
+**Key Points About Data Leakage Prevention:**
+- The `setAdditionalServerInfo:` method filters known OAuth2 fields from additional server info (lines 56-71), preventing duplication
+- **Before sanitization:** The `additionalServerInfo` was added directly to the JSON, potentially leaking fields like `refresh_token` and `client_info` if they were in the additional server info dictionary
+- **Sensitive fields leaked:** `access_token`, `refresh_token`, `id_token`, and other sensitive OAuth2 response fields could have been leaked if present in `additionalServerInfo`
+- **The sanitization fix:** Only approved fields (`error`, `error_description`, `access_token`, `token_type`, `refresh_token`, `scope`, `state`, `id_token`, `expires_in`, `expires_on`) are allowed to be processed as main response fields; anything else goes into filtered `additionalServerInfo`
+
+I'll help you analyze the MSIDTokenResponse class and its subclasses' jsonDictionary implementations. Let me start with parallel searches to gather the necessary information.
+
+Now let me search for jsonDictionary implementations and calls in these subclasses:
+
+Let me fix the grep pattern and look at the key files directly:
+
+Now let me search for who calls jsonDictionary on MSIDBrowserNativeMessageGetTokenResponse and check for references to "foci":
+
+Now let me examine MSIDBrowserNativeMessageGetTokenResponse.m to see how it uses jsonDictionary:
+
+Let me continue viewing the test file to see what is tested:
+
+Perfect! Now let me search for who calls the jsonDictionary on MSIDBrowserNativeMessageGetTokenResponse and look at MSIDAADV1TokenResponse:
+
+Now let me look for who calls or sends the browser response and check for "foci" in AAD v2:
+
+Let me check how MSIDAADV2TokenResponse handles foci and look for its usage:
+
+Now let me check the AAD base class to see if there's an override that serializes foci:
+
+Perfect! Now let me get who calls jsonDictionary on the browser response by checking the broker operation:
+
+Let me check the broker operation request to see the flow:
+
+Let me look at the browser native message response wrapper to see how it sends the data:
+
+Now let me check test files to understand what fields are being checked:
+
+Perfect! Now let me check the header file to understand the class hierarchy:
+
+Excellent! Now let me create a comprehensive summary. Let me check one more thing - see the test for AADV2 to verify foci serialization:
+
+Perfect! Now I have all the information needed. Let me create a comprehensive answer:
+
+## Summary
+
+Here's the complete analysis of MSIDTokenResponse subclasses and their jsonDictionary implementations:
+
+### 1. **Subclasses and jsonDictionary Overrides**
+
+| Subclass | Override | Additional Fields |
+|----------|----------|-------------------|
+| **MSIDAADV2TokenResponse** | ❌ No override | Inherits from MSIDAADTokenResponse |
+| **MSIDAADV1TokenResponse** | ✅ Yes | `resource` (MSID_OAUTH2_RESOURCE) |
+| **MSIDAADTokenResponse** | ✅ Yes | `correlationId`, `familyId`, `speInfo`, `suberror`, `adi`, `client_info`, `ext_expires_in`, `ext_expires_on`, `refresh_in`, `refresh_on`, `ccsRequestId`, `ccsRequestSequence`, `clientData` |
+| **MSIDCIAMTokenResponse** | ❌ No override | Inherits from MSIDAADTokenResponse (via abstract) |
+
+**File Paths:**
+- `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/oauth2/aad_base/MSIDAADTokenResponse.m` (lines 118-141)
+- `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/oauth2/aad_v2/MSIDAADV2TokenResponse.m` (no override)
+- `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/oauth2/aad_v1/MSIDAADV1TokenResponse.m` (lines 78-84)
+- `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/oauth2/ciam/MSIDCIAMTokenResponse.m` (no override)
+
+---
+
+### 2. **MSIDTokenResponse.setAdditionalServerInfo: Filtering**
+
+**File:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/oauth2/MSIDTokenResponse.m` (lines 56-71)
+
+**Filtered OUT fields (NOT stored in additionalServerInfo, stored as direct properties instead):**
+```objc
+NSArray *knownFields = @[MSID_OAUTH2_ERROR,                      // error
+                         MSID_OAUTH2_ERROR_DESCRIPTION,          // error_description  
+                         MSID_OAUTH2_ACCESS_TOKEN,               // access_token
+                         MSID_OAUTH2_TOKEN_TYPE,                 // token_type
+                         MSID_OAUTH2_REFRESH_TOKEN,              // refresh_token
+                         MSID_OAUTH2_SCOPE,                      // scope
+                         MSID_OAUTH2_STATE,                      // state
+                         MSID_OAUTH2_ID_TOKEN,                   // id_token
+                         MSID_OAUTH2_EXPIRES_IN,                 // expires_in
+                         MSID_OAUTH2_EXPIRES_ON];                // expires_on
+```
+
+**MSIDAADTokenResponse overrides** (`lines 36-58`) and adds more filtered fields:
+```objc
+NSArray *knownFields = @[MSID_OAUTH2_CORRELATION_ID_RESPONSE,    // correlation_id
+                         MSID_OAUTH2_RESOURCE,                   // resource
+                         MSID_OAUTH2_CLIENT_INFO,                // client_info
+                         MSID_FAMILY_ID,                         // foci
+                         MSID_TELEMETRY_KEY_SPE_INFO,            // spe_info
+                         MSID_OAUTH2_EXT_EXPIRES_IN,             // ext_expires_in
+                         MSID_OAUTH2_REFRESH_IN,                 // refresh_in
+                         MSID_OAUTH2_REFRESH_ON,                 // refresh_on
+                         @"url",
+                         @"ext_expires_on",
+                         MSID_OAUTH2_SUB_ERROR,                  // suberror
+                         MSID_CCS_REQUEST_ID_RESPONSE,           // ccs_request_id
+                         MSID_CCS_REQUEST_SEQUENCE_RESPONSE,     // ccs_request_sequence
+                         MSID_CLIENT_DATA_RESPONSE];             // client_data
+```
+
+---
+
+### 3. **Broker-Internal Sensitive Fields in jsonDictionary**
+
+**YES - These fields ARE serialized by subclasses:**
+
+| Field | Class | Serialized | Code Location |
+|-------|-------|-----------|----------------|
+| `client_info` | MSIDAADTokenResponse | ✅ YES | Line 128 |
+| `foci` (familyId) | MSIDAADTokenResponse | ✅ YES | Line 122 |
+| `refresh_token` | MSIDTokenResponse | ✅ YES | Line 194 |
+| `access_token` | MSIDTokenResponse | ✅ YES | Line 193 |
+
+**Test Evidence:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/tests/MSIDAADV2TokenResponseTests.m`
+```
+json[@"foci"] = @"family 1"  // familyId serialized
+json[MSID_OAUTH2_CLIENT_INFO] = self.clientInfo.rawClientInfo  // client_info serialized
+```
+
+---
+
+### 4. **Code Path: Who Consumes jsonDictionary**
+
+**Primary Consumer:** `MSIDBrowserNativeMessageGetTokenResponse`
+
+**File:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/src/broker_operation/response/browser_native_message_response/MSIDBrowserNativeMessageGetTokenResponse.m`
+
+**Flow (lines 128-262):**
+1. **Line 135:** Calls `[tokenResponse jsonDictionary]` on MSIDTokenResponse
+2. **Lines 130-144:** **SANITIZATION GATE** - Checks flight flag `MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION`
+   - If **ENABLED**: Sanitizes response to only include whitelisted OAuth fields
+   - If **DISABLED** (default): Passes through **ALL fields from jsonDictionary** unfiltered
+3. **Lines 49-55:** Whitelist for sanitized mode (only these allowed):
+   ```
+   MSID_OAUTH2_ACCESS_TOKEN,
+   MSID_OAUTH2_ID_TOKEN,
+   MSID_OAUTH2_TOKEN_TYPE,
+   MSID_OAUTH2_EXPIRES_IN,
+   MSID_OAUTH2_EXPIRES_ON,
+   MSID_OAUTH2_SCOPE,
+   MSID_OAUTH2_REQUEST_CONFIRMATION
+   ```
+
+**Critical Test Evidence:** `/Users/antrix1989/.copilot/session-state/dbb5439f-22dd-4828-a196-e1357a97f41f/files/commoncore-review/IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m` (lines 153-203)
+
+When sanitization is **ENABLED**, these fields are **EXCLUDED** from browser response:
+- `refresh_token` (line 166 input → NOT in line 184-200 output)
+- `client_info` (line 167 input → NOT in output)  
+- `foci` (line 168 input → NOT in output)
+- `adi` (line 169 input → NOT in output)
+- `provider_type` (line 170 input → NOT in output)
+
+When sanitization is **DISABLED** (lines 205-221), `future_server_field` and all additionalServerInfo pass through unfiltered.
+
+---
+
+### **Security Implication Summary**
+
+The `foci`, `client_info`, `refresh_token`, and other sensitive broker-internal fields **ARE being serialized** by `MSIDAADTokenResponse.jsonDictionary()` (and inherited by MSIDAADV2TokenResponse). These fields will be **LEAKED to the browser** unless the sanitization flight flag `MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION` is explicitly enabled.
+
+Now I have a comprehensive understanding of the change. Let me do a final verification to check for any edge cases:
+
+I've completed a thorough security review of PR #1947. Here's my assessment:
+
+## Security Review Summary
+
+**PR Purpose:** Adds a flight-gated response sanitization to prevent CWE-201 information disclosure in `MSIDBrowserNativeMessageGetTokenResponse.jsonDictionary`. Previously, the full `MSIDTokenResponse.jsonDictionary` (including `refresh_token`, `client_info`, `foci`, `adi`, `provider_type`, and arbitrary `additionalServerInfo`) was passed through to browser native message callers.
+
+**Security Analysis — No actionable findings.**
+
+The implementation is well-designed:
+
+1. **Allow-list pattern (positive security model)** — The sanitization function iterates over an explicit allow-list of 7 OAuth2 keys (`access_token`, `id_token`, `token_type`, `expires_in`, `expires_on`, `scope`, `req_cnf`). Unknown or future server fields are automatically excluded. This is the correct approach vs. a deny-list.
+
+2. **Both serialization paths covered** — Sanitization is applied to both the `operationTokenResponse` path and the `tokenResult` path. The third path (cached access token, no `tokenResponse`) correctly constructs the response from scratch with only contract fields — no sanitization needed.
+
+3. **Flight defaults to OFF** — `MSIDFlightManager.boolForKey:` returns `NO` when the key is absent or the provider is nil, preserving legacy behavior. This is correct for staged rollout.
+
+4. **No sensitive data in logs** — The implementation adds no new logging of tokens, payload contents, or PII.
+
+5. **Thread-safe flight read** — `boolForKey:` uses `dispatch_sync` on a synchronization queue; the result is read once and used consistently throughout `jsonDictionary`.
+
+6. **Test coverage is adequate** — Tests cover: flight enabled (full allow-list verification with sensitive fields present), flight explicitly disabled, flight absent, nil response, both init paths, and wrapper preservation (`account`, `state`, `properties`). Test teardown properly resets the flight provider.
+
+7. **Verified excluded fields** — `MSIDAADTokenResponse.jsonDictionary` serializes `client_info`, `foci`, `adi`, `correlationId`, `speInfo`, `suberror`, `ext_expires_in/on`, `refresh_in/on`, and the base class adds `refresh_token`, `provider_type`, `state`, `client_app_version`. All are correctly excluded by the allow-list when sanitization is enabled.

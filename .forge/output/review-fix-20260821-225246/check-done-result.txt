@@ -1,0 +1,7 @@
+The PR is in **draft** status. Per the pre-flight rules, Definition of Done check is skipped for draft PRs.
+
+Since I'm in the review loop (Mode B), SKIP rows are omitted — no blocking findings to emit. I'll record a single info observation.
+
+**PR is in draft — Definition of Done check skipped. I'll run when it's marked ready.**
+
+No ❌ findings to report. The gate does not apply to draft PRs.
