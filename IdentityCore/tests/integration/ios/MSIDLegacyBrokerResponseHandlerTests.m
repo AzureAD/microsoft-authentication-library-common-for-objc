@@ -40,6 +40,8 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDTestCacheAccessorHelper.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 
 @interface MSIDLegacyBrokerResponseHandlerTests : XCTestCase
 
@@ -69,6 +71,8 @@
     SecItemDelete((CFDictionaryRef)query);
 
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
     
     [super tearDown];
 }
@@ -772,6 +776,224 @@
                                   };
 
     [[NSUserDefaults standardUserDefaults] setObject:resumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+}
+
+#pragma mark - Broker nonce enforcement flight
+
+// MSIDLegacyBrokerResponseHandler evaluates the nonce on two distinct call paths: the success path
+// checks the decrypted response, and the error_code path checks the unencrypted query parameters.
+// Both are covered below.
+
+- (void)setEnforceBrokerNonceFlight:(BOOL)enabled
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENFORCE_BROKER_NONCE: @(enabled) };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+}
+
+- (NSURL *)legacyBrokerSuccessResponseURLWithNonce:(NSString *)brokerNonce
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
+
+    NSMutableDictionary *brokerResponseParams = [@{
+      @"authority" : @"https://login.microsoftonline.com/common",
+      @"resource" : @"https://graph.windows.net",
+      @"client_id" : @"my_client_id",
+      @"id_token" : idToken,
+      @"access_token" : @"i-am-a-access-token",
+      @"refresh_token" : @"i-am-a-refresh-token",
+      @"expires_on" : expiresOnString,
+      @"user_id": @"user@contoso.com",
+      @"correlation_id": [[NSUUID UUID] UUIDString],
+      @"x-broker-app-ver": @"1.0.0",
+      @"foci": @"1"
+      } mutableCopy];
+
+    if (brokerNonce)
+    {
+        brokerResponseParams[@"broker_nonce"] = brokerNonce;
+    }
+
+    return [MSIDTestBrokerResponseHelper createLegacyBrokerResponse:brokerResponseParams
+                                                        redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                      encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+}
+
+- (NSURL *)legacyBrokerErrorResponseURLWithNonce:(NSString *)brokerNonce
+{
+    NSMutableDictionary *brokerResponseParams = [@{
+      @"protocol_code": @"invalid_grant",
+      @"error_domain": @"ADAuthenticationErrorDomain",
+      @"error_code": @"213",
+      @"correlation_id": [[NSUUID UUID] UUIDString],
+      @"x-broker-app-ver": @"1.0.0",
+      @"error_description": @"Error occured",
+      @"suberror": @"consent_required"
+      } mutableCopy];
+
+    if (brokerNonce)
+    {
+        brokerResponseParams[@"broker_nonce"] = brokerNonce;
+    }
+
+    return [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
+                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"];
+}
+
+- (MSIDLegacyBrokerResponseHandler *)legacyBrokerResponseHandler
+{
+    return [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new]
+                                                 tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+}
+
+#pragma mark Success path (nonce read from the decrypted response)
+
+- (void)testHandleBrokerResponse_whenSourceApplicationNonNil_andNonceMismatch_andEnforcementFlightOn_shouldReturnNilResultAndError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    [self setEnforceBrokerNonceFlight:YES];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [[self legacyBrokerResponseHandler] handleBrokerResponseWithURL:[self legacyBrokerSuccessResponseURLWithNonce:@"incorrect_nonce"]
+                                                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                                                                        error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
+}
+
+- (void)testHandleBrokerResponse_whenSourceApplicationNonNil_andNonceMissingInResponse_andEnforcementFlightOn_shouldReturnNilResultAndError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    [self setEnforceBrokerNonceFlight:YES];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [[self legacyBrokerResponseHandler] handleBrokerResponseWithURL:[self legacyBrokerSuccessResponseURLWithNonce:nil]
+                                                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                                                                        error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
+}
+
+- (void)testHandleBrokerResponse_whenSourceApplicationNonNil_andNonceMismatch_andEnforcementFlightOff_shouldReturnResultAndNilError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    [self setEnforceBrokerNonceFlight:NO];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [[self legacyBrokerResponseHandler] handleBrokerResponseWithURL:[self legacyBrokerSuccessResponseURLWithNonce:@"incorrect_nonce"]
+                                                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                                                                        error:&error];
+
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result.accessToken.accessToken, @"i-am-a-access-token");
+}
+
+- (void)testHandleBrokerResponse_whenSourceApplicationNonNil_andBrokerNonceMatches_andEnforcementFlightOn_shouldReturnResultAndNilError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    [self setEnforceBrokerNonceFlight:YES];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [[self legacyBrokerResponseHandler] handleBrokerResponseWithURL:[self legacyBrokerSuccessResponseURLWithNonce:@"nonce"]
+                                                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                                                                        error:&error];
+
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result.accessToken.accessToken, @"i-am-a-access-token");
+}
+
+- (void)testHandleBrokerResponse_whenSourceApplicationNil_andNonceMismatch_andEnforcementFlightOff_shouldReturnNilResultAndError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    [self setEnforceBrokerNonceFlight:NO];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [[self legacyBrokerResponseHandler] handleBrokerResponseWithURL:[self legacyBrokerSuccessResponseURLWithNonce:@"incorrect_nonce"]
+                                                                            sourceApplication:nil
+                                                                                        error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
+}
+
+#pragma mark Error path (nonce read from the unencrypted query parameters)
+
+- (void)testHandleBrokerResponse_whenBrokerErrorResponse_andSourceApplicationNonNil_andNonceMismatch_andEnforcementFlightOn_shouldReturnNonceMismatchError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    [self setEnforceBrokerNonceFlight:YES];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [[self legacyBrokerResponseHandler] handleBrokerResponseWithURL:[self legacyBrokerErrorResponseURLWithNonce:@"incorrect_nonce"]
+                                                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                                                                        error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
+}
+
+- (void)testHandleBrokerResponse_whenBrokerErrorResponse_andSourceApplicationNonNil_andNonceMissingInResponse_andEnforcementFlightOn_shouldReturnNonceMismatchError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    [self setEnforceBrokerNonceFlight:YES];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [[self legacyBrokerResponseHandler] handleBrokerResponseWithURL:[self legacyBrokerErrorResponseURLWithNonce:nil]
+                                                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                                                                        error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
+}
+
+- (void)testHandleBrokerResponse_whenBrokerErrorResponse_andSourceApplicationNonNil_andNonceMismatch_andEnforcementFlightOff_shouldReturnUnderlyingBrokerError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    [self setEnforceBrokerNonceFlight:NO];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [[self legacyBrokerResponseHandler] handleBrokerResponseWithURL:[self legacyBrokerErrorResponseURLWithNonce:@"incorrect_nonce"]
+                                                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                                                                        error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 213);
+    XCTAssertEqualObjects(error.domain, @"ADAuthenticationErrorDomain");
+}
+
+- (void)testHandleBrokerResponse_whenBrokerErrorResponse_andSourceApplicationNonNil_andBrokerNonceMatches_andEnforcementFlightOn_shouldReturnUnderlyingBrokerError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    [self setEnforceBrokerNonceFlight:YES];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [[self legacyBrokerResponseHandler] handleBrokerResponseWithURL:[self legacyBrokerErrorResponseURLWithNonce:@"nonce"]
+                                                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                                                                        error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 213);
+    XCTAssertEqualObjects(error.domain, @"ADAuthenticationErrorDomain");
 }
 
 @end
