@@ -144,16 +144,43 @@ static NSDictionary *MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary
         : [tokenResponseJson mutableCopy];
 
         NSMutableDictionary *accountJson = [NSMutableDictionary new];
-        accountJson[@"userName"] = tokenResponse.accountUpn ?: self.requestAccountUpn;
-        accountJson[@"id"] = tokenResponse.accountIdentifier;
+        NSString *accountUpn = tokenResponse.accountUpn ?: self.requestAccountUpn;
+        if (![NSString msidIsStringNilOrBlank:accountUpn])
+        {
+            accountJson[@"userName"] = accountUpn;
+        }
 
-        response[@"account"] = accountJson;
-        response[@"state"] = self.state;
+        if (![NSString msidIsStringNilOrBlank:tokenResponse.accountIdentifier])
+        {
+            accountJson[@"id"] = tokenResponse.accountIdentifier;
+        }
+
+        if (accountJson.count)
+        {
+            response[@"account"] = accountJson;
+        }
+
+        if (![NSString msidIsStringNilOrBlank:self.state])
+        {
+            response[@"state"] = self.state;
+        }
 
         NSMutableDictionary *propertiesJson = [NSMutableDictionary new];
-        propertiesJson[@"UPN"] = accountJson[@"userName"];
-        propertiesJson[@"MATS"] = [self.matsReport jsonString];
-        response[@"properties"] = propertiesJson;
+        if (![NSString msidIsStringNilOrBlank:accountUpn])
+        {
+            propertiesJson[@"UPN"] = accountUpn;
+        }
+
+        NSString *matsReportJson = [self.matsReport jsonString];
+        if (matsReportJson)
+        {
+            propertiesJson[@"MATS"] = matsReportJson;
+        }
+
+        if (propertiesJson.count)
+        {
+            response[@"properties"] = propertiesJson;
+        }
 
         return response;
     }
