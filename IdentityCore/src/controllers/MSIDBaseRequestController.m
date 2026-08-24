@@ -27,9 +27,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDErrorConverter.h"
-#import "MSIDOAuth2Constants.h"
 #import "MSIDAuthenticationScheme.h"
-#import "MSIDAuthenticationSchemePop.h"
 
 @interface MSIDBaseRequestController()
 
@@ -87,14 +85,7 @@
     [event setClientId:self.requestParameters.clientId];
     NSString *extExpiresSetting = self.requestParameters.extendedLifetimeEnabled ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO;
     [event setExtendedExpiresOnSetting:extExpiresSetting];
-    NSString *tokenType = self.requestParameters.authScheme.tokenType;
-    if (tokenType && [tokenType caseInsensitiveCompare:MSID_OAUTH2_POP] == NSOrderedSame)
-    {
-        BOOL isExternalKeyPop = [self.requestParameters.authScheme isKindOfClass:MSIDAuthenticationSchemePop.class]
-            && ((MSIDAuthenticationSchemePop *)self.requestParameters.authScheme).isExternalKeyPop;
-        [event setProperty:MSID_TELEMETRY_KEY_POP_KEY_SOURCE
-                     value:isExternalKeyPop ? MSID_TELEMETRY_VALUE_EXTERNAL : MSID_TELEMETRY_VALUE_INTERNAL];
-    }
+    [self.requestParameters.authScheme configureTelemetryEvent:event];
 
     return event;
 }

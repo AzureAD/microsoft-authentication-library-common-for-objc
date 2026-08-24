@@ -25,6 +25,8 @@
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDConstants.h"
 #import "MSIDAccessToken.h"
+#import "MSIDTelemetryAPIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
 @interface MSIDAuthenticationSchemeTest : XCTestCase
 
@@ -54,6 +56,16 @@
 {
     MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[self prepareBearerSchemeParams]];
     XCTAssertNil(scheme.accessToken.kid);
+}
+
+- (void)testConfigureTelemetryEvent_whenBaseScheme_shouldLeavePopKeySourceUnset
+{
+    MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[self prepareBearerSchemeParams]];
+    MSIDTelemetryAPIEvent *event = [[MSIDTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_API_EVENT context:nil];
+
+    [scheme configureTelemetryEvent:event];
+
+    XCTAssertNil([event propertyWithName:MSID_TELEMETRY_KEY_POP_KEY_SOURCE]);
 }
 
 - (void) test_assertDefaultAttributesInScheme:(MSIDAuthenticationScheme *) scheme

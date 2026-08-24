@@ -34,6 +34,10 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#if !EXCLUDE_FROM_MSALCPP
+#import "MSIDTelemetryAPIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
+#endif
 
 @interface MSIDAuthenticationSchemePop()
 
@@ -135,6 +139,14 @@
 {
     return [self.externalKeyPop isEqualToString:@"1"];
 }
+
+#if !EXCLUDE_FROM_MSALCPP
+- (void)configureTelemetryEvent:(MSIDTelemetryAPIEvent *)event
+{
+    [event setProperty:MSID_TELEMETRY_KEY_POP_KEY_SOURCE
+                 value:self.isExternalKeyPop ? MSID_TELEMETRY_VALUE_EXTERNAL : MSID_TELEMETRY_VALUE_INTERNAL];
+}
+#endif
 
 - (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken
 {

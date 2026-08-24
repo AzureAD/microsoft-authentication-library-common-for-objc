@@ -25,6 +25,9 @@
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAccessToken.h"
 #import "MSIDAccessTokenWithAuthScheme.h"
+#import "MSIDTelemetryAPIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
+
 @interface MSIDAuthenticationSchemePopTest : XCTestCase
 
 @end
@@ -141,6 +144,28 @@
     MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter]];
 
     XCTAssertFalse(scheme.isExternalKeyPop);
+}
+
+- (void)testConfigureTelemetryEvent_whenInternalKey_shouldSetInternalPopKeySource
+{
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter]];
+    MSIDTelemetryAPIEvent *event = [[MSIDTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_API_EVENT context:nil];
+
+    [scheme configureTelemetryEvent:event];
+
+    XCTAssertEqualObjects([event propertyWithName:MSID_TELEMETRY_KEY_POP_KEY_SOURCE], MSID_TELEMETRY_VALUE_INTERNAL);
+}
+
+- (void)testConfigureTelemetryEvent_whenExternalKey_shouldSetExternalPopKeySource
+{
+    NSMutableDictionary *parameters = [[self preparePopSchemeParameter] mutableCopy];
+    parameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"1";
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:parameters];
+    MSIDTelemetryAPIEvent *event = [[MSIDTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_API_EVENT context:nil];
+
+    [scheme configureTelemetryEvent:event];
+
+    XCTAssertEqualObjects([event propertyWithName:MSID_TELEMETRY_KEY_POP_KEY_SOURCE], MSID_TELEMETRY_VALUE_EXTERNAL);
 }
 
 - (void) test_InitWithIncorrectJson_shouldReturnNil{
