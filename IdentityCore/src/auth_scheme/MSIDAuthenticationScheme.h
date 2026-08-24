@@ -31,6 +31,7 @@
 #import "MSIDConstants.h"
 
 @class MSIDAccessToken;
+@class MSIDTelemetryAPIEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,6 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken;
 
+#if !EXCLUDE_FROM_MSALCPP
+// Default no-op. Scheme subclasses may override to attach scheme-specific telemetry fields.
+- (void)configureTelemetryEvent:(MSIDTelemetryAPIEvent *)event;
+#endif
 
 @end
 
