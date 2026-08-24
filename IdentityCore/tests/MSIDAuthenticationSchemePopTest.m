@@ -25,6 +25,9 @@
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAccessToken.h"
 #import "MSIDAccessTokenWithAuthScheme.h"
+#import "MSIDTelemetryAPIEvent.h"
+#import "MSIDTelemetryEventStrings.h"
+
 @interface MSIDAuthenticationSchemePopTest : XCTestCase
 
 @end
@@ -65,6 +68,29 @@
     XCTAssertFalse([scheme matchAccessTokenKeyThumbprint:incorrectToken]);
 }
 
+- (void)testMatchAccessTokenKeyThumbprint_whenKeysDiffer_shouldIsolateCachedTokens
+{
+    NSDictionary *firstParameters = @{
+        MSID_OAUTH2_TOKEN_TYPE : MSID_OAUTH2_POP,
+        MSID_OAUTH2_REQUEST_CONFIRMATION : @"eyJraWQiOiJmaXJzdC1rZXkifQ"
+    };
+    NSDictionary *secondParameters = @{
+        MSID_OAUTH2_TOKEN_TYPE : MSID_OAUTH2_POP,
+        MSID_OAUTH2_REQUEST_CONFIRMATION : @"eyJraWQiOiJzZWNvbmQta2V5In0"
+    };
+    MSIDAuthenticationSchemePop *firstScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:firstParameters];
+    MSIDAuthenticationSchemePop *secondScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:secondParameters];
+    MSIDAccessToken *firstToken = [MSIDAccessToken new];
+    firstToken.kid = @"first-key";
+    MSIDAccessToken *secondToken = [MSIDAccessToken new];
+    secondToken.kid = @"second-key";
+
+    XCTAssertTrue([firstScheme matchAccessTokenKeyThumbprint:firstToken]);
+    XCTAssertFalse([firstScheme matchAccessTokenKeyThumbprint:secondToken]);
+    XCTAssertTrue([secondScheme matchAccessTokenKeyThumbprint:secondToken]);
+    XCTAssertFalse([secondScheme matchAccessTokenKeyThumbprint:firstToken]);
+}
+
 - (void) test_InitWithCorrectJson_shouldReturnCompleteScheme
 {
     NSDictionary *json = [self preparePopSchemeParameter];
@@ -73,6 +99,73 @@
     XCTAssertNotNil(scheme);
     XCTAssertNil(error);
     [self test_assertDefaultAttributesInScheme:scheme];
+}
+
+- (void)testInitWithExternalKeyMarker_shouldPreserveMarkerInJsonAndCopy
+{
+    NSMutableDictionary *parameters = [[self preparePopSchemeParameter] mutableCopy];
+    parameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"1";
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:parameters];
+
+    XCTAssertTrue(scheme.isExternalKeyPop);
+    XCTAssertEqualObjects(scheme.schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
+    XCTAssertEqualObjects([scheme jsonDictionary][MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
+
+    MSIDAuthenticationSchemePop *schemeCopy = [scheme copy];
+    XCTAssertTrue(schemeCopy.isExternalKeyPop);
+    XCTAssertEqualObjects(schemeCopy.schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
+}
+
+- (void)testInitWithInvalidExternalKeyMarker_shouldReturnNil
+{
+    NSMutableDictionary *parameters = [[self preparePopSchemeParameter] mutableCopy];
+    parameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"true";
+
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:parameters];
+
+    XCTAssertNil(scheme);
+}
+
+- (void)testInitWithNumericExternalKeyMarkerJson_shouldReturnNilAndError
+{
+    NSMutableDictionary *json = [[self preparePopSchemeParameter] mutableCopy];
+    json[MSID_OAUTH2_EXTERNAL_KEY_POP] = @1;
+    NSError *error = nil;
+
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNil(scheme);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testInitWithoutExternalKeyMarker_shouldNotBeExternal
+{
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter]];
+
+    XCTAssertFalse(scheme.isExternalKeyPop);
+}
+
+- (void)testConfigureTelemetryEvent_whenInternalKey_shouldSetInternalPopKeySource
+{
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter]];
+    MSIDTelemetryAPIEvent *event = [[MSIDTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_API_EVENT context:nil];
+
+    [scheme configureTelemetryEvent:event];
+
+    XCTAssertEqualObjects([event propertyWithName:MSID_TELEMETRY_KEY_POP_KEY_SOURCE], MSID_TELEMETRY_VALUE_INTERNAL);
+}
+
+- (void)testConfigureTelemetryEvent_whenExternalKey_shouldSetExternalPopKeySource
+{
+    NSMutableDictionary *parameters = [[self preparePopSchemeParameter] mutableCopy];
+    parameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"1";
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:parameters];
+    MSIDTelemetryAPIEvent *event = [[MSIDTelemetryAPIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_API_EVENT context:nil];
+
+    [scheme configureTelemetryEvent:event];
+
+    XCTAssertEqualObjects([event propertyWithName:MSID_TELEMETRY_KEY_POP_KEY_SOURCE], MSID_TELEMETRY_VALUE_EXTERNAL);
 }
 
 - (void) test_InitWithIncorrectJson_shouldReturnNil{

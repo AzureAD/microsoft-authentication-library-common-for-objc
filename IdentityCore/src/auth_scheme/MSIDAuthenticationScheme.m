@@ -81,6 +81,12 @@
     return YES;
 }
 
+#if !EXCLUDE_FROM_MSALCPP
+- (void)configureTelemetryEvent:(__unused MSIDTelemetryAPIEvent *)event
+{
+}
+#endif
+
 - (instancetype)initWithJSONDictionary:(__unused NSDictionary *)json error:(__unused NSError *__autoreleasing*)error
 {
     return [self initWithSchemeParameters:[NSDictionary new]];

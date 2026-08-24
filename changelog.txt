@@ -7,6 +7,7 @@ Version 2.15.0
 * Protect device IDs in BART redemption mismatch logging by routing the error message through PII logging. (#1935)
 * Fix a memory leak in bound refresh token redemption by ensuring SecKeyCopyPublicKey results are safely released via a nil-checked helper in MSIDBoundRefreshToken+Redemption.
 * Restrict macOS CBA preferred-identity URL fallback to the same host or its child subdomains behind a flight, with non-PII rollout logs.
+* Add enforced caller-provided RSA key validation and an external-key PoP manager path that avoids key generation and keychain access. (#1934)
 * Prevent a crash when JWT signing is attempted with a NULL private key. (#1917)
 * Raise the minimum deployment targets to iOS 16.0 and macOS 12.0, and replace deprecated macOS SecTransform JWT signing with SecKeyCreateSignature. (#1915)
 * Skip broker key keychain lookup when the client cannot persist a broker key, avoiding noisy -34018/-51808 errors on macOS runtime/unentitled contexts. (#1812)\
