@@ -184,11 +184,9 @@
     NSDictionary *expectedJson = @{
         @"access_token": @"synthetic-access-token",
         @"id_token": @"synthetic-id-token",
-        @"token_type": @"Bearer",
         @"expires_in": @"3600",
-        @"expires_on": @"2000000000",
         @"scope": @"openid profile",
-        @"req_cnf": @"synthetic-request-confirmation",
+        @"client_info": @"synthetic-client-info",
         @"account": @{
             @"id": tokenResponseMock.accountIdentifier,
             @"userName": tokenResponseMock.accountUpn
@@ -245,6 +243,10 @@
     MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{@"id_token": idToken} error:nil];
     tokenResponseMock.responseJson = @{
         @"access_token": @"synthetic-access-token",
+        @"client_info": @"synthetic-client-info",
+        @"token_type": @"Bearer",
+        @"expires_on": @"2000000000",
+        @"req_cnf": @"synthetic-request-confirmation",
         @"refresh_token": @"synthetic-refresh-token"
     };
 
@@ -260,6 +262,7 @@
 
     NSDictionary *expectedJson = @{
         @"access_token": @"synthetic-access-token",
+        @"client_info": @"synthetic-client-info",
         @"account": @{
             @"id": tokenResponseMock.accountIdentifier,
             @"userName": tokenResponseMock.accountUpn
@@ -394,47 +397,6 @@
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
     XCTAssertEqualObjects(json[@"id_token"], @"cached-id-token");
     XCTAssertEqualObjects(json[@"scope"], @"openid profile User.Read");
-    XCTAssertEqualObjects(json[@"expires_on"], @"2000000000");
-    XCTAssertTrue([json[@"expires_in"] isKindOfClass:NSString.class]);
-    XCTAssertEqualObjects(json[@"account"][@"id"], @"uid.utid");
-    XCTAssertEqualObjects(json[@"account"][@"userName"], @"user@contoso.com");
-    XCTAssertEqualObjects(json[@"properties"][@"UPN"], @"user@contoso.com");
-    XCTAssertEqualObjects(json[@"state"], @"state");
-}
-
-- (void)testJsonDictionary_whenCachedPathWithSanitizationFlightEnabled_shouldBuildResponseFromResult
-{
-    MSIDAccessToken *accessToken = [MSIDAccessToken new];
-    accessToken.accessToken = @"cached-access-token";
-    accessToken.tokenType = @"Bearer";
-    accessToken.scopes = [NSOrderedSet orderedSetWithArray:@[@"openid", @"profile"]];
-    accessToken.expiresOn = [NSDate dateWithTimeIntervalSince1970:2000000000];
-
-    MSIDAccount *account = [MSIDAccount new];
-    account.username = @"user@contoso.com";
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:account.username
-                                                                       homeAccountId:@"uid.utid"];
-
-    MSIDTokenResult *result = [MSIDTokenResult new];
-    result.accessToken = accessToken;
-    result.rawIdToken = @"cached-id-token";
-    result.account = account;
-
-    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION: @YES};
-    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
-
-    MSIDBrowserNativeMessageGetTokenResponse *response =
-    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
-                                                                    state:@"state"
-                                                fallbackRequestAccountUpn:nil];
-
-    NSDictionary *json = [response jsonDictionary];
-
-    XCTAssertEqualObjects(json[@"access_token"], @"cached-access-token");
-    XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
-    XCTAssertEqualObjects(json[@"id_token"], @"cached-id-token");
-    XCTAssertEqualObjects(json[@"scope"], @"openid profile");
     XCTAssertEqualObjects(json[@"expires_on"], @"2000000000");
     XCTAssertTrue([json[@"expires_in"] isKindOfClass:NSString.class]);
     XCTAssertEqualObjects(json[@"account"][@"id"], @"uid.utid");

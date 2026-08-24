@@ -44,28 +44,6 @@
 
 @end
 
-static NSDictionary *MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary(NSDictionary *tokenResponseJson)
-{
-    NSArray<NSString *> *allowedKeys = @[MSID_OAUTH2_ACCESS_TOKEN,
-                                         MSID_OAUTH2_ID_TOKEN,
-                                         MSID_OAUTH2_TOKEN_TYPE,
-                                         MSID_OAUTH2_EXPIRES_IN,
-                                         MSID_OAUTH2_EXPIRES_ON,
-                                         MSID_OAUTH2_SCOPE,
-                                         MSID_OAUTH2_REQUEST_CONFIRMATION];
-    NSMutableDictionary *sanitizedResponse = [NSMutableDictionary new];
-    for (NSString *key in allowedKeys)
-    {
-        id value = tokenResponseJson[key];
-        if (value)
-        {
-            sanitizedResponse[key] = value;
-        }
-    }
-
-    return sanitizedResponse;
-}
-
 @implementation MSIDBrowserNativeMessageGetTokenResponse
 
 - (instancetype)initWithTokenResponse:(MSIDBrokerOperationTokenResponse *)operationTokenResponse
@@ -120,6 +98,31 @@ static NSDictionary *MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary
 }
 #pragma clang diagnostic pop
 
+- (NSMutableDictionary *)sanitizedTokenResponseDictionary:(NSDictionary *)tokenResponseJson
+{
+    static NSArray<NSString *> *allowedKeys;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        allowedKeys = @[MSID_OAUTH2_ACCESS_TOKEN,
+                        MSID_OAUTH2_ID_TOKEN,
+                        MSID_OAUTH2_EXPIRES_IN,
+                        MSID_OAUTH2_SCOPE,
+                        MSID_OAUTH2_CLIENT_INFO];
+    });
+
+    NSMutableDictionary *sanitizedResponse = [NSMutableDictionary new];
+    for (NSString *key in allowedKeys)
+    {
+        id value = tokenResponseJson[key];
+        if (value)
+        {
+            sanitizedResponse[key] = value;
+        }
+    }
+
+    return sanitizedResponse;
+}
+
 // Shapes the GetToken payload from a single canonical token result. Base OAuth fields come from the
 // server token response when present (wire parity with a freshly redeemed result); otherwise they are
 // derived from the cached access token (access-token cache hit). Optional fields are omitted when
@@ -132,55 +135,29 @@ static NSDictionary *MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary
     if (self.operationTokenResponse)
     {
         MSIDTokenResponse *tokenResponse = self.operationTokenResponse.tokenResponse;
-        NSDictionary *tokenResponseJson = [tokenResponse jsonDictionary];
-        if (!tokenResponseJson)
+        NSMutableDictionary *response = [[tokenResponse jsonDictionary] mutableCopy];
+        if (!response)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create token json response.");
             return nil;
         }
 
-        NSMutableDictionary *response = sanitizeResponse
-        ? [MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary(tokenResponseJson) mutableCopy]
-        : [tokenResponseJson mutableCopy];
+        if (sanitizeResponse)
+        {
+            response = [self sanitizedTokenResponseDictionary:response];
+        }
 
         NSMutableDictionary *accountJson = [NSMutableDictionary new];
-        NSString *accountUpn = tokenResponse.accountUpn ?: self.requestAccountUpn;
-        if (![NSString msidIsStringNilOrBlank:accountUpn])
-        {
-            accountJson[@"userName"] = accountUpn;
-        }
+        accountJson[@"userName"] = tokenResponse.accountUpn ?: self.requestAccountUpn;
+        accountJson[@"id"] = tokenResponse.accountIdentifier;
 
-        if (![NSString msidIsStringNilOrBlank:tokenResponse.accountIdentifier])
-        {
-            accountJson[@"id"] = tokenResponse.accountIdentifier;
-        }
-
-        if (accountJson.count)
-        {
-            response[@"account"] = accountJson;
-        }
-
-        if (![NSString msidIsStringNilOrBlank:self.state])
-        {
-            response[@"state"] = self.state;
-        }
+        response[@"account"] = accountJson;
+        response[@"state"] = self.state;
 
         NSMutableDictionary *propertiesJson = [NSMutableDictionary new];
-        if (![NSString msidIsStringNilOrBlank:accountUpn])
-        {
-            propertiesJson[@"UPN"] = accountUpn;
-        }
-
-        NSString *matsReportJson = [self.matsReport jsonString];
-        if (matsReportJson)
-        {
-            propertiesJson[@"MATS"] = matsReportJson;
-        }
-
-        if (propertiesJson.count)
-        {
-            response[@"properties"] = propertiesJson;
-        }
+        propertiesJson[@"UPN"] = accountJson[@"userName"];
+        propertiesJson[@"MATS"] = [self.matsReport jsonString];
+        response[@"properties"] = propertiesJson;
 
         return response;
     }
@@ -200,7 +177,7 @@ static NSDictionary *MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary
         }
 
         response = sanitizeResponse
-        ? [MSIDBrowserNativeMessageGetTokenResponseSanitizedDictionary(tokenResponseJson) mutableCopy]
+        ? [self sanitizedTokenResponseDictionary:tokenResponseJson]
         : [tokenResponseJson mutableCopy];
     }
     else
