@@ -325,6 +325,8 @@
     XCTAssertEqual(reason, MSIDExternalKeyPairValidationFailureReasonInvalidKeyClass);
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], context.correlationId.UUIDString);
+    XCTAssertEqual([error.userInfo[MSIDExternalKeyPairValidationFailureReasonKey] integerValue],
+                   MSIDExternalKeyPairValidationFailureReasonInvalidKeyClass);
 }
 
 #pragma mark -- Test Utility

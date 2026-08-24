@@ -24,6 +24,9 @@
 #import "MSIDKeyOperationUtil.h"
 #import "MSIDJwtAlgorithm.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDError.h"
+
+NSString * const MSIDExternalKeyPairValidationFailureReasonKey = @"MSIDExternalKeyPairValidationFailureReasonKey";
 
 static const NSUInteger MSIDMinimumExternalPoPKeySizeInBits = 2048;
 
@@ -335,7 +338,19 @@ static const NSUInteger MSIDMinimumExternalPoPKeySizeInBits = 2048;
                                 error:(NSError *__autoreleasing *)error
 {
     if (failureReason) *failureReason = reason;
-    [self generateErrorWithMessage:message underlyingError:underlyingError context:context error:error];
+    if (error)
+    {
+        NSDictionary *additionalUserInfo = @{ MSIDExternalKeyPairValidationFailureReasonKey : @(reason) };
+        *error = MSIDCreateError(MSIDErrorDomain,
+                                 MSIDErrorInternal,
+                                 message,
+                                 nil,
+                                 nil,
+                                 underlyingError,
+                                 context.correlationId,
+                                 additionalUserInfo,
+                                 NO);
+    }
     return NO;
 }
 
