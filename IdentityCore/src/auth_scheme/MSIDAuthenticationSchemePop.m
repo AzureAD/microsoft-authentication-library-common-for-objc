@@ -150,7 +150,7 @@
     // external_key_pop is a client-internal marker consumed by the broker, not a '/token' parameter.
     NSMutableDictionary *parameters = [self.schemeParameters mutableCopy];
     [parameters removeObjectForKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
-    return parameters;
+    return [parameters copy];
 }
 
 #if !EXCLUDE_FROM_MSALCPP
