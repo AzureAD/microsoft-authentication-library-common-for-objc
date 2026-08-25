@@ -43,12 +43,14 @@
 
 @property (nonatomic) NSString *kid;
 @property (nonatomic) NSString *req_cnf;
-@property (nonatomic) NSString *externalKeyPop;
+@property (nonatomic) BOOL isExternalKeyPop;
 
 @end
 
 
 @implementation MSIDAuthenticationSchemePop
+
+@synthesize isExternalKeyPop = _isExternalKeyPop;
 
 + (void)load
 {
@@ -56,6 +58,29 @@
 }
 
 - (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters
+{
+    // Deserialization entry point. Lift the wire marker out of the dictionary into the typed flag so
+    // that schemeParameters never carries client-internal state onto the '/token' request body.
+    id externalKeyPop = schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP];
+    if (externalKeyPop && (![externalKeyPop isKindOfClass:NSString.class] || ![externalKeyPop isEqualToString:@"1"]))
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Invalid external_key_pop marker.");
+        return nil;
+    }
+
+    NSDictionary *wireParameters = schemeParameters;
+    if (externalKeyPop)
+    {
+        NSMutableDictionary *mutableParameters = [schemeParameters mutableCopy];
+        [mutableParameters removeObjectForKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
+        wireParameters = mutableParameters;
+    }
+
+    return [self initWithSchemeParameters:wireParameters isExternalKeyPop:externalKeyPop != nil];
+}
+
+- (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters
+                        isExternalKeyPop:(BOOL)isExternalKeyPop
 {
     self = [super initWithSchemeParameters:schemeParameters];
     
@@ -67,13 +92,7 @@
             return nil;
         }
         _req_cnf = [_schemeParameters msidObjectForKey:MSID_OAUTH2_REQUEST_CONFIRMATION ofClass:[NSString class]];
-        id externalKeyPop = _schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP];
-        if (externalKeyPop && (![externalKeyPop isKindOfClass:NSString.class] || ![externalKeyPop isEqualToString:@"1"]))
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Invalid external_key_pop marker.");
-            return nil;
-        }
-        _externalKeyPop = externalKeyPop;
+        _isExternalKeyPop = isExternalKeyPop;
         
         if ([NSString msidIsStringNilOrBlank:_req_cnf])
         {
@@ -135,19 +154,6 @@
     return MSIDAuthSchemeParamFromType(self.authScheme);
 }
 
-- (BOOL)isExternalKeyPop
-{
-    return [self.externalKeyPop isEqualToString:@"1"];
-}
-
-- (NSDictionary *)tokenEndpointParameters
-{
-    // external_key_pop is a client-internal marker consumed by the broker, not a '/token' parameter.
-    NSMutableDictionary *parameters = [self.schemeParameters mutableCopy];
-    [parameters removeObjectForKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
-    return [parameters copy];
-}
-
 #if !EXCLUDE_FROM_MSALCPP
 - (void)configureTelemetryEvent:(MSIDTelemetryAPIEvent *)event
 {
@@ -183,19 +189,14 @@
     [schemeParameters setObject:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
     [schemeParameters setObject:authScheme forKey:MSID_OAUTH2_TOKEN_TYPE];
     id externalKeyPop = json[MSID_OAUTH2_EXTERNAL_KEY_POP];
-    if (externalKeyPop)
+    if (externalKeyPop && (![externalKeyPop isKindOfClass:NSString.class] || ![externalKeyPop isEqualToString:@"1"]))
     {
-        if (![externalKeyPop isKindOfClass:NSString.class] || ![externalKeyPop isEqualToString:@"1"])
-        {
-            NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: invalid external_key_pop marker", self.class];
-            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
-            return nil;
-        }
-
-        schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = externalKeyPop;
+        NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: invalid external_key_pop marker", self.class];
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
+        return nil;
     }
     
-    return [self initWithSchemeParameters:schemeParameters];
+    return [self initWithSchemeParameters:schemeParameters isExternalKeyPop:externalKeyPop != nil];
 }
 
 - (NSDictionary *)jsonDictionary
@@ -216,7 +217,7 @@
     }
     
     json[MSID_OAUTH2_REQUEST_CONFIRMATION] = self.req_cnf;
-    [json msidSetNonEmptyString:self.externalKeyPop forKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
+    [json msidSetNonEmptyString:self.isExternalKeyPop ? @"1" : nil forKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
     
     return json;
 }
@@ -226,7 +227,7 @@
     MSIDAuthenticationSchemePop *authScheme = [super copyWithZone:zone];
     authScheme->_kid = [_kid copyWithZone:zone];
     authScheme->_req_cnf = [_req_cnf copyWithZone:zone];
-    authScheme->_externalKeyPop = [_externalKeyPop copyWithZone:zone];
+    authScheme->_isExternalKeyPop = _isExternalKeyPop;
     return authScheme;
 }
 

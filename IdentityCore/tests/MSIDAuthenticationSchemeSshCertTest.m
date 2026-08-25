@@ -44,11 +44,11 @@
     XCTAssertNil(scheme);
 }
 
-- (void)testTokenEndpointParameters_whenSshCertScheme_shouldEqualSchemeParameters
+- (void)testIsExternalKeyPop_whenSshCertScheme_shouldBeNo
 {
     MSIDAuthenticationSchemeSshCert *scheme = [[MSIDAuthenticationSchemeSshCert alloc] initWithSchemeParameters:[self prepareSshCertSchemeParameter]];
 
-    XCTAssertEqualObjects(scheme.tokenEndpointParameters, scheme.schemeParameters);
+    XCTAssertFalse(scheme.isExternalKeyPop);
 }
 
 

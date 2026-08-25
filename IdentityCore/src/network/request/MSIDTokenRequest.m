@@ -48,7 +48,7 @@
         parameters[MSID_OAUTH2_CLIENT_ID] = clientId;
         parameters[MSID_OAUTH2_SCOPE] = scope;
         
-        NSDictionary *schemeBodyParameters = authScheme.tokenEndpointParameters;
+        NSDictionary *schemeBodyParameters = authScheme.schemeParameters;
         if ([schemeBodyParameters count] > 0)
         {
             [parameters addEntriesFromDictionary:schemeBodyParameters];

@@ -155,7 +155,7 @@
     NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
     NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
-    NSString *externalKeyPop = schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP];
+    NSString *externalKeyPop = self.requestParameters.authScheme.isExternalKeyPop ? @"1" : nil;
     NSString *keyId = schemeParameters[MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
@@ -227,7 +227,7 @@
     NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
     NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
-    NSString *externalKeyPop = schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP];
+    NSString *externalKeyPop = self.requestParameters.authScheme.isExternalKeyPop ? @"1" : nil;
     NSString *keyId = schemeParameters[MSID_OAUTH2_SSH_CERT_KEY_ID];
     [resumeDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [resumeDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];

@@ -32,7 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAuthenticationSchemePop : MSIDAuthenticationScheme
 
-@property (nonatomic, readonly) BOOL isExternalKeyPop;
+/// Designated initializer. `schemeParameters` must contain only OAuth 2.0 '/token' wire parameters;
+/// the external-key marker is carried by the typed `isExternalKeyPop` flag instead.
+- (nullable instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters
+                                 isExternalKeyPop:(BOOL)isExternalKeyPop;
 
 @end
 

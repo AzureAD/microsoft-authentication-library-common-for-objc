@@ -58,11 +58,11 @@
     XCTAssertNil(scheme.accessToken.kid);
 }
 
-- (void)testTokenEndpointParameters_whenBearerScheme_shouldEqualSchemeParameters
+- (void)testIsExternalKeyPop_whenBearerScheme_shouldBeNo
 {
     MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[self prepareBearerSchemeParams]];
 
-    XCTAssertEqualObjects(scheme.tokenEndpointParameters, scheme.schemeParameters);
+    XCTAssertFalse(scheme.isExternalKeyPop);
 }
 
 - (void)testConfigureTelemetryEvent_whenBaseScheme_shouldLeavePopKeySourceUnset

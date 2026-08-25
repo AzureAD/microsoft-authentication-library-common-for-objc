@@ -60,9 +60,9 @@
     return MSIDAuthSchemeBearer;
 }
 
-- (NSDictionary *)tokenEndpointParameters
+- (BOOL)isExternalKeyPop
 {
-    return self.schemeParameters;
+    return NO;
 }
 
 - (MSIDCredentialType)credentialType
