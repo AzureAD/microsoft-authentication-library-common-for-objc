@@ -230,6 +230,9 @@
 - (void)testInitBrokerRequest_whenValidParameters_shouldReturnValidPayload_ATPopFlow
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParametersATPop];
+    NSMutableDictionary *schemeParameters = [parameters.authScheme.schemeParameters mutableCopy];
+    schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"1";
+    parameters.authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParameters];
     
     NSError *error = nil;
     MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
@@ -247,6 +250,7 @@
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
                                       @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
+                                      @"external_key_pop" : @"1",
                                       @"token_type" : @"Pop",
                                       MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
@@ -269,6 +273,7 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"broker_nonce": brokerNonce,
                                                @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
+                                               @"external_key_pop" : @"1",
                                                @"token_type" : @"Pop",
                                                @"client_sku" : [self clientSku],
                                                @"skip_validate_result_account" : @"NO"

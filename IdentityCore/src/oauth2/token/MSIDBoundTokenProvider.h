@@ -24,6 +24,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDRequestContext.h"
+#import "MSIDSPATokenAcquiring.h"
 
 @class MSIDBrowserNativeMessageGetTokenRequest;
 
@@ -45,6 +46,8 @@ typedef void (^MSIDBoundTokenProviderCompletionBlock)(NSString *_Nullable respon
 ///   - silent path: redeems a cached BART SPA against ESTS in-process (no broker flip),
 ///   - interactive path: flips to the broker (Authenticator) via URL scheme to mint the initial token.
 @interface MSIDBoundTokenProvider : NSObject
+
+- (instancetype)initWithAcquirer:(id<MSIDSPATokenAcquiring>)acquirer NS_DESIGNATED_INITIALIZER;
 
 /// Acquire a bound token for the supplied browser-native-message GetToken request.
 /// @param request The GetToken request constructed by the host (e.g. OneAuth).

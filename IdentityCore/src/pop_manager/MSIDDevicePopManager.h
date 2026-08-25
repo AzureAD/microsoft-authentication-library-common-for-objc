@@ -28,6 +28,7 @@
 @class MSIDAssymetricKeyLookupAttributes;
 @class MSIDAssymetricKeyPair;
 @protocol MSIDAssymetricKeyGenerating;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,6 +38,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig
                   keyPairAttributes:(MSIDAssymetricKeyLookupAttributes *)keyPairAttributes;
+
+/// Initializes a manager with a caller-owned RSA key pair for external AT PoP.
+/// External AT PoP is RSA-only (minimum 2048-bit). EC/ES256 keys are not supported on this path
+/// (unlike internal Secure Enclave generation). The public key must be exportable and support
+/// RS256 Message verification so JWK/kid generation and non-interactive pair matching can succeed;
+/// keys that only support private-key signing may fail validation. Validation fails without
+/// signing when public-key derivation is unavailable, so initialization never triggers caller-key
+/// user-presence UI.
+- (nullable instancetype)initWithExternalKeyPair:(nullable MSIDAssymetricKeyPair *)keyPair;
+
+/// Initializes a manager with a validated caller-owned RSA key pair and returns validation errors.
+/// Same RSA-only / ≥2048-bit constraints as \c initWithExternalKeyPair:.
+- (nullable instancetype)initWithExternalKeyPair:(nullable MSIDAssymetricKeyPair *)keyPair
+                                         context:(nullable id<MSIDRequestContext>)context
+                                           error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (nullable NSString *)createSignedAccessToken:(NSString *)accessToken
                                     httpMethod:(NSString *)httpMethod

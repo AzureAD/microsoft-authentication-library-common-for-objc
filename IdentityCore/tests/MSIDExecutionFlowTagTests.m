@@ -34,27 +34,27 @@
 - (void)test_MSIDExecutionFlowNetworkTagToString_allTagsAreUnique
 {
     NSArray *tags = @[
-        MSIDExecutionFlowNetworkTagToString(MSIDPrepareNetworkRequestTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseFailedObjectTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseSucceededObjectTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDReceiveNetworkResponseTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDRetryOnNetworkFailureTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDParseNetworkResponseTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDOtherHttpNetworkStatusCodeTag)
+        MSIDStringFromExecutionFlowNetworkTag(MSIDPrepareNetworkRequestTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDCacheResponseFailedObjectTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDCacheResponseSucceededObjectTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDReceiveNetworkResponseTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDRetryOnNetworkFailureTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDParseNetworkResponseTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDOtherHttpNetworkStatusCodeTag)
     ];
     
     NSSet *uniqueTags = [NSSet setWithArray:tags];
-    XCTAssertEqual(tags.count, uniqueTags.count, @"Duplicate tags found in MSIDExecutionFlowNetworkTagToString");
+    XCTAssertEqual(tags.count, uniqueTags.count, @"Duplicate tags found in MSIDStringFromExecutionFlowNetworkTag");
 }
 
 - (void)test_MSIDTokenRequestTagToString_allTagsAreUnique
 {
     NSArray *tags = @[
-        MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag)
+        MSIDStringFromTokenRequestTag(MSIDAtExpirationElapsedTag)
     ];
     
     NSSet *uniqueTags = [NSSet setWithArray:tags];
-    XCTAssertEqual(tags.count, uniqueTags.count, @"Duplicate tags found in MSIDTokenRequestTagToString");
+    XCTAssertEqual(tags.count, uniqueTags.count, @"Duplicate tags found in MSIDStringFromTokenRequestTag");
 }
 
 - (void)test_allTagsAreGloballyUnique
@@ -62,17 +62,17 @@
     NSMutableArray *allTags = [NSMutableArray array];
     
     [allTags addObjectsFromArray:@[
-        MSIDExecutionFlowNetworkTagToString(MSIDPrepareNetworkRequestTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseFailedObjectTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseSucceededObjectTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDReceiveNetworkResponseTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDRetryOnNetworkFailureTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDParseNetworkResponseTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDOtherHttpNetworkStatusCodeTag)
+        MSIDStringFromExecutionFlowNetworkTag(MSIDPrepareNetworkRequestTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDCacheResponseFailedObjectTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDCacheResponseSucceededObjectTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDReceiveNetworkResponseTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDRetryOnNetworkFailureTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDParseNetworkResponseTag),
+        MSIDStringFromExecutionFlowNetworkTag(MSIDOtherHttpNetworkStatusCodeTag)
     ]];
     
     [allTags addObjectsFromArray:@[
-        MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag)
+        MSIDStringFromTokenRequestTag(MSIDAtExpirationElapsedTag)
     ]];
     
     NSSet *uniqueTags = [NSSet setWithArray:allTags];
@@ -81,30 +81,30 @@
 
 - (void)test_MSIDExecutionFlowNetworkTagToString_returnsExpectedStrings
 {
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDPrepareNetworkRequestTag), @"iq24n");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseFailedObjectTag), @"twoty");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseSucceededObjectTag), @"n3416");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDReceiveNetworkResponseTag), @"xfx8w");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDRetryOnNetworkFailureTag), @"rz95n");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDParseNetworkResponseTag), @"fxjo7");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDOtherHttpNetworkStatusCodeTag), @"5kbvm");
+    XCTAssertEqualObjects(MSIDStringFromExecutionFlowNetworkTag(MSIDPrepareNetworkRequestTag), @"iq24n");
+    XCTAssertEqualObjects(MSIDStringFromExecutionFlowNetworkTag(MSIDCacheResponseFailedObjectTag), @"twoty");
+    XCTAssertEqualObjects(MSIDStringFromExecutionFlowNetworkTag(MSIDCacheResponseSucceededObjectTag), @"n3416");
+    XCTAssertEqualObjects(MSIDStringFromExecutionFlowNetworkTag(MSIDReceiveNetworkResponseTag), @"xfx8w");
+    XCTAssertEqualObjects(MSIDStringFromExecutionFlowNetworkTag(MSIDRetryOnNetworkFailureTag), @"rz95n");
+    XCTAssertEqualObjects(MSIDStringFromExecutionFlowNetworkTag(MSIDParseNetworkResponseTag), @"fxjo7");
+    XCTAssertEqualObjects(MSIDStringFromExecutionFlowNetworkTag(MSIDOtherHttpNetworkStatusCodeTag), @"5kbvm");
 }
 
 - (void)test_MSIDTokenRequestTagToString_returnsExpectedStrings
 {
-    XCTAssertEqualObjects(MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag), @"xilux");
+    XCTAssertEqualObjects(MSIDStringFromTokenRequestTag(MSIDAtExpirationElapsedTag), @"xilux");
 }
 
 - (void)test_MSIDExecutionFlowNetworkTagToString_unknownEnum_returnsFallback
 {
-    NSString *result = MSIDExecutionFlowNetworkTagToString((MSIDExecutionFlowNetworkTag)9999);
+    NSString *result = MSIDStringFromExecutionFlowNetworkTag((MSIDExecutionFlowNetworkTag)9999);
     XCTAssertTrue([result containsString:@"MSIDExecutionFlowNetworkTag"]);
     XCTAssertTrue([result containsString:@"9999"]);
 }
 
 - (void)test_MSIDTokenRequestTagToString_unknownEnum_returnsFallback
 {
-    NSString *result = MSIDTokenRequestTagToString((MSIDTokenRequestTag)9999);
+    NSString *result = MSIDStringFromTokenRequestTag((MSIDTokenRequestTag)9999);
     XCTAssertTrue([result containsString:@"MSIDTokenRequestTag"]);
     XCTAssertTrue([result containsString:@"9999"]);
 }

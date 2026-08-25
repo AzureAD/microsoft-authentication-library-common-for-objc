@@ -256,8 +256,8 @@
     XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the added PRT tag"];
     MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
-        XCTAssertTrue([executionFlow containsString:MSIDPkeyAuthTagToString(MSIDPkeyAuthAddedRefreshTokenCredentialTag)], @"Flow should record the added PRT tag");
-        XCTAssertFalse([executionFlow containsString:MSIDPkeyAuthTagToString(MSIDPkeyAuthSkippedRefreshTokenCredentialUntrustedHostTag)], @"Flow should not record the skipped tag");
+        XCTAssertTrue([executionFlow containsString:MSIDStringFromPkeyAuthTag(MSIDPkeyAuthAddedRefreshTokenCredentialTag)], @"Flow should record the added PRT tag");
+        XCTAssertFalse([executionFlow containsString:MSIDStringFromPkeyAuthTag(MSIDPkeyAuthSkippedRefreshTokenCredentialUntrustedHostTag)], @"Flow should not record the skipped tag");
         [flowExpectation fulfill];
     });
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -293,8 +293,8 @@
     XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the skipped PRT tag"];
     MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
-        XCTAssertTrue([executionFlow containsString:MSIDPkeyAuthTagToString(MSIDPkeyAuthSkippedRefreshTokenCredentialUntrustedHostTag)], @"Flow should record the skipped PRT tag");
-        XCTAssertFalse([executionFlow containsString:MSIDPkeyAuthTagToString(MSIDPkeyAuthAddedRefreshTokenCredentialTag)], @"Flow should not record the added tag");
+        XCTAssertTrue([executionFlow containsString:MSIDStringFromPkeyAuthTag(MSIDPkeyAuthSkippedRefreshTokenCredentialUntrustedHostTag)], @"Flow should record the skipped PRT tag");
+        XCTAssertFalse([executionFlow containsString:MSIDStringFromPkeyAuthTag(MSIDPkeyAuthAddedRefreshTokenCredentialTag)], @"Flow should not record the added tag");
         [flowExpectation fulfill];
     });
     [self waitForExpectationsWithTimeout:1 handler:nil];
