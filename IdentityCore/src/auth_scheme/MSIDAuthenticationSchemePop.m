@@ -140,6 +140,19 @@
     return [self.externalKeyPop isEqualToString:@"1"];
 }
 
+- (NSDictionary *)tokenEndpointParameters
+{
+    if (!self.externalKeyPop)
+    {
+        return self.schemeParameters;
+    }
+
+    // external_key_pop is a client-internal marker consumed by the broker, not a '/token' parameter.
+    NSMutableDictionary *parameters = [self.schemeParameters mutableCopy];
+    [parameters removeObjectForKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
+    return parameters;
+}
+
 #if !EXCLUDE_FROM_MSALCPP
 - (void)configureTelemetryEvent:(MSIDTelemetryAPIEvent *)event
 {

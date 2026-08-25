@@ -60,6 +60,11 @@
     return MSIDAuthSchemeBearer;
 }
 
+- (NSDictionary *)tokenEndpointParameters
+{
+    return self.schemeParameters;
+}
+
 - (MSIDCredentialType)credentialType
 {
     return MSIDAccessTokenType;
