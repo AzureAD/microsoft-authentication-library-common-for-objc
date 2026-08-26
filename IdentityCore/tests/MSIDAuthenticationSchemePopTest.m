@@ -27,6 +27,8 @@
 #import "MSIDAccessTokenWithAuthScheme.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDOAuth2Constants.h"
+#import "MSIDTokenRequest.h"
 
 @interface MSIDAuthenticationSchemePopTest : XCTestCase
 
@@ -144,6 +146,45 @@
     MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter]];
 
     XCTAssertFalse(scheme.isExternalKeyPop);
+}
+
+- (void)testTokenEndpointParameters_whenExternalKeyPop_shouldExcludeExternalKeyMarker
+{
+    NSMutableDictionary *parameters = [[self preparePopSchemeParameter] mutableCopy];
+    parameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"1";
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:parameters];
+
+    NSDictionary *tokenEndpointParameters = scheme.tokenEndpointParameters;
+
+    XCTAssertNil(tokenEndpointParameters[MSID_OAUTH2_EXTERNAL_KEY_POP]);
+    XCTAssertEqualObjects(tokenEndpointParameters[MSID_OAUTH2_REQUEST_CONFIRMATION], scheme.schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION]);
+    XCTAssertEqualObjects(tokenEndpointParameters[MSID_OAUTH2_TOKEN_TYPE], scheme.schemeParameters[MSID_OAUTH2_TOKEN_TYPE]);
+    XCTAssertEqualObjects(scheme.schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
+}
+
+- (void)testTokenEndpointParameters_whenInternalKeyPop_shouldReturnSchemeParameters
+{
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter]];
+
+    XCTAssertEqualObjects(scheme.tokenEndpointParameters, scheme.schemeParameters);
+}
+
+- (void)testTokenRequestParameters_whenExternalKeyPop_shouldNotSendExternalKeyMarkerToTokenEndpoint
+{
+    NSMutableDictionary *parameters = [[self preparePopSchemeParameter] mutableCopy];
+    parameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"1";
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:parameters];
+
+    MSIDTokenRequest *request = [[MSIDTokenRequest alloc] initWithEndpoint:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"]
+                                                               authScheme:scheme
+                                                                 clientId:@"my_client_id"
+                                                                    scope:@"user.read"
+                                                               ssoContext:nil
+                                                                  context:nil];
+
+    XCTAssertNil(request.parameters[MSID_OAUTH2_EXTERNAL_KEY_POP]);
+    XCTAssertEqualObjects(request.parameters[MSID_OAUTH2_TOKEN_TYPE], scheme.schemeParameters[MSID_OAUTH2_TOKEN_TYPE]);
+    XCTAssertEqualObjects(request.parameters[MSID_OAUTH2_REQUEST_CONFIRMATION], scheme.schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION]);
 }
 
 - (void)testConfigureTelemetryEvent_whenInternalKey_shouldSetInternalPopKeySource
