@@ -26,9 +26,9 @@
 #import "MSIDWebviewResponse.h"
 
 /*! Sub-error values stamped on MSIDOAuthSubErrorKey when a switch_browser (DUNA/CBA) response fails to
-    parse or validate. Without these, all three failures collapse into a generic
-    MSIDErrorServerInvalidResponse / MSIDErrorServerInvalidState and are indistinguishable in telemetry -
-    including the state mismatch, which is security-relevant and worth alerting on separately. */
+    parse or validate. Without these, every such failure collapses into a generic
+    MSIDErrorServerInvalidResponse / MSIDErrorServerInvalidState and they are indistinguishable in
+    telemetry - including the state mismatch, which is security-relevant and worth alerting on separately. */
 
 /*! The response's state parameter did not match the state the client sent. */
 extern NSString * const MSID_SWITCH_BROWSER_SUB_ERROR_STATE_MISMATCH;
