@@ -100,6 +100,8 @@
 
 - (NSMutableDictionary *)sanitizedTokenResponseDictionary:(NSDictionary *)tokenResponseJson
 {
+    // Browser GetToken response contract:
+    // https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=/MSALJS/NativeBrokerExtension/broker_contract.md&_a=preview
     static NSArray<NSString *> *allowedKeys;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
