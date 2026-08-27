@@ -1,4 +1,5 @@
 TBD
+* Fix MSIDAADWebviewFactory discarding switch_browser (DUNA/CBA) response initializer errors. A malformed switch-browser URL - notably one missing action_uri but carrying a code - could fall through and be accepted as an ordinary authorization-code response; recognized switch-browser URLs now fail with their specific error instead.
 * Distinguish switch_browser (DUNA/CBA) response failures via MSIDOAuthSubErrorKey. State mismatch, missing state, missing action_uri and missing code previously all surfaced as a generic MSIDErrorServerInvalidResponse/MSIDErrorServerInvalidState and could not be told apart in telemetry; the state mismatch in particular is security-relevant and now stands on its own. No new error codes and no signature changes.
 * Stop sending the client-internal external_key_pop marker to the /token endpoint on the non-broker path. MSIDAuthenticationScheme now exposes tokenEndpointParameters, and MSIDAuthenticationSchemePop overrides it to drop the marker.
 * Add in-process Browser Native Message BART SPA token orchestration for unmanaged iOS hosts.
