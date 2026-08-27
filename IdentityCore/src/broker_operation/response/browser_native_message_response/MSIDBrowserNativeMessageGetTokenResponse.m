@@ -121,6 +121,8 @@
             sanitizedResponse[key] = value;
         }
     }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"'GetToken' response was sanitized.");
 
     return sanitizedResponse;
 }
