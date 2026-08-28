@@ -763,7 +763,14 @@
 - (MSIDFlightManagerMockProvider *)enableDUNAFlights
 {
     MSIDFlightManagerMockProvider *provider = [MSIDFlightManagerMockProvider new];
-    provider.boolForKeyContainer = @{ MSID_FLIGHT_SUPPORT_DUNA_CBA: @YES };
+    // Both flights, not just MSID_FLIGHT_SUPPORT_DUNA_CBA. State validation inside
+    // MSIDSwitchBrowserResponse is gated separately on MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA, and the mock
+    // provider returns NO for any key absent from boolForKeyContainer -- so leaving it out silently
+    // disabled state validation and made the mismatch test assert nothing.
+    provider.boolForKeyContainer = @{
+        MSID_FLIGHT_SUPPORT_DUNA_CBA: @YES,
+        MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA: @YES,
+    };
     MSIDFlightManager.sharedInstance.flightProvider = provider;
     return provider;
 }
@@ -823,11 +830,10 @@
 {
     [self enableDUNAFlights];
 
-    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA])
-    {
-        // State validation is itself flighted; without it there is no mismatch to surface.
-        return;
-    }
+    // Asserting the flight is actually on: a skip-if-off guard here would make the whole test a no-op
+    // if the helper ever stops enabling it, which is exactly the failure this test previously had.
+    XCTAssertTrue([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA],
+                  @"State validation must be flighted on, otherwise there is no mismatch to surface.");
 
     // base64url("some_other_state") does not decode to "state".
     NSError *error = [self errorForSwitchBrowserURLString:@"msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code&state=c29tZV9vdGhlcl9zdGF0ZQ"
