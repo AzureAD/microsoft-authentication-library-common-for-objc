@@ -1,6 +1,7 @@
 TBD
 * Stop sending the client-internal external_key_pop marker to the /token endpoint on the non-broker path. MSIDAuthenticationScheme now exposes tokenEndpointParameters, and MSIDAuthenticationSchemePop overrides it to drop the marker.
 * Add in-process Browser Native Message BART SPA token orchestration for unmanaged iOS hosts.
+* Gate browser native GetToken response serialization behind the MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION flight (default OFF). When enabled, only contract-defined token response fields (access_token, id_token, expires_in, scope, client_info) plus the existing account/state/properties wrappers are emitted, excluding refresh_token, foci, and arbitrary server metadata.
 
 Version 2.15.0
 * Add the enforce_broker_nonce flight (default OFF). When enabled, broker_nonce is validated on every broker response, including the legacy application:openURL:sourceApplication: path where the check was previously skipped. When disabled, a mismatch on that path is logged as a warning and still accepted, preserving current behavior.

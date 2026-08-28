@@ -274,6 +274,12 @@ extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS;
 /// Owner: maagubuzo
 extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION;
 
+/// Staged rollout for sanitizing token endpoint fields exposed in browser native GetToken responses.
+/// Default: OFF until ECS enables it. Enabling removes fields outside the browser response contract; disable to roll back.
+/// Owner: sedemche
+/// WorkItem: 3661547
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION;
+
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;

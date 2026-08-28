@@ -34,6 +34,9 @@
 #import "MSIDAccessToken.h"
 #import "MSIDAccount.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 
 @interface MSIDTokenResponseMock : MSIDTokenResponse
 
@@ -63,6 +66,12 @@
 @end
 
 @implementation MSIDBrowserNativeMessageGetTokenResponseTests
+
+- (void)tearDown
+{
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    [super tearDown];
+}
 
 - (MSIDTokenResult *)tokenResultWithTokenResponse:(MSIDTokenResponse *)tokenResponse
 {
@@ -139,6 +148,146 @@
     XCTAssertEqualObjects(json[@"account"][@"userName"], tokenResponseMock.accountUpn);
     XCTAssertEqualObjects(json[@"account"][@"id"], tokenResponseMock.accountIdentifier);
     XCTAssertEqualObjects(json[@"properties"][@"UPN"], tokenResponseMock.accountUpn);
+}
+
+- (void)testJsonDictionary_whenResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                  subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{@"id_token": idToken} error:nil];
+    tokenResponseMock.responseJson = @{
+        @"access_token": @"synthetic-access-token",
+        @"id_token": @"synthetic-id-token",
+        @"token_type": @"Bearer",
+        @"expires_in": @"3600",
+        @"expires_on": @"2000000000",
+        @"scope": @"openid profile",
+        @"req_cnf": @"synthetic-request-confirmation",
+        @"refresh_token": @"synthetic-refresh-token",
+        @"client_info": @"synthetic-client-info",
+        @"foci": @"1",
+        @"adi": @"synthetic-adi",
+        @"provider_type": @"aad",
+        @"future_server_field": @"synthetic-future-value"
+    };
+
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION: @YES};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponseMock];
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                    state:@"synthetic-state"
+                                                fallbackRequestAccountUpn:nil];
+
+    NSDictionary *expectedJson = @{
+        @"access_token": @"synthetic-access-token",
+        @"id_token": @"synthetic-id-token",
+        @"expires_in": @"3600",
+        @"scope": @"openid profile",
+        @"client_info": @"synthetic-client-info",
+        @"account": @{
+            @"id": tokenResponseMock.accountIdentifier,
+            @"userName": tokenResponseMock.accountUpn
+        },
+        @"state": @"synthetic-state",
+        @"properties": @{
+            @"UPN": tokenResponseMock.accountUpn
+        }
+    };
+
+    XCTAssertEqualObjects(expectedJson, response.jsonDictionary);
+}
+
+- (void)testJsonDictionary_whenResponseSanitizationFlightDisabled_shouldPreserveLegacyPassthrough
+{
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+    tokenResponseMock.responseJson = @{@"future_server_field": @"synthetic-future-value"};
+
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION: @NO};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponseMock];
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                    state:nil
+                                                fallbackRequestAccountUpn:nil];
+
+    XCTAssertEqualObjects(response.jsonDictionary, @{@"future_server_field": @"synthetic-future-value"});
+}
+
+- (void)testJsonDictionary_whenResponseSanitizationFlightIsAbsent_shouldPreserveLegacyPassthrough
+{
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+    tokenResponseMock.responseJson = @{@"future_server_field": @"synthetic-future-value"};
+
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponseMock];
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                    state:nil
+                                                fallbackRequestAccountUpn:nil];
+
+    XCTAssertEqualObjects(response.jsonDictionary, @{@"future_server_field": @"synthetic-future-value"});
+}
+
+- (void)testJsonDictionary_whenLegacyResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                  subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{@"id_token": idToken} error:nil];
+    tokenResponseMock.responseJson = @{
+        @"access_token": @"synthetic-access-token",
+        @"client_info": @"synthetic-client-info",
+        @"token_type": @"Bearer",
+        @"expires_on": @"2000000000",
+        @"req_cnf": @"synthetic-request-confirmation",
+        @"refresh_token": @"synthetic-refresh-token"
+    };
+
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION: @YES};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    MSIDBrokerOperationTokenResponse *operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+    operationTokenResponse.tokenResponse = tokenResponseMock;
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse];
+    response.state = @"synthetic-state";
+
+    NSDictionary *expectedJson = @{
+        @"access_token": @"synthetic-access-token",
+        @"client_info": @"synthetic-client-info",
+        @"account": @{
+            @"id": tokenResponseMock.accountIdentifier,
+            @"userName": tokenResponseMock.accountUpn
+        },
+        @"state": @"synthetic-state",
+        @"properties": @{
+            @"UPN": tokenResponseMock.accountUpn
+        }
+    };
+
+    XCTAssertEqualObjects(expectedJson, response.jsonDictionary);
+}
+
+- (void)testJsonDictionary_whenTokenResponseDictionaryIsNil_shouldReturnNil
+{
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+    tokenResponseMock.responseJson = nil;
+
+    MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponseMock];
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                    state:nil
+                                                fallbackRequestAccountUpn:nil];
+
+    XCTAssertNil(response.jsonDictionary);
 }
 
 - (void)testJsonDictionary_whenNoUpnInReponse_shouldUseProvidedUpn
