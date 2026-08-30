@@ -142,6 +142,6 @@ NSString *const MSID_FLIGHT_ENFORCE_BROKER_NONCE = @"enforce_broker_nonce";
 
 NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_profile_installed_notification_delay";
 
-NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 75.0;
+NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 45.0;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
