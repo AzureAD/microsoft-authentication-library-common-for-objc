@@ -58,6 +58,13 @@
     XCTAssertNil(scheme.accessToken.kid);
 }
 
+- (void)testTokenEndpointParameters_whenBearerScheme_shouldEqualSchemeParameters
+{
+    MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[self prepareBearerSchemeParams]];
+
+    XCTAssertEqualObjects(scheme.tokenEndpointParameters, scheme.schemeParameters);
+}
+
 - (void)testConfigureTelemetryEvent_whenBaseScheme_shouldLeavePopKeySourceUnset
 {
     MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[self prepareBearerSchemeParams]];

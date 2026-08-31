@@ -1,5 +1,7 @@
 TBD
+* Stop sending the client-internal external_key_pop marker to the /token endpoint on the non-broker path. MSIDAuthenticationScheme now exposes tokenEndpointParameters, and MSIDAuthenticationSchemePop overrides it to drop the marker.
 * Add in-process Browser Native Message BART SPA token orchestration for unmanaged iOS hosts.
+* Gate browser native GetToken response serialization behind the MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION flight (default OFF). When enabled, only contract-defined token response fields (access_token, id_token, expires_in, scope, client_info) plus the existing account/state/properties wrappers are emitted, excluding refresh_token, foci, and arbitrary server metadata.
 * Remove OS availability checks and SDK-version guards that are dead under the iOS 16 and macOS 12 minimum deployment targets and the supported build toolchains.
 
 Version 2.15.0
