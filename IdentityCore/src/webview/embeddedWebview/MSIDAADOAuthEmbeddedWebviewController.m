@@ -99,6 +99,20 @@
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
     
+    // Fix #3: isMainFrame check with flight flag
+    // Reject OAuth responses from iframes to prevent iframe injection attacks
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
+    {
+        if (navigationAction.targetFrame && !navigationAction.targetFrame.isMainFrame)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                             @"Rejecting OAuth response from iframe with scheme: %@, host: %@",
+                             requestURL.scheme, requestURL.host);
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return YES;
+        }
+    }
+    
     // Stop at broker or browser
     BOOL isBrokerUrl  = [@"msauth"  caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;

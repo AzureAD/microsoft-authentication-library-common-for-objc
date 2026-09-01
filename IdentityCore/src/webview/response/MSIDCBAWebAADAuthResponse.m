@@ -28,6 +28,7 @@
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDConstants.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDFlightManager.h"
 
 @implementation MSIDCBAWebAADAuthResponse
 
@@ -35,6 +36,48 @@
 {
     if (!url) return NO;
     return ([url.scheme isEqualToString:@"msauth"] && [url.host isEqualToString:@"code"]);
+}
+
++ (BOOL)isCBAWebAADAuthResponse:(NSURL *)url
+                  redirectUriPattern:(NSString *)redirectUriPattern
+                            context:(nullable id<MSIDRequestContext>)context
+{
+    if (!url) return NO;
+    
+    // Check scheme and host
+    if (![url.scheme isEqualToString:@"msauth"] || ![url.host isEqualToString:@"code"])
+    {
+        return NO;
+    }
+    
+    // If flight flag disabled, use legacy behavior (loose matching)
+    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
+    {
+        return YES;
+    }
+    
+    // Fix #1: Strict URL matching - validate redirect URI pattern
+    if ([NSString msidIsStringNilOrBlank:redirectUriPattern])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"CBA response validation: redirectUri pattern is nil");
+        return NO;
+    }
+    
+    NSURLComponents *responseComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    responseComponents.query = nil;
+    responseComponents.fragment = nil;
+    NSString *responseRedirectUri = responseComponents.URL.absoluteString;
+    
+    BOOL urisMatch = [responseRedirectUri isEqualToString:redirectUriPattern];
+    
+    if (!urisMatch)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context,
+                         @"CBA response validation failed: redirect URI mismatch. Expected: %@, Received: %@",
+                         redirectUriPattern, responseRedirectUri);
+    }
+    
+    return urisMatch;
 }
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -55,6 +98,52 @@
     }
     
     self = [super initWithURL:url context:context error:error];
+    if (self)
+    {
+        NSURLComponents *resultUrlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+        resultUrlComponents.query = nil;
+        resultUrlComponents.fragment = nil;
+        
+        _redirectUri = resultUrlComponents.URL.absoluteString;
+    }
+    
+    return self;
+}
+
+- (instancetype)initWithURL:(NSURL *)url
+                requestState:(nullable NSString *)requestState
+          ignoreInvalidState:(BOOL)ignoreInvalidState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing*)error
+{
+    // Check for CBA response
+    if (![self.class isCBAWebAADAuthResponse:url])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"MSAuth CBA response should have msauth as a scheme and code as a host",
+                                     nil, nil, nil, context.correlationId, nil, NO);
+        }
+        return nil;
+    }
+    
+    // Fix #2: State validation - if flight enabled, use state-checking initializer
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
+    {
+        self = [super initWithURL:url
+                     requestState:requestState
+               ignoreInvalidState:ignoreInvalidState
+                          context:context
+                            error:error];
+    }
+    else
+    {
+        // Legacy behavior: skip state validation
+        self = [super initWithURL:url context:context error:error];
+    }
+    
     if (self)
     {
         NSURLComponents *resultUrlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];

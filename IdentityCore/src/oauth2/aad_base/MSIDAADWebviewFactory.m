@@ -188,7 +188,11 @@
 {
     // Try to create CBA response
 #if AD_BROKER
-    MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:context error:nil];
+    MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                               requestState:requestState
+                                                                         ignoreInvalidState:ignoreInvalidState
+                                                                                    context:context
+                                                                                      error:nil];
     if (cbaResponse) return cbaResponse;
     
     if ([url.absoluteString containsString:[NSString stringWithFormat:@"%@=", MSID_SSO_NONCE_QUERY_PARAM_KEY]])
