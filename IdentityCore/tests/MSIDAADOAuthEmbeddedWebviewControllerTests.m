@@ -41,6 +41,25 @@
 
 #if !MSID_EXCLUDE_WEBKIT
 
+// Mock for WKFrameInfo to control isMainFrame
+@interface MSIDWKFrameInfoMock : WKFrameInfo
+@property (nonatomic, readonly) BOOL isMainFrameMock;
+- (instancetype)initWithIsMainFrame:(BOOL)isMainFrame;
+@end
+
+@implementation MSIDWKFrameInfoMock
+- (instancetype)initWithIsMainFrame:(BOOL)isMainFrame
+{
+    self = [super init];
+    _isMainFrameMock = isMainFrame;
+    return self;
+}
+- (BOOL)isMainFrame
+{
+    return self.isMainFrameMock;
+}
+@end
+
 #if TARGET_OS_IPHONE
 /// Test-only subclass that captures the URL passed to `openOpenIdVcHandoffURL:`
 /// instead of invoking UIApplication. Lets logic-test targets exercise the
@@ -724,6 +743,108 @@
     XCTAssertFalse(webVC.complete);
 }
 #endif
+
+#pragma mark - Fix #3: isMainFrame check for iframe rejection
+
+- (void)testDecidePolicyAADForNavigationAction_withCBAFlightEnabled_whenMsauthFromMainFrame_shouldAllowResponse
+{
+    // When flight flag enabled and URL is from main frame (legitimate), should process
+    MSIDFlightManagerMockProvider *flightProvider = [[MSIDFlightManagerMockProvider alloc] init];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                       endURL:[NSURL URLWithString:@"msauth://code/redirect"]
+                      webview:nil
+                customHeaders:nil
+               platfromParams:nil
+                      context:nil];
+    
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"msauth://code/redirect?code=somecode"]];
+    MSIDWKFrameInfoMock *mainFrame = [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:YES];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                              navigationType:WKNavigationTypeOther
+                                                                                 targetFrame:mainFrame];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+        // msauth://code from main frame should be handled
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    XCTAssertTrue(result);
+    
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+}
+
+- (void)testDecidePolicyAADForNavigationAction_withCBAFlightEnabled_whenMsauthFromIframe_shouldRejectResponse
+{
+    // When flight flag enabled and URL is from iframe (attack), should reject and return NO
+    MSIDFlightManagerMockProvider *flightProvider = [[MSIDFlightManagerMockProvider alloc] init];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                       endURL:[NSURL URLWithString:@"msauth://code/redirect"]
+                      webview:nil
+                customHeaders:nil
+               platfromParams:nil
+                      context:nil];
+    
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"msauth://code/redirect?code=somecode"]];
+    MSIDWKFrameInfoMock *iframeFrame = [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:NO];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                              navigationType:WKNavigationTypeOther
+                                                                                 targetFrame:iframeFrame];
+    
+    // When iframe is detected, decision handler should NOT be called, and result should be NO
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+        XCTFail(@"Decision handler should not be called for iframe-originated URLs");
+    }];
+    
+    XCTAssertFalse(result);
+    
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+}
+
+- (void)testDecidePolicyAADForNavigationAction_withCBAFlightDisabled_whenMsauthFromIframe_shouldAllowResponse
+{
+    // When flight flag disabled (legacy), iframe URLs should be allowed through
+    MSIDFlightManagerMockProvider *flightProvider = [[MSIDFlightManagerMockProvider alloc] init];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @NO };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                       endURL:[NSURL URLWithString:@"msauth://code/redirect"]
+                      webview:nil
+                customHeaders:nil
+               platfromParams:nil
+                      context:nil];
+    
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"msauth://code/redirect?code=somecode"]];
+    MSIDWKFrameInfoMock *iframeFrame = [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:NO];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                              navigationType:WKNavigationTypeOther
+                                                                                 targetFrame:iframeFrame];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    XCTAssertTrue(result);
+    
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+}
 
 @end
 
