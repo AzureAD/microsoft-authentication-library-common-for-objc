@@ -242,19 +242,47 @@
         
     if ([self isDUNASupportedForTenantId:nil])
     {
-        MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
-                                                                                              redirectUri:endRedirectUri
-                                                                                             requestState:requestState
-                                                                                                  context:context
-                                                                                                    error:nil];
-        if (switchBrowserResponse) return switchBrowserResponse;
-        
-        MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse = [[MSIDSwitchBrowserResumeResponse alloc] initWithURL:url
-                                                                                                                redirectUri:endRedirectUri
-                                                                                                               requestState:requestState
-                                                                                                                    context:context
-                                                                                                                      error:nil];
-        if (switchBrowserResumeResponse) return switchBrowserResumeResponse;
+        // Only surface initializer errors for URLs that are actually switch-browser action URLs.
+        // isDUNAActionUrl: is a cheap path-component check, so a non-DUNA URL still falls through to the
+        // generic auth-code response below exactly as before.
+        //
+        // Without this gate the initializer errors were discarded (error:nil) and two things went wrong:
+        //   1. The sub-errors identifying WHY the response was rejected never reached the caller.
+        //   2. A malformed switch-browser URL - e.g. missing action_uri but carrying a code - fell
+        //      through and could be accepted as an ordinary authorization-code response.
+        NSError *switchBrowserError = nil;
+
+        if ([MSIDSwitchBrowserResponse isDUNAActionUrl:url operation:[MSIDSwitchBrowserResponse.class operation]])
+        {
+            MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
+                                                                                                  redirectUri:endRedirectUri
+                                                                                                 requestState:requestState
+                                                                                                      context:context
+                                                                                                        error:&switchBrowserError];
+            if (switchBrowserResponse) return switchBrowserResponse;
+
+            if (switchBrowserError)
+            {
+                if (error) *error = switchBrowserError;
+                return nil;
+            }
+        }
+
+        if ([MSIDSwitchBrowserResponse isDUNAActionUrl:url operation:[MSIDSwitchBrowserResumeResponse.class operation]])
+        {
+            MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse = [[MSIDSwitchBrowserResumeResponse alloc] initWithURL:url
+                                                                                                                    redirectUri:endRedirectUri
+                                                                                                                   requestState:requestState
+                                                                                                                        context:context
+                                                                                                                          error:&switchBrowserError];
+            if (switchBrowserResumeResponse) return switchBrowserResumeResponse;
+
+            if (switchBrowserError)
+            {
+                if (error) *error = switchBrowserError;
+                return nil;
+            }
+        }
     }
     
     // Try to create AAD Auth response or Error response (all other reponses don't handle errors).
