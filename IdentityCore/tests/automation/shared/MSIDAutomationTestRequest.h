@@ -25,7 +25,6 @@
 #import "MSIDConstants.h"
 #import "MSIDJsonSerializable.h"
 #import "MSIDTestAutomationAccount.h"
-#import "MSIDAutomationMockFlightActionParameters.h"
 
 typedef NS_ENUM(NSUInteger, MSIDAutomationWPJRegistrationAPIMode)
 {
@@ -100,7 +99,6 @@ typedef NS_ENUM(NSInteger, MSIDAutomationWPJSSOExtensionSecureStorage)
 @property (nonatomic) BOOL isSsoSeedingCompleted;
 @property (nonatomic) BOOL shouldOnlyDeleteSeedingPrt;
 @property (nonatomic) BOOL requestBoundAppRefreshToken;
-@property (nonatomic) MSIDAutomationMockFlightActionParameters *mockFlightParameters;
 - (BOOL)usesEmbeddedWebView;
 
 @end
