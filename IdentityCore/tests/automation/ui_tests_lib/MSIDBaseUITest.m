@@ -210,11 +210,14 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     }
     XCTAssertTrue(result.success);
     
-    if ([@"Read Tokens" isEqual:result.actionId])
-    {
-        return (MSIDAutomationSuccessResult *)[[MSIDAutomationReturnedTokensResult alloc] initWithJSONDictionary:jsonFromResult error:nil];
-    }
-    
+    return result;
+}
+
+- (MSIDAutomationReturnedTokensResult *)automationReturnedTokensResult:(XCUIApplication *)application
+{
+    MSIDAutomationReturnedTokensResult *result = [[MSIDAutomationReturnedTokensResult alloc] initWithJSONDictionary:[self automationResultDictionary:application] error:nil];
+    XCTAssertNotNil(result);
+    XCTAssertTrue(result.success);
     return result;
 }
 
