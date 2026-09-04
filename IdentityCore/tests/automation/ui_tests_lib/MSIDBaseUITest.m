@@ -35,6 +35,7 @@
 #import "MSIDTestAutomationAccount.h"
 #import "MSIDAutomationOperationResponseHandler.h"
 #import "MSIDTestAutomationApplication.h"
+#import "MSIDAutomationReturnedTokensResult.h"
 #import "MSIDKeyVaultAccountProvider.h"
 #import "MSIDKeyVaultAppConfigProvider.h"
 #import "MSIDKeyVaultCredentialProvider.h"
@@ -199,13 +200,23 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (MSIDAutomationSuccessResult *)automationSuccessResult:(XCUIApplication *)application
 {
-    MSIDAutomationSuccessResult *result = [[MSIDAutomationSuccessResult alloc] initWithJSONDictionary:[self automationResultDictionary:application] error:nil];
+    NSDictionary *jsonFromResult = [self automationResultDictionary:application];
+    MSIDAutomationSuccessResult *result = [[MSIDAutomationSuccessResult alloc] initWithJSONDictionary:jsonFromResult error:nil];
     XCTAssertNotNil(result);
     if (!result.success)
     {
         // Print dictionary to debug the reason of failure.
         XCTAssertEqualObjects(@{}, [result jsonDictionary]);
     }
+    XCTAssertTrue(result.success);
+    
+    return result;
+}
+
+- (MSIDAutomationReturnedTokensResult *)automationReturnedTokensResult:(XCUIApplication *)application
+{
+    MSIDAutomationReturnedTokensResult *result = [[MSIDAutomationReturnedTokensResult alloc] initWithJSONDictionary:[self automationResultDictionary:application] error:nil];
+    XCTAssertNotNil(result);
     XCTAssertTrue(result.success);
     return result;
 }
