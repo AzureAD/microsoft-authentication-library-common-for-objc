@@ -100,6 +100,7 @@ NSString *const MSID_FLIGHT_SUPPORT_DUNA_CBA = @"support_duna_cba_v2";
 NSString *const MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH = @"disable_jit_remediation_legacy_auth";
 NSString *const MSID_FLIGHT_CLIENT_SFRT_STATUS = @"sfrt_v2";
 NSString *const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA = @"dis_pre_iden_cba";
+NSString *const MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX = @"en_cba_origin_fix";
 NSString *const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA = @"support_state_duna_cba";
 NSString *const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME = @"ignore_cookies_in_duna_resume";
 
@@ -115,6 +116,8 @@ NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_POP = @"browser_core_disable_po
 NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS = @"browser_core_disable_claims";
 
 NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION = @"browser_core_disable_reqcnf_validation";
+
+NSString *const MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION = @"browser_gettoken_response_sanitization";
 
 NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 
@@ -134,6 +137,8 @@ NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_new_window_in_browser";
 
 NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboarding";
+
+NSString *const MSID_FLIGHT_ENFORCE_BROKER_NONCE = @"enforce_broker_nonce";
 
 NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_profile_installed_notification_delay";
 

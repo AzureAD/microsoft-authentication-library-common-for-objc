@@ -31,6 +31,7 @@
 #import "MSIDConstants.h"
 
 @class MSIDAccessToken;
+@class MSIDTelemetryAPIEvent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,6 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) MSIDAuthScheme authScheme;
 @property (nonatomic, readonly) NSDictionary *schemeParameters;
+// Subset of schemeParameters that may be sent to the OAuth 2.0 '/token' endpoint. Defaults to
+// schemeParameters. Subclasses override to drop client-internal markers that are not wire parameters.
+@property (nonatomic, readonly) NSDictionary *tokenEndpointParameters;
 @property (nonatomic, readonly) MSIDCredentialType credentialType;
 @property (nonatomic, nullable, readonly) NSString *tokenType;
 @property (nonatomic, readonly) MSIDAccessToken *accessToken;
@@ -50,6 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken;
 
+#if !EXCLUDE_FROM_MSALCPP
+// Default no-op. Scheme subclasses may override to attach scheme-specific telemetry fields.
+- (void)configureTelemetryEvent:(MSIDTelemetryAPIEvent *)event;
+#endif
 
 @end
 

@@ -34,4 +34,11 @@
     return YES;
 }
 
+#pragma mark - UISceneSession lifecycle
+
+- (UISceneConfiguration *)application:(__unused UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(__unused UISceneConnectionOptions *)options
+{
+    return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
+}
+
 @end

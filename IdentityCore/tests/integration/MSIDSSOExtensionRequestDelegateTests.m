@@ -57,33 +57,28 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 150000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
 - (void)testAuthorizationControllerDidCompleteWithError_whenErrorIsSSOUIRequired_shouldReturnSSOUIRequired
 {
-    if (@available(iOS 15.0, macOS 12.0, *))
+    MSIDSSOExtensionRequestDelegate *delegate = [MSIDSSOExtensionRequestDelegate new];
+
+    ASAuthorizationController *controller = nil;
+    NSError *testError = [NSError errorWithDomain:ASAuthorizationErrorDomain code:ASAuthorizationErrorNotInteractive userInfo:nil];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Completion block expectation"];
+
+    delegate.completionBlock = ^(id response, NSError *error)
     {
-        MSIDSSOExtensionRequestDelegate *delegate = [MSIDSSOExtensionRequestDelegate new];
-        
-        ASAuthorizationController *controller = nil;
-        NSError *testError = [NSError errorWithDomain:ASAuthorizationErrorDomain code:ASAuthorizationErrorNotInteractive userInfo:nil];
-        
-        XCTestExpectation *expectation = [self expectationWithDescription:@"Completion block expectation"];
-        
-        delegate.completionBlock = ^(id response, NSError *error)
-        {
-            XCTAssertNil(response);
-            XCTAssertNotNil(error);
-            XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-            XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
-            XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"SSO extension authorization requires interaction");
-            [expectation fulfill];
-        };
-        
-        [delegate authorizationController:controller didCompleteWithError:testError];
-        [self waitForExpectationsWithTimeout:1 handler:nil];
-    }
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"SSO extension authorization requires interaction");
+        [expectation fulfill];
+    };
+
+    [delegate authorizationController:controller didCompleteWithError:testError];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
-#endif
 
 - (void)testAuthorizationControllerDidCompleteWithError_whenErrorIsMSALError_shouldReturnUnderlyingError
 {

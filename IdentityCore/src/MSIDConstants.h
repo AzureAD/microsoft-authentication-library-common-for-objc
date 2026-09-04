@@ -229,6 +229,13 @@ extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH;
 extern NSString * _Nonnull const MSID_FLIGHT_CLIENT_SFRT_STATUS;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA;
+/**
+ Enable stricter host validation for the macOS CBA preferred-identity fallback.
+ When enabled, the legacy wildcard URL-string fallback is allowed only when the
+ challenge host matches or is a child of the top-level webview host. Default
+ (disabled) preserves the legacy cross-host fallback for controlled rollout.
+ */
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME;
 
@@ -267,6 +274,12 @@ extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS;
 /// Owner: maagubuzo
 extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION;
 
+/// Staged rollout for sanitizing token endpoint fields exposed in browser native GetToken responses.
+/// Default: OFF until ECS enables it. Enabling removes fields outside the browser response contract; disable to roll back.
+/// Owner: sedemche
+/// WorkItem: 3661547
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION;
+
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
@@ -293,6 +306,13 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 /// When ON, prevents mobile onboarding even if server signals enrollment.
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
+
+/// Enforces broker_nonce validation on broker responses even when sourceApplication is available.
+/// sourceApplication establishes the origin of a response, not its freshness, so it is not a
+/// substitute for the nonce. Flighted so impact on brokers that do not echo the nonce back can be
+/// measured before enforcement is turned on.
+/// Default: OFF
+extern NSString * _Nonnull const MSID_FLIGHT_ENFORCE_BROKER_NONCE;
 
 /// Flight key for MDM profile install notification delay (seconds).
 /// Owner: swagup

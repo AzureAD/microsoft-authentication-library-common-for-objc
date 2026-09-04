@@ -31,6 +31,15 @@
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#if !MSID_EXCLUDE_WEBKIT
+#import "MSIDWKNavigationActionMock.h"
+#endif
+#import "MSIDCustomHeaderProviding.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDOAuth2Constants.h"
+#import "MSIDAadAuthorityCache.h"
 #import "MSIDOnboardingBlobBuilder.h"
 
 #if !MSID_EXCLUDE_WEBKIT
@@ -38,6 +47,49 @@
 // Expose private methods for testing
 @interface MSIDOAuth2EmbeddedWebviewController (Testing)
 - (BOOL)shouldOpenURLInSystemBrowser:(NSURL *)url targetFrame:(WKFrameInfo *)targetFrame;
+@end
+
+// Test double that records how it was consulted and returns configurable headers.
+@interface MSIDTestCustomHeaderProvider : NSObject <MSIDCustomHeaderProviding>
+
+@property (nonatomic) NSDictionary<NSString *, NSString *> *headersToReturn;
+@property (nonatomic) NSError *errorToReturn;
+@property (nonatomic) BOOL wasCalled;
+@property (nonatomic) NSString *capturedHost;
+
+@end
+
+@implementation MSIDTestCustomHeaderProvider
+
+- (void)getCustomHeaders:(__unused NSURLRequest *)request
+                 forHost:(NSString *)host
+         completionBlock:(MSIDCustomHeaderBlock)completionBlock
+{
+    self.wasCalled = YES;
+    self.capturedHost = host;
+
+    if (completionBlock)
+    {
+        completionBlock(self.headersToReturn, self.errorToReturn);
+    }
+}
+
+@end
+
+// Controller subclass that captures the reloaded request instead of driving a real web view.
+@interface MSIDCustomHeaderCapturingWebviewController : MSIDOAuth2EmbeddedWebviewController
+
+@property (nonatomic) NSURLRequest *capturedLoadRequest;
+
+@end
+
+@implementation MSIDCustomHeaderCapturingWebviewController
+
+- (void)loadRequest:(NSURLRequest *)request
+{
+    self.capturedLoadRequest = request;
+}
+
 @end
 
 @interface MSIDOAuth2EmbeddedWebviewControllerTests : XCTestCase
@@ -320,6 +372,344 @@
     NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
     XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepStrongAuthSetupCompleted]);
     XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentFinished]);
+}
+
+#pragma mark - customHeaderProvider host gating tests
+
+- (void)testDecidePolicyForNavigationAction_whenKnownAADHost_andProviderReturnsHeaders_shouldInjectHeadersAndReload
+{
+    MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.correlationId = [NSUUID UUID];
+    MSIDExecutionFlowRegister(context.correlationId);
+
+    MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:context];
+
+    MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+    provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"FakeHeaderValue" };
+    webVC.customHeaderProvider = provider;
+
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyAllow;
+    [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        capturedDecision = decision;
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(provider.wasCalled);
+    XCTAssertEqualObjects(provider.capturedHost, @"login.microsoftonline.com");
+    XCTAssertEqual(capturedDecision, WKNavigationActionPolicyCancel);
+    XCTAssertNotNil(webVC.capturedLoadRequest);
+    XCTAssertEqualObjects([[webVC.capturedLoadRequest allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"FakeHeaderValue");
+
+    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the added tag"];
+    MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        // Assert presence only: both tags share the placeholder string until unique codes are assigned.
+        XCTAssertTrue([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag)]);
+        [flowExpectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testDecidePolicyForNavigationAction_whenMixedCaseAADHost_andProviderReturnsHeaders_shouldInjectHeadersAndReload
+{
+    MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.correlationId = [NSUUID UUID];
+    MSIDExecutionFlowRegister(context.correlationId);
+
+    MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:context];
+
+    MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+    provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"FakeHeaderValue" };
+    webVC.customHeaderProvider = provider;
+
+    // The trusted-host gate relies on .lowercaseString normalization. A mixed-case host must still be
+    // treated as a known AAD host so headers are injected; dropping the normalization would silently skip injection.
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://LOGIN.microsoftonline.com/common/oauth2/authorize"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyAllow;
+    [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        capturedDecision = decision;
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(provider.wasCalled);
+    XCTAssertEqual(capturedDecision, WKNavigationActionPolicyCancel);
+    XCTAssertNotNil(webVC.capturedLoadRequest);
+    XCTAssertEqualObjects([[webVC.capturedLoadRequest allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"FakeHeaderValue");
+
+    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the added tag"];
+    MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        // Assert presence only: both tags share the placeholder string until unique codes are assigned.
+        XCTAssertTrue([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag)]);
+        [flowExpectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testDecidePolicyForNavigationAction_whenHostDiscoveredViaInstanceMetadata_andProviderReturnsHeaders_shouldInjectHeadersAndReload
+{
+    // A sovereign/private-cloud host that is not on the static AAD cloud list, but has been
+    // discovered via instance metadata, must still be trusted so the provider can attach the PRT.
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    NSSet *savedEnvironments = cache.allCloudNetworkEnvironments;
+    cache.allCloudNetworkEnvironments = [NSSet setWithObject:@"login.contoso-sovereign.com"];
+
+    @try
+    {
+        MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+        context.appRequestMetadata = nil;
+        context.correlationId = [NSUUID UUID];
+        MSIDExecutionFlowRegister(context.correlationId);
+
+        MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+                initWithStartURL:[NSURL URLWithString:@"https://login.contoso-sovereign.com/common/oauth2/authorize"]
+                          endURL:[NSURL URLWithString:@"endurl://host"]
+                         webview:nil
+                   customHeaders:nil
+                  platfromParams:nil
+                         context:context];
+
+        MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+        provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"FakeHeaderValue" };
+        webVC.customHeaderProvider = provider;
+
+        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://login.contoso-sovereign.com/common/oauth2/authorize"]];
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+        XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+        __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyAllow;
+        [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+            capturedDecision = decision;
+            [expectation fulfill];
+        }];
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+        XCTAssertTrue(provider.wasCalled);
+        XCTAssertEqual(capturedDecision, WKNavigationActionPolicyCancel);
+        XCTAssertNotNil(webVC.capturedLoadRequest);
+        XCTAssertEqualObjects([[webVC.capturedLoadRequest allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"FakeHeaderValue");
+
+        XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the added tag"];
+        MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+            XCTAssertNotNil(executionFlow);
+            // Assert presence only: both tags share the placeholder string until unique codes are assigned.
+            XCTAssertTrue([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag)]);
+            [flowExpectation fulfill];
+        });
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    }
+    @finally
+    {
+        cache.allCloudNetworkEnvironments = savedEnvironments;
+    }
+}
+
+- (void)testDecidePolicyForNavigationAction_whenProviderReturnsOnlyBlankHeaderValues_shouldContinueNavigationWithoutReload
+{
+    // A nonempty dictionary whose values are all blank must not cancel + reload the identical
+    // request (which would loop on every navigation) nor record that headers were added.
+    MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.correlationId = [NSUUID UUID];
+    MSIDExecutionFlowRegister(context.correlationId);
+
+    MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:context];
+
+    MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+    provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"   " };
+    webVC.customHeaderProvider = provider;
+
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyCancel;
+    [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        capturedDecision = decision;
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(provider.wasCalled);
+    XCTAssertEqual(capturedDecision, WKNavigationActionPolicyAllow);
+    XCTAssertNil(webVC.capturedLoadRequest);
+
+    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should not contain the added tag"];
+    MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        // No header was attached, so the Added tag must not be recorded.
+        XCTAssertFalse([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag)]);
+        [flowExpectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testDecidePolicyForNavigationAction_whenUntrustedHost_shouldSkipProviderAndAllowNavigation
+{
+    MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.correlationId = [NSUUID UUID];
+    MSIDExecutionFlowRegister(context.correlationId);
+
+    MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:context];
+
+    MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+    provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"FakeHeaderValue" };
+    webVC.customHeaderProvider = provider;
+
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://contoso.untrusted.com/oauth/authorize"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyCancel;
+    [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        capturedDecision = decision;
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertFalse(provider.wasCalled);
+    XCTAssertEqual(capturedDecision, WKNavigationActionPolicyAllow);
+    XCTAssertNil(webVC.capturedLoadRequest);
+
+    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the skipped tag"];
+    MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        // Assert presence only: both tags share the placeholder string until unique codes are assigned.
+        XCTAssertTrue([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderSkippedUntrustedHostTag)]);
+        [flowExpectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testDecidePolicyForNavigationAction_whenHostMissing_shouldSkipProviderAndAllowNavigation
+{
+    // An https URL can still have a nil host (e.g. "https:///path"). A missing host must be treated
+    // as untrusted so no nil host is passed to the trust check or the provider.
+    MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.correlationId = [NSUUID UUID];
+    MSIDExecutionFlowRegister(context.correlationId);
+
+    MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:context];
+
+    MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+    provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"FakeHeaderValue" };
+    webVC.customHeaderProvider = provider;
+
+    NSURL *hostlessURL = [NSURL URLWithString:@"https:///common/oauth2/authorize"];
+    XCTAssertNil(hostlessURL.host);
+    NSURLRequest *request = [NSURLRequest requestWithURL:hostlessURL];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyCancel;
+    [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        capturedDecision = decision;
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertFalse(provider.wasCalled);
+    XCTAssertEqual(capturedDecision, WKNavigationActionPolicyAllow);
+    XCTAssertNil(webVC.capturedLoadRequest);
+
+    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the skipped tag"];
+    MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        XCTAssertTrue([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderSkippedUntrustedHostTag)]);
+        [flowExpectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testDecidePolicyForNavigationAction_whenRedirectChangesHostToUntrusted_shouldSkipProviderOnUntrustedHost
+{
+    MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+    provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"FakeHeaderValue" };
+    webVC.customHeaderProvider = provider;
+
+    // Initial navigation to a known AAD host: the provider is consulted and headers are injected.
+    NSURLRequest *trustedRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]];
+    MSIDWKNavigationActionMock *trustedAction = [[MSIDWKNavigationActionMock alloc] initWithRequest:trustedRequest];
+
+    XCTestExpectation *trustedExpectation = [self expectationWithDescription:@"trusted decision handler"];
+    __block WKNavigationActionPolicy trustedDecision = WKNavigationActionPolicyAllow;
+    [webVC decidePolicyForNavigationAction:trustedAction webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        trustedDecision = decision;
+        [trustedExpectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(provider.wasCalled);
+    XCTAssertEqual(trustedDecision, WKNavigationActionPolicyCancel);
+
+    // Redirect that changes the host to an untrusted one: the provider must not be consulted.
+    provider.wasCalled = NO;
+    webVC.capturedLoadRequest = nil;
+
+    NSURLRequest *untrustedRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://contoso.untrusted.com/redirected"]];
+    MSIDWKNavigationActionMock *untrustedAction = [[MSIDWKNavigationActionMock alloc] initWithRequest:untrustedRequest];
+
+    XCTestExpectation *untrustedExpectation = [self expectationWithDescription:@"untrusted decision handler"];
+    __block WKNavigationActionPolicy untrustedDecision = WKNavigationActionPolicyCancel;
+    [webVC decidePolicyForNavigationAction:untrustedAction webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        untrustedDecision = decision;
+        [untrustedExpectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertFalse(provider.wasCalled);
+    XCTAssertEqual(untrustedDecision, WKNavigationActionPolicyAllow);
+    XCTAssertNil(webVC.capturedLoadRequest);
 }
 
 @end

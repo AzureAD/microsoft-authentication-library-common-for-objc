@@ -1,6 +1,24 @@
 TBD
+* Fix MSIDAADWebviewFactory discarding switch_browser (DUNA/CBA) response initializer errors. A malformed switch-browser URL - notably one missing action_uri but carrying a code - could fall through and be accepted as an ordinary authorization-code response; recognized switch-browser URLs now fail with their specific error instead.
+* Distinguish switch_browser (DUNA/CBA) response failures via MSIDOAuthSubErrorKey. State mismatch, missing state, missing action_uri and missing code previously all surfaced as a generic MSIDErrorServerInvalidResponse/MSIDErrorServerInvalidState and could not be told apart in telemetry; the state mismatch in particular is security-relevant and now stands on its own. No new error codes and no signature changes.
+* Stop sending the client-internal external_key_pop marker to the /token endpoint on the non-broker path. MSIDAuthenticationScheme now exposes tokenEndpointParameters, and MSIDAuthenticationSchemePop overrides it to drop the marker.
+* Add in-process Browser Native Message BART SPA token orchestration for unmanaged iOS hosts.
+* Gate browser native GetToken response serialization behind the MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION flight (default OFF). When enabled, only contract-defined token response fields (access_token, id_token, expires_in, scope, client_info) plus the existing account/state/properties wrappers are emitted, excluding refresh_token, foci, and arbitrary server metadata.
+* Remove OS availability checks and SDK-version guards that are dead under the iOS 16 and macOS 12 minimum deployment targets and the supported build toolchains.
+
+Version 2.15.0
+* Add the enforce_broker_nonce flight (default OFF). When enabled, broker_nonce is validated on every broker response, including the legacy application:openURL:sourceApplication: path where the check was previously skipped. When disabled, a mismatch on that path is logged as a warning and still accepted, preserving current behavior.
+* Protect device IDs in BART redemption mismatch logging by routing the error message through PII logging. (#1935)
+* Fix a memory leak in bound refresh token redemption by ensuring SecKeyCopyPublicKey results are safely released via a nil-checked helper in MSIDBoundRefreshToken+Redemption.
+* Restrict macOS CBA preferred-identity URL fallback to the same host or its child subdomains behind a flight, with non-PII rollout logs.
+* Add enforced caller-provided RSA key validation and an external-key PoP manager path that avoids key generation and keychain access. (#1934)
 * Prevent a crash when JWT signing is attempted with a NULL private key. (#1917)
 * Raise the minimum deployment targets to iOS 16.0 and macOS 12.0, and replace deprecated macOS SecTransform JWT signing with SecKeyCreateSignature. (#1915)
+* Skip broker key keychain lookup when the client cannot persist a broker key, avoiding noisy -34018/-51808 errors on macOS runtime/unentitled contexts. (#1812)\
+
+Version 1.26.1
+* Add MSIDDeviceOnboardingBlobHandoffCache, a shared-keychain accessor that hands the device onboarding telemetry blob across the broker <-> OneAuth process boundary when the broker's embedded webview navigation resolves to a browser:// URL and cancels the interactive session without an IPC response. The broker persists its finalized blob keyed by session correlation id before the hand-off; OneAuth recovers it on the MSIDErrorBrokerResponseNotReceived path and merges it with its own seed. Read is scoped to the exact session and TTL-free so a late-returning user still gets the broker-built steps; a bounded TTL sweep on clear garbage-collects abandoned entries. (#1918)
+* Reduce MSIDOnboardingStatus default TTL from 900s to 600s.
 
 Version 1.26.0
 * Add telemetry for the new mobile onboarding flows and refactor the onboarding telemetry pipeline: thread onboarding-blob step fields through the embedded-webview navigation layer (MSIDWebviewNavigationHandler/MSIDWebviewNavigationDelegate/MSIDWebviewNavigationDecisionResolver) and record new step keys via MSIDOnboardingBlobBuilder, covering both broker and non-broker interactive flows. (#1897)
@@ -14,6 +32,7 @@ Version 1.26.0
 * iOS: opt-in test injection hook for in-process CBA challenge handling #1889
 * Add MSIDUXCallbackProtocol and MSIDUXCallbackProvider to allow host apps to receive UX callbacks (e.g., schedule and cancel MDM profile installed notification) from CommonCore navigation layer. Add delay validation for flight-configured notification delay.
 * Only attach the PRT (refresh token credential) header to the PkeyAuth challenge response for known/trusted AAD hosts, preventing PRT leakage to untrusted hosts. Record an execution-flow tag for the added/skipped decision when a correlation id is available.
+* Gate the embedded-webview customHeaderProvider path (which attaches the PRT/refresh token credential header) to recognized AAD hosts — known static public/sovereign clouds or clouds discovered via instance metadata — before consulting the provider, so credential headers are not forwarded to untrusted or missing hosts. The webview only cancels + reloads when at least one nonblank header was actually applied.
 * Validate cloud_instance_host_name from the auth redirect against the known Microsoft identity host list before using it to build the cloud authority in setCloudAuthorityWithCloudHostName: and authorityWithUpdatedCloudHostInstanceName:error:. Unrecognized values are ignored and logged; sovereign-cloud and instance-aware flows are unaffected.
 
 Version 1.25.1

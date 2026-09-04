@@ -43,18 +43,7 @@ void MSIDDeviceCopySerialNumber(CFStringRef *serialNumber)
     {
         *serialNumber = NULL;
         
-        io_service_t    platformExpert;
-        if (@available(macOS 12.0, *))
-        {
-            platformExpert = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
-        }
-        else
-        {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
-#pragma clang diagnostic pop
-        }
+        io_service_t platformExpert = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
         
         if (platformExpert)
         {
