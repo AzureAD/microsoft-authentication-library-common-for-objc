@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAutomationReturnedTokensResult : MSIDAutomationTestResult
 
-@property (nonatomic) NSArray<NSString *> *tokenDescriptions;
+@property (nonatomic, readonly, copy) NSArray<NSString *> *tokenDescriptions;
 
 - (instancetype)initWithAction:(NSString *)actionId
                         tokens:(NSArray<MSIDBaseToken *> *)tokens
