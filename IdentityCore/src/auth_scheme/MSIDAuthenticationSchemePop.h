@@ -32,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAuthenticationSchemePop : MSIDAuthenticationScheme
 
+@property (nonatomic, readonly) BOOL isExternalKeyPop;
+
 @end
 
 NS_ASSUME_NONNULL_END

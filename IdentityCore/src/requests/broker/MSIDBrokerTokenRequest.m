@@ -155,6 +155,7 @@
     NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
     NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    NSString *externalKeyPop = schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP];
     NSString *keyId = schemeParameters[MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
@@ -180,6 +181,7 @@
     [queryDictionary msidSetNonEmptyString:self.brokerApplicationToken forKey:@"application_token"];
     [queryDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [queryDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [queryDictionary msidSetNonEmptyString:externalKeyPop forKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
     [queryDictionary msidSetNonEmptyString:keyId forKey:MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     if ([self.sdkBrokerCapabilities count])
@@ -225,9 +227,11 @@
     NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
     NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    NSString *externalKeyPop = schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP];
     NSString *keyId = schemeParameters[MSID_OAUTH2_SSH_CERT_KEY_ID];
     [resumeDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [resumeDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [resumeDictionary msidSetNonEmptyString:externalKeyPop forKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
     [resumeDictionary msidSetNonEmptyString:keyId forKey:MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     if ([self.requestParameters isNestedAuthProtocol])

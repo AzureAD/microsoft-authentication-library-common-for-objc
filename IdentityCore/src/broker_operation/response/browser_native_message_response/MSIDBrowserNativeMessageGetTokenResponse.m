@@ -34,6 +34,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDBrowserNativeMessageGetTokenResponse()
 
@@ -96,6 +98,35 @@
 }
 #pragma clang diagnostic pop
 
+- (NSMutableDictionary *)sanitizedTokenResponseDictionary:(NSDictionary *)tokenResponseJson
+{
+    // Browser GetToken response contract:
+    // https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=/MSALJS/NativeBrokerExtension/broker_contract.md&_a=preview
+    static NSArray<NSString *> *allowedKeys;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        allowedKeys = @[MSID_OAUTH2_ACCESS_TOKEN,
+                        MSID_OAUTH2_ID_TOKEN,
+                        MSID_OAUTH2_EXPIRES_IN,
+                        MSID_OAUTH2_SCOPE,
+                        MSID_OAUTH2_CLIENT_INFO];
+    });
+
+    NSMutableDictionary *sanitizedResponse = [NSMutableDictionary new];
+    for (NSString *key in allowedKeys)
+    {
+        id value = tokenResponseJson[key];
+        if (value)
+        {
+            sanitizedResponse[key] = value;
+        }
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"'GetToken' response was sanitized.");
+
+    return sanitizedResponse;
+}
+
 // Shapes the GetToken payload from a single canonical token result. Base OAuth fields come from the
 // server token response when present (wire parity with a freshly redeemed result); otherwise they are
 // derived from the cached access token (access-token cache hit). Optional fields are omitted when
@@ -103,6 +134,8 @@
 // placeholder values. The account, state, and properties blocks are shared across both sources.
 - (NSDictionary *)jsonDictionary
 {
+    BOOL sanitizeResponse = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION];
+
     if (self.operationTokenResponse)
     {
         MSIDTokenResponse *tokenResponse = self.operationTokenResponse.tokenResponse;
@@ -111,6 +144,11 @@
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create token json response.");
             return nil;
+        }
+
+        if (sanitizeResponse)
+        {
+            response = [self sanitizedTokenResponseDictionary:response];
         }
 
         NSMutableDictionary *accountJson = [NSMutableDictionary new];
@@ -135,12 +173,16 @@
     NSMutableDictionary *response;
     if (tokenResponse)
     {
-        response = [[tokenResponse jsonDictionary] mutableCopy];
-        if (!response)
+        NSDictionary *tokenResponseJson = [tokenResponse jsonDictionary];
+        if (!tokenResponseJson)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create token json response.");
             return nil;
         }
+
+        response = sanitizeResponse
+        ? [self sanitizedTokenResponseDictionary:tokenResponseJson]
+        : [tokenResponseJson mutableCopy];
     }
     else
     {

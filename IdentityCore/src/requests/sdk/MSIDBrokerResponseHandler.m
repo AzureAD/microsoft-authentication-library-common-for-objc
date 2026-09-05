@@ -202,8 +202,10 @@
     NSMutableDictionary *schemeParams = [NSMutableDictionary new];
     NSString *tokenType = resumeState[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = resumeState[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    NSString *externalKeyPop = resumeState[MSID_OAUTH2_EXTERNAL_KEY_POP];
     [schemeParams msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [schemeParams msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [schemeParams msidSetNonEmptyString:externalKeyPop forKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
     if (![NSString msidIsStringNilOrBlank:tokenType] && MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
     {
         return [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];

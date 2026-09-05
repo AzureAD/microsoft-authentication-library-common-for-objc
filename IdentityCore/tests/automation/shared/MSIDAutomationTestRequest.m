@@ -108,6 +108,7 @@
         _shouldExpirePRT = [json[@"should_expire_prt"] boolValue];
         _isSsoSeedingCompleted = [json[@"is_sso_seeding_completed"] boolValue];
         _shouldOnlyDeleteSeedingPrt = [json[@"should_only_delete_seeding_prt"] boolValue];
+        _requestBoundAppRefreshToken = [json[@"request_bound_app_refresh_token"] boolValue];
     }
 
     return self;
@@ -191,7 +192,7 @@
     json[@"should_expire_prt"] = @(_shouldExpirePRT);
     json[@"is_sso_seeding_completed"] = @(_isSsoSeedingCompleted);
     json[@"should_only_delete_seeding_prt"] = @(_shouldOnlyDeleteSeedingPrt);
-    
+    json[@"request_bound_app_refresh_token"] = @(_requestBoundAppRefreshToken);
     return json;
 }
 
