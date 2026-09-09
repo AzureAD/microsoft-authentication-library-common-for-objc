@@ -32,5 +32,12 @@
 
 @property (atomic, readonly) NSURL *browserURL;
 
-@end
++ (BOOL)isOpenBrowserResponseURL:(NSURL *)url;
 
+- (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+         ignoreInvalidState:(BOOL)ignoreInvalidState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
+
+@end

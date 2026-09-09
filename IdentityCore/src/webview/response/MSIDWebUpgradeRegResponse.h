@@ -30,6 +30,14 @@
 
 @interface MSIDWebUpgradeRegResponse : MSIDWebWPJResponse
 
++ (BOOL)isUpgradeRegResponseURL:(NSURL *)url;
+
+- (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+         ignoreInvalidState:(BOOL)ignoreInvalidState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
+
 @end
 
 #endif /* MSIDWebUpgradeRegResponse_h */

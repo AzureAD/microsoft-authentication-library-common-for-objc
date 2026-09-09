@@ -22,17 +22,29 @@
 // THE SOFTWARE.
 #import <XCTest/XCTest.h>
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
 
 @interface MSIDWebBrowserResponseTests : XCTestCase
+
+@property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
+
 @end
 
 @implementation MSIDWebBrowserResponseTests
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    self.flightProvider = [MSIDFlightManagerMockProvider new];
+    self.flightProvider.boolForKeyContainer = @{};
+    MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
 }
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+
+- (void)tearDown
+{
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    self.flightProvider = nil;
     [super tearDown];
 }
 - (void)testInit_whenNoBrowserScheme_shouldReturnNilWithError
@@ -60,4 +72,53 @@
     
     XCTAssertEqualObjects(response.browserURL.absoluteString, @"https://somehost");
 }
+
+- (void)testHardenedInit_whenReportFlightEnabled_shouldPreserveLegacyDestination
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_REPORT_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSURL *url = [NSURL URLWithString:@"browser://somehost/path?state=c3RhdGU&destination_parameter=value"];
+    NSError *error = nil;
+
+    MSIDWebOpenBrowserResponse *response = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url
+                                                                              requestState:@"state"
+                                                                        ignoreInvalidState:NO
+                                                                                   context:nil
+                                                                                     error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(response.browserURL.absoluteString,
+                          @"https://somehost/path?state=c3RhdGU&destination_parameter=value");
+}
+
+- (void)testHardenedInit_whenEnforcementEnabledAndStateMatches_shouldReturnResponse
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSError *error = nil;
+
+    MSIDWebOpenBrowserResponse *response = [[MSIDWebOpenBrowserResponse alloc] initWithURL:[NSURL URLWithString:@"browser://somehost/path?state=ZXhwZWN0ZWQtc3RhdGU"]
+                                                                              requestState:@"expected-state"
+                                                                        ignoreInvalidState:NO
+                                                                                   context:nil
+                                                                                     error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+}
+
+- (void)testHardenedInit_whenEnforcementEnabledAndStateMismatches_shouldReturnInvalidState
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSError *error = nil;
+
+    MSIDWebOpenBrowserResponse *response = [[MSIDWebOpenBrowserResponse alloc] initWithURL:[NSURL URLWithString:@"browser://evil.tld/phish?state=ZGlmZmVyZW50LXN0YXRl"]
+                                                                              requestState:@"expected-state"
+                                                                        ignoreInvalidState:NO
+                                                                                   context:nil
+                                                                                     error:&error];
+
+    XCTAssertNil(response);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
+
 @end

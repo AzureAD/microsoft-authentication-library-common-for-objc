@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDWebResponseOperationConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDWebOpenBrowserResponse
 
@@ -33,9 +35,7 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error
 {
-    NSString *scheme = url.scheme;
-    
-    if (!([scheme isEqualToString:@"browser"]))
+    if (![self.class isOpenBrowserResponseURL:url])
     {
         if (error)
         {
@@ -55,6 +55,50 @@
     }
     
     return self;
+}
+
++ (BOOL)isOpenBrowserResponseURL:(NSURL *)url
+{
+    return [url.scheme isEqualToString:@"browser"];
+}
+
+- (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+         ignoreInvalidState:(BOOL)ignoreInvalidState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing *)error
+{
+    if (![self.class isOpenBrowserResponseURL:url])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"Browser response should have browser:// as a scheme",
+                                     nil, nil, nil, context.correlationId, nil, NO);
+        }
+
+        return nil;
+    }
+
+    BOOL enforce = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE];
+    BOOL report = enforce
+        || [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_REPORT_SPECIAL_WEB_RESPONSE_STATE];
+
+    if (report
+        && ![MSIDWebviewResponse validateRequestState:requestState
+                                         responseURL:url
+                                        responseType:@"open_browser"
+                                        responseForm:@"legacy_destination"
+                              ignoreInvalidStateFlag:ignoreInvalidState
+                                             enforce:enforce
+                                             context:context
+                                               error:error])
+    {
+        return nil;
+    }
+
+    return [self initWithURL:url context:context error:error];
 }
 
 + (NSString *)operation

@@ -28,10 +28,18 @@
 
 @interface MSIDWebWPJResponse (Internal)
 
++ (BOOL)isWPJResponseURL:(NSURL *)url;
+
+- (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+         ignoreInvalidState:(BOOL)ignoreInvalidState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
+
 /**
   * A designated protected initializer for MSIDWebWPJResponse
  **/
- - (instancetype)initResponseWithURL:(NSURL *)url
+- (instancetype)initResponseWithURL:(NSURL *)url
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
 

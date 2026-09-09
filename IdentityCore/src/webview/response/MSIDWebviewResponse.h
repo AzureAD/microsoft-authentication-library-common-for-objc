@@ -46,6 +46,15 @@
 
 + (NSDictionary *)msidWebResponseParametersFromURL:(NSURL *)url;
 
++ (BOOL)validateRequestState:(NSString *)requestState
+                 responseURL:(NSURL *)responseURL
+                responseType:(NSString *)responseType
+                responseForm:(NSString *)responseForm
+      ignoreInvalidStateFlag:(BOOL)ignoreInvalidState
+                     enforce:(BOOL)enforce
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
+
 - (BOOL)useV2WebResponseHandling;
 
 @end

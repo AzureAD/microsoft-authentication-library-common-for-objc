@@ -238,6 +238,17 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME;
+/**
+ Report request-state presence and validation results for WPJ, upgrade
+ registration, and open-browser responses without changing response handling.
+ */
+extern NSString * _Nonnull const MSID_FLIGHT_REPORT_SPECIAL_WEB_RESPONSE_STATE;
+/**
+ Enforce request-state validation for WPJ, upgrade-registration, and
+ open-browser responses. This enforcement is not bypassed by the legacy
+ ignoreInvalidState setting.
+ */
+extern NSString * _Nonnull const MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE;
 
 /**
  * Flight to indicate if remove account artifacts should be disabled

@@ -25,6 +25,8 @@
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebResponseOperationConstants.h"
 #import "MSIDWebWPJResponse+Internal.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDWebUpgradeRegResponse
 
@@ -36,7 +38,7 @@ static NSString *const UPGRADE_REG = @"upgradereg";
                       error:(NSError *__autoreleasing*)error
 {
     // Check for upgrade registration
-    if (![self isBrokerUpgradeRegResponse:url])
+    if (![self.class isUpgradeRegResponseURL:url])
     {
         if (error)
         {
@@ -53,10 +55,49 @@ static NSString *const UPGRADE_REG = @"upgradereg";
     return [super initResponseWithURL:url context:context error:error];
 }
 
+- (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+         ignoreInvalidState:(BOOL)ignoreInvalidState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing *)error
+{
+    if (![self.class isUpgradeRegResponseURL:url])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"Upgrade registration response URL is invalid.",
+                                     nil, nil, nil, context.correlationId, nil, NO);
+        }
+
+        return nil;
+    }
+
+    BOOL enforce = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE];
+    BOOL report = enforce
+        || [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_REPORT_SPECIAL_WEB_RESPONSE_STATE];
+
+    if (report
+        && ![MSIDWebviewResponse validateRequestState:requestState
+                                         responseURL:url
+                                        responseType:@"upgrade_reg"
+                                        responseForm:[url.scheme isEqualToString:SCHEME_MSAUTH] ? @"direct" : @"wrapped"
+                              ignoreInvalidStateFlag:ignoreInvalidState
+                                             enforce:enforce
+                                             context:context
+                                               error:error])
+    {
+        return nil;
+    }
+
+    return [super initResponseWithURL:url context:context error:error];
+}
+
 /**
  * return true when the url response is matching a device upgrade registration
  **/
-- (BOOL)isBrokerUpgradeRegResponse:(NSURL *)url
++ (BOOL)isUpgradeRegResponseURL:(NSURL *)url
 {
     NSString *scheme = url.scheme;
     NSString *host = url.host;

@@ -29,6 +29,33 @@
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDOAuth2Constants.h"
+#import "NSString+MSIDExtensions.h"
+
+typedef NS_ENUM(NSInteger, MSIDWebResponseStateResult)
+{
+    MSIDWebResponseStateResultMatched = 0,
+    MSIDWebResponseStateResultMissing,
+    MSIDWebResponseStateResultUnexpected,
+    MSIDWebResponseStateResultMalformed,
+    MSIDWebResponseStateResultMismatched,
+    MSIDWebResponseStateResultDuplicate,
+    MSIDWebResponseStateResultNotExpectedAndAbsent
+};
+
+@interface MSIDWebviewResponse (StateValidation)
+
++ (NSArray<NSString *> *)stateValuesFromResponseURL:(NSURL *)responseURL;
+
++ (void)appendStateValuesFromQueryItems:(NSArray<NSURLQueryItem *> *)queryItems
+                                toArray:(NSMutableArray<NSString *> *)stateValues;
+
++ (MSIDWebResponseStateResult)stateResultForValues:(NSArray<NSString *> *)stateValues
+                                     expectedState:(NSString *)expectedState;
+
++ (NSString *)stringForStateResult:(MSIDWebResponseStateResult)result;
+
+@end
 
 @implementation MSIDWebviewResponse
 
@@ -77,6 +104,157 @@
     [responseParameters addEntriesFromDictionary:[url msidFragmentParameters]];
     [responseParameters addEntriesFromDictionary:[url msidQueryParameters]];
     return responseParameters;
+}
+
++ (BOOL)validateRequestState:(NSString *)requestState
+                 responseURL:(NSURL *)responseURL
+                responseType:(NSString *)responseType
+                responseForm:(NSString *)responseForm
+      ignoreInvalidStateFlag:(BOOL)ignoreInvalidState
+                     enforce:(BOOL)enforce
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError *__autoreleasing *)error
+{
+    NSArray<NSString *> *stateValues = [self stateValuesFromResponseURL:responseURL];
+    MSIDWebResponseStateResult result = [self stateResultForValues:stateValues
+                                                    expectedState:requestState];
+    NSString *resultString = [self stringForStateResult:result];
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo,
+                      context,
+                      @"Special web response state validation: type=%@ form=%@ result=%@ mode=%@ expected_state_present=%@ response_state_present=%@ legacy_ignore_requested=%@",
+                      responseType,
+                      responseForm,
+                      resultString,
+                      enforce ? @"enforce" : @"report",
+                      [NSString msidIsStringNilOrBlank:requestState] ? @"no" : @"yes",
+                      stateValues.count ? @"yes" : @"no",
+                      ignoreInvalidState ? @"yes" : @"no");
+
+    BOOL validResult = result == MSIDWebResponseStateResultMatched
+        || result == MSIDWebResponseStateResultNotExpectedAndAbsent;
+    if (validResult || !enforce)
+    {
+        return YES;
+    }
+
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                 MSIDErrorServerInvalidState,
+                                 [NSString stringWithFormat:@"Special web response failed request-state validation (%@).", resultString],
+                                 nil,
+                                 [NSString stringWithFormat:@"special_web_response_state_%@", resultString],
+                                 nil,
+                                 context.correlationId,
+                                 nil,
+                                 YES);
+    }
+
+    return NO;
+}
+
++ (NSArray<NSString *> *)stateValuesFromResponseURL:(NSURL *)responseURL
+{
+    NSURLComponents *components = [NSURLComponents componentsWithURL:responseURL
+                                                resolvingAgainstBaseURL:NO];
+    NSMutableArray<NSString *> *stateValues = [NSMutableArray new];
+
+    [self appendStateValuesFromQueryItems:components.queryItems
+                                  toArray:stateValues];
+
+    if (components.percentEncodedFragment.length)
+    {
+        NSURLComponents *fragmentComponents = [NSURLComponents new];
+        fragmentComponents.percentEncodedQuery = components.percentEncodedFragment;
+        [self appendStateValuesFromQueryItems:fragmentComponents.queryItems
+                                      toArray:stateValues];
+    }
+
+    return stateValues;
+}
+
++ (void)appendStateValuesFromQueryItems:(NSArray<NSURLQueryItem *> *)queryItems
+                                toArray:(NSMutableArray<NSString *> *)stateValues
+{
+    for (NSURLQueryItem *queryItem in queryItems)
+    {
+        if ([queryItem.name isEqualToString:MSID_OAUTH2_STATE])
+        {
+            [stateValues addObject:queryItem.value ?: @""];
+        }
+    }
+}
+
++ (MSIDWebResponseStateResult)stateResultForValues:(NSArray<NSString *> *)stateValues
+                                     expectedState:(NSString *)expectedState
+{
+    if (stateValues.count > 1)
+    {
+        return MSIDWebResponseStateResultDuplicate;
+    }
+
+    BOOL expectedStatePresent = ![NSString msidIsStringNilOrBlank:expectedState];
+    NSString *receivedState = stateValues.firstObject;
+
+    if (!expectedStatePresent && !receivedState)
+    {
+        return MSIDWebResponseStateResultNotExpectedAndAbsent;
+    }
+
+    if (!receivedState)
+    {
+        return MSIDWebResponseStateResultMissing;
+    }
+
+    if ([NSString msidIsStringNilOrBlank:receivedState])
+    {
+        return MSIDWebResponseStateResultMalformed;
+    }
+
+    NSString *decodedState = receivedState.msidBase64UrlDecode;
+    if (!decodedState)
+    {
+        return MSIDWebResponseStateResultMalformed;
+    }
+
+    if (!expectedStatePresent)
+    {
+        return MSIDWebResponseStateResultUnexpected;
+    }
+
+    return [decodedState isEqualToString:expectedState]
+        ? MSIDWebResponseStateResultMatched
+        : MSIDWebResponseStateResultMismatched;
+}
+
++ (NSString *)stringForStateResult:(MSIDWebResponseStateResult)result
+{
+    switch (result)
+    {
+        case MSIDWebResponseStateResultMatched:
+            return @"matched";
+
+        case MSIDWebResponseStateResultMissing:
+            return @"missing";
+
+        case MSIDWebResponseStateResultUnexpected:
+            return @"unexpected";
+
+        case MSIDWebResponseStateResultMalformed:
+            return @"malformed";
+
+        case MSIDWebResponseStateResultMismatched:
+            return @"mismatched";
+
+        case MSIDWebResponseStateResultDuplicate:
+            return @"duplicate";
+
+        case MSIDWebResponseStateResultNotExpectedAndAbsent:
+            return @"not_expected_absent";
+    }
+
+    return @"unknown";
 }
 
 + (NSString *)operation

@@ -23,18 +23,35 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebWPJResponse+Internal.h"
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDClientInfo.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
+#import "NSString+MSIDExtensions.h"
 
 @interface MSIDWebMSAuthResponseTests : XCTestCase
+
+@property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
 
 @end
 
 @implementation MSIDWebMSAuthResponseTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    self.flightProvider = [MSIDFlightManagerMockProvider new];
+    self.flightProvider.boolForKeyContainer = @{};
+    MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
+}
+
+- (void)tearDown
+{
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    self.flightProvider = nil;
+    [super tearDown];
 }
 
 - (void)testInit_whenWrongScheme_shouldReturnNilWithError
@@ -88,6 +105,177 @@
     XCTAssertEqualObjects(upgradeResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
     XCTAssertEqualObjects(upgradeResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
     XCTAssertNil(upgradeResponse.appInstallLink);
+}
+
+- (void)testHardenedWPJInit_whenEnforcementEnabledAndStateMatches_shouldReturnResponse
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSString *requestState = @"expected-state";
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?state=%@&app_link=applink",
+                                      requestState.msidBase64UrlEncode]];
+    NSError *error = nil;
+
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:url
+                                                             requestState:requestState
+                                                       ignoreInvalidState:NO
+                                                                  context:nil
+                                                                    error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+}
+
+- (void)testHardenedWPJInit_whenEnforcementEnabledAndStateMissing_shouldReturnInvalidState
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSError *error = nil;
+
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=applink"]
+                                                             requestState:@"expected-state"
+                                                       ignoreInvalidState:NO
+                                                                  context:nil
+                                                                    error:&error];
+
+    XCTAssertNil(response);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
+
+- (void)testHardenedWPJInit_whenEnforcementEnabledAndStateMismatches_shouldNotHonorIgnoreInvalidState
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?state=%@",
+                                      @"different-state".msidBase64UrlEncode]];
+    NSError *error = nil;
+
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:url
+                                                             requestState:@"expected-state"
+                                                       ignoreInvalidState:YES
+                                                                  context:nil
+                                                                    error:&error];
+
+    XCTAssertNil(response);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
+
+- (void)testHardenedWPJInit_whenEnforcementEnabledAndStateIsDuplicated_shouldReturnInvalidState
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSString *encodedState = @"expected-state".msidBase64UrlEncode;
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?state=%@&state=%@",
+                                      encodedState,
+                                      encodedState]];
+    NSError *error = nil;
+
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:url
+                                                             requestState:@"expected-state"
+                                                       ignoreInvalidState:NO
+                                                                  context:nil
+                                                                    error:&error];
+
+    XCTAssertNil(response);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
+
+- (void)testHardenedWPJInit_whenReportEnabledAndStateMissing_shouldReturnResponse
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_REPORT_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSError *error = nil;
+
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=applink"]
+                                                             requestState:@"expected-state"
+                                                       ignoreInvalidState:NO
+                                                                  context:nil
+                                                                    error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+}
+
+- (void)testHardenedWPJInit_whenWrappedResponseStateMatches_shouldReturnResponse
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSString *requestState = @"expected-state";
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth.com.microsoft.myapp://auth/msauth/wpj?state=%@&app_link=applink",
+                                      requestState.msidBase64UrlEncode]];
+    NSError *error = nil;
+
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:url
+                                                             requestState:requestState
+                                                       ignoreInvalidState:NO
+                                                                  context:nil
+                                                                    error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertEqualObjects(response.appInstallLink, @"applink");
+    XCTAssertNil(error);
+}
+
+- (void)testHardenedUpgradeInit_whenEnforcementEnabledAndStateMatches_shouldReturnUpgradeResponse
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSString *requestState = @"expected-state";
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://upgradeReg?state=%@&username=user",
+                                      requestState.msidBase64UrlEncode]];
+    NSError *error = nil;
+
+    MSIDWebUpgradeRegResponse *response = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url
+                                                                           requestState:requestState
+                                                                     ignoreInvalidState:NO
+                                                                                context:nil
+                                                                                  error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
+    XCTAssertEqualObjects(response.upn, @"user");
+    XCTAssertNil(error);
+}
+
+- (void)testHardenedUpgradeInit_whenWrappedResponseStateMatches_shouldReturnUpgradeResponse
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSString *requestState = @"expected-state";
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth.com.microsoft.myapp://auth/msauth/upgradeReg?state=%@&username=user",
+                                      requestState.msidBase64UrlEncode]];
+    NSError *error = nil;
+
+    MSIDWebUpgradeRegResponse *response = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url
+                                                                           requestState:requestState
+                                                                     ignoreInvalidState:NO
+                                                                                context:nil
+                                                                                  error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
+    XCTAssertEqualObjects(response.upn, @"user");
+    XCTAssertNil(error);
+}
+
+- (void)testHardenedUpgradeInit_whenEnforcementEnabledAndStateMissing_shouldReturnInvalidState
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSError *error = nil;
+
+    MSIDWebUpgradeRegResponse *response = [[MSIDWebUpgradeRegResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://upgradeReg?username=user"]
+                                                                           requestState:@"expected-state"
+                                                                     ignoreInvalidState:NO
+                                                                                context:nil
+                                                                                  error:&error];
+
+    XCTAssertNil(response);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
+
+- (void)testLegacyWPJInit_whenEnforcementEnabledAndStateMissing_shouldPreserveCompatibility
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    NSError *error = nil;
+
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=applink"]
+                                                                  context:nil
+                                                                    error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
 }
 
 @end

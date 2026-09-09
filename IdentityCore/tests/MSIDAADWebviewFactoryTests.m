@@ -55,6 +55,8 @@
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
 #import "MSIDOAuth2Constants.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "NSString+MSIDExtensions.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -270,6 +272,86 @@
                                                    error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenWPJStateMismatchesAndEnforcementEnabled_shouldNotFallThrough
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?state=%@&code=authcode",
+                                      @"different-state".msidBase64UrlEncode]];
+    NSError *error = nil;
+
+    MSIDWebviewResponse *response = [factory oAuthResponseWithURL:url
+                                                    requestState:@"expected-state"
+                                              ignoreInvalidState:YES
+                                                  endRedirectUri:nil
+                                                         context:nil
+                                                           error:&error];
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+
+    XCTAssertNil(response);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
+
+- (void)testResponseWithURL_whenUpgradeStateMismatchesAndEnforcementEnabled_shouldNotFallThrough
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://upgradeReg?state=%@&code=authcode",
+                                      @"different-state".msidBase64UrlEncode]];
+    NSError *error = nil;
+
+    MSIDWebviewResponse *response = [factory oAuthResponseWithURL:url
+                                                    requestState:@"expected-state"
+                                              ignoreInvalidState:YES
+                                                  endRedirectUri:nil
+                                                         context:nil
+                                                           error:&error];
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+
+    XCTAssertNil(response);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
+
+- (void)testResponseWithURL_whenBrowserStateMismatchesAndEnforcementEnabled_shouldRejectResponse
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE: @YES};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    NSError *error = nil;
+
+    MSIDWebviewResponse *response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"browser://evil.tld/phish?state=ZGlmZmVyZW50LXN0YXRl"]
+                                                    requestState:@"expected-state"
+                                              ignoreInvalidState:NO
+                                                  endRedirectUri:nil
+                                                         context:nil
+                                                           error:&error];
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+
+    XCTAssertNil(response);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
+}
+
+- (void)testResponseWithURL_whenAuthCodeStateMatches_shouldReturnAADAuthCodeResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    NSError *error = nil;
+
+    MSIDWebviewResponse *response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&state=ZXhwZWN0ZWQtc3RhdGU"]
+                                                    requestState:@"expected-state"
+                                              ignoreInvalidState:NO
+                                                  endRedirectUri:nil
+                                                         context:nil
+                                                           error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebAADAuthCodeResponse.class]);
     XCTAssertNil(error);
 }
 

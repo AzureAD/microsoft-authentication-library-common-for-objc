@@ -26,8 +26,11 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebWPJResponse+Internal.h"
 #import "MSIDClientInfo.h"
 #import "MSIDWebResponseOperationConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDWebWPJResponse
 
@@ -36,7 +39,7 @@
                       error:(NSError *__autoreleasing*)error
 {
     // Check for WPJ or broker response
-    if (![self isBrokerInstallResponse:url])
+    if (![self.class isWPJResponseURL:url])
     {
         if (error)
         {
@@ -48,6 +51,45 @@
         return nil;
     }
     
+    return [self initResponseWithURL:url context:context error:error];
+}
+
+- (instancetype)initWithURL:(NSURL *)url
+               requestState:(NSString *)requestState
+         ignoreInvalidState:(BOOL)ignoreInvalidState
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing *)error
+{
+    if (![self.class isWPJResponseURL:url])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"WPJ response URL is invalid.",
+                                     nil, nil, nil, context.correlationId, nil, NO);
+        }
+
+        return nil;
+    }
+
+    BOOL enforce = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENFORCE_SPECIAL_WEB_RESPONSE_STATE];
+    BOOL report = enforce
+        || [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_REPORT_SPECIAL_WEB_RESPONSE_STATE];
+
+    if (report
+        && ![MSIDWebviewResponse validateRequestState:requestState
+                                         responseURL:url
+                                        responseType:@"wpj"
+                                        responseForm:[url.scheme isEqualToString:@"msauth"] ? @"direct" : @"wrapped"
+                              ignoreInvalidStateFlag:ignoreInvalidState
+                                             enforce:enforce
+                                             context:context
+                                               error:error])
+    {
+        return nil;
+    }
+
     return [self initResponseWithURL:url context:context error:error];
 }
 
@@ -80,7 +122,7 @@
     return self;
 }
 
-- (BOOL)isBrokerInstallResponse:(NSURL *)url
++ (BOOL)isWPJResponseURL:(NSURL *)url
 {
     NSString *scheme = url.scheme;
     NSString *host = url.host;

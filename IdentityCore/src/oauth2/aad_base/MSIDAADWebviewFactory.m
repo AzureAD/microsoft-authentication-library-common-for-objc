@@ -25,6 +25,7 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebWPJResponse+Internal.h"
 #import "MSIDWebMDMEnrollmentCompletionResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebAADAuthCodeResponse.h"
@@ -226,19 +227,32 @@
                                                                                                                                     error:nil];
     if (mdmEnrollmentCompletionResponse) return mdmEnrollmentCompletionResponse;
     
-    // Try to create a upgrade registration response
-    MSIDWebUpgradeRegResponse *upgradeRegResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url context:context error:nil];
-    if (upgradeRegResponse) return upgradeRegResponse;
+    if ([MSIDWebUpgradeRegResponse isUpgradeRegResponseURL:url])
+    {
+        return [[MSIDWebUpgradeRegResponse alloc] initWithURL:url
+                                                requestState:requestState
+                                          ignoreInvalidState:ignoreInvalidState
+                                                     context:context
+                                                       error:error];
+    }
 
-    // Try to create a WPJ response
-    MSIDWebWPJResponse *wpjResponse = [[MSIDWebWPJResponse alloc] initWithURL:url context:context error:nil];
-    if (wpjResponse) return wpjResponse;
+    if ([MSIDWebWPJResponse isWPJResponseURL:url])
+    {
+        return [[MSIDWebWPJResponse alloc] initWithURL:url
+                                         requestState:requestState
+                                   ignoreInvalidState:ignoreInvalidState
+                                              context:context
+                                                error:error];
+    }
 
-    // Try to create a browser response
-    MSIDWebOpenBrowserResponse *browserResponse = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url
-                                                                                          context:context
-                                                                                            error:nil];
-    if (browserResponse) return browserResponse;
+    if ([MSIDWebOpenBrowserResponse isOpenBrowserResponseURL:url])
+    {
+        return [[MSIDWebOpenBrowserResponse alloc] initWithURL:url
+                                                  requestState:requestState
+                                            ignoreInvalidState:ignoreInvalidState
+                                                       context:context
+                                                         error:error];
+    }
         
     if ([self isDUNASupportedForTenantId:nil])
     {
