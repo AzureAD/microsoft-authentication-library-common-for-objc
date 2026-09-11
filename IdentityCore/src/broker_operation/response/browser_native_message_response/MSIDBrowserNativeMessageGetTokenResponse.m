@@ -129,9 +129,9 @@
 
 // Shapes the GetToken payload from a single canonical token result. Base OAuth fields come from the
 // server token response when present (wire parity with a freshly redeemed result); otherwise they are
-// derived from the cached access token (access-token cache hit). Optional fields are omitted when
-// blank/nil so downstream required-field validation can fail cleanly rather than receiving empty
-// placeholder values. The account, state, and properties blocks are shared across both sources.
+// derived from the cached access token (access-token cache hit). Token-response-backed results retain
+// the legacy wire shape for optional fields, while cache-only results omit blank values. The account,
+// state, and properties blocks are shared across both sources.
 - (NSDictionary *)jsonDictionary
 {
     BOOL sanitizeResponse = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION];
@@ -217,7 +217,11 @@
 
     // 2) Account block. Identifiers are resolved from whichever source populated the result.
     NSString *userName = tokenResponse ? tokenResponse.accountUpn : self.tokenResult.account.username;
-    if ([NSString msidIsStringNilOrBlank:userName])
+    if (tokenResponse)
+    {
+        userName = userName ?: self.requestAccountUpn;
+    }
+    else if ([NSString msidIsStringNilOrBlank:userName])
     {
         userName = self.requestAccountUpn;
     }
@@ -231,7 +235,8 @@
         account[@"id"] = accountId;
     }
 
-    if (![NSString msidIsStringNilOrBlank:userName])
+    BOOL includeUserName = tokenResponse ? userName != nil : ![NSString msidIsStringNilOrBlank:userName];
+    if (includeUserName)
     {
         account[@"userName"] = userName;
     }
@@ -242,7 +247,8 @@
     }
 
     // 3) State echo.
-    if (![NSString msidIsStringNilOrBlank:self.state])
+    BOOL includeState = tokenResponse ? self.state != nil : ![NSString msidIsStringNilOrBlank:self.state];
+    if (includeState)
     {
         response[@"state"] = self.state;
     }
@@ -250,7 +256,7 @@
     // 4) Properties: UPN is always echoed when known; MATS is added only when a report exists.
     NSMutableDictionary *propertiesJson = [NSMutableDictionary new];
     // TODO: once ests follow the latest protocol, this should be removed. Account ID should be read from accountJson.
-    if (![NSString msidIsStringNilOrBlank:userName])
+    if (includeUserName)
     {
         propertiesJson[@"UPN"] = userName;
     }
@@ -261,7 +267,7 @@
         propertiesJson[@"MATS"] = matsReportJson;
     }
 
-    if (propertiesJson.count)
+    if (tokenResponse || propertiesJson.count)
     {
         response[@"properties"] = propertiesJson;
     }
