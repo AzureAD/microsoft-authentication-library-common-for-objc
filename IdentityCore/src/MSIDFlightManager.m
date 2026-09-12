@@ -115,6 +115,10 @@
 
 - (void)setFlightProvider:(id<MSIDFlightManagerInterface>)flightProvider
 {
+    // Use a synchronous barrier so the assignment (and the release of any previously
+    // installed provider) completes before the setter returns. An async barrier let the
+    // previous provider be released on the queue after the setter returned, racing with
+    // concurrent readers and allowing a stale/nil provider to be observed.
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         self->_flightProvider = flightProvider;
     });
@@ -137,36 +141,32 @@
 
 - (BOOL)boolForKey:(nonnull NSString *)flightKey
 {
-    __block BOOL result = NO;
-    // Read the provider only from within the synchronization queue. Testing it via the
-    // unsynchronized property getter first would race the barrier write in setFlightProvider:,
-    // and capturing it into a strong local keeps it alive for the duration of the call.
+    // Capture a strong reference to the provider on the synchronization queue so a concurrent
+    // setFlightProvider: cannot deallocate it (use-after-free -> SIGSEGV). Invoke the provider
+    // AFTER leaving the queue: a provider that re-enters setFlightProvider: from its own
+    // boolForKey: would otherwise deadlock, since setFlightProvider: issues a
+    // dispatch_barrier_sync on this same queue that can never run while this block holds it.
+    __block id<MSIDFlightManagerInterface> provider = nil;
     dispatch_sync(self.synchronizationQueue, ^{
-        id<MSIDFlightManagerInterface> flightProvider = self->_flightProvider;
-        if (flightProvider)
-        {
-            result = [flightProvider boolForKey:flightKey];
-        }
+        provider = self->_flightProvider;
     });
     
-    return result;
+    return provider ? [provider boolForKey:flightKey] : NO;
 }
 
 - (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
 {
-    __block NSString *result = nil;
-    // Read the provider only from within the synchronization queue. Testing it via the
-    // unsynchronized property getter first would race the barrier write in setFlightProvider:,
-    // and capturing it into a strong local keeps it alive for the duration of the call.
+    // Capture a strong reference to the provider on the synchronization queue so a concurrent
+    // setFlightProvider: cannot deallocate it (use-after-free -> SIGSEGV). Invoke the provider
+    // AFTER leaving the queue: a provider that re-enters setFlightProvider: from its own
+    // stringForKey: would otherwise deadlock, since setFlightProvider: issues a
+    // dispatch_barrier_sync on this same queue that can never run while this block holds it.
+    __block id<MSIDFlightManagerInterface> provider = nil;
     dispatch_sync(self.synchronizationQueue, ^{
-        id<MSIDFlightManagerInterface> flightProvider = self->_flightProvider;
-        if (flightProvider)
-        {
-            result = [flightProvider stringForKey:flightKey];
-        }
+        provider = self->_flightProvider;
     });
     
-    return result;
+    return provider ? [provider stringForKey:flightKey] : nil;
 }
 
 
