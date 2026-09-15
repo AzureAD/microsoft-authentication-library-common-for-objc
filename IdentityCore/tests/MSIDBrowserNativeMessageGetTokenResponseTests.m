@@ -42,6 +42,7 @@
 
 @property (nonatomic) NSDictionary *responseJson;
 @property (nonatomic) BOOL returnNilAccounUpn;
+@property (nonatomic) NSString *accountUpnToReturn;
 
 @end
 
@@ -50,6 +51,8 @@
 - (NSString *)accountUpn
 {
     if (self.returnNilAccounUpn) return nil;
+
+    if (self.accountUpnToReturn) return self.accountUpnToReturn;
     
     return [super accountUpn];
 }
@@ -215,7 +218,10 @@
                                                                     state:nil
                                                 fallbackRequestAccountUpn:nil];
 
-    XCTAssertEqualObjects(response.jsonDictionary, @{@"future_server_field": @"synthetic-future-value"});
+    XCTAssertEqualObjects(response.jsonDictionary, (@{
+        @"future_server_field": @"synthetic-future-value",
+        @"properties": @{}
+    }));
 }
 
 - (void)testJsonDictionary_whenResponseSanitizationFlightIsAbsent_shouldPreserveLegacyPassthrough
@@ -233,7 +239,10 @@
                                                                     state:nil
                                                 fallbackRequestAccountUpn:nil];
 
-    XCTAssertEqualObjects(response.jsonDictionary, @{@"future_server_field": @"synthetic-future-value"});
+    XCTAssertEqualObjects(response.jsonDictionary, (@{
+        @"future_server_field": @"synthetic-future-value",
+        @"properties": @{}
+    }));
 }
 
 - (void)testJsonDictionary_whenLegacyResponseSanitizationFlightEnabled_shouldOnlyIncludeBrowserContractFields
@@ -320,6 +329,101 @@
     
     XCTAssertNotNil([response jsonDictionary]);
     XCTAssertEqualObjects(expectedJson, [response jsonDictionary]);
+}
+
+- (void)testJsonDictionary_whenTokenResponseStateIsEmptyOrWhitespace_shouldPreserveState
+{
+    for (NSString *state in @[@"", @" \t "])
+    {
+        MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+        tokenResponseMock.responseJson = @{};
+        tokenResponseMock.returnNilAccounUpn = YES;
+
+        MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponseMock];
+        MSIDBrowserNativeMessageGetTokenResponse *response =
+        [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                        state:state
+                                                    fallbackRequestAccountUpn:nil];
+
+        XCTAssertEqualObjects(response.jsonDictionary[@"state"], state);
+    }
+}
+
+- (void)testJsonDictionary_whenTokenResponseUpnIsEmptyOrWhitespace_shouldPreserveResponseUpn
+{
+    for (NSString *responseUpn in @[@"", @" \t "])
+    {
+        MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+        tokenResponseMock.responseJson = @{};
+        tokenResponseMock.accountUpnToReturn = responseUpn;
+
+        MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponseMock];
+        MSIDBrowserNativeMessageGetTokenResponse *response =
+        [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                        state:nil
+                                                    fallbackRequestAccountUpn:@"fallback@contoso.com"];
+
+        NSDictionary *json = response.jsonDictionary;
+        XCTAssertEqualObjects(json[@"account"][@"userName"], responseUpn);
+        XCTAssertEqualObjects(json[@"properties"][@"UPN"], responseUpn);
+    }
+}
+
+- (void)testJsonDictionary_whenTokenResponseUpnIsNil_shouldPreserveRequestUpnFallback
+{
+    for (NSString *requestUpn in @[@"fallback@contoso.com", @"", @" \t "])
+    {
+        MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+        tokenResponseMock.responseJson = @{};
+        tokenResponseMock.returnNilAccounUpn = YES;
+
+        MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponseMock];
+        MSIDBrowserNativeMessageGetTokenResponse *response =
+        [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                        state:nil
+                                                    fallbackRequestAccountUpn:requestUpn];
+
+        NSDictionary *json = response.jsonDictionary;
+        XCTAssertEqualObjects(json[@"account"][@"userName"], requestUpn);
+        XCTAssertEqualObjects(json[@"properties"][@"UPN"], requestUpn);
+    }
+}
+
+- (void)testJsonDictionary_whenTokenResponseHasNoUpnOrMats_shouldIncludeEmptyProperties
+{
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+    tokenResponseMock.responseJson = @{};
+    tokenResponseMock.returnNilAccounUpn = YES;
+
+    MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponseMock];
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                    state:nil
+                                                fallbackRequestAccountUpn:nil];
+
+    NSDictionary *json = response.jsonDictionary;
+    XCTAssertNotNil(json[@"properties"]);
+    XCTAssertEqualObjects(json[@"properties"], @{});
+    XCTAssertNil(json[@"account"][@"userName"]);
+}
+
+- (void)testJsonDictionary_whenResultHasTokenResponseAndAccessToken_shouldUseTokenResponseSemantics
+{
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+    tokenResponseMock.responseJson = @{};
+    tokenResponseMock.accountUpnToReturn = @"";
+
+    MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponseMock];
+    result.accessToken = [MSIDAccessToken new];
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                    state:@""
+                                                fallbackRequestAccountUpn:@"fallback@contoso.com"];
+
+    NSDictionary *json = response.jsonDictionary;
+    XCTAssertEqualObjects(json[@"state"], @"");
+    XCTAssertEqualObjects(json[@"account"][@"userName"], @"");
+    XCTAssertEqualObjects(json[@"properties"][@"UPN"], @"");
 }
 
 - (void)testInitWithTokenResultStateAndFallbackUpn_setsConvenienceProperties
