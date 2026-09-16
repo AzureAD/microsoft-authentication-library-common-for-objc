@@ -57,6 +57,7 @@ NSString * const MSIDOnboardingBlobStepJITLinkingCompleted = @"JITLinkingComplet
 NSString * const MSIDOnboardingBlobStepJITRemediationStarted = @"JITRemediationStarted";
 NSString * const MSIDOnboardingBlobStepJITRemediationCompleted = @"JITRemediationCompleted";
 NSString * const MSIDOnboardingBlobStepJITComplianceBitSetStarted = @"JITComplianceBitSetStarted";
+NSString * const MSIDOnboardingBlobStepJITTroubleShootingFlowStarted = @"JITTroubleShootingFlowStarted";
 NSString * const MSIDOnboardingBlobStepJITComplianceBitSetCompleted = @"JITComplianceBitSetCompleted";
 NSString * const MSIDOnboardingBlobStepTokenIssued = @"TokenIssued";
 

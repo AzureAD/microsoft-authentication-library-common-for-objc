@@ -265,6 +265,35 @@
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
 
+    // Allow the caller to intercept a repeated enrollment URL after device
+    // registration configuration has been refreshed.
+    if (embeddedWebviewController && embeddedWebviewController.externalDecidePolicyForBrowserAction &&
+        [request.URL.scheme.lowercaseString isEqualToString:@"https"])
+    {
+        NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:request.URL
+                                                       resolvingAgainstBaseURL:NO];
+        urlComponents.scheme = MSID_SCHEME_BROWSER;
+        NSURL *jitTroubleshootFlowURL = urlComponents.URL;
+
+        if (jitTroubleshootFlowURL)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Invoking external navigation block with 'browser' scheme (host: '%@').", jitTroubleshootFlowURL.host);
+
+            NSURLRequest *updatedRequest =
+                embeddedWebviewController.externalDecidePolicyForBrowserAction(embeddedWebviewController, jitTroubleshootFlowURL);
+            if (updatedRequest)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] External navigation block returned overridden request (host: '%@').", updatedRequest.URL.host);
+                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepJITTroubleShootingFlowStarted timestamp:[NSDate date]];
+                return [MSIDWebviewNavigationDecision loadRequest:updatedRequest];
+            }
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Enroll] Failed to build 'browser' scheme URL; skipping external navigation.");
+        }
+    }
+
     [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:[NSDate date]];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Built enrollment request for host '%@'.", request.URL.host);
     return [MSIDWebviewNavigationDecision loadRequest:request];
