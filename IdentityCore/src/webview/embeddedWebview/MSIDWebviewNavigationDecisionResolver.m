@@ -284,7 +284,7 @@
             if (updatedRequest)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] External navigation block returned overridden request (host: '%@').", updatedRequest.URL.host);
-                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepJITTroubleShootingFlowStarted timestamp:[NSDate date]];
+                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepJITTroubleshootingFlowStarted timestamp:[NSDate date]];
                 return [MSIDWebviewNavigationDecision loadRequest:updatedRequest];
             }
         }
