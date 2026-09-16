@@ -248,6 +248,8 @@
 
     MSIDOAuth2EmbeddedWebviewController *webviewController =
         [self createWebviewControllerWithExternalBlock:block];
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    webviewController.onboardingBlobBuilder = onboardingBlobBuilder;
     MSIDWebviewNavigationDecision *decision =
         [self.resolver resolveDecisionForURL:outerComponents.URL
                   embeddedWebviewController:webviewController
@@ -258,6 +260,9 @@
     XCTAssertEqualObjects(receivedURL.host, @"manage.microsoft.com");
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertEqualObjects(decision.request.URL, overrideURL);
+    NSArray<NSString *> *steps = onboardingBlobBuilder.msidStampedStepIds;
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepJITTroubleshootingFlowStarted]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentStarted]);
 }
 
 - (void)testEnrollURL_attachesCachedDeviceId_whenPresent
