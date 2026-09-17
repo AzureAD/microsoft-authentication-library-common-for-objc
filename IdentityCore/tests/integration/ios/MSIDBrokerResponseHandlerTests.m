@@ -26,6 +26,13 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDConstants.h"
+#import "MSIDAuthenticationSchemePop.h"
+
+@interface MSIDBrokerResponseHandler (Test)
+
+- (MSIDAuthenticationScheme *)authSchemeFromResumeState:(NSDictionary *)resumeState;
+
+@end
 
 @interface MSIDBrokerResponseHandlerTests : XCTestCase
 
@@ -201,6 +208,23 @@
     BOOL result = [brokerResponseHandler canHandleBrokerResponse:[NSURL new] hasCompletionBlock:YES];
     
     XCTAssertTrue(result);
+}
+
+- (void)testAuthSchemeFromResumeState_whenExternalKeyPop_shouldRestoreMarker
+{
+    NSDictionary *resumeState = @{
+        MSID_OAUTH2_TOKEN_TYPE : MSID_OAUTH2_POP,
+        MSID_OAUTH2_REQUEST_CONFIRMATION : @"eyJraWQiOiJ0ZXN0LWtleSJ9",
+        MSID_OAUTH2_EXTERNAL_KEY_POP : @"1"
+    };
+    MSIDBrokerResponseHandler *responseHandler = [[MSIDBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                 tokenResponseValidator:[MSIDTokenResponseValidator new]];
+
+    MSIDAuthenticationScheme *scheme = [responseHandler authSchemeFromResumeState:resumeState];
+
+    XCTAssertTrue([scheme isKindOfClass:MSIDAuthenticationSchemePop.class]);
+    XCTAssertTrue(((MSIDAuthenticationSchemePop *)scheme).isExternalKeyPop);
+    XCTAssertEqualObjects(scheme.schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION], @"eyJraWQiOiJ0ZXN0LWtleSJ9");
 }
 
 @end

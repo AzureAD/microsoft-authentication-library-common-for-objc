@@ -27,6 +27,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDErrorConverter.h"
+#import "MSIDAuthenticationScheme.h"
 
 @interface MSIDBaseRequestController()
 
@@ -84,6 +85,8 @@
     [event setClientId:self.requestParameters.clientId];
     NSString *extExpiresSetting = self.requestParameters.extendedLifetimeEnabled ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO;
     [event setExtendedExpiresOnSetting:extExpiresSetting];
+    [self.requestParameters.authScheme configureTelemetryEvent:event];
+
     return event;
 }
 

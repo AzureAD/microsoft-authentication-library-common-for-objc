@@ -99,22 +99,19 @@
 {
     MSIDLocalSPATokenAcquirer *acquirer = [MSIDLocalSPATokenAcquirer new];
     MSIDInteractiveTokenRequestParameters *parameters = [self parametersWithAcquirer:acquirer];
-
     XCTAssertEqual(parameters.requestType, MSIDRequestBrokeredType);
     XCTAssertTrue(parameters.isBoundAppRefreshTokenRequested);
     XCTAssertEqualObjects(parameters.accountIdentifier.homeAccountId, @"uid.utid");
 }
 
-- (void)testAcquireSilent_whenEngineReturnsResult_shouldRequireBoundRefreshToken
+- (void)testAcquireSilent_whenEngineReturnsUsername_shouldUseExpectedFallbackAndRequireBoundRefreshToken
 {
     MSIDTokenResult *result = [MSIDTokenResult new];
     result.account = [MSIDAccount new];
-    result.account.username = @"cached@contoso.com";
-
+    result.account.username = @"";
     MSIDLocalSPATokenAcquirer *acquirer = [self acquirerWithResult:result error:nil];
     __block MSIDSPATokenAcquisitionResult *outcome = nil;
     __block NSError *acquisitionError = nil;
-
     [acquirer acquireSilentWithParameters:[self parametersWithAcquirer:acquirer]
                                   request:[self request]
                                   context:nil
@@ -122,11 +119,13 @@
         outcome = resultOutcome;
         acquisitionError = error;
     }];
-
     XCTAssertNil(acquisitionError);
-    XCTAssertEqual(outcome.tokenResult, result);
-    XCTAssertEqualObjects(outcome.fallbackRequestAccountUpn, @"cached@contoso.com");
+    XCTAssertEqualObjects(outcome.fallbackRequestAccountUpn, @"user@contoso.com");
     XCTAssertTrue(self.silentRequest.requiresBoundRefreshToken);
+    result.account.username = @"cached@contoso.com";
+    [acquirer acquireSilentWithParameters:[self parametersWithAcquirer:acquirer] request:[self request] context:nil
+                          completionBlock:^(MSIDSPATokenAcquisitionResult *resultOutcome, __unused NSError *error) { outcome = resultOutcome; }];
+    XCTAssertEqualObjects(outcome.fallbackRequestAccountUpn, @"cached@contoso.com");
 }
 
 - (void)testAcquireSilent_whenEngineFails_shouldReturnOriginalError
@@ -135,14 +134,12 @@
                                            @"Server rejected the request.", nil, nil, nil, nil, nil, NO);
     MSIDLocalSPATokenAcquirer *acquirer = [self acquirerWithResult:nil error:engineError];
     __block NSError *acquisitionError = nil;
-
     [acquirer acquireSilentWithParameters:[self parametersWithAcquirer:acquirer]
                                   request:[self request]
                                   context:nil
                           completionBlock:^(__unused MSIDSPATokenAcquisitionResult *outcome, NSError *error) {
         acquisitionError = error;
     }];
-
     XCTAssertEqual(acquisitionError, engineError);
 }
 
@@ -152,14 +149,12 @@
                                          @"BART redemption failed.", nil, nil, nil, nil, nil, YES);
     MSIDLocalSPATokenAcquirer *acquirer = [self acquirerWithResult:nil error:bartError];
     __block NSError *acquisitionError = nil;
-
     [acquirer acquireSilentWithParameters:[self parametersWithAcquirer:acquirer]
                                   request:[self request]
                                   context:nil
                           completionBlock:^(__unused MSIDSPATokenAcquisitionResult *outcome, NSError *error) {
         acquisitionError = error;
     }];
-
     XCTAssertEqualObjects(acquisitionError.domain, MSIDErrorDomain);
     XCTAssertEqual(acquisitionError.code, MSIDErrorInteractionRequired);
     XCTAssertEqual(acquisitionError.userInfo[NSUnderlyingErrorKey], bartError);
@@ -173,15 +168,26 @@
         return nil;
     }];
     __block NSError *acquisitionError = nil;
-
     [acquirer acquireSilentWithParameters:[self parametersWithAcquirer:acquirer]
                                   request:[self request]
                                   context:nil
                           completionBlock:^(__unused MSIDSPATokenAcquisitionResult *outcome, NSError *error) {
         acquisitionError = error;
     }];
-
     XCTAssertEqualObjects(acquisitionError.domain, MSIDErrorDomain);
+    XCTAssertEqual(acquisitionError.code, MSIDErrorInteractionRequired);
+}
+
+- (void)testAcquireInteractive_whenNotImplemented_shouldReturnInteractionRequired
+{
+    MSIDLocalSPATokenAcquirer *acquirer = [MSIDLocalSPATokenAcquirer new];
+    __block NSError *acquisitionError = nil;
+    [acquirer acquireInteractiveWithParameters:[self parametersWithAcquirer:acquirer]
+                                       request:[self request]
+                                       context:nil
+                               completionBlock:^(__unused MSIDSPATokenAcquisitionResult *outcome, NSError *error) {
+        acquisitionError = error;
+    }];
     XCTAssertEqual(acquisitionError.code, MSIDErrorInteractionRequired);
 }
 

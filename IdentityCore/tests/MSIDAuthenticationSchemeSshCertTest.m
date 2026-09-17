@@ -44,6 +44,13 @@
     XCTAssertNil(scheme);
 }
 
+- (void)testTokenEndpointParameters_whenSshCertScheme_shouldEqualSchemeParameters
+{
+    MSIDAuthenticationSchemeSshCert *scheme = [[MSIDAuthenticationSchemeSshCert alloc] initWithSchemeParameters:[self prepareSshCertSchemeParameter]];
+
+    XCTAssertEqualObjects(scheme.tokenEndpointParameters, scheme.schemeParameters);
+}
+
 
 - (void)test_InitWithMissingTokenType_shouldReturnNil
 {

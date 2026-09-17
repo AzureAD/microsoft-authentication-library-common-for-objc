@@ -37,6 +37,7 @@
 @property (nonatomic) id<MSIDAssymetricKeyGenerating> keyGeneratorFactory;
 @property (nonatomic) MSIDAssymetricKeyLookupAttributes *keyPairAttributes;
 @property (nonatomic) MSIDAssymetricKeyPair *keyPair;
+@property (nonatomic) BOOL usesExternalKeyPair;
 
 @end
 
@@ -56,10 +57,48 @@
     return self;
 }
 
- - (MSIDAssymetricKeyPair *)keyPair
+- (instancetype)initWithExternalKeyPair:(MSIDAssymetricKeyPair *)keyPair
+{
+    return [self initWithExternalKeyPair:keyPair context:nil error:nil];
+}
+
+- (instancetype)initWithExternalKeyPair:(MSIDAssymetricKeyPair *)keyPair
+                                context:(id<MSIDRequestContext>)context
+                                  error:(NSError *__autoreleasing *)error
+{
+    self = [super init];
+    if (!self)
+    {
+        return nil;
+    }
+
+    MSIDExternalKeyPairValidationFailureReason validationReason = MSIDExternalKeyPairValidationFailureReasonNone;
+    BOOL valid = [[MSIDKeyOperationUtil sharedInstance] validateExternalRSAKeyPair:keyPair.privateKeyRef
+                                                                        publicKey:keyPair.publicKeyRef
+                                                                    failureReason:&validationReason
+                                                                          context:context
+                                                                            error:error];
+    if (!valid)
+    {
+        return nil;
+    }
+
+    _keyPair = keyPair;
+    _usesExternalKeyPair = YES;
+
+    return self;
+}
+
+- (MSIDAssymetricKeyPair *)keyPair
 {
     if (!_keyPair)
     {
+        if (self.usesExternalKeyPair)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"External AT PoP manager cannot generate a replacement key pair.");
+            return nil;
+        }
+
         NSError *keyPairError = nil;
         _keyPair = [self.keyGeneratorFactory readOrGenerateKeyPairForAttributes:self.keyPairAttributes error:&keyPairError];
         if (!_keyPair)

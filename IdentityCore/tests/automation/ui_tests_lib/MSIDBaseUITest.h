@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDAutomationErrorResult;
 @class MSIDAutomationSuccessResult;
+@class MSIDAutomationReturnedTokensResult;
 @class MSIDAutomationAccountsResult;
 @class MSIDIdTokenClaims;
 @class MSIDTestAutomationAccount;
@@ -57,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)automationResultDictionary:(XCUIApplication *)application;
 - (MSIDAutomationErrorResult *)automationErrorResult:(XCUIApplication *)application;
 - (MSIDAutomationSuccessResult *)automationSuccessResult:(XCUIApplication *)application;
+- (MSIDAutomationReturnedTokensResult *)automationReturnedTokensResult:(XCUIApplication *)application;
 - (MSIDAutomationAccountsResult *)automationAccountsResult:(XCUIApplication *)application;
 
 #pragma mark - Actions

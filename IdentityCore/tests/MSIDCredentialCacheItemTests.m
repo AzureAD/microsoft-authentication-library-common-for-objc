@@ -36,6 +36,33 @@
 
 #pragma mark - JSON serialization
 
+- (void)testCacheIdentity_whenPopKeyIdsDiffer_shouldKeepSeparateItems
+{
+    MSIDCredentialCacheItem *firstItem = [MSIDCredentialCacheItem new];
+    firstItem.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    firstItem.tokenType = @"Pop";
+    firstItem.kid = @"external-key-a";
+
+    MSIDCredentialCacheItem *secondItem = [firstItem copy];
+    secondItem.kid = @"external-key-b";
+
+    NSSet *cacheItems = [NSSet setWithObjects:firstItem, secondItem, nil];
+    XCTAssertEqual(cacheItems.count, 2);
+    XCTAssertNotEqualObjects(firstItem, secondItem);
+}
+
+- (void)testCopyAndJsonDictionary_whenPopKeyIdSet_shouldPreserveKeyId
+{
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    cacheItem.tokenType = @"Pop";
+    cacheItem.kid = @"external-key-a";
+
+    MSIDCredentialCacheItem *cacheItemCopy = [cacheItem copy];
+    XCTAssertEqualObjects(cacheItemCopy.kid, @"external-key-a");
+    XCTAssertEqualObjects(cacheItem.jsonDictionary[MSID_KID_CACHE_KEY], @"external-key-a");
+}
+
 - (void)testJSONDictionary_whenAccessToken_andAllFieldsSet_shouldReturnJSONDictionary
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
