@@ -211,6 +211,8 @@
 
     MSIDOAuth2EmbeddedWebviewController *webviewController =
         [self createWebviewControllerWithExternalBlock:block];
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    webviewController.onboardingBlobBuilder = onboardingBlobBuilder;
     MSIDWebviewNavigationDecision *decision =
         [self.resolver resolveDecisionForURL:outerComponents.URL
                   embeddedWebviewController:webviewController
@@ -222,6 +224,9 @@
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertEqualObjects(decision.request.URL.scheme, @"https");
     XCTAssertEqualObjects(decision.request.URL.host, @"manage.microsoft.com");
+    NSArray<NSString *> *steps = onboardingBlobBuilder.msidStampedStepIds;
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepJITTroubleshootingFlowStarted]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentStarted]);
 }
 
 - (void)testEnrollURL_whenExternalBlockReturnsRequest_shouldUseUpdatedRequest
@@ -519,7 +524,7 @@
     XCTAssertTrue(invoked, @"External block must be invoked when a webview controller is provided.");
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
-    XCTAssertEqualObjects(decision.request.URL.host, @"compliance.microsoft.com");
+    XCTAssertEqualObjects(decision.request.URL.absoluteString, targetURL);
 }
 
 - (void)testComplianceURL_withExternalBlock_blockReturnsRequest_usesUpdatedRequest
