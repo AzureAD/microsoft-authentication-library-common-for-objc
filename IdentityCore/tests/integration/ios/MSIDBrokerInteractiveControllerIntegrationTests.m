@@ -68,11 +68,29 @@
 #import "NSURL+MSIDExtensions.h"
 
 @interface MSIDBrokerInteractiveController ()
+- (void)acquireTokenImpl:(MSIDRequestCompletionBlock)completionBlock;
+- (BOOL)completeAcquireTokenWithResult:(MSIDTokenResult *)result error:(NSError *)error;
 + (void)setCurrentBrokerController:(MSIDBrokerInteractiveController *)currentBrokerController;
 + (MSIDBrokerInteractiveController *)currentBrokerController;
 + (void)setCurrentBrokerRequest:(MSIDBrokerTokenRequest *)currentBrokerRequest;
 + (MSIDBrokerTokenRequest *)currentBrokerRequest;
 @property (nonatomic, readwrite) BOOL isReplayRequest;
+@property (atomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
+@end
+
+@interface MSIDFailingStartupTokenRequestProvider : MSIDTestTokenRequestProvider
+@end
+@implementation MSIDFailingStartupTokenRequestProvider
+- (MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+    brokerKey:(NSString *)brokerKey brokerApplicationToken:(NSString *)applicationToken
+    sdkCapabilities:(NSArray *)capabilities error:(NSError * __autoreleasing *)error
+{
+    if (error)
+    {
+        *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecInteractionNotAllowed userInfo:nil];
+    }
+    return nil;
+}
 @end
 
 @interface MSIDOnboardingStatusCache ()
@@ -193,6 +211,80 @@ static NSInteger gFakeThrottlingCallCount = 0;
 }
 
 #pragma mark - Tests
+
+- (void)testCompleteAcquireToken_whenBoundSPAResponseMismatches_shouldPreserveActiveRequest
+{
+    MSIDBrokerInteractiveController *controller = [[MSIDBrokerInteractiveController alloc]
+        initWithInteractiveRequestParameters:[self requestParameters]
+        tokenRequestProvider:[MSIDTestTokenRequestProvider new] fallbackController:nil error:nil];
+    __block NSUInteger completions = 0;
+    controller.requestCompletionBlock = ^(MSIDTokenResult *result, NSError *error)
+    {
+        completions++;
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorBrokerCorruptedResponse);
+    };
+    [MSIDBrokerInteractiveController setCurrentBrokerController:controller];
+    NSDictionary *resumeState = @{MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY: MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1,
+                                  @"broker_nonce": NSUUID.UUID.UUIDString};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSError *mismatch = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorBrokerMismatchedResumeState userInfo:nil];
+    MSIDTestBrokerResponseHandler *handler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:nil testError:mismatch];
+
+    XCTAssertFalse([MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"msauth.test://auth/broker"]
+        sourceApplication:nil brokerResponseHandler:handler]);
+    XCTAssertEqual(completions, 0u);
+    XCTAssertEqual([MSIDBrokerInteractiveController currentBrokerController], controller);
+    XCTAssertNotNil(controller.requestCompletionBlock);
+    XCTAssertEqualObjects([[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY], resumeState);
+
+    NSError *currentError = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorBrokerCorruptedResponse userInfo:nil];
+    handler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:nil testError:currentError];
+    XCTAssertTrue([MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"msauth.test://auth/broker"]
+        sourceApplication:nil brokerResponseHandler:handler]);
+    XCTAssertEqual(completions, 1u);
+    XCTAssertNil([MSIDBrokerInteractiveController currentBrokerController]);
+    XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY]);
+}
+
+- (void)testCompleteAcquireToken_whenBoundSPAResponseMismatchesOnColdResume_shouldPreserveResumeState
+{
+    NSDictionary *resumeState = @{MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY: MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1,
+                                  @"broker_nonce": NSUUID.UUID.UUIDString};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSError *mismatch = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorBrokerMismatchedResumeState userInfo:nil];
+    MSIDTestBrokerResponseHandler *handler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:nil testError:mismatch];
+
+    XCTAssertFalse([MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"msauth.test://auth/broker"]
+        sourceApplication:nil brokerResponseHandler:handler]);
+    XCTAssertNil([MSIDBrokerInteractiveController currentBrokerController]);
+    XCTAssertEqualObjects([[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY], resumeState);
+}
+
+- (void)testAcquireToken_whenStartupFails_shouldReleaseOwnershipBeforeReentrantCompletion
+{
+    MSIDBrokerInteractiveController *controller = [[MSIDBrokerInteractiveController alloc]
+        initWithInteractiveRequestParameters:[self requestParameters]
+        tokenRequestProvider:[MSIDFailingStartupTokenRequestProvider new] fallbackController:nil error:nil];
+    __block NSUInteger completions = 0;
+    [controller acquireTokenImpl:^(MSIDTokenResult *result, NSError *error)
+    {
+        completions++;
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, errSecInteractionNotAllowed);
+        XCTAssertNil([MSIDBrokerInteractiveController currentBrokerController]);
+        XCTAssertNil([MSIDBrokerInteractiveController currentBrokerRequest]);
+        [controller acquireTokenImpl:^(MSIDTokenResult *nextResult, NSError *nextError)
+        {
+            completions++;
+            XCTAssertNil(nextResult);
+            XCTAssertEqual(nextError.code, errSecInteractionNotAllowed);
+        }];
+    }];
+    XCTAssertEqual(completions, 2u);
+    XCTAssertFalse([controller completeAcquireTokenWithResult:nil error:nil]);
+    XCTAssertEqual(completions, 2u);
+}
 
 - (void)testAcquireToken_whenSuccessfulBrokerResponse_shouldReturnSuccess
 {

@@ -34,6 +34,7 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDTestBrokerResponseHelper.h"
 #import "MSIDDefaultBrokerResponseHandler.h"
+#import "MSIDBrokerKeyProvider.h"
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccessToken.h"
@@ -50,6 +51,7 @@
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDFlightManager.h"
 #import "MSIDFlightManagerMockProvider.h"
+#import "MSIDBrokerConstants.h"
 
 @interface MSIDDefaultBrokerResponseHandlerTests : XCTestCase
 
@@ -72,6 +74,7 @@
 }
 
 - (void)tearDown {
+    [MSIDBrokerKeyProvider publishBoundSPASupport:NO error:nil];
     // Clear keychain
     NSDictionary *query = @{(id)kSecClass : (id)kSecClassKey,
                             (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric};
@@ -1933,7 +1936,7 @@
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 
-- (NSURL *)brokerSuccessResponseURLWithNonce:(NSString *)brokerNonce
+- (NSMutableDictionary *)brokerSuccessResponseParametersWithNonce:(NSString *)brokerNonce
 {
     NSString *idTokenString = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"user@contoso.com"
                                                                         subject:@"mysubject"
@@ -1975,9 +1978,171 @@
         brokerResponseParams[@"broker_nonce"] = brokerNonce;
     }
 
+    return brokerResponseParams;
+}
+
+- (NSURL *)brokerSuccessResponseURLWithNonce:(NSString *)brokerNonce
+{
+    NSDictionary *brokerResponseParams = [self brokerSuccessResponseParametersWithNonce:brokerNonce];
     return [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
                                                          redirectUri:@"x-msauth-test://com.microsoft.testapp"
                                                        encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+}
+
+- (void)saveBoundSPAResumeState
+{
+    XCTAssertTrue([MSIDBrokerKeyProvider publishBoundSPASupport:YES error:nil]);
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    NSMutableDictionary *resume = [[[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY] mutableCopy];
+    resume[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY] = MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1;
+    resume[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = @"x-msauth-test://com.microsoft.testapp";
+    resume[@"redirect_uri"] = @"https://spa.contoso.com/callback";
+    resume[@"client_id"] = @"my_client_id";
+    [[NSUserDefaults standardUserDefaults] setObject:resume forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+}
+
+- (NSURL *)boundSPAResponseURLWithParameters:(NSDictionary *)parameters
+{
+    return [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:parameters
+                                                         redirectUri:@"x-msauth-test://com.microsoft.testapp/broker"
+                                                       encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+}
+
+- (void)testHandleBrokerResponse_whenBoundSPAPublicationNotConfirmed_shouldRejectSuccess
+{
+    NSArray *invalidProofs = @[
+        @{},
+        @{MSID_BROKER_SDK_CAPABILITIES_KEY: MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY},
+        @{MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY: @"1"},
+        @{MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY: @"2",
+          MSID_BROKER_BOUND_SPA_PUBLICATION_KEY: MSID_BROKER_BOUND_SPA_PUBLICATION_COMMITTED},
+        @{MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY: @"1",
+          MSID_BROKER_BOUND_SPA_PUBLICATION_KEY: @YES}
+    ];
+    for (NSDictionary *proof in invalidProofs)
+    {
+        [self saveBoundSPAResumeState];
+        NSMutableDictionary *parameters = [self brokerSuccessResponseParametersWithNonce:@"nonce"];
+        [parameters addEntriesFromDictionary:proof];
+        MSIDDefaultBrokerResponseHandler *handler = [[MSIDDefaultBrokerResponseHandler alloc]
+                                                     initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                     tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+        NSError *error = nil;
+        MSIDTokenResult *result = [handler handleBrokerResponseWithURL:[self boundSPAResponseURLWithParameters:parameters]
+                                                   sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorBrokerCorruptedResponse);
+    }
+}
+
+- (void)testHandleBrokerResponse_whenBoundSPAPublicationConfirmed_shouldAcceptColdResume
+{
+    [self saveBoundSPAResumeState];
+    NSMutableDictionary *parameters = [self brokerSuccessResponseParametersWithNonce:@"nonce"];
+    parameters[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY] = @"1";
+    parameters[MSID_BROKER_BOUND_SPA_PUBLICATION_KEY] = MSID_BROKER_BOUND_SPA_PUBLICATION_COMMITTED;
+    parameters[MSID_BART_DEVICE_ID_KEY] = @"synthetic-device-id";
+    [parameters removeObjectForKey:@"foci"];
+    parameters[@"bound_spa_proof"] = [MSIDBrokerKeyProvider boundSPAProofForParameters:parameters
+        sourceApplication:@"bound-spa-publication-v1" error:nil];
+    MSIDDefaultBrokerResponseHandler *handler = [[MSIDDefaultBrokerResponseHandler alloc]
+                                                 initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                 tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    NSError *error = nil;
+    MSIDTokenResult *result = [handler handleBrokerResponseWithURL:[self boundSPAResponseURLWithParameters:parameters]
+                                               sourceApplication:nil error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
+    XCTAssertEqualObjects(handler.boundSPABrokerProtocolVersion, @"1");
+}
+
+- (void)testHandleBrokerResponse_whenBoundSPATokenChangesAfterPublicationSignature_shouldReject
+{
+    [self saveBoundSPAResumeState];
+    NSMutableDictionary *parameters = [self brokerSuccessResponseParametersWithNonce:@"nonce"];
+    parameters[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY] = @"1";
+    parameters[MSID_BROKER_BOUND_SPA_PUBLICATION_KEY] = MSID_BROKER_BOUND_SPA_PUBLICATION_COMMITTED;
+    parameters[@"bound_spa_proof"] = [MSIDBrokerKeyProvider boundSPAProofForParameters:parameters
+        sourceApplication:@"bound-spa-publication-v1" error:nil];
+    parameters[@"access_token"] = @"different-token";
+    MSIDDefaultBrokerResponseHandler *handler = [[MSIDDefaultBrokerResponseHandler alloc]
+        initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    NSError *error = nil;
+    XCTAssertNil([handler handleBrokerResponseWithURL:[self boundSPAResponseURLWithParameters:parameters]
+                                   sourceApplication:nil error:&error]);
+    XCTAssertEqual(error.code, MSIDErrorBrokerCorruptedResponse);
+}
+
+- (void)testHandleBrokerResponse_whenBoundSPANonceMismatches_shouldRejectWithLegacyFlightOff
+{
+    [self saveBoundSPAResumeState];
+    [self setEnforceBrokerNonceFlight:NO];
+    NSMutableDictionary *parameters = [self brokerSuccessResponseParametersWithNonce:@"other-request"];
+    parameters[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY] = @"1";
+    parameters[MSID_BROKER_BOUND_SPA_PUBLICATION_KEY] = MSID_BROKER_BOUND_SPA_PUBLICATION_COMMITTED;
+    MSIDDefaultBrokerResponseHandler *handler = [[MSIDDefaultBrokerResponseHandler alloc]
+                                                 initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                 tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    NSError *error = nil;
+    MSIDTokenResult *result = [handler handleBrokerResponseWithURL:[self boundSPAResponseURLWithParameters:parameters]
+                                               sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    XCTAssertNil(result);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+}
+
+- (void)testHandleBrokerResponse_whenBoundSPACallbackOnlyMatchesPrefix_shouldReject
+{
+    [self saveBoundSPAResumeState];
+    for (NSString *callback in @[@"x-msauth-test://com.microsoft.testapp.attacker",
+                                @"x-msauth-test://com.microsoft.testapp/another-path",
+                                @"x-msauth-test://com.microsoft.testapp#fragment"])
+    {
+        MSIDDefaultBrokerResponseHandler *handler = [[MSIDDefaultBrokerResponseHandler alloc]
+                                                     initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                     tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+        NSError *error = nil;
+        MSIDTokenResult *result = [handler handleBrokerResponseWithURL:[NSURL URLWithString:callback]
+                                                   sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    }
+}
+
+- (void)testHandleBrokerResponse_whenBoundSPAResumeVersionUnknown_shouldReject
+{
+    [self saveBoundSPAResumeState];
+    NSMutableDictionary *resume = [[[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY] mutableCopy];
+    resume[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY] = @"2";
+    [[NSUserDefaults standardUserDefaults] setObject:resume forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    MSIDDefaultBrokerResponseHandler *handler = [[MSIDDefaultBrokerResponseHandler alloc]
+                                                 initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                 tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    NSError *error = nil;
+    MSIDTokenResult *result = [handler handleBrokerResponseWithURL:[self brokerSuccessResponseURLWithNonce:@"nonce"]
+                                               sourceApplication:nil error:&error];
+    XCTAssertNil(result);
+    XCTAssertEqual(error.code, MSIDErrorBrokerBadResumeStateFound);
+}
+
+- (void)testHandleBrokerResponse_whenBoundSPABrokerReturnsError_shouldPreserveErrorWithoutPublicationProof
+{
+    [self saveBoundSPAResumeState];
+    NSDictionary *parameters = @{
+        @"broker_error_code": @"-42004", @"broker_error_domain": @"MSALErrorDomain",
+        @"correlation_id": NSUUID.UUID.UUIDString, @"x-broker-app-ver": @"1.0.0",
+        @"error_metadata": @"{}", @"error": @"invalid_grant",
+        @"error_description": @"Synthetic broker failure", @"success": @NO, @"broker_nonce": @"nonce"
+    };
+    MSIDDefaultBrokerResponseHandler *handler = [[MSIDDefaultBrokerResponseHandler alloc]
+                                                 initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                 tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    NSError *error = nil;
+    MSIDTokenResult *result = [handler handleBrokerResponseWithURL:[self boundSPAResponseURLWithParameters:parameters]
+                                               sourceApplication:nil error:&error];
+    XCTAssertNil(result);
+    XCTAssertEqualObjects(error.domain, @"MSALErrorDomain");
+    XCTAssertEqual(error.code, -42004);
 }
 
 - (void)testHandleBrokerResponse_whenSourceApplicationNonNil_andNonceMismatch_andEnforcementFlightOn_shouldReturnNilResultAndError

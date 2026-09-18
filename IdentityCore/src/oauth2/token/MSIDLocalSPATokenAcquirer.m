@@ -40,6 +40,13 @@
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDBrokerInteractiveController.h"
+#import "MSIDBrokerKeyProvider.h"
+#import "MSIDBrokerInvocationOptions.h"
+#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDBrokerConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDDefaultTokenResponseValidator.h"
 #endif
 
 static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPATokenAcquirer]";
@@ -71,11 +78,41 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
                                                                         context:(nullable id<MSIDRequestContext>)context
                                                                           error:(NSError *_Nullable __autoreleasing *_Nullable)error
 {
-    return [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
+    NSURLComponents *origin = [NSURLComponents componentsWithString:request.sender.absoluteString ?: @""];
+    NSURLComponents *redirect = [NSURLComponents componentsWithString:request.redirectUri ?: @""];
+    BOOL valid = request && [origin.scheme.lowercaseString isEqualToString:@"https"]
+        && origin.host.length && !origin.user && !origin.password && !origin.query && !origin.fragment
+        && (!origin.path.length || [origin.path isEqualToString:@"/"])
+        && [redirect.scheme.lowercaseString isEqualToString:@"https"]
+        && [origin.host.lowercaseString isEqualToString:redirect.host.lowercaseString]
+        && [(origin.port ?: @443) isEqual:(redirect.port ?: @443)]
+        && !redirect.user && !redirect.password && !redirect.fragment;
+    for (id rawKey in request.extraParameters)
+    {
+        NSString *key = [rawKey isKindOfClass:NSString.class] ? [rawKey lowercaseString] : nil;
+        if (!key || [key hasPrefix:@"bound_"] || [key hasPrefix:@"brk_"] || [key hasPrefix:@"broker_"]
+            || [@[@"child_client_id", @"child_redirect_uri", @"client_id", @"redirect_uri",
+                   @"sdk_broker_capabilities", @"grant_type", @"refresh_token", @"req_cnf",
+                   @"request_nonce", @"auth_scheme", @"token_type"] containsObject:key])
+        {
+            valid = NO;
+        }
+    }
+    if (!valid)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter,
+                           @"Bound-SPA requires a trusted HTTPS origin, same-origin redirect, and no protocol overrides.",
+                           context.correlationId);
+        return nil;
+    }
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
                                                                        requestType:MSIDRequestBrokeredType
                                                      boundAppRefreshTokenRequested:YES
                                                              correlationIdOverride:context.correlationId
                                                                              error:error];
+    parameters.requiresBoundSPACachePublication = YES;
+    parameters.ignoreScopeValidation = NO;
+    return parameters;
 }
 
 - (void)acquireSilentWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
@@ -83,14 +120,14 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
                             context:(nullable id<MSIDRequestContext>)context
                     completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock
 {
+    NSError *cacheError = nil;
     MSIDDefaultSilentTokenRequest *silentRequest = self.silentTokenRequestProvider
         ? self.silentTokenRequestProvider(parameters, context)
-        : [self silentTokenRequestWithParameters:parameters context:context];
+        : [self silentTokenRequestWithParameters:parameters context:context error:&cacheError];
     if (!silentRequest)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"%@ Token cache unavailable; user interaction is required.", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX);
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
-                                         @"Token cache is unavailable; user interaction is required.",
+        NSError *error = cacheError ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                         @"The shared token cache could not be initialized.",
                                          nil, nil, nil, context.correlationId, nil, YES);
         completionBlock(nil, error);
         return;
@@ -111,15 +148,9 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
             return;
         }
 
-        if ([error.domain isEqualToString:MSIDErrorDomain]
-            && error.code == MSIDErrorBoundAppRefreshTokenRedemptionError)
+        if ([error.domain isEqualToString:MSIDErrorDomain] && error.code == MSIDErrorBoundAppRefreshTokenRedemptionError)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ App-specific BART redemption failed; user interaction is required.", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX);
-            NSError *interactionRequiredError =
-            MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
-                            @"App-specific bound refresh token redemption failed; user interaction is required.",
-                            error.msidOauthError, error.msidSubError, error, context.correlationId, nil, YES);
-            completionBlock(nil, interactionRequiredError);
+            completionBlock(nil, error.userInfo[NSUnderlyingErrorKey] ?: error);
             return;
         }
 
@@ -127,27 +158,110 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
     }];
 }
 
-- (void)acquireInteractiveWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
-                                request:(__unused MSIDBrowserNativeMessageGetTokenRequest *)request
+- (void)acquireInteractiveWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                request:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                 context:(nullable id<MSIDRequestContext>)context
                         completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Interactive broker acquisition is not implemented.", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX);
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
-                                     @"Interactive broker acquisition is required but not implemented.",
-                                     nil, nil, nil, context.correlationId, nil, NO);
+    NSError *error = nil;
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+    BOOL enabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_BOUND_SPA_BROKER];
+    if (!enabled || ![MSIDBrokerKeyProvider hasBoundSPASupportWithError:&error])
+    {
+        completionBlock(nil, error ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerNotAvailable,
+                         @"Bound-SPA Broker support has not been advertised.", nil, nil, nil, context.correlationId, nil, NO));
+        return;
+    }
+    if (parameters.promptType == MSIDPromptTypeNever || !request.canShowUI)
+    {
+        completionBlock(nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
+                         @"Interactive acquisition is not permitted.", nil, nil, nil, context.correlationId, nil, NO));
+        return;
+    }
+    parameters.boundSPABrokerProtocolVersion = MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1;
+    parameters.requiresBoundSPACachePublication = YES;
+    parameters.keychainAccessGroup = @"com.microsoft.adalcache";
+    parameters.brokerInvocationOptions = [[MSIDBrokerInvocationOptions alloc]
+        initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithNonceSupport
+        protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    // This callback belongs to the native host, never to page-supplied parameters.
+    parameters.nestedAuthBrokerRedirectUri = [NSString stringWithFormat:@"msauth.%@://auth", NSBundle.mainBundle.bundleIdentifier];
+    NSString *callbackScheme = [NSURL URLWithString:parameters.nestedAuthBrokerRedirectUri].scheme;
+    BOOL callbackRegistered = NO;
+    for (NSDictionary *urlType in [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"])
+    {
+        if ([urlType[@"CFBundleURLSchemes"] containsObject:callbackScheme])
+        {
+            callbackRegistered = YES;
+        }
+    }
+    if (!callbackRegistered)
+    {
+        completionBlock(nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter,
+                         @"The native host callback is not registered in CFBundleURLTypes.", nil, nil, nil, context.correlationId, nil, NO));
+        return;
+    }
+    if (![MSIDBrokerInteractiveController canPerformRequest:parameters])
+    {
+        completionBlock(nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerNotAvailable,
+                         @"The required Broker is not installed.", nil, nil, nil, context.correlationId, nil, NO));
+        return;
+    }
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:&error];
+    if (!dataSource)
+    {
+        completionBlock(nil, error ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+            @"Unable to initialize the bound-SPA shared cache.", nil, nil, nil, context.correlationId, nil, NO));
+        return;
+    }
+    MSIDDefaultTokenCacheAccessor *accessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+    MSIDAccountMetadataCacheAccessor *metadata = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc]
+        initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:accessor
+        accountMetadataAccessor:metadata tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    MSIDBrokerInteractiveController *controller = [[MSIDBrokerInteractiveController alloc]
+        initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+    if (!controller)
+    {
+        completionBlock(nil, error ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+            @"Unable to initialize the bound-SPA Broker controller.", nil, nil, nil, context.correlationId, nil, NO));
+        return;
+    }
+    controller.sdkBrokerCapabilities = @[MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY];
+    [controller acquireToken:^(MSIDTokenResult *result, NSError *acquisitionError)
+    {
+        // Retain through startup/authority discovery as well as the app switch.
+        (void)controller;
+        MSIDSPATokenAcquisitionResult *outcome = nil;
+        if (result)
+        {
+            outcome = [MSIDSPATokenAcquisitionResult new];
+            outcome.tokenResult = result;
+            outcome.fallbackRequestAccountUpn = result.account.username ?: request.loginHint;
+        }
+        completionBlock(outcome, acquisitionError);
+    }];
+#else
+    error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerNotAvailable,
+                           @"Bound-SPA Broker acquisition is supported only on iOS.", nil, nil, nil, context.correlationId, nil, NO);
     completionBlock(nil, error);
+#endif
 }
 
 - (nullable MSIDDefaultSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                                                      context:(nullable id<MSIDRequestContext>)context
+                                                                       error:(NSError * __autoreleasing *)error
 {
 #if TARGET_OS_IPHONE
     NSError *dataSourceError = nil;
-    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:[MSIDKeychainTokenCache defaultKeychainGroup]
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"
                                                                                error:&dataSourceError];
     if (!dataSource)
     {
+        if (error)
+        {
+            *error = dataSourceError;
+        }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ Failed to initialize the shared ADAL keychain cache: %@", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(dataSourceError));
         return nil;
     }

@@ -48,6 +48,7 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAADV1RefreshTokenGrantRequest.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDBrokerKeyProvider.h"
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDAADTokenRequestServerTelemetry.h"
@@ -137,7 +138,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 
 - (void)executeRequestImpl:(MSIDRequestCompletionBlock)completionBlock
 {
-    if (!self.forceRefresh && ![self.requestParameters.claimsRequest hasClaims])
+    if (!self.requestParameters.requiresBoundSPACachePublication && !self.forceRefresh && ![self.requestParameters.claimsRequest hasClaims])
     {
         NSError *accessTokenError = nil;
         
@@ -300,6 +301,11 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     [self fetchCachedTokenAndCheckForFRTFirst:checkForFRTFirst shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
         if (!refreshToken)
         {
+            if (self.requestParameters.requiresBoundSPACachePublication && error)
+            {
+                completionBlock(nil, error);
+                return;
+            }
             NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
             completionBlock(nil, interactionError);
             return;
@@ -332,7 +338,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         refreshableToken = [self appRefreshTokenWithError:&rtError];
     }
     
-    if (rtError && shouldComplete)
+    if (rtError && (shouldComplete || self.requestParameters.requiresBoundSPACachePublication))
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to read %@ token with error %@", contextMsg, MSID_PII_LOG_MASKABLE(rtError));
         completionHandler(nil, checkForTokenType, rtError);
@@ -373,6 +379,28 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         if (!error)
         {
             completionBlock(result, nil);
+            return;
+        }
+
+        if (self.requestParameters.requiresBoundSPACachePublication)
+        {
+            if ([self shouldRemoveRefreshToken:error])
+            {
+                NSError *exclusionError = nil;
+                if (![MSIDBrokerKeyProvider excludeBoundSPARefreshToken:refreshToken.refreshToken error:&exclusionError])
+                {
+                    completionBlock(nil, exclusionError);
+                    return;
+                }
+            }
+            BOOL needsInteraction = [self isErrorRecoverableByUserInteraction:error]
+                || ([error.domain isEqualToString:MSIDErrorDomain]
+                    && (error.code == MSIDErrorInteractionRequired || error.code == MSIDErrorWorkplaceJoinRequired));
+            NSError *resultError = needsInteraction
+                ? MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"Bound authentication requires user interaction.",
+                                  error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, NO)
+                : error;
+            completionBlock(nil, resultError);
             return;
         }
         
@@ -497,6 +525,12 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     if ([msidError.domain isEqualToString:MSIDOAuthErrorDomain] && msidError.code == MSIDErrorServerProtectionPoliciesRequired)
     {
         return NO;
+    }
+    if (self.requestParameters.requiresBoundSPACachePublication)
+    {
+        // A network, service, keychain or crypto failure must never launch UI.
+        return [@[@"invalid_grant", @"interaction_required", @"login_required", @"consent_required"]
+            containsObject:msidError.msidOauthError ?: @""];
     }
     
     MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(msidError.msidOauthError, MSIDErrorServerInvalidGrant);
@@ -700,7 +734,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                 [self.throttlingService updateThrottlingService:localError tokenRequest:tokenRequest];
             }
             
-            if (!result && [self shouldRemoveRefreshToken:localError])
+            if (!result && !self.requestParameters.requiresBoundSPACachePublication && [self shouldRemoveRefreshToken:localError])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Refresh token invalid, removing it...");
                 NSError *removalError = nil;
@@ -717,7 +751,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             BOOL disableRemoveAccountArtifacts = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS];
 
             // remove account artifacts only if we test flight feature is not disabled
-            if (!result && !disableRemoveAccountArtifacts && [self shouldRemoveAccountArtifacts:localError])
+            if (!result && !self.requestParameters.requiresBoundSPACachePublication && !disableRemoveAccountArtifacts && [self shouldRemoveAccountArtifacts:localError])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Account deleted, Removing any user account artifacts from device...");
                 [self removeAccountArtifacts:self.requestParameters];

@@ -45,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSString *brokerNonce;
 @property (nonatomic, readonly) NSURL *providedAuthority;
 @property (nonatomic, readonly) BOOL instanceAware;
+@property (nonatomic, readonly, nullable) NSString *boundSPABrokerProtocolVersion;
 
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory
                        tokenResponseValidator:(MSIDTokenResponseValidator *)responseValidator;

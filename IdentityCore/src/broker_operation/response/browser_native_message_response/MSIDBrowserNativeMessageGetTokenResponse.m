@@ -32,6 +32,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDAccount.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDClientInfo.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDConstants.h"
@@ -134,7 +135,8 @@
 // state, and properties blocks are shared across both sources.
 - (NSDictionary *)jsonDictionary
 {
-    BOOL sanitizeResponse = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION];
+    BOOL sanitizeResponse = self.requiresBoundTokenResponse
+        || [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION];
 
     if (self.operationTokenResponse)
     {
@@ -202,6 +204,12 @@
             response[@"id_token"] = self.tokenResult.rawIdToken;
         }
 
+        NSString *clientInfo = self.tokenResult.account.clientInfo.rawClientInfo;
+        if (![NSString msidIsStringNilOrBlank:clientInfo])
+        {
+            response[MSID_OAUTH2_CLIENT_INFO] = clientInfo;
+        }
+
         NSString *scope = [accessToken.scopes msidToString];
         if (![NSString msidIsStringNilOrBlank:scope])
         {
@@ -211,7 +219,20 @@
         if (accessToken.expiresOn)
         {
             response[@"expires_on"] = [@((long long)[accessToken.expiresOn timeIntervalSince1970]) stringValue];
-            response[@"expires_in"] = [@((long long)MAX(0, (NSInteger)[accessToken.expiresOn timeIntervalSinceNow])) stringValue];
+            response[@"expires_in"] = @((long long)MAX(0, (NSInteger)[accessToken.expiresOn timeIntervalSinceNow]));
+        }
+    }
+
+    if (self.requiresBoundTokenResponse)
+    {
+        if (!tokenResponse)
+        {
+            response = [self sanitizedTokenResponseDictionary:response];
+        }
+        // Use the validated token lifetime, not a string-valued OAuth wire field.
+        if (accessToken.expiresOn)
+        {
+            response[MSID_OAUTH2_EXPIRES_IN] = @((long long)MAX(0, (NSInteger)[accessToken.expiresOn timeIntervalSinceNow]));
         }
     }
 

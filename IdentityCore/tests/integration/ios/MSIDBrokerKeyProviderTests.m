@@ -40,6 +40,38 @@
 
 @implementation MSIDBrokerKeyProviderTests
 
+- (void)testBoundSPADiscovery_whenAbsent_shouldNotCreateSupport
+{
+    XCTAssertTrue([MSIDBrokerKeyProvider publishBoundSPASupport:NO error:nil]);
+    XCTAssertFalse([MSIDBrokerKeyProvider hasBoundSPASupportWithError:nil]);
+    XCTAssertNil([MSIDBrokerKeyProvider boundSPAProofForParameters:@{@"broker_nonce": @"synthetic"}
+                                               sourceApplication:@"com.microsoft.test" error:nil]);
+    XCTAssertFalse([MSIDBrokerKeyProvider hasBoundSPASupportWithError:nil]);
+}
+
+- (void)testBoundSPAProof_whenPayloadOrOSSourceChanges_shouldReject
+{
+    XCTAssertTrue([MSIDBrokerKeyProvider publishBoundSPASupport:YES error:nil]);
+    NSMutableDictionary *parameters = [@{@"client_id": @"synthetic-client", @"broker_nonce": @"synthetic-nonce"} mutableCopy];
+    parameters[@"bound_spa_proof"] = [MSIDBrokerKeyProvider boundSPAProofForParameters:parameters
+                                                                   sourceApplication:@"com.microsoft.test" error:nil];
+    XCTAssertTrue([MSIDBrokerKeyProvider validateBoundSPAProofForParameters:parameters sourceApplication:@"com.microsoft.test" error:nil]);
+    XCTAssertFalse([MSIDBrokerKeyProvider validateBoundSPAProofForParameters:parameters sourceApplication:@"com.other.app" error:nil]);
+    parameters[@"client_id"] = @"other-client";
+    XCTAssertFalse([MSIDBrokerKeyProvider validateBoundSPAProofForParameters:parameters sourceApplication:@"com.microsoft.test" error:nil]);
+    XCTAssertTrue([MSIDBrokerKeyProvider publishBoundSPASupport:NO error:nil]);
+    XCTAssertFalse([MSIDBrokerKeyProvider validateBoundSPAProofForParameters:parameters sourceApplication:@"com.microsoft.test" error:nil]);
+}
+
+- (void)testBoundSPAExclusion_whenCredentialReplaced_shouldExcludeOnlyRejectedValue
+{
+    NSString *rejected = NSUUID.UUID.UUIDString;
+    NSString *replacement = NSUUID.UUID.UUIDString;
+    XCTAssertTrue([MSIDBrokerKeyProvider excludeBoundSPARefreshToken:rejected error:nil]);
+    XCTAssertTrue([MSIDBrokerKeyProvider isBoundSPARefreshTokenExcluded:rejected error:nil]);
+    XCTAssertFalse([MSIDBrokerKeyProvider isBoundSPARefreshTokenExcluded:replacement error:nil]);
+}
+
 - (void)setUp
 {
     [super setUp];

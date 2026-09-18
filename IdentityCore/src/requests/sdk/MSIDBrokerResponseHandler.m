@@ -25,6 +25,7 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResult.h"
 #import "MSIDConstants.h"
+#import "MSIDBrokerConstants.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDAADV2BrokerResponse.h"
 #import "MSIDBrokerCryptoProvider.h"
@@ -55,6 +56,7 @@
 @property (nonatomic, readwrite) NSString *brokerNonce;
 @property (nonatomic, readwrite) NSURL *providedAuthority;
 @property (nonatomic, readwrite) BOOL instanceAware;
+@property (nonatomic, readwrite, nullable) NSString *boundSPABrokerProtocolVersion;
 
 @end
 
@@ -98,6 +100,7 @@
     self.instanceAware = [resumeState msidBoolObjectForKey:@"instance_aware"];
     self.brokerNonce = resumeState[@"broker_nonce"];
     self.sourceApplicationAvailable = sourceApplication != nil;
+    self.boundSPABrokerProtocolVersion = resumeState[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY];
 
     // Initialize broker key and cache datasource
     MSIDBrokerKeyProvider *brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:keychainGroup];
@@ -256,6 +259,23 @@
 
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
     NSString *redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
+
+    id boundSPAVersion = resumeDictionary[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY];
+    if (boundSPAVersion)
+    {
+        BOOL validVersion = [boundSPAVersion isKindOfClass:NSString.class]
+            && [boundSPAVersion isEqualToString:MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1];
+        if (!validVersion
+            || [NSString msidIsStringNilOrBlank:redirectUri]
+            || [NSString msidIsStringNilOrBlank:resumeDictionary[@"client_id"]]
+            || [NSString msidIsStringNilOrBlank:resumeDictionary[MSID_NESTED_AUTH_BROKER_REDIRECT_URI]]
+            || ![NSString msidIsStringNilOrBlank:resumeDictionary[MSID_NESTED_AUTH_BROKER_CLIENT_ID]]
+            || [NSString msidIsStringNilOrBlank:resumeDictionary[@"broker_nonce"]])
+        {
+            MSIDFillAndLogError(error, MSIDErrorBrokerBadResumeStateFound, @"Invalid bound-SPA Broker resume state.", correlationId);
+            return nil;
+        }
+    }
     
     if ([[resumeDictionary allKeys] containsObject:MSID_NESTED_AUTH_BROKER_REDIRECT_URI]) {
         redirectUri = [resumeDictionary objectForKey:MSID_NESTED_AUTH_BROKER_REDIRECT_URI];
@@ -283,7 +303,20 @@
     }
 
     // Check to make sure this response is coming from the redirect URI we're expecting.
-    if (![[[response absoluteString] lowercaseString] hasPrefix:[redirectUri lowercaseString]])
+    BOOL matchesRedirect = [[[response absoluteString] lowercaseString] hasPrefix:[redirectUri lowercaseString]];
+    if (boundSPAVersion)
+    {
+        NSURLComponents *expected = [NSURLComponents componentsWithString:redirectUri];
+        NSURLComponents *actual = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+        matchesRedirect = expected.scheme.length && expected.host.length
+            && [expected.scheme.lowercaseString isEqualToString:actual.scheme.lowercaseString]
+            && [expected.host.lowercaseString isEqualToString:actual.host.lowercaseString]
+            && [[(expected.path ?: @"") stringByAppendingString:@"/broker"] isEqualToString:(actual.path ?: @"")]
+            && ((!expected.port && !actual.port) || [expected.port isEqualToNumber:actual.port])
+            && !expected.user && !expected.password && !expected.query && !expected.fragment
+            && !actual.user && !actual.password && !actual.fragment;
+    }
+    if (!matchesRedirect)
     {
         MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"URL not coming from the expected redirect URI!", correlationId);
         return nil;
@@ -297,6 +330,11 @@
     if ([self.brokerNonce isEqualToString:responseDict[@"broker_nonce"]])
     {
         return YES;
+    }
+
+    if (self.boundSPABrokerProtocolVersion)
+    {
+        return NO;
     }
 
     // Historically the nonce was verified only when sourceApplication was nil, on the basis that a

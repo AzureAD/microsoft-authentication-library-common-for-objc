@@ -36,6 +36,8 @@
 #import "MSIDBartFeatureUtil.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDBrokerKeyProvider.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -105,6 +107,25 @@
 
     [contents addEntriesFromDictionary:protocolContents];
 
+    if (self.requestParameters.boundSPABrokerProtocolVersion)
+    {
+        contents[@"bound_spa_timestamp"] = [NSString stringWithFormat:@"%.0f", NSDate.date.timeIntervalSince1970];
+        NSError *proofError = nil;
+        NSString *proof = [MSIDBrokerKeyProvider boundSPAProofForParameters:contents
+                                                        sourceApplication:NSBundle.mainBundle.bundleIdentifier
+                                                                    error:&proofError];
+        if (!proof)
+        {
+            if (error)
+            {
+                *error = proofError ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerNotAvailable,
+                    @"Bound-SPA Broker support is unavailable.", nil, nil, nil, self.requestParameters.correlationId, nil, NO);
+            }
+            return NO;
+        }
+        contents[@"bound_spa_proof"] = proof;
+    }
+
     NSString *query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
 
     NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", self.requestParameters.brokerInvocationOptions.brokerBaseUrlString, query]];
@@ -144,6 +165,11 @@
     if (![self checkParameter:self.requestParameters.correlationId parameterName:@"correlationId" error:error]) return nil;
     if (![self checkParameter:self.brokerKey parameterName:@"brokerKey" error:error]) return nil;
 
+    if (self.requestParameters.boundSPABrokerProtocolVersion && ![self validateBoundSPAParametersWithError:error])
+    {
+        return nil;
+    }
+
     NSString *enrollmentIds = [self intuneEnrollmentIdsParameter];
     NSString *mamResources = [self intuneMAMResourceParameter];
 
@@ -166,7 +192,7 @@
 #if TARGET_OS_IPHONE
     [queryDictionary msidSetNonEmptyString:self.brokerKey forKey:@"broker_key"];
     [queryDictionary msidSetNonEmptyString:self.brokerNonce forKey:@"broker_nonce"];
-    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
+    if (self.requestParameters.boundSPABrokerProtocolVersion || [[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
     {
         [queryDictionary msidSetNonEmptyString:@"1" forKey:MSID_BOUND_RT_REDEEM];
     }
@@ -196,6 +222,13 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to payload");
         queryDictionary[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = self.requestParameters.nestedAuthBrokerClientId;
         queryDictionary[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = self.requestParameters.nestedAuthBrokerRedirectUri;
+    }
+    else if (self.requestParameters.boundSPABrokerProtocolVersion)
+    {
+        queryDictionary[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY] = self.requestParameters.boundSPABrokerProtocolVersion;
+        queryDictionary[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = self.requestParameters.nestedAuthBrokerRedirectUri;
+        queryDictionary[MSID_BROKER_BOUND_SPA_ORIGIN_KEY] = self.requestParameters.webPageUri;
+        [queryDictionary msidSetNonEmptyString:self.requestParameters.nonce forKey:@"nonce"];
     }
     
     [queryDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
@@ -240,11 +273,66 @@
         [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedAuthBrokerClientId forKey:MSID_NESTED_AUTH_BROKER_CLIENT_ID];
         [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedAuthBrokerRedirectUri forKey:MSID_NESTED_AUTH_BROKER_REDIRECT_URI];
     }
+    else if (self.requestParameters.boundSPABrokerProtocolVersion)
+    {
+        resumeDictionary[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY] = self.requestParameters.boundSPABrokerProtocolVersion;
+        resumeDictionary[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = self.requestParameters.nestedAuthBrokerRedirectUri;
+    }
     
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
     return resumeDictionary;
+}
+
+- (BOOL)validateBoundSPAParametersWithError:(NSError *__autoreleasing *)error
+{
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+    MSIDInteractiveTokenRequestParameters *parameters = self.requestParameters;
+    BOOL enabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_BOUND_SPA_BROKER];
+    NSURLComponents *callback = [NSURLComponents componentsWithString:parameters.nestedAuthBrokerRedirectUri ?: @""];
+    NSURLComponents *redirect = [NSURLComponents componentsWithString:parameters.redirectUri ?: @""];
+    NSURLComponents *origin = [NSURLComponents componentsWithString:parameters.webPageUri ?: @""];
+    BOOL validCallback = callback.scheme.length && callback.host.length
+        && ![callback.scheme.lowercaseString isEqualToString:@"https"]
+        && ![callback.scheme.lowercaseString isEqualToString:@"http"]
+        && !callback.user && !callback.password && !callback.query && !callback.fragment;
+    BOOL validOrigin = [origin.scheme.lowercaseString isEqualToString:@"https"] && origin.host.length
+        && !origin.user && !origin.password && !origin.query && !origin.fragment
+        && (!origin.path.length || [origin.path isEqualToString:@"/"]);
+    BOOL validRedirect = [redirect.scheme.lowercaseString isEqualToString:@"https"] && redirect.host.length
+        && !redirect.user && !redirect.password && !redirect.fragment;
+    NSNumber *originPort = origin.port ?: @443;
+    NSNumber *redirectPort = redirect.port ?: @443;
+    BOOL sameOrigin = [origin.host.lowercaseString isEqualToString:redirect.host.lowercaseString]
+        && [originPort isEqualToNumber:redirectPort];
+    BOOL validContract = enabled
+        && [parameters.boundSPABrokerProtocolVersion isEqualToString:MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1]
+        && [self.sdkBrokerCapabilities containsObject:MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY]
+        && parameters.isBoundAppRefreshTokenRequested
+        && [NSString msidIsStringNilOrBlank:parameters.nestedAuthBrokerClientId]
+        && parameters.brokerInvocationOptions.brokerAADRequestVersion == MSIDBrokerAADRequestVersionV2
+        && parameters.brokerInvocationOptions.minRequiredBrokerType == MSIDRequiredBrokerTypeWithNonceSupport
+        && validCallback && validOrigin && validRedirect && sameOrigin;
+    NSDictionary *extraParameters = [parameters allAuthorizeRequestExtraParametersWithMetadata:NO];
+    for (NSString *key in @[MSID_NESTED_AUTH_BROKER_CLIENT_ID, MSID_NESTED_AUTH_BROKER_REDIRECT_URI,
+                            MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY, MSID_BROKER_BOUND_SPA_ORIGIN_KEY,
+                            MSID_BROKER_BOUND_SPA_PUBLICATION_KEY, MSID_BROKER_SDK_CAPABILITIES_KEY])
+    {
+        if (extraParameters[key] || parameters.extraTokenRequestParameters[key])
+        {
+            validContract = NO;
+        }
+    }
+    if (validContract)
+    {
+        return YES;
+    }
+#endif
+    MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter,
+                       @"Bound-SPA Broker parameters are unsupported, disabled, or invalid.",
+                       self.requestParameters.correlationId);
+    return NO;
 }
 
 - (BOOL)checkParameter:(id)parameter

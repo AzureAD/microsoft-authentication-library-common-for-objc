@@ -38,6 +38,7 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDThrottlingService.h"
 #import "MSIDSilentTokenRequest+Internal.h"
+#import "MSIDBrokerKeyProvider.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -205,6 +206,20 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Ignoring regular refresh token because a bound refresh token is required.");
         return nil;
+    }
+
+    if (self.requestParameters.requiresBoundSPACachePublication && refreshToken)
+    {
+        NSError *exclusionError = nil;
+        BOOL excluded = [MSIDBrokerKeyProvider isBoundSPARefreshTokenExcluded:refreshToken.refreshToken error:&exclusionError];
+        if (excluded || exclusionError)
+        {
+            if (error)
+            {
+                *error = exclusionError;
+            }
+            return nil;
+        }
     }
 
     return refreshToken;

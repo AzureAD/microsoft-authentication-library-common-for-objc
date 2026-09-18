@@ -192,7 +192,17 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         completionBlock(result, error);
     };
 
-    if ([self.class currentBrokerController])
+    BOOL reserved = NO;
+    @synchronized (self.class)
+    {
+        if (![self.class currentBrokerController])
+        {
+            [self.class setCurrentBrokerController:self];
+            self.requestCompletionBlock = completionBlockWrapper;
+            reserved = YES;
+        }
+    }
+    if (!reserved)
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         completionBlockWrapper(nil, error);
@@ -201,16 +211,15 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
     CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, MSID_TELEMETRY_EVENT_API_EVENT);
 
-    self.requestCompletionBlock = completionBlockWrapper;
-    
-    NSError *brokerError;
+    NSError *brokerError = nil;
     NSString *base64UrlKey = [self.brokerKeyProvider base64BrokerKeyWithContext:self.requestParameters
                                                                           error:&brokerError];
     
     if (!base64UrlKey)
     {
-        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], brokerError);
-        completionBlockWrapper(nil, brokerError);
+        brokerError = brokerError ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerKeyNotFound,
+            @"Unable to initialize the Broker key.", nil, nil, nil, self.requestParameters.correlationId, nil, NO);
+        [self completeAcquireTokenWithResult:nil error:brokerError];
         return;
     }
     
@@ -237,8 +246,9 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     if (!brokerRequest)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Couldn't create broker request");
-        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], brokerError);
-        completionBlockWrapper(nil, brokerError);
+        brokerError = brokerError ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+            @"Unable to initialize the Broker request.", nil, nil, nil, self.requestParameters.correlationId, nil, NO);
+        [self completeAcquireTokenWithResult:nil error:brokerError];
         return;
     }
     
@@ -346,20 +356,30 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         return NO;
     }
 
+    NSDictionary *resumeState = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     NSError *resultError = nil;
     MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL sourceApplication:sourceApplication error:&resultError];
+
+    if (!result && resumeState[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY]
+        && [resultError.domain isEqualToString:MSIDErrorDomain]
+        && resultError.code == MSIDErrorBrokerMismatchedResumeState)
+    {
+        // A delayed callback must not terminate the request that now owns this nonce.
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring bound-SPA response for a different Broker request.");
+        return NO;
+    }
+
+    MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 
     [MSIDNotifications notifyWebAuthDidReceiveResponseFromBroker:result];
 
     BOOL completionResult = result != nil;
 
-    if ([self.class currentBrokerController])
+    if (currentBrokerController)
     {
-        MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
         completionResult = [currentBrokerController completeAcquireTokenWithResult:result error:resultError];
     }
-
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 
     return completionResult;
 }
@@ -439,7 +459,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
             returnToBroker = YES;
         }
         
-        if (returnToBroker)
+        if (returnToBroker && !brokerController.interactiveParameters.boundSPABrokerProtocolVersion)
         {
             if ([self canPerformRequest:brokerController.interactiveParameters])
             {
@@ -459,7 +479,6 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerResponseNotReceived, @"Application did not receive response from broker.", nil, nil, nil, nil, nil, YES);
 
         [brokerController completeAcquireTokenWithResult:nil error:error];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     }
 }
 
@@ -480,6 +499,11 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
 - (BOOL)completeAcquireTokenWithResult:(MSIDTokenResult *)tokenResult error:(NSError *)error
 {
+    MSIDRequestCompletionBlock requestCompletion = [self copyAndClearCompletionBlock];
+    if (!requestCompletion)
+    {
+        return NO;
+    }
     // TODO: vt handling for older broker (not necessary for MSAL, so can come later)
 
     MSIDExecutionFlowInsertTag(MSIDStringFromSSORemoteInteractiveTokenRequestTag(MSIDLegacyBrokerInteractiveCompletionTag), error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil, self.requestParameters.correlationId);
@@ -534,18 +558,17 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         }
     }
     
-    if (self.requestCompletionBlock)
+    @synchronized (self.class)
     {
-        MSIDRequestCompletionBlock requestCompletion = [self copyAndClearCompletionBlock];
-        requestCompletion(tokenResult, error);
-        [self.class setCurrentBrokerController:nil];
-        [self.class setCurrentBrokerRequest:nil];
-        return YES;
+        if ([self.class currentBrokerController] == self)
+        {
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+            [self.class setCurrentBrokerController:nil];
+            [self.class setCurrentBrokerRequest:nil];
+        }
     }
-
-    [self.class setCurrentBrokerController:nil];
-    [self.class setCurrentBrokerRequest:nil];
-    return NO;
+    requestCompletion(tokenResult, error);
+    return YES;
 }
 
 - (MSIDRequestCompletionBlock)copyAndClearCompletionBlock
@@ -572,8 +595,12 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
 - (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController
 {
+    if (![self hasCompletionBlock] || [self.class currentBrokerController] != self)
+    {
+        return;
+    }
 #if TARGET_OS_SIMULATOR
-    if (!shouldFallbackToLocalController)
+    if (!shouldFallbackToLocalController && !self.interactiveParameters.boundSPABrokerProtocolVersion)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring URL open failure because of simulator target");
         return;
@@ -591,6 +618,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     
     [self.class setCurrentBrokerController:nil];
     [self.class setCurrentBrokerRequest:nil];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 
     NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
     if (![NSString msidIsStringNilOrBlank:bundleId])

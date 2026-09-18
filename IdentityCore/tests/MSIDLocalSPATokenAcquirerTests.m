@@ -32,6 +32,8 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDError.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 
 @interface MSIDLocalSPASilentRequestMock : MSIDDefaultSilentTokenRequest
 
@@ -61,7 +63,8 @@
 {
     MSIDBrowserNativeMessageGetTokenRequest *request = [MSIDBrowserNativeMessageGetTokenRequest new];
     request.clientId = @"00000000-0000-0000-0000-000000000001";
-    request.redirectUri = @"brk-com.microsoft.test://auth";
+    request.redirectUri = @"https://spa.contoso.com/auth";
+    request.sender = [NSURL URLWithString:@"https://spa.contoso.com"];
     request.authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
                                                     rawTenant:nil
                                                       context:nil
@@ -143,7 +146,7 @@
     XCTAssertEqual(acquisitionError, engineError);
 }
 
-- (void)testAcquireSilent_whenBARTRedemptionFails_shouldRequireInteractionWithoutRegularRTFallback
+- (void)testAcquireSilent_whenBARTRedemptionFailsWithoutRecoverableCause_shouldNotRequireInteraction
 {
     NSError *bartError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBoundAppRefreshTokenRedemptionError,
                                          @"BART redemption failed.", nil, nil, nil, nil, nil, YES);
@@ -156,11 +159,10 @@
         acquisitionError = error;
     }];
     XCTAssertEqualObjects(acquisitionError.domain, MSIDErrorDomain);
-    XCTAssertEqual(acquisitionError.code, MSIDErrorInteractionRequired);
-    XCTAssertEqual(acquisitionError.userInfo[NSUnderlyingErrorKey], bartError);
+    XCTAssertEqual(acquisitionError, bartError);
 }
 
-- (void)testAcquireSilent_whenCacheUnavailable_shouldReturnInteractionRequired
+- (void)testAcquireSilent_whenCacheUnavailable_shouldReturnCacheFailure
 {
     MSIDLocalSPATokenAcquirer *acquirer = [[MSIDLocalSPATokenAcquirer alloc]
         initWithSilentTokenRequestProvider:^MSIDDefaultSilentTokenRequest *(__unused MSIDInteractiveTokenRequestParameters *parameters,
@@ -175,11 +177,14 @@
         acquisitionError = error;
     }];
     XCTAssertEqualObjects(acquisitionError.domain, MSIDErrorDomain);
-    XCTAssertEqual(acquisitionError.code, MSIDErrorInteractionRequired);
+    XCTAssertEqual(acquisitionError.code, MSIDErrorInternal);
 }
 
-- (void)testAcquireInteractive_whenNotImplemented_shouldReturnInteractionRequired
+- (void)testAcquireInteractive_whenFlightDisabled_shouldReturnUnavailable
 {
+    MSIDFlightManagerMockProvider *flights = [MSIDFlightManagerMockProvider new];
+    flights.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_BOUND_SPA_BROKER: @NO};
+    MSIDFlightManager.sharedInstance.flightProvider = flights;
     MSIDLocalSPATokenAcquirer *acquirer = [MSIDLocalSPATokenAcquirer new];
     __block NSError *acquisitionError = nil;
     [acquirer acquireInteractiveWithParameters:[self parametersWithAcquirer:acquirer]
@@ -188,7 +193,41 @@
                                completionBlock:^(__unused MSIDSPATokenAcquisitionResult *outcome, NSError *error) {
         acquisitionError = error;
     }];
-    XCTAssertEqual(acquisitionError.code, MSIDErrorInteractionRequired);
+    XCTAssertEqual(acquisitionError.code, MSIDErrorBrokerNotAvailable);
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+}
+
+- (void)testRequestParameters_whenCrossOriginOrProtocolOverride_shouldReject
+{
+    MSIDLocalSPATokenAcquirer *acquirer = [MSIDLocalSPATokenAcquirer new];
+    for (NSString *key in @[@"brk_client_id", @"bound_spa_protocol_version", @"child_client_id", @"broker_nonce"])
+    {
+        MSIDBrowserNativeMessageGetTokenRequest *request = [self request];
+        request.extraParameters = @{key: @"untrusted"};
+        NSError *error = nil;
+        XCTAssertNil([acquirer requestParametersForRequest:request context:nil error:&error]);
+        XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+    }
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self request];
+    request.sender = [NSURL URLWithString:@"https://different.contoso.com"];
+    XCTAssertNil([acquirer requestParametersForRequest:request context:nil error:nil]);
+}
+
+- (void)testAcquireSilent_whenWrappedNetworkFailure_shouldPreserveCauseWithoutInteraction
+{
+    NSError *networkError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNotConnectedToInternet userInfo:nil];
+    NSError *wrapped = MSIDCreateError(MSIDErrorDomain, MSIDErrorBoundAppRefreshTokenRedemptionError,
+                                      @"Synthetic failure", nil, nil, networkError, nil, nil, NO);
+    MSIDLocalSPATokenAcquirer *acquirer = [self acquirerWithResult:nil error:wrapped];
+    __block NSUInteger calls = 0;
+    [acquirer acquireSilentWithParameters:[self parametersWithAcquirer:acquirer] request:[self request] context:nil
+                          completionBlock:^(MSIDSPATokenAcquisitionResult *outcome, NSError *error)
+    {
+        calls++;
+        XCTAssertNil(outcome);
+        XCTAssertEqual(error, networkError);
+    }];
+    XCTAssertEqual(calls, 1u);
 }
 
 @end

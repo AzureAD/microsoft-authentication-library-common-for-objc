@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDDefaultBrokerResponseHandler.h"
+#import "MSIDBrokerKeyProvider.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDBrokerCryptoProvider.h"
@@ -30,6 +31,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
+#import "MSIDBrokerConstants.h"
 #import "MSIDOAuth2Constants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
@@ -93,9 +95,39 @@
         return nil;
     }
 
+    BOOL successfulResponse = [NSString msidIsStringNilOrBlank:decryptedResponse[@"broker_error_domain"]]
+        && [decryptedResponse[@"success"] boolValue];
+    if (self.boundSPABrokerProtocolVersion && successfulResponse)
+    {
+        NSString *version = [decryptedResponse msidStringObjectForKey:MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY];
+        NSString *publication = [decryptedResponse msidStringObjectForKey:MSID_BROKER_BOUND_SPA_PUBLICATION_KEY];
+        if (![version isEqualToString:self.boundSPABrokerProtocolVersion]
+            || ![publication isEqualToString:MSID_BROKER_BOUND_SPA_PUBLICATION_COMMITTED])
+        {
+            MSIDFillAndLogError(error, MSIDErrorBrokerCorruptedResponse,
+                               @"Broker did not confirm bound-SPA shared-cache publication.", correlationID);
+            return nil;
+        }
+        NSError *proofError = nil;
+        if (![MSIDBrokerKeyProvider validateBoundSPAProofForParameters:decryptedResponse
+                                                    sourceApplication:@"bound-spa-publication-v1" error:&proofError])
+        {
+            if (proofError)
+            {
+                if (error) *error = proofError;
+            }
+            else
+            {
+                MSIDFillAndLogError(error, MSIDErrorBrokerCorruptedResponse,
+                                   @"Bound-SPA publication authentication failed.", correlationID);
+            }
+            return nil;
+        }
+    }
+
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
-    if (decryptedResponse[@"additional_tokens"])
+    if (!self.boundSPABrokerProtocolVersion && decryptedResponse[@"additional_tokens"])
     {
         NSError *additionalTokensError = nil;
         

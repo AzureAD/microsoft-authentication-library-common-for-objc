@@ -37,6 +37,8 @@
 #import "MSIDConstants.h"
 #import "MSIDFlightManager.h"
 #import "MSIDFlightManagerMockProvider.h"
+#import "MSIDClientInfo.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDTokenResponseMock : MSIDTokenResponse
 
@@ -484,6 +486,8 @@
     account.username = @"user@contoso.com";
     account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:account.username
                                                                       homeAccountId:@"uid.utid"];
+    NSString *rawClientInfo = [@{@"uid": @"uid", @"utid": @"utid"} msidBase64UrlJson];
+    account.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
 
     MSIDTokenResult *result = [MSIDTokenResult new];
     result.accessToken = accessToken;
@@ -502,7 +506,9 @@
     XCTAssertEqualObjects(json[@"id_token"], @"cached-id-token");
     XCTAssertEqualObjects(json[@"scope"], @"openid profile User.Read");
     XCTAssertEqualObjects(json[@"expires_on"], @"2000000000");
-    XCTAssertTrue([json[@"expires_in"] isKindOfClass:NSString.class]);
+    XCTAssertTrue([json[@"expires_in"] isKindOfClass:NSNumber.class]);
+    XCTAssertGreaterThan([json[@"expires_in"] doubleValue], 0);
+    XCTAssertEqualObjects(json[@"client_info"], rawClientInfo);
     XCTAssertEqualObjects(json[@"account"][@"id"], @"uid.utid");
     XCTAssertEqualObjects(json[@"account"][@"userName"], @"user@contoso.com");
     XCTAssertEqualObjects(json[@"properties"][@"UPN"], @"user@contoso.com");
@@ -520,6 +526,50 @@
                                                 fallbackRequestAccountUpn:nil];
 
     XCTAssertEqualObjects([response jsonDictionary], @{});
+}
+
+- (void)testJsonDictionary_whenBoundSPAAndSanitizationFlightDisabled_shouldExcludeNativeCredentials
+{
+    MSIDFlightManagerMockProvider *flights = [MSIDFlightManagerMockProvider new];
+    flights.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION: @NO};
+    MSIDFlightManager.sharedInstance.flightProvider = flights;
+    MSIDTokenResponseMock *tokenResponse = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+    tokenResponse.responseJson = @{
+        @"access_token": @"synthetic-at", @"id_token": @"synthetic-id",
+        @"expires_in": @"3600", @"scope": @"User.Read", @"client_info": @"synthetic-client-info",
+        @"refresh_token": @"synthetic-rt", @"foci": @"1", @"session_key": @"synthetic-key",
+        @"additional_tokens": @{@"refresh_token": @"synthetic-additional-rt"}
+    };
+    MSIDTokenResult *result = [self tokenResultWithTokenResponse:tokenResponse];
+    result.accessToken = [MSIDAccessToken new];
+    result.accessToken.expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                  state:@"state"
+                                              fallbackRequestAccountUpn:nil];
+    response.requiresBoundTokenResponse = YES;
+    NSDictionary *json = response.jsonDictionary;
+    XCTAssertEqualObjects(json[@"access_token"], @"synthetic-at");
+    XCTAssertEqualObjects(json[@"client_info"], @"synthetic-client-info");
+    XCTAssertTrue([json[@"expires_in"] isKindOfClass:NSNumber.class]);
+    XCTAssertGreaterThan([json[@"expires_in"] integerValue], 3500);
+    XCTAssertLessThanOrEqual([json[@"expires_in"] integerValue], 3600);
+    XCTAssertNil(json[@"refresh_token"]);
+    XCTAssertNil(json[@"foci"]);
+    XCTAssertNil(json[@"session_key"]);
+    XCTAssertNil(json[@"additional_tokens"]);
+    XCTAssertEqualObjects(json[@"state"], @"state");
+}
+
+- (void)testJsonDictionary_whenCachedTokenExpired_shouldEmitNumericZeroLifetime
+{
+    MSIDTokenResult *result = [MSIDTokenResult new];
+    result.accessToken = [MSIDAccessToken new];
+    result.accessToken.expiresOn = [NSDate dateWithTimeIntervalSince1970:1];
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                  state:nil fallbackRequestAccountUpn:nil];
+    XCTAssertEqualObjects(response.jsonDictionary[@"expires_in"], @0);
 }
 
 @end

@@ -53,11 +53,81 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDTestSwizzle.h"
+#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 // Category to expose private method for testing
 @interface MSIDDefaultTokenCacheAccessor (Testing)
+- (BOOL)saveAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error;
+- (BOOL)saveToken:(MSIDBaseToken *)token context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error;
+- (BOOL)saveAppMetadataWithConfiguration:(MSIDConfiguration *)configuration response:(MSIDTokenResponse *)response
+                                factory:(MSIDOauth2Factory *)factory context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error;
 - (NSArray<MSIDCredentialCacheItem *> *)validateBoundAppRefreshTokens:(NSArray<MSIDCredentialCacheItem *> *)cacheItems
                                                         homeAccountId:(NSString *)homeAccountId;
+@end
+
+@interface MSIDBoundSPAPublicationCacheMock : MSIDDefaultTokenCacheAccessor
+@property (nonatomic) NSMutableArray<NSString *> *writes;
+@property (nonatomic) NSString *failingWrite;
+@end
+
+@implementation MSIDBoundSPAPublicationCacheMock
+
+- (BOOL)recordWrite:(NSString *)write error:(NSError * __autoreleasing *)error
+{
+    if (!self.writes)
+    {
+        self.writes = [NSMutableArray new];
+    }
+    [self.writes addObject:write];
+    if ([self.failingWrite isEqualToString:write])
+    {
+        if (error)
+        {
+            *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecInteractionNotAllowed userInfo:nil];
+        }
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)saveToken:(MSIDBaseToken *)token context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error
+{
+    NSString *kind = token.credentialType == MSIDBoundRefreshTokenType ? @"bart"
+        : token.credentialType == MSIDIDTokenType ? @"id" : @"at";
+    return [self recordWrite:kind error:error] && [super saveToken:token context:context error:error];
+}
+
+- (BOOL)saveAccount:(MSIDAccount *)account context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error
+{
+    return [self recordWrite:@"account" error:error] && [super saveAccount:account context:context error:error];
+}
+
+- (BOOL)saveAppMetadataWithConfiguration:(MSIDConfiguration *)configuration response:(MSIDTokenResponse *)response
+                                factory:(MSIDOauth2Factory *)factory context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error
+{
+    return [self recordWrite:@"metadata" error:error]
+        && [super saveAppMetadataWithConfiguration:configuration response:response factory:factory context:context error:error];
+}
+@end
+
+@interface MSIDBoundSPAMetadataFailureDataSource : MSIDTestCacheDataSource
+@property (nonatomic) NSUInteger metadataWrites;
+@property (nonatomic) NSUInteger failureIndex;
+@end
+@implementation MSIDBoundSPAMetadataFailureDataSource
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDCacheKey *)key
+                serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                   context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error
+{
+    self.metadataWrites++;
+    if (self.metadataWrites == self.failureIndex)
+    {
+        if (error) *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecInteractionNotAllowed userInfo:nil];
+        return NO;
+    }
+    return [super saveAccountMetadata:item key:key serializer:serializer context:context error:error];
+}
 @end
 
 // Category to allow setting readonly properties for testing
@@ -101,6 +171,91 @@
 }
 
 #pragma mark - Saving
+
+- (MSIDTokenResponse *)boundSPATestResponseWithFamily:(NSString *)family
+{
+    MSIDTokenResponse *response = [MSIDTestTokenResponse v2TokenResponseWithAT:@"synthetic-at" RT:@"synthetic-bart"
+        scopes:[NSOrderedSet orderedSetWithObject:DEFAULT_TEST_SCOPE] idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+        uid:@"uid" utid:@"utid" familyId:family];
+    response.boundAppRefreshTokenDeviceId = @"synthetic-device";
+    return response;
+}
+
+- (void)testSaveBoundSPA_whenComplete_shouldPublishAppBARTLast
+{
+    MSIDTestCacheDataSource *source = [MSIDTestCacheDataSource new];
+    MSIDBoundSPAPublicationCacheMock *cache = [[MSIDBoundSPAPublicationCacheMock alloc]
+        initWithDataSource:source otherCacheAccessors:nil];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    MSIDTokenResponse *response = [self boundSPATestResponseWithFamily:nil];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    NSError *error = nil;
+    XCTAssertTrue([cache saveBoundSPATokensWithConfiguration:configuration
+        response:response factory:factory context:nil error:&error]);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(cache.writes, (@[@"at", @"id", @"metadata", @"account", @"bart"]));
+    MSIDAccountMetadataCacheAccessor *metadata = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:source];
+    NSURL *authority = [metadata getAuthorityURL:configuration.authority.url homeAccountId:@"uid.utid"
+        clientId:configuration.clientId instanceAware:NO context:nil error:&error];
+    XCTAssertEqualObjects(authority, [factory resultAuthorityWithConfiguration:configuration tokenResponse:response error:nil].url);
+    XCTAssertNil(error);
+}
+
+- (void)testSaveBoundSPA_whenAnyWriteFails_shouldStopBeforePublishingBART
+{
+    for (NSString *failure in @[@"at", @"id", @"metadata", @"account", @"bart"])
+    {
+        MSIDBoundSPAPublicationCacheMock *cache = [[MSIDBoundSPAPublicationCacheMock alloc]
+            initWithDataSource:[MSIDTestCacheDataSource new] otherCacheAccessors:nil];
+        cache.failingWrite = failure;
+        NSError *error = nil;
+        XCTAssertFalse([cache saveBoundSPATokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+            response:[self boundSPATestResponseWithFamily:nil] factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error]);
+        XCTAssertEqualObjects(error.domain, NSOSStatusErrorDomain);
+        XCTAssertEqual(error.code, errSecInteractionNotAllowed);
+        XCTAssertEqualObjects(cache.writes.lastObject, failure);
+        if (![failure isEqualToString:@"bart"])
+        {
+            XCTAssertFalse([cache.writes containsObject:@"bart"]);
+        }
+    }
+}
+
+- (void)testSaveBoundSPA_whenFamilyOrOrdinaryRT_shouldRejectBeforeWriting
+{
+    for (NSString *family in @[@"1", @""])
+    {
+        MSIDBoundSPAPublicationCacheMock *cache = [[MSIDBoundSPAPublicationCacheMock alloc]
+            initWithDataSource:[MSIDTestCacheDataSource new] otherCacheAccessors:nil];
+        MSIDTokenResponse *response = [self boundSPATestResponseWithFamily:family];
+        if (!family.length)
+        {
+            response.boundAppRefreshTokenDeviceId = nil;
+        }
+
+        NSError *error = nil;
+        XCTAssertFalse([cache saveBoundSPATokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+            response:response factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error]);
+        XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+        XCTAssertEqual(cache.writes.count, 0u);
+    }
+}
+
+- (void)testSaveBoundSPA_whenSignInOrAuthorityMetadataFails_shouldNotWriteCredentials
+{
+    for (NSUInteger index = 1; index <= 2; index++)
+    {
+        MSIDBoundSPAMetadataFailureDataSource *source = [MSIDBoundSPAMetadataFailureDataSource new];
+        source.failureIndex = index;
+        MSIDBoundSPAPublicationCacheMock *cache = [[MSIDBoundSPAPublicationCacheMock alloc]
+            initWithDataSource:source otherCacheAccessors:nil];
+        NSError *error = nil;
+        XCTAssertFalse([cache saveBoundSPATokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+            response:[self boundSPATestResponseWithFamily:nil] factory:[MSIDAADV2Oauth2Factory new] context:nil error:&error]);
+        XCTAssertEqual(error.code, errSecInteractionNotAllowed);
+        XCTAssertEqual(cache.writes.count, 0u);
+    }
+}
 
 - (void)testSaveTokensWithRequestParams_whenHomeAccountIdNil_shouldReturnError
 {

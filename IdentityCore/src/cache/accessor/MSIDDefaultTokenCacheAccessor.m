@@ -80,6 +80,55 @@
 
 #pragma mark - Saving
 
+- (BOOL)saveBoundSPATokensWithConfiguration:(MSIDConfiguration *)configuration
+                                  response:(MSIDTokenResponse *)response
+                                   factory:(MSIDOauth2Factory *)factory
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError * __autoreleasing *)error
+{
+    MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:response configuration:configuration];
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
+    BOOL valid = [refreshToken isKindOfClass:MSIDBoundRefreshToken.class] && refreshToken.refreshToken.length
+        && [NSString msidIsStringNilOrBlank:refreshToken.familyId]
+        && [refreshToken.clientId isEqualToString:configuration.clientId]
+        && account.accountIdentifier.homeAccountId.length
+        && [refreshToken.accountIdentifier.homeAccountId isEqualToString:account.accountIdentifier.homeAccountId]
+        && response.accessToken.length && response.idToken.length
+        && response.boundAppRefreshTokenDeviceId.length;
+    if (!valid)
+    {
+        MSIDFillAndLogError(error, MSIDErrorServerInvalidResponse, @"Bound-SPA publication requires a complete app-specific bound token response.", context.correlationId);
+        return NO;
+    }
+    MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:configuration tokenResponse:response error:error];
+    if (!resultingAuthority)
+    {
+        return NO;
+    }
+    MSIDAccountMetadataCacheAccessor *metadata = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:self.accountCredentialCache.dataSource];
+    metadata.skipMemoryCacheForAccountMetadata = YES;
+    if (![metadata updateSignInStateForHomeAccountId:account.accountIdentifier.homeAccountId
+                                           clientId:configuration.clientId state:MSIDAccountMetadataStateSignedIn
+                                            context:context error:error]
+        || ![metadata updateAuthorityURL:resultingAuthority.url forRequestURL:configuration.authority.url
+                           homeAccountId:account.accountIdentifier.homeAccountId clientId:configuration.clientId
+                           instanceAware:NO context:context error:error])
+    {
+        return NO;
+    }
+    // Readers on this route always redeem an app BART instead of consuming cached
+    // AT/ID pairs. Publishing RT last excludes incomplete writes without deleting
+    // an entry that a concurrent process may have replaced.
+    if (![self saveAccessTokenWithConfiguration:configuration response:response factory:factory context:context error:error]
+        || ![self saveIDTokenWithConfiguration:configuration response:response factory:factory context:context error:error]
+        || ![self saveAppMetadataWithConfiguration:configuration response:response factory:factory context:context error:error]
+        || ![self saveAccountWithConfiguration:configuration response:response factory:factory context:context error:error])
+    {
+        return NO;
+    }
+    return [self saveToken:refreshToken context:context error:error];
+}
+
 - (BOOL)saveTokensWithConfiguration:(MSIDConfiguration *)configuration
                            response:(MSIDTokenResponse *)response
                             factory:(MSIDOauth2Factory *)factory

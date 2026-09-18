@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenResponseValidator.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResult.h"
@@ -278,6 +279,26 @@
     if (!tokenResult)
     {
         return nil;
+    }
+
+    if (parameters.requiresBoundSPACachePublication)
+    {
+        BOOL valid = [self validateTokenResult:tokenResult configuration:parameters.msidConfiguration
+                                    oidcScope:parameters.oidcScope validateScopes:!parameters.ignoreScopeValidation
+                                correlationID:parameters.correlationId error:error];
+        if (!valid)
+        {
+            return nil;
+        }
+        if (![tokenCache isKindOfClass:MSIDDefaultTokenCacheAccessor.class])
+        {
+            MSIDFillAndLogError(error, MSIDErrorInternal, @"Bound-SPA requires the shared default token cache.", parameters.correlationId);
+            return nil;
+        }
+        BOOL saved = [(MSIDDefaultTokenCacheAccessor *)tokenCache
+            saveBoundSPATokensWithConfiguration:parameters.msidConfiguration response:tokenResponse
+            factory:factory context:parameters error:error];
+        return saved ? tokenResult : nil;
     }
     
     if ([MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT isEqualToString:tokenResponse.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE]] && tokenResponse.boundAppRefreshTokenDeviceId)

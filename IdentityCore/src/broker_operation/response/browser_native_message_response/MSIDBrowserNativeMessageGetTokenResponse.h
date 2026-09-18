@@ -53,6 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *requestAccountUpn;
 @property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
 
+/// Bound-SPA responses always use the browser field allowlist, independently of the legacy flight.
+@property (nonatomic) BOOL requiresBoundTokenResponse;
 
 @end
 

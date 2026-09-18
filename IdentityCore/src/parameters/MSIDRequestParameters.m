@@ -409,6 +409,9 @@
     parameters->_msidConfiguration = [_msidConfiguration copyWithZone:zone];
     parameters->_keychainAccessGroup = [_keychainAccessGroup copyWithZone:zone];
     parameters->_platformSequence = [_platformSequence copyWithZone:zone];
+    parameters->_isBoundAppRefreshTokenRequested = _isBoundAppRefreshTokenRequested;
+    parameters->_requiresBoundSPACachePublication = _requiresBoundSPACachePublication;
+    parameters->_boundSPABrokerProtocolVersion = [_boundSPABrokerProtocolVersion copyWithZone:zone];
 
     return parameters;
 }

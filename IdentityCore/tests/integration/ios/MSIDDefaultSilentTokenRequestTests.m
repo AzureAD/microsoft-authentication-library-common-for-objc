@@ -62,6 +62,27 @@
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
 
+@interface MSIDSilentTokenRequest (BoundSPATesting)
+- (BOOL)isErrorRecoverableByUserInteraction:(NSError *)error;
+- (void)executeRequestImpl:(MSIDRequestCompletionBlock)completion;
+@end
+
+@interface MSIDBoundSPASilentReadProbe : MSIDDefaultSilentTokenRequest
+@property (nonatomic) NSUInteger accessTokenReads;
+@end
+@implementation MSIDBoundSPASilentReadProbe
+- (MSIDAccessToken *)accessTokenWithError:(NSError * __autoreleasing *)error
+{
+    self.accessTokenReads++;
+    return nil;
+}
+- (MSIDRefreshToken *)appRefreshTokenWithError:(NSError * __autoreleasing *)error
+{
+    if (error) *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecInteractionNotAllowed userInfo:nil];
+    return nil;
+}
+@end
+
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
 @end
@@ -137,6 +158,49 @@
 }
 
 #pragma mark - Silent
+
+- (void)testBoundSPASilent_whenPartialAccessTokenMayExist_shouldRedeemAndPreserveCacheReadFailure
+{
+    MSIDRequestParameters *parameters = [self silentRequestParameters];
+    parameters.requiresBoundSPACachePublication = YES;
+    MSIDBoundSPASilentReadProbe *request = [[MSIDBoundSPASilentReadProbe alloc] initWithRequestParameters:parameters
+        forceRefresh:NO oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+        tokenCache:self.tokenCache accountMetadataCache:self.accountMetadataCache];
+    request.requiresBoundRefreshToken = YES;
+    __block NSUInteger completions = 0;
+    [request executeRequestImpl:^(MSIDTokenResult *result, NSError *error)
+    {
+        completions++;
+        XCTAssertNil(result);
+        XCTAssertEqualObjects(error.domain, NSOSStatusErrorDomain);
+        XCTAssertEqual(error.code, errSecInteractionNotAllowed);
+    }];
+    XCTAssertEqual(request.accessTokenReads, 0u);
+    XCTAssertEqual(completions, 1u);
+}
+
+- (void)testBoundSPASilent_whenNetworkCryptoOrProtectionFailure_shouldNotEscalateToUI
+{
+    MSIDRequestParameters *parameters = [self silentRequestParameters];
+    parameters.requiresBoundSPACachePublication = YES;
+    MSIDDefaultSilentTokenRequest *request = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
+        forceRefresh:NO oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+        tokenCache:self.tokenCache accountMetadataCache:self.accountMetadataCache];
+    NSArray *errors = @[
+        [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNotConnectedToInternet userInfo:nil],
+        [NSError errorWithDomain:NSOSStatusErrorDomain code:errSecInteractionNotAllowed userInfo:nil],
+        MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Synthetic crypto failure", nil, nil, nil, nil, nil, NO),
+        MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerProtectionPoliciesRequired, @"Binding required",
+                        @"invalid_grant", nil, nil, nil, nil, NO)
+    ];
+    for (NSError *error in errors)
+    {
+        XCTAssertFalse([request isErrorRecoverableByUserInteraction:error]);
+    }
+    NSError *interaction = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidGrant, @"Sign in required",
+                                           @"invalid_grant", nil, nil, nil, nil, NO);
+    XCTAssertTrue([request isErrorRecoverableByUserInteraction:interaction]);
+}
 
 - (void)testAcquireTokenSilent_whenNoAccountProvided_shouldReturnError
 {

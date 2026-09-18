@@ -242,6 +242,7 @@ static NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenP
     [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:outcome.tokenResult
                                                                     state:request.state
                                                 fallbackRequestAccountUpn:fallbackUpn];
+    response.requiresBoundTokenResponse = YES;
     NSDictionary *responseDictionary = response ? [response jsonDictionary] : nil;
     NSError *serializationError = nil;
     NSData *data = responseDictionary ? [NSJSONSerialization dataWithJSONObject:responseDictionary options:0 error:&serializationError] : nil;

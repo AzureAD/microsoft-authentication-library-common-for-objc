@@ -131,6 +131,14 @@
 // property that indicates if calling app requested broker for a Bound App Refresh token
 @property (nonatomic) BOOL isBoundAppRefreshTokenRequested;
 
+// Native-only: require app-specific BART publication; never accept this from browser extras.
+@property (nonatomic) BOOL requiresBoundSPACachePublication;
+
+/// Native-only version established by discovery/admission, never from browser extras.
+/// The native callback uses nestedAuthBrokerRedirectUri without nestedAuthBrokerClientId.
+/// Nil for legacy requests.
+@property (nonatomic, copy) NSString *boundSPABrokerProtocolVersion;
+
 #pragma mark Methods
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
 - (NSString *)allTokenRequestScopes;

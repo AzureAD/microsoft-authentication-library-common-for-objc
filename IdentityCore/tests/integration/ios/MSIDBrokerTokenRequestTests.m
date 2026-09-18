@@ -40,6 +40,9 @@
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDBrokerConstants.h"
 #import "MSIDMobileOnboardingState.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDBrokerKeyProvider.h"
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
 @end
@@ -56,6 +59,8 @@
     [MSIDIntuneEnrollmentIdsCache setSharedCache:[[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:[[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:[MSIDCache new]]]];
     [MSIDIntuneMAMResourcesCache setSharedCache:[[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:[[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:[MSIDCache new]]]];
     [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    [MSIDBrokerKeyProvider publishBoundSPASupport:NO error:nil];
     [super tearDown];
 }
 
@@ -118,6 +123,132 @@
 }
 
 #pragma mark - Error cases
+
+- (MSIDInteractiveTokenRequestParameters *)boundSPATestParameters
+{
+    XCTAssertTrue([MSIDBrokerKeyProvider publishBoundSPASupport:YES error:nil]);
+    MSIDFlightManagerMockProvider *flights = [MSIDFlightManagerMockProvider new];
+    flights.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_BOUND_SPA_BROKER: @YES};
+    MSIDFlightManager.sharedInstance.flightProvider = flights;
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.redirectUri = @"https://spa.contoso.com/callback";
+    parameters.webPageUri = @"https://spa.contoso.com";
+    parameters.nestedAuthBrokerRedirectUri = @"msauth.com.microsoft.test://auth";
+    parameters.boundSPABrokerProtocolVersion = MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1;
+    parameters.isBoundAppRefreshTokenRequested = YES;
+    parameters.brokerInvocationOptions = [[MSIDBrokerInvocationOptions alloc]
+                                         initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithNonceSupport
+                                         protocolType:MSIDBrokerProtocolTypeCustomScheme
+                                         aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    return parameters;
+}
+
+- (void)testInitBrokerRequest_whenBoundSPAV1_shouldSeparateOAuthAndCallbackIdentity
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self boundSPATestParameters];
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+    NSError *error = nil;
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc]
+                                             initWithRequestParameters:parameters
+                                             brokerKey:@"synthetic-broker-key"
+                                             brokerApplicationToken:@"synthetic-app-token"
+                                             sdkCapabilities:@[MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY]
+                                             error:&error];
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    NSDictionary *payload = [request.brokerRequestURL msidQueryParameters];
+    XCTAssertEqualObjects(payload[@"client_id"], parameters.clientId);
+    XCTAssertEqualObjects(payload[@"redirect_uri"], parameters.redirectUri);
+    XCTAssertEqualObjects(payload[MSID_NESTED_AUTH_BROKER_REDIRECT_URI], parameters.nestedAuthBrokerRedirectUri);
+    XCTAssertNil(payload[MSID_NESTED_AUTH_BROKER_CLIENT_ID]);
+    XCTAssertEqualObjects(payload[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY], @"1");
+    XCTAssertEqualObjects(payload[MSID_BROKER_BOUND_SPA_ORIGIN_KEY], parameters.webPageUri);
+    XCTAssertEqualObjects(payload[MSID_BOUND_RT_REDEEM], @"1");
+    XCTAssertFalse(parameters.isNestedAuthProtocol);
+    XCTAssertEqualObjects(request.resumeDictionary[@"redirect_uri"], parameters.redirectUri);
+    XCTAssertEqualObjects(request.resumeDictionary[MSID_NESTED_AUTH_BROKER_REDIRECT_URI], parameters.nestedAuthBrokerRedirectUri);
+    XCTAssertEqualObjects(request.resumeDictionary[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY], @"1");
+    XCTAssertEqualObjects(request.resumeDictionary[@"broker_nonce"], payload[@"broker_nonce"]);
+    XCTAssertNil(request.resumeDictionary[MSID_NESTED_AUTH_BROKER_CLIENT_ID]);
+    XCTAssertNil([parameters allAuthorizeRequestExtraParametersWithMetadata:NO][MSID_NESTED_AUTH_BROKER_REDIRECT_URI]);
+#else
+    XCTAssertNil(request);
+    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+#endif
+}
+
+- (void)testInitBrokerRequest_whenBoundSPAFlightDisabled_shouldReject
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self boundSPATestParameters];
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    NSError *error = nil;
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc]
+                                             initWithRequestParameters:parameters brokerKey:@"synthetic-key"
+                                             brokerApplicationToken:@"synthetic-app-token"
+                                             sdkCapabilities:@[MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY] error:&error];
+    XCTAssertNil(request);
+    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+}
+
+- (void)testInitBrokerRequest_whenOnlyCapabilityRequested_shouldNotActivateBoundSPA
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self boundSPATestParameters];
+    parameters.boundSPABrokerProtocolVersion = nil;
+    NSError *error = nil;
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc]
+                                             initWithRequestParameters:parameters brokerKey:@"synthetic-key"
+                                             brokerApplicationToken:@"synthetic-app-token"
+                                             sdkCapabilities:@[MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY] error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    NSDictionary *payload = [request.brokerRequestURL msidQueryParameters];
+    XCTAssertNil(payload[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY]);
+    XCTAssertNil(payload[MSID_NESTED_AUTH_BROKER_REDIRECT_URI]);
+    XCTAssertNil(request.resumeDictionary[MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY]);
+}
+
+- (void)testInitBrokerRequest_whenBoundSPAContractInvalid_shouldReject
+{
+    NSArray<NSDictionary *> *invalidParameters = @[
+        @{@"boundSPABrokerProtocolVersion": @"2"},
+        @{@"nestedAuthBrokerClientId": @"native-client"},
+        @{@"nestedAuthBrokerRedirectUri": @"https://native.contoso.com/auth"},
+        @{@"nestedAuthBrokerRedirectUri": @"msauth.com.microsoft.test://auth?override=1"},
+        @{@"nestedAuthBrokerRedirectUri": @""},
+        @{@"redirectUri": @"https://another.contoso.com/callback"},
+        @{@"redirectUri": @"https://spa.contoso.com:444/callback"},
+        @{@"webPageUri": @"http://spa.contoso.com"},
+        @{@"webPageUri": @"https://spa.contoso.com/path"},
+        @{@"isBoundAppRefreshTokenRequested": @NO},
+        @{@"extraURLQueryParameters": @{MSID_NESTED_AUTH_BROKER_REDIRECT_URI: @"untrusted://auth"}},
+        @{@"extraTokenRequestParameters": @{MSID_NESTED_AUTH_BROKER_REDIRECT_URI: @"untrusted://auth"}},
+        @{@"extraAuthorizeURLQueryParameters": @{MSID_NESTED_AUTH_BROKER_CLIENT_ID: @"native-client"}}
+    ];
+    for (NSDictionary *invalid in invalidParameters)
+    {
+        MSIDInteractiveTokenRequestParameters *parameters = [self boundSPATestParameters];
+        [parameters setValuesForKeysWithDictionary:invalid];
+        NSError *error = nil;
+        MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc]
+                                                 initWithRequestParameters:parameters brokerKey:@"synthetic-key"
+                                                 brokerApplicationToken:@"synthetic-app-token"
+                                                 sdkCapabilities:@[MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY] error:&error];
+        XCTAssertNil(request, @"Invalid parameters accepted: %@", invalid.allKeys);
+        XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+    }
+}
+
+- (void)testInitBrokerRequest_whenBoundSPACapabilityMissing_shouldReject
+{
+    NSError *error = nil;
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc]
+                                             initWithRequestParameters:[self boundSPATestParameters]
+                                             brokerKey:@"synthetic-key" brokerApplicationToken:@"synthetic-app-token"
+                                             sdkCapabilities:nil error:&error];
+    XCTAssertNil(request);
+    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+}
 
 - (void)testInitBrokerRequest_whenAuthorityMissing_shouldReturnNOAndFillError
 {

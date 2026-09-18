@@ -44,6 +44,13 @@
 // Should skip bound app RT lookup for fallback to regular RTs when BART fails.
 @property (nonatomic, readwrite) BOOL shouldSkipBoundAppRefreshTokenLookup;
 
+// Checked SPA publication. The app BART is saved last; no destructive rollback.
+- (BOOL)saveBoundSPATokensWithConfiguration:(MSIDConfiguration *)configuration
+                                  response:(MSIDTokenResponse *)response
+                                   factory:(MSIDOauth2Factory *)factory
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError * __autoreleasing *)error;
+
 - (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource
                otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors;
 
