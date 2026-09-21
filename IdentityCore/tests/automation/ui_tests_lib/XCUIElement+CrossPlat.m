@@ -46,7 +46,7 @@
 #endif
 }
 
-- (void)selectTextWithApp:(XCUIApplication *)app
+- (void)selectTextWithApp:(__unused XCUIApplication *)app
 {
 #if TARGET_OS_IPHONE
     // There is a bug when we test in iOS 11 when emailTextField.value return placeholder value
@@ -55,15 +55,7 @@
     // See here: https://forums.developer.apple.com/thread/86653
     if (![self.placeholderValue isEqualToString:self.value] && self.value)
     {
-        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 13.0f)
-        {
-            [self tapWithNumberOfTaps:4 numberOfTouches:1];
-        }
-        else
-        {
-            [self pressForDuration:1.0f];
-            [app.menuItems[@"Select All"] tap];
-        }
+        [self tapWithNumberOfTaps:4 numberOfTouches:1];
     }
 #else
     [self typeKey:@"a" modifierFlags:XCUIKeyModifierCommand];

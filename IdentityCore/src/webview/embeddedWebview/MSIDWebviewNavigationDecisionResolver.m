@@ -265,6 +265,15 @@
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
 
+    NSURLRequest *updatedRequest = [self externallyOverriddenRequestForRequest:request
+                                                    embeddedWebviewController:embeddedWebviewController
+                                                                    flowName:@"Enroll"];
+    if (updatedRequest)
+    {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepJITTroubleshootingFlowStarted timestamp:[NSDate date]];
+        return [MSIDWebviewNavigationDecision loadRequest:updatedRequest];
+    }
+
     [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:[NSDate date]];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Built enrollment request for host '%@'.", request.URL.host);
     return [MSIDWebviewNavigationDecision loadRequest:request];
@@ -469,32 +478,12 @@
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
 
-    // For legacy flows we rewrite the request URL's `https` scheme to `browser`
-    // and let the external navigation block decide whether to override the request.
-    if (embeddedWebviewController && embeddedWebviewController.externalDecidePolicyForBrowserAction &&
-        [request.URL.scheme.lowercaseString isEqualToString:@"https"])
+    NSURLRequest *updatedRequest = [self externallyOverriddenRequestForRequest:request
+                                                    embeddedWebviewController:embeddedWebviewController
+                                                                    flowName:@"Compliance"];
+    if (updatedRequest)
     {
-        NSURLComponents *legacyComponents = [NSURLComponents componentsWithURL:request.URL
-                                                       resolvingAgainstBaseURL:NO];
-        legacyComponents.scheme = @"browser";
-        NSURL *legacyFlowUrl = legacyComponents.URL;
-
-        if (legacyFlowUrl)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Invoking external navigation block with 'browser' scheme (host: '%@').", legacyFlowUrl.host);
-
-            // The block is responsible for type checking and casting the controller.
-            NSURLRequest *updatedRequest = embeddedWebviewController.externalDecidePolicyForBrowserAction(embeddedWebviewController, legacyFlowUrl);
-            if (updatedRequest)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] External navigation block returned overridden request (host: '%@').", updatedRequest.URL.host);
-                return [MSIDWebviewNavigationDecision loadRequest:updatedRequest];
-            }
-        }
-        else
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Compliance] Failed to build legacy 'browser' scheme URL; skipping external navigation.");
-        }
+        return [MSIDWebviewNavigationDecision loadRequest:updatedRequest];
     }
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Built compliance request for host '%@'.", request.URL.host);
@@ -502,6 +491,40 @@
 }
 
 #pragma mark - Helper Methods
+
+- (NSURLRequest * _Nullable)externallyOverriddenRequestForRequest:(NSURLRequest *)request
+                                       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                                       flowName:(NSString *)flowName
+{
+    if (!embeddedWebviewController ||
+        !embeddedWebviewController.externalDecidePolicyForBrowserAction ||
+        ![request.URL.scheme.lowercaseString isEqualToString:@"https"])
+    {
+        return nil;
+    }
+
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:request.URL
+                                                    resolvingAgainstBaseURL:NO];
+    urlComponents.scheme = MSID_SCHEME_BROWSER;
+    NSURL *browserURL = urlComponents.URL;
+
+    if (!browserURL)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[%@] Failed to build 'browser' scheme URL; skipping external navigation.", flowName);
+        return nil;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[%@] Invoking external navigation block with 'browser' scheme (host: '%@').", flowName, browserURL.host);
+    NSURLRequest *updatedRequest =
+        embeddedWebviewController.externalDecidePolicyForBrowserAction(embeddedWebviewController, browserURL);
+
+    if (updatedRequest)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[%@] External navigation block returned overridden request (host: '%@').", flowName, updatedRequest.URL.host);
+    }
+
+    return updatedRequest;
+}
 
 - (nullable NSURLRequest *)buildRequestForURL:(NSString *)URLString
                                  extraHeaders:(nullable NSDictionary<NSString *, NSString *> *)extraHeaders

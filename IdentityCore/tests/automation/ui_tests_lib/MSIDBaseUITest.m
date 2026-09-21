@@ -35,6 +35,7 @@
 #import "MSIDTestAutomationAccount.h"
 #import "MSIDAutomationOperationResponseHandler.h"
 #import "MSIDTestAutomationApplication.h"
+#import "MSIDAutomationReturnedTokensResult.h"
 #import "MSIDKeyVaultAccountProvider.h"
 #import "MSIDKeyVaultAppConfigProvider.h"
 #import "MSIDKeyVaultCredentialProvider.h"
@@ -199,13 +200,23 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (MSIDAutomationSuccessResult *)automationSuccessResult:(XCUIApplication *)application
 {
-    MSIDAutomationSuccessResult *result = [[MSIDAutomationSuccessResult alloc] initWithJSONDictionary:[self automationResultDictionary:application] error:nil];
+    NSDictionary *jsonFromResult = [self automationResultDictionary:application];
+    MSIDAutomationSuccessResult *result = [[MSIDAutomationSuccessResult alloc] initWithJSONDictionary:jsonFromResult error:nil];
     XCTAssertNotNil(result);
     if (!result.success)
     {
         // Print dictionary to debug the reason of failure.
         XCTAssertEqualObjects(@{}, [result jsonDictionary]);
     }
+    XCTAssertTrue(result.success);
+    
+    return result;
+}
+
+- (MSIDAutomationReturnedTokensResult *)automationReturnedTokensResult:(XCUIApplication *)application
+{
+    MSIDAutomationReturnedTokensResult *result = [[MSIDAutomationReturnedTokensResult alloc] initWithJSONDictionary:[self automationResultDictionary:application] error:nil];
+    XCTAssertNotNil(result);
     XCTAssertTrue(result.success);
     return result;
 }
@@ -872,35 +883,19 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     }
 }
 
-- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element
-{
-    [self tapElementAndWaitForKeyboardToAppear:element app:[XCUIApplication new]];
-}
-
-- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(XCUIApplication *)application
+- (void)tapElementAndWaitForKeyboardToAppear:(__unused XCUIElement *)element
 {
 #if TARGET_OS_IPHONE
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 13.0f)
-    {
-        [element tap];
-        return;
-    }
-
-    XCUIElement *keyboard = [[application keyboards] element];
-
-    while (true)
-    {
-        [element pressForDuration:0.2f];
-
-        if (keyboard.exists && keyboard.hittable)
-        {
-            sleep(0.2f);
-            break;
-        }
-
-        sleep(0.2f);
-    }
+    [element tap];
 #endif
+}
+
+// Kept as a wrapper because this overload is public API of this shared test
+// library and is still called from MSAL's automation tests. The application
+// argument is no longer needed to tap the element.
+- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(__unused XCUIApplication *)application
+{
+    [self tapElementAndWaitForKeyboardToAppear:element];
 }
 
 - (void)enterText:(XCUIElement *)textField isMainApp:(BOOL)isMainApp text:(NSString *)textToEnter

@@ -64,6 +64,7 @@ extern NSString * const MSIDOnboardingBlobStepJITRemediationStarted;
 extern NSString * const MSIDOnboardingBlobStepJITRemediationCompleted;
 extern NSString * const MSIDOnboardingBlobStepJITComplianceBitSetStarted;
 extern NSString * const MSIDOnboardingBlobStepJITComplianceBitSetCompleted;
+extern NSString * const MSIDOnboardingBlobStepJITTroubleshootingFlowStarted;
 extern NSString * const MSIDOnboardingBlobStepTokenIssued;
 
 // New mobile-onboarding funnel steps (free-form passthrough; not C++-aggregated).
