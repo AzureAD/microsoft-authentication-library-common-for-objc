@@ -70,6 +70,7 @@ extern NSString * const MSIDOnboardingBlobStepTokenIssued;
 // New mobile-onboarding funnel steps (free-form passthrough; not C++-aggregated).
 extern NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted;
 extern NSString * const MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect;
+extern NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirect;
 extern NSString * const MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback;
 extern NSString * const MSIDOnboardingBlobStepProfileInstallNotificationScheduled;
 extern NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable;
