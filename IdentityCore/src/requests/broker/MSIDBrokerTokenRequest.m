@@ -52,6 +52,13 @@
 @property (nonatomic, readwrite) NSString *brokerNonce;
 @property (nonatomic, readwrite) NSString *brokerApplicationToken;
 
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+- (BOOL)isBoundSPAFeatureEnabled;
+- (BOOL)hasValidBoundSPAProtocolForParameters:(MSIDInteractiveTokenRequestParameters *)parameters;
+- (BOOL)hasValidBoundSPAEndpointsForParameters:(MSIDInteractiveTokenRequestParameters *)parameters;
+- (BOOL)containsBoundSPAProtocolOverridesForParameters:(MSIDInteractiveTokenRequestParameters *)parameters;
+#endif
+
 @end
 
 @implementation MSIDBrokerTokenRequest
@@ -289,51 +296,83 @@
 {
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
     MSIDInteractiveTokenRequestParameters *parameters = self.requestParameters;
-    BOOL enabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_BOUND_SPA_BROKER];
-    NSURLComponents *callback = [NSURLComponents componentsWithString:parameters.nestedAuthBrokerRedirectUri ?: @""];
-    NSURLComponents *redirect = [NSURLComponents componentsWithString:parameters.redirectUri ?: @""];
-    NSURLComponents *origin = [NSURLComponents componentsWithString:parameters.webPageUri ?: @""];
-    BOOL validCallback = callback.scheme.length && callback.host.length
-        && ![callback.scheme.lowercaseString isEqualToString:@"https"]
-        && ![callback.scheme.lowercaseString isEqualToString:@"http"]
-        && !callback.user && !callback.password && !callback.query && !callback.fragment;
-    BOOL validOrigin = [origin.scheme.lowercaseString isEqualToString:@"https"] && origin.host.length
-        && !origin.user && !origin.password && !origin.query && !origin.fragment
-        && (!origin.path.length || [origin.path isEqualToString:@"/"]);
-    BOOL validRedirect = [redirect.scheme.lowercaseString isEqualToString:@"https"] && redirect.host.length
-        && !redirect.user && !redirect.password && !redirect.fragment;
-    NSNumber *originPort = origin.port ?: @443;
-    NSNumber *redirectPort = redirect.port ?: @443;
-    BOOL sameOrigin = [origin.host.lowercaseString isEqualToString:redirect.host.lowercaseString]
-        && [originPort isEqualToNumber:redirectPort];
-    BOOL validContract = enabled
-        && [parameters.boundSPABrokerProtocolVersion isEqualToString:MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1]
+    BOOL validContract = [self isBoundSPAFeatureEnabled]
+        && [self hasValidBoundSPAProtocolForParameters:parameters]
+        && [self hasValidBoundSPAEndpointsForParameters:parameters]
+        && ![self containsBoundSPAProtocolOverridesForParameters:parameters];
+
+    if (validContract)
+    {
+        return YES;
+    }
+#endif
+
+    MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter,
+                       @"Bound-SPA Broker parameters are unsupported, disabled, or invalid.",
+                       self.requestParameters.correlationId);
+    return NO;
+}
+
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+- (BOOL)isBoundSPAFeatureEnabled
+{
+    return [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_BOUND_SPA_BROKER];
+}
+
+- (BOOL)hasValidBoundSPAProtocolForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+{
+    return [parameters.boundSPABrokerProtocolVersion isEqualToString:MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1]
         && [self.sdkBrokerCapabilities containsObject:MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY]
         && parameters.isBoundAppRefreshTokenRequested
         && [NSString msidIsStringNilOrBlank:parameters.nestedAuthBrokerClientId]
         && parameters.brokerInvocationOptions.brokerAADRequestVersion == MSIDBrokerAADRequestVersionV2
-        && parameters.brokerInvocationOptions.minRequiredBrokerType == MSIDRequiredBrokerTypeWithNonceSupport
-        && validCallback && validOrigin && validRedirect && sameOrigin;
+        && parameters.brokerInvocationOptions.minRequiredBrokerType == MSIDRequiredBrokerTypeWithNonceSupport;
+}
+
+- (BOOL)hasValidBoundSPAEndpointsForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+{
+    NSURLComponents *callback = [NSURLComponents componentsWithString:parameters.nestedAuthBrokerRedirectUri ?: @""];
+    NSURLComponents *redirect = [NSURLComponents componentsWithString:parameters.redirectUri ?: @""];
+    NSURLComponents *origin = [NSURLComponents componentsWithString:parameters.webPageUri ?: @""];
+
+    BOOL validCallback = callback.scheme.length && callback.host.length
+        && ![callback.scheme.lowercaseString isEqualToString:@"https"]
+        && ![callback.scheme.lowercaseString isEqualToString:@"http"]
+        && !callback.user && !callback.password && !callback.query && !callback.fragment;
+
+    BOOL validOrigin = [origin.scheme.lowercaseString isEqualToString:@"https"] && origin.host.length
+        && !origin.user && !origin.password && !origin.query && !origin.fragment
+        && (!origin.path.length || [origin.path isEqualToString:@"/"]);
+
+    BOOL validRedirect = [redirect.scheme.lowercaseString isEqualToString:@"https"] && redirect.host.length
+        && !redirect.user && !redirect.password && !redirect.fragment;
+
+    NSNumber *originPort = origin.port ?: @443;
+    NSNumber *redirectPort = redirect.port ?: @443;
+    BOOL sameOrigin = [origin.host.lowercaseString isEqualToString:redirect.host.lowercaseString]
+        && [originPort isEqualToNumber:redirectPort];
+
+    return validCallback && validOrigin && validRedirect && sameOrigin;
+}
+
+- (BOOL)containsBoundSPAProtocolOverridesForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+{
     NSDictionary *extraParameters = [parameters allAuthorizeRequestExtraParametersWithMetadata:NO];
+
+    // Native transport fields must never be supplied through browser-controlled parameters.
     for (NSString *key in @[MSID_NESTED_AUTH_BROKER_CLIENT_ID, MSID_NESTED_AUTH_BROKER_REDIRECT_URI,
                             MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY, MSID_BROKER_BOUND_SPA_ORIGIN_KEY,
                             MSID_BROKER_BOUND_SPA_PUBLICATION_KEY, MSID_BROKER_SDK_CAPABILITIES_KEY])
     {
         if (extraParameters[key] || parameters.extraTokenRequestParameters[key])
         {
-            validContract = NO;
+            return YES;
         }
     }
-    if (validContract)
-    {
-        return YES;
-    }
-#endif
-    MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter,
-                       @"Bound-SPA Broker parameters are unsupported, disabled, or invalid.",
-                       self.requestParameters.correlationId);
+
     return NO;
 }
+#endif
 
 - (BOOL)checkParameter:(id)parameter
          parameterName:(NSString *)parameterName
