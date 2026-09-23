@@ -280,6 +280,10 @@ extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDA
 /// WorkItem: 3661547
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION;
 
+/// Enables bound-SPA v1 IPC construction after native Broker support discovery. Default OFF.
+/// Owner: maagubuzo. Deployment and Broker-side admission are separate gates.
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_BOUND_SPA_BROKER;
+
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;

@@ -28,6 +28,8 @@
 #import "NSData+MSIDExtensions.h"
 #import "MSIDConstants.h"
 #import "MSIDKeychainUtil.h"
+#import <CommonCrypto/CommonHMAC.h>
+#import <CommonCrypto/CommonDigest.h>
 
 @interface MSIDBrokerKeyProvider()
 
@@ -37,6 +39,180 @@
 @end
 
 @implementation MSIDBrokerKeyProvider
+
++ (NSMutableDictionary *)boundSPAQueryForAccount:(NSString *)account error:(NSError * __autoreleasing *)error
+{
+    NSString *group = [[MSIDKeychainUtil sharedInstance] accessGroup:@"com.microsoft.adalcache"];
+    if (!group.length)
+    {
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Bound-SPA shared keychain entitlement is unavailable.", nil);
+        return nil;
+    }
+    NSMutableDictionary *query = [@{(id)kSecClass: (id)kSecClassGenericPassword,
+                                   (id)kSecAttrService: @"com.microsoft.bound-spa.v1",
+                                   (id)kSecAttrAccount: account,
+                                   (id)kSecAttrAccessGroup: group} mutableCopy];
+#if !TARGET_OS_IPHONE
+    query[(id)kSecUseDataProtectionKeychain] = @YES;
+#endif
+    return query;
+}
+
++ (NSData *)boundSPADataForAccount:(NSString *)account error:(NSError * __autoreleasing *)error
+{
+    NSMutableDictionary *query = [self boundSPAQueryForAccount:account error:error];
+    if (!query)
+    {
+        return nil;
+    }
+    query[(id)kSecReturnData] = @YES;
+    CFTypeRef data = NULL;
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &data);
+    if (status == errSecSuccess)
+    {
+        return CFBridgingRelease(data);
+    }
+    if (status != errSecItemNotFound && error)
+    {
+        *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    }
+    return nil;
+}
+
++ (BOOL)addBoundSPAData:(NSData *)data account:(NSString *)account error:(NSError * __autoreleasing *)error
+{
+    NSMutableDictionary *query = [self boundSPAQueryForAccount:account error:error];
+    if (!query)
+    {
+        return NO;
+    }
+    query[(id)kSecValueData] = data;
+    query[(id)kSecAttrAccessible] = (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
+    OSStatus status = SecItemAdd((__bridge CFDictionaryRef)query, NULL);
+    if (status == errSecSuccess || status == errSecDuplicateItem)
+    {
+        return YES;
+    }
+    if (error)
+    {
+        *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    }
+    return NO;
+}
+
++ (BOOL)publishBoundSPASupport:(BOOL)enabled error:(NSError * __autoreleasing *)error
+{
+    // The discovery item is also a secret, distinct from the legacy broker key
+    // (which is sent in IPC). It is never included in a request or response.
+    if (!enabled)
+    {
+        NSDictionary *query = [self boundSPAQueryForAccount:@"support" error:error];
+        if (!query)
+        {
+            return NO;
+        }
+        OSStatus status = SecItemDelete((__bridge CFDictionaryRef)query);
+        if (status == errSecSuccess || status == errSecItemNotFound)
+        {
+            return YES;
+        }
+        if (error)
+        {
+            *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+        }
+        return NO;
+    }
+    uint8_t bytes[32];
+    OSStatus status = SecRandomCopyBytes(kSecRandomDefault, sizeof(bytes), bytes);
+    if (status != errSecSuccess)
+    {
+        if (error)
+        {
+            *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+        }
+        return NO;
+    }
+    return [self addBoundSPAData:[NSData dataWithBytes:bytes length:sizeof(bytes)] account:@"support" error:error];
+}
+
++ (BOOL)hasBoundSPASupportWithError:(NSError * __autoreleasing *)error
+{
+    return [self boundSPADataForAccount:@"support" error:error].length == 32;
+}
+
++ (NSString *)boundSPAProofForParameters:(NSDictionary *)parameters sourceApplication:(NSString *)sourceApplication error:(NSError * __autoreleasing *)error
+{
+    NSData *secret = [self boundSPADataForAccount:@"support" error:error];
+    if (secret.length != 32 || !sourceApplication.length)
+    {
+        return nil;
+    }
+    NSMutableDictionary *signedParameters = [parameters mutableCopy];
+    [signedParameters removeObjectForKey:@"bound_spa_proof"];
+    signedParameters[@"bound_spa_source"] = sourceApplication;
+    // Length-prefixed UTF-8 fields avoid delimiter ambiguities and JSON/URL escaping differences.
+    NSMutableData *message = [NSMutableData new];
+    for (NSString *key in [[signedParameters allKeys] sortedArrayUsingSelector:@selector(compare:)])
+    {
+        id value = signedParameters[key];
+        if ([value isKindOfClass:NSNumber.class])
+        {
+            value = [value stringValue];
+        }
+        if (![value isKindOfClass:NSString.class])
+        {
+            return nil;
+        }
+        for (NSString *field in @[key, value])
+        {
+            NSData *bytes = [field dataUsingEncoding:NSUTF8StringEncoding];
+            NSData *length = [[NSString stringWithFormat:@"%lu:", (unsigned long)bytes.length] dataUsingEncoding:NSUTF8StringEncoding];
+            [message appendData:length];
+            [message appendData:bytes];
+        }
+    }
+    uint8_t digest[CC_SHA256_DIGEST_LENGTH];
+    CCHmac(kCCHmacAlgSHA256, secret.bytes, secret.length, message.bytes, message.length, digest);
+    return [[NSData dataWithBytes:digest length:sizeof(digest)] base64EncodedStringWithOptions:0];
+}
+
++ (BOOL)validateBoundSPAProofForParameters:(NSDictionary *)parameters sourceApplication:(NSString *)sourceApplication error:(NSError * __autoreleasing *)error
+{
+    NSString *expected = [self boundSPAProofForParameters:parameters sourceApplication:sourceApplication error:error];
+    NSString *proof = parameters[@"bound_spa_proof"];
+    if (![proof isKindOfClass:NSString.class] || !expected || expected.length != proof.length)
+    {
+        return NO;
+    }
+    NSData *left = [expected dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *right = [proof dataUsingEncoding:NSUTF8StringEncoding];
+    const uint8_t *a = left.bytes;
+    const uint8_t *b = right.bytes;
+    uint8_t difference = 0;
+    for (NSUInteger i = 0; i < left.length; i++)
+    {
+        difference |= a[i] ^ b[i];
+    }
+    return difference == 0;
+}
+
++ (NSString *)boundSPAExclusionAccount:(NSString *)refreshToken
+{
+    NSData *bytes = [refreshToken dataUsingEncoding:NSUTF8StringEncoding];
+    uint8_t digest[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(bytes.bytes, (CC_LONG)bytes.length, digest);
+    return [@"excluded:" stringByAppendingString:[[NSData dataWithBytes:digest length:sizeof(digest)] base64EncodedStringWithOptions:0]];
+}
+
++ (BOOL)excludeBoundSPARefreshToken:(NSString *)refreshToken error:(NSError * __autoreleasing *)error
+{
+    return [self addBoundSPAData:[NSData data] account:[self boundSPAExclusionAccount:refreshToken] error:error];
+}
+
++ (BOOL)isBoundSPARefreshTokenExcluded:(NSString *)refreshToken error:(NSError * __autoreleasing *)error
+{
+    return [self boundSPADataForAccount:[self boundSPAExclusionAccount:refreshToken] error:error] != nil;
+}
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup
 {
