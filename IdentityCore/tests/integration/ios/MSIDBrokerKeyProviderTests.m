@@ -24,6 +24,8 @@
 #import <XCTest/XCTest.h>
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDBrokerKeyProvider.h"
+#import "MSIDBrokerKeyProvider+Internal.h"
+#import "MSIDBrokerConstants.h"
 #import "MSIDTestBrokerKeyProviderHelper.h"
 #import "MSIDConstants.h"
 
@@ -53,14 +55,26 @@
 {
     XCTAssertTrue([MSIDBrokerKeyProvider publishBoundSPASupport:YES error:nil]);
     NSMutableDictionary *parameters = [@{@"client_id": @"synthetic-client", @"broker_nonce": @"synthetic-nonce"} mutableCopy];
-    parameters[@"bound_spa_proof"] = [MSIDBrokerKeyProvider boundSPAProofForParameters:parameters
-                                                                   sourceApplication:@"com.microsoft.test" error:nil];
+    parameters[MSID_BROKER_BOUND_SPA_PROOF_KEY] = [MSIDBrokerKeyProvider boundSPAProofForParameters:parameters
+                                                                                 sourceApplication:@"com.microsoft.test" error:nil];
     XCTAssertTrue([MSIDBrokerKeyProvider validateBoundSPAProofForParameters:parameters sourceApplication:@"com.microsoft.test" error:nil]);
     XCTAssertFalse([MSIDBrokerKeyProvider validateBoundSPAProofForParameters:parameters sourceApplication:@"com.other.app" error:nil]);
     parameters[@"client_id"] = @"other-client";
     XCTAssertFalse([MSIDBrokerKeyProvider validateBoundSPAProofForParameters:parameters sourceApplication:@"com.microsoft.test" error:nil]);
     XCTAssertTrue([MSIDBrokerKeyProvider publishBoundSPASupport:NO error:nil]);
     XCTAssertFalse([MSIDBrokerKeyProvider validateBoundSPAProofForParameters:parameters sourceApplication:@"com.microsoft.test" error:nil]);
+}
+
+- (void)testValidateBoundSPAProof_whenProofCannotBeUTF8Encoded_shouldReject
+{
+    XCTAssertTrue([MSIDBrokerKeyProvider publishBoundSPASupport:YES error:nil]);
+    unichar invalidSurrogate = 0xD800;
+    NSString *invalidProof = [NSString stringWithCharacters:&invalidSurrogate length:1];
+    NSDictionary *parameters = @{MSID_BROKER_BOUND_SPA_PROOF_KEY: invalidProof};
+
+    XCTAssertFalse([MSIDBrokerKeyProvider validateBoundSPAProofForParameters:parameters
+                                                          sourceApplication:@"com.microsoft.test"
+                                                                      error:nil]);
 }
 
 - (void)testBoundSPAExclusion_whenCredentialReplaced_shouldExcludeOnlyRejectedValue

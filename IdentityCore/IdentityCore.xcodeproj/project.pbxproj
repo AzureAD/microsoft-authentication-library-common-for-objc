@@ -1776,6 +1776,7 @@
 		B2C708B1219A615100D917B8 /* MSIDLegacyBrokerResponseHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C708702198C42200D917B8 /* MSIDLegacyBrokerResponseHandler.h */; };
 		B2C708B2219A620700D917B8 /* MSIDBrokerKeyProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C708822198DE0000D917B8 /* MSIDBrokerKeyProvider.m */; };
 		B2C708B3219A620B00D917B8 /* MSIDBrokerKeyProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C708812198DE0000D917B8 /* MSIDBrokerKeyProvider.h */; };
+		A17B5A022F6D000100000001 /* MSIDBrokerKeyProvider+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = A17B5A012F6D000100000001 /* MSIDBrokerKeyProvider+Internal.h */; };
 		B2C708B4219A620E00D917B8 /* MSIDBrokerCryptoProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C708862198DE3900D917B8 /* MSIDBrokerCryptoProvider.h */; };
 		B2C708B5219A621100D917B8 /* MSIDBrokerCryptoProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C708872198DE3900D917B8 /* MSIDBrokerCryptoProvider.m */; };
 		B2C708DF219BC67F00D917B8 /* MSIDDefaultSilentTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C708DE219BC67E00D917B8 /* MSIDDefaultSilentTokenRequestTests.m */; };
@@ -3557,6 +3558,7 @@
 		B2C708702198C42200D917B8 /* MSIDLegacyBrokerResponseHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLegacyBrokerResponseHandler.h; sourceTree = "<group>"; };
 		B2C708712198C42200D917B8 /* MSIDLegacyBrokerResponseHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLegacyBrokerResponseHandler.m; sourceTree = "<group>"; };
 		B2C708812198DE0000D917B8 /* MSIDBrokerKeyProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerKeyProvider.h; sourceTree = "<group>"; };
+		A17B5A012F6D000100000001 /* MSIDBrokerKeyProvider+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDBrokerKeyProvider+Internal.h"; sourceTree = "<group>"; };
 		B2C708822198DE0000D917B8 /* MSIDBrokerKeyProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerKeyProvider.m; sourceTree = "<group>"; };
 		B2C708862198DE3900D917B8 /* MSIDBrokerCryptoProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerCryptoProvider.h; sourceTree = "<group>"; };
 		B2C708872198DE3900D917B8 /* MSIDBrokerCryptoProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerCryptoProvider.m; sourceTree = "<group>"; };
@@ -5762,6 +5764,7 @@
 				2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */,
 				2A953DF72DA45B3100A748BA /* mac */,
 				B2C708812198DE0000D917B8 /* MSIDBrokerKeyProvider.h */,
+				A17B5A012F6D000100000001 /* MSIDBrokerKeyProvider+Internal.h */,
 				B2C708822198DE0000D917B8 /* MSIDBrokerKeyProvider.m */,
 				B2C708862198DE3900D917B8 /* MSIDBrokerCryptoProvider.h */,
 				B2C708872198DE3900D917B8 /* MSIDBrokerCryptoProvider.m */,
@@ -6941,6 +6944,7 @@
 				1E33F4A021711C1100919E9C /* MSIDAppMetadataCacheItem.h in Headers */,
 				B2E2A923239221A000BA2EA3 /* MSIDBrokerOperationSignoutFromDeviceRequest.h in Headers */,
 				B2C708B3219A620B00D917B8 /* MSIDBrokerKeyProvider.h in Headers */,
+				A17B5A022F6D000100000001 /* MSIDBrokerKeyProvider+Internal.h in Headers */,
 				23B39ABC209BD47D000AA905 /* MSIDB2CAuthorityResolver.h in Headers */,
 				4B6D22262E831B0B00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h in Headers */,
 				B443EFF62AD62BB900782168 /* MSIDPasskeyCredential.h in Headers */,

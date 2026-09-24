@@ -50,7 +50,6 @@ enum {
 
 // Versioned discovery is provisioned by Broker, never by the caller. All operations
 // use the fixed, team-prefixed adalcache group without legacy group fallback.
-+ (BOOL)publishBoundSPASupport:(BOOL)enabled error:(NSError * __autoreleasing *)error;
 + (BOOL)hasBoundSPASupportWithError:(NSError * __autoreleasing *)error;
 + (NSString *)boundSPAProofForParameters:(NSDictionary *)parameters sourceApplication:(NSString *)sourceApplication error:(NSError * __autoreleasing *)error;
 + (BOOL)validateBoundSPAProofForParameters:(NSDictionary *)parameters sourceApplication:(NSString *)sourceApplication error:(NSError * __autoreleasing *)error;

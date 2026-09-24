@@ -22,14 +22,22 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDBrokerKeyProvider.h"
+#import "MSIDBrokerKeyProvider+Internal.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
 #import "NSData+MSIDExtensions.h"
 #import "MSIDConstants.h"
+#import "MSIDBrokerConstants.h"
 #import "MSIDKeychainUtil.h"
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonDigest.h>
+
+static NSString * const MSIDBoundSPAKeychainGroup = @"com.microsoft.adalcache";
+static NSString * const MSIDBoundSPAKeychainService = @"com.microsoft.bound-spa.v1";
+static NSString * const MSIDBoundSPASupportAccount = @"support";
+static NSString * const MSIDBoundSPASourceKey = @"bound_spa_source";
+static NSString * const MSIDBoundSPAExcludedAccountPrefix = @"excluded:";
+static const NSUInteger MSIDBoundSPASupportSecretLength = 32;
 
 @interface MSIDBrokerKeyProvider()
 
@@ -42,14 +50,14 @@
 
 + (NSMutableDictionary *)boundSPAQueryForAccount:(NSString *)account error:(NSError * __autoreleasing *)error
 {
-    NSString *group = [[MSIDKeychainUtil sharedInstance] accessGroup:@"com.microsoft.adalcache"];
+    NSString *group = [[MSIDKeychainUtil sharedInstance] accessGroup:MSIDBoundSPAKeychainGroup];
     if (!group.length)
     {
         MSIDFillAndLogError(error, MSIDErrorInternal, @"Bound-SPA shared keychain entitlement is unavailable.", nil);
         return nil;
     }
     NSMutableDictionary *query = [@{(id)kSecClass: (id)kSecClassGenericPassword,
-                                   (id)kSecAttrService: @"com.microsoft.bound-spa.v1",
+                                   (id)kSecAttrService: MSIDBoundSPAKeychainService,
                                    (id)kSecAttrAccount: account,
                                    (id)kSecAttrAccessGroup: group} mutableCopy];
 #if !TARGET_OS_IPHONE
@@ -106,7 +114,7 @@
     // (which is sent in IPC). It is never included in a request or response.
     if (!enabled)
     {
-        NSDictionary *query = [self boundSPAQueryForAccount:@"support" error:error];
+        NSDictionary *query = [self boundSPAQueryForAccount:MSIDBoundSPASupportAccount error:error];
         if (!query)
         {
             return NO;
@@ -122,8 +130,8 @@
         }
         return NO;
     }
-    uint8_t bytes[32];
-    OSStatus status = SecRandomCopyBytes(kSecRandomDefault, sizeof(bytes), bytes);
+    NSMutableData *secret = [NSMutableData dataWithLength:MSIDBoundSPASupportSecretLength];
+    OSStatus status = SecRandomCopyBytes(kSecRandomDefault, secret.length, secret.mutableBytes);
     if (status != errSecSuccess)
     {
         if (error)
@@ -132,24 +140,24 @@
         }
         return NO;
     }
-    return [self addBoundSPAData:[NSData dataWithBytes:bytes length:sizeof(bytes)] account:@"support" error:error];
+    return [self addBoundSPAData:secret account:MSIDBoundSPASupportAccount error:error];
 }
 
 + (BOOL)hasBoundSPASupportWithError:(NSError * __autoreleasing *)error
 {
-    return [self boundSPADataForAccount:@"support" error:error].length == 32;
+    return [self boundSPADataForAccount:MSIDBoundSPASupportAccount error:error].length == MSIDBoundSPASupportSecretLength;
 }
 
 + (NSString *)boundSPAProofForParameters:(NSDictionary *)parameters sourceApplication:(NSString *)sourceApplication error:(NSError * __autoreleasing *)error
 {
-    NSData *secret = [self boundSPADataForAccount:@"support" error:error];
-    if (secret.length != 32 || !sourceApplication.length)
+    NSData *secret = [self boundSPADataForAccount:MSIDBoundSPASupportAccount error:error];
+    if (secret.length != MSIDBoundSPASupportSecretLength || !sourceApplication.length)
     {
         return nil;
     }
     NSMutableDictionary *signedParameters = [parameters mutableCopy];
-    [signedParameters removeObjectForKey:@"bound_spa_proof"];
-    signedParameters[@"bound_spa_source"] = sourceApplication;
+    [signedParameters removeObjectForKey:MSID_BROKER_BOUND_SPA_PROOF_KEY];
+    signedParameters[MSIDBoundSPASourceKey] = sourceApplication;
     // Length-prefixed UTF-8 fields avoid delimiter ambiguities and JSON/URL escaping differences.
     NSMutableData *message = [NSMutableData new];
     for (NSString *key in [[signedParameters allKeys] sortedArrayUsingSelector:@selector(compare:)])
@@ -179,13 +187,17 @@
 + (BOOL)validateBoundSPAProofForParameters:(NSDictionary *)parameters sourceApplication:(NSString *)sourceApplication error:(NSError * __autoreleasing *)error
 {
     NSString *expected = [self boundSPAProofForParameters:parameters sourceApplication:sourceApplication error:error];
-    NSString *proof = parameters[@"bound_spa_proof"];
-    if (![proof isKindOfClass:NSString.class] || !expected || expected.length != proof.length)
+    NSString *proof = parameters[MSID_BROKER_BOUND_SPA_PROOF_KEY];
+    if (![proof isKindOfClass:NSString.class] || !expected)
     {
         return NO;
     }
     NSData *left = [expected dataUsingEncoding:NSUTF8StringEncoding];
     NSData *right = [proof dataUsingEncoding:NSUTF8StringEncoding];
+    if (!left || !right || left.length != right.length)
+    {
+        return NO;
+    }
     const uint8_t *a = left.bytes;
     const uint8_t *b = right.bytes;
     uint8_t difference = 0;
@@ -201,7 +213,8 @@
     NSData *bytes = [refreshToken dataUsingEncoding:NSUTF8StringEncoding];
     uint8_t digest[CC_SHA256_DIGEST_LENGTH];
     CC_SHA256(bytes.bytes, (CC_LONG)bytes.length, digest);
-    return [@"excluded:" stringByAppendingString:[[NSData dataWithBytes:digest length:sizeof(digest)] base64EncodedStringWithOptions:0]];
+    return [MSIDBoundSPAExcludedAccountPrefix stringByAppendingString:
+            [[NSData dataWithBytes:digest length:sizeof(digest)] base64EncodedStringWithOptions:0]];
 }
 
 + (BOOL)excludeBoundSPARefreshToken:(NSString *)refreshToken error:(NSError * __autoreleasing *)error

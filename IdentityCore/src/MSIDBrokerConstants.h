@@ -82,6 +82,8 @@ extern NSString * _Nonnull const MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY;
 extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY;
 extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1;
 extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_ORIGIN_KEY;
+extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PROOF_KEY;
+extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_TIMESTAMP_KEY;
 /// Only accepted inside the encrypted, nonce-validated successful Broker response.
 extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PUBLICATION_KEY;
 extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PUBLICATION_COMMITTED;
