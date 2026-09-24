@@ -1,4 +1,4 @@
-TBD
+Version 2.16.0
 * Allow embedded webview hosts to intercept MDM enrollment URLs through the existing external browser-navigation callback, enabling post-enrollment JIT troubleshooting while preserving the normal enrollment request when no override is returned.
 * Preserve legacy browser-native-message GetToken response shaping for token-response-backed results: echo empty or whitespace-only state and UPN values, use the request UPN only when the response UPN is nil, and emit an empty properties dictionary when neither UPN nor MATS is present. Cache-only result shaping is unchanged.
 * Fix MSIDAADWebviewFactory discarding switch_browser (DUNA/CBA) response initializer errors. A malformed switch-browser URL - notably one missing action_uri but carrying a code - could fall through and be accepted as an ordinary authorization-code response; recognized switch-browser URLs now fail with their specific error instead.
