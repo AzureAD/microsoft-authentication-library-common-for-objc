@@ -77,6 +77,16 @@ extern NSString * _Nonnull const MSID_MSAL_BROKER_MESSAGE_VERSION;
 extern NSString * _Nonnull const MSID_BROKER_SDK_CAPABILITIES_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY;
 extern NSString * _Nonnull const MSID_BROKER_SDK_BROKER_XPC_CAPABILITY;
+/// Caller support for the versioned bound-SPA contract; not evidence of Broker support.
+extern NSString * _Nonnull const MSID_BROKER_SDK_BOUND_SPA_V1_CAPABILITY;
+extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_KEY;
+extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PROTOCOL_VERSION_1;
+extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_ORIGIN_KEY;
+extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PROOF_KEY;
+extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_TIMESTAMP_KEY;
+/// Only accepted inside the encrypted, nonce-validated successful Broker response.
+extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PUBLICATION_KEY;
+extern NSString * _Nonnull const MSID_BROKER_BOUND_SPA_PUBLICATION_COMMITTED;
 extern NSString * _Nonnull const MSID_BROKER_SSO_URL;
 extern NSString * _Nonnull const MSID_BROKER_ACCOUNT_IDENTIFIER;
 extern NSString * _Nonnull const MSID_BROKER_TYPES_OF_HEADER;
@@ -103,4 +113,3 @@ extern NSString * _Nonnull const MSID_BROKER_CLIENT_FLIGHTS_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SDM_WPJ_ATTEMPTED;
 extern NSString * _Nonnull const MSID_BART_DEVICE_ID_KEY;
 extern NSString * _Nonnull const MSID_FORCE_REFRESH_KEY;
-
