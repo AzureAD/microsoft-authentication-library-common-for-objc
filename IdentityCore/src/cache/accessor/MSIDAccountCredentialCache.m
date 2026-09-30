@@ -569,8 +569,11 @@ static BOOL s_disableFRT = NO;
     MSIDIsFRTEnabledStatus (^checkFeatureFlagsAndReturn)(MSIDIsFRTEnabledStatus) = ^MSIDIsFRTEnabledStatus(MSIDIsFRTEnabledStatus status)
     {
         MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
-        NSString *disableFRTStatus = [flightManager stringForKey:MSID_FLIGHT_DISABLE_SFRT_V2];
-        BOOL shouldDisableFRT = [@"on" isEqualToString:disableFRTStatus];
+        // Check the SFRT kill flight, ignoring case. Possible values:
+        // - "on": disables SFRT
+        // - "off", nil, empty, or any other value: enables SFRT
+        NSString *disableSFRTFlagStatus = [flightManager stringForKey:MSID_FLIGHT_DISABLE_SFRT_V2];
+        BOOL shouldDisableFRT = disableSFRTFlagStatus && [disableSFRTFlagStatus caseInsensitiveCompare:@"on"] == NSOrderedSame;
         BOOL shouldEnableFRT = !shouldDisableFRT;
         MSIDIsFRTEnabledStatus newStatus = status;
         NSError *updateError = nil;
@@ -581,14 +584,8 @@ static BOOL s_disableFRT = NO;
             case MSIDIsFRTEnabledStatusNotEnabled:
                 if (shouldEnableFRT)
                 {
-                    if ([self updateFRTSettings:YES context:context error:&updateError])
-                    {
-                        newStatus = MSIDIsFRTEnabledStatusEnabled;
-                    }
-                }
-                else if ([self updateFRTSettings:NO context:context error:&updateError])
-                {
-                    newStatus = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+                    [self updateFRTSettings:YES context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusEnabled;
                 }
                 break;
                 
@@ -596,13 +593,12 @@ static BOOL s_disableFRT = NO;
             case MSIDIsFRTEnabledStatusDisabledByDeserializationError:
                 if (shouldEnableFRT)
                 {
-                    if ([self updateFRTSettings:YES context:context error:&updateError])
-                    {
-                        newStatus = MSIDIsFRTEnabledStatusEnabled;
-                    }
+                    [self updateFRTSettings:YES context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusEnabled;
                 }
-                else if ([self updateFRTSettings:NO context:context error:&updateError])
+                else if (shouldDisableFRT)
                 {
+                    [self updateFRTSettings:NO context:context error:&updateError];
                     newStatus = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
                 }
                 break;
@@ -611,9 +607,13 @@ static BOOL s_disableFRT = NO;
             case MSIDIsFRTEnabledStatusEnabled:
                 if (shouldDisableFRT)
                 {
-                    if ([self updateFRTSettings:NO context:context error:&updateError])
+                    [self updateFRTSettings:NO context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+
+                    if (updateError)
                     {
-                        newStatus = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+                        // Even if there was an error updating the item, we should still return Disabled so that the feature is not active.
+                        status = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
                     }
                 }
                 break;
@@ -622,10 +622,8 @@ static BOOL s_disableFRT = NO;
             case MSIDIsFRTEnabledStatusDisabledByKeychainItem:
                 if (shouldEnableFRT)
                 {
-                    if ([self updateFRTSettings:YES context:context error:&updateError])
-                    {
-                        newStatus = MSIDIsFRTEnabledStatusEnabled;
-                    }
+                    [self updateFRTSettings:YES context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusEnabled;
                 }
                 break;
                 
@@ -641,6 +639,7 @@ static BOOL s_disableFRT = NO;
         if (updateError)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error when trying to update FRT settings, error: %@", updateError);
+            newStatus = status;
         }
         
         return newStatus;
@@ -692,7 +691,7 @@ static BOOL s_disableFRT = NO;
     return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusDisabledByKeychainItem);
 }
 
-- (BOOL)updateFRTSettings:(BOOL)enableFRT
+- (void)updateFRTSettings:(BOOL)enableFRT
                   context:(nullable id<MSIDRequestContext>)context
                     error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
@@ -703,22 +702,13 @@ static BOOL s_disableFRT = NO;
     NSError *saveError = nil;
     MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:settings error:&saveError];
 
-    if (!jsonObject)
-    {
-        if (error)
-        {
-            *error = saveError;
-        }
-        return NO;
-    }
-
-    BOOL saveSucceeded = [_dataSource saveJsonObject:jsonObject
-                                          serializer:[MSIDCacheItemJsonSerializer new]
-                                                 key:[MSIDAccountCredentialCache checkFRTCacheKey]
-                                             context:context
-                                               error:&saveError];
+    [_dataSource saveJsonObject:jsonObject
+                     serializer:[MSIDCacheItemJsonSerializer new]
+                            key:[MSIDAccountCredentialCache checkFRTCacheKey]
+                        context:context
+                          error:&saveError];
     
-    if (!saveSucceeded)
+    if (saveError)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to save FRT cache entry, error: %@", saveError);
         if (error)
@@ -726,8 +716,6 @@ static BOOL s_disableFRT = NO;
             *error = saveError;
         }
     }
-
-    return saveSucceeded;
 }
 
 + (void)setDisableFRT:(BOOL)disableFRT
