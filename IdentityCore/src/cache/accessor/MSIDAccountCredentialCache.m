@@ -610,7 +610,7 @@ static BOOL s_disableFRT = NO;
                 {
                     [self updateFRTSettings:NO context:context error:&updateError];
                     newStatus = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
-
+                    
                     if (updateError)
                     {
                         // Even if there was an error updating the item, we should still return Disabled so that the feature is not active.

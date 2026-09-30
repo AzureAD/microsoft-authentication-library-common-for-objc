@@ -1,5 +1,5 @@
 Version 2.16.1
-* Enable single FRT by default with the `disable_sfrt_v2` string kill flight; case-insensitive `on` disables it. Preserve the legacy `sfrt_v2` key for wire compatibility with older clients.
+* Enable single FRT by default, with `disable_sfrt_v2` as a kill switch.
 
 Version 2.16.0
 * Allow embedded webview hosts to intercept MDM enrollment URLs through the existing external browser-navigation callback, enabling post-enrollment JIT troubleshooting while preserving the normal enrollment request when no override is returned.
