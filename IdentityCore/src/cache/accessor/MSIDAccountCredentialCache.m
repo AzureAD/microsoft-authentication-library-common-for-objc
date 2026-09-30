@@ -565,7 +565,8 @@ static BOOL s_disableFRT = NO;
 - (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
-    // The legacy sfrt_v2 flight remains defined for wire compatibility but is not a behavior source.
+    // This block will be used to check feature flags and update FRT settings if needed, depending on the current status
+    // of the keychain item, avoiding an unnecessary read or update if status is the same
     MSIDIsFRTEnabledStatus (^checkFeatureFlagsAndReturn)(MSIDIsFRTEnabledStatus) = ^MSIDIsFRTEnabledStatus(MSIDIsFRTEnabledStatus status)
     {
         MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
