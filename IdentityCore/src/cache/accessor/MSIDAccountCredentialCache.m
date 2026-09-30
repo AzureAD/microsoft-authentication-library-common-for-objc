@@ -571,7 +571,7 @@ static BOOL s_disableFRT = NO;
         MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
         NSString *disableFRTStatus = [flightManager stringForKey:MSID_FLIGHT_DISABLE_SFRT_V2];
         BOOL shouldDisableFRT = disableFRTStatus
-            && [disableFRTStatus caseInsensitiveCompare:@"YES"] == NSOrderedSame;
+            && [disableFRTStatus caseInsensitiveCompare:@"on"] == NSOrderedSame;
         BOOL shouldEnableFRT = !shouldDisableFRT;
         MSIDIsFRTEnabledStatus newStatus = status;
         NSError *updateError = nil;
