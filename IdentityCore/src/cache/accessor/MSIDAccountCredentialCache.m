@@ -565,14 +565,13 @@ static BOOL s_disableFRT = NO;
 - (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
-    // Apply the kill switch, falling back to the legacy flight for payloads from older brokers.
+    // The legacy sfrt_v2 flight remains defined for wire compatibility but is not a behavior source.
     MSIDIsFRTEnabledStatus (^checkFeatureFlagsAndReturn)(MSIDIsFRTEnabledStatus) = ^MSIDIsFRTEnabledStatus(MSIDIsFRTEnabledStatus status)
     {
         MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
-        BOOL killSwitchEnabled = [flightManager boolForKey:MSID_FLIGHT_DISABLE_SFRT_V2];
-        NSString *legacyFRTStatus = [flightManager stringForKey:MSID_FLIGHT_CLIENT_SFRT_STATUS];
-        BOOL shouldDisableFRT = killSwitchEnabled
-            || (!killSwitchEnabled && [MSID_FRT_STATUS_DISABLED isEqualToString:legacyFRTStatus]);
+        NSString *disableFRTStatus = [flightManager stringForKey:MSID_FLIGHT_DISABLE_SFRT_V2];
+        BOOL shouldDisableFRT = disableFRTStatus
+            && [disableFRTStatus caseInsensitiveCompare:@"YES"] == NSOrderedSame;
         BOOL shouldEnableFRT = !shouldDisableFRT;
         MSIDIsFRTEnabledStatus newStatus = status;
         NSError *updateError = nil;
