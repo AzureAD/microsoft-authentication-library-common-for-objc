@@ -641,6 +641,21 @@ static BOOL s_disableFRT = NO;
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error when trying to update FRT settings, error: %@", updateError);
             newStatus = status;
         }
+
+        if (newStatus == MSIDIsFRTEnabledStatusEnabled && status != MSIDIsFRTEnabledStatusEnabled)
+        {
+            NSError *verificationError = nil;
+            NSArray<MSIDJsonObject *> *savedSettings = [self->_dataSource jsonObjectsWithKey:[MSIDAccountCredentialCache checkFRTCacheKey]
+                                                                                     serializer:[MSIDCacheItemJsonSerializer new]
+                                                                                        context:context
+                                                                                          error:&verificationError];
+            NSDictionary *savedDictionary = [savedSettings.firstObject jsonDictionary];
+            if (verificationError || ![savedDictionary msidBoolObjectForKey:MSID_USE_SINGLE_FRT_KEY])
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"FRT setting was not persisted as enabled, error: %@", verificationError);
+                newStatus = status;
+            }
+        }
         
         return newStatus;
     };
