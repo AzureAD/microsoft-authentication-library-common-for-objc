@@ -3122,7 +3122,7 @@
 
 - (void)testCheckFRTEnabled_whenKillSwitchIsOffAndLegacyFlightSaysDisabled_shouldIgnoreLegacyAndEnable
 {
-    [self setSfrtFlightMockDisableStatus:@"off" legacyStatus:MSID_FRT_STATUS_DISABLED];
+    [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_DISABLED legacyStatus:MSID_FRT_STATUS_DISABLED];
 
     MSIDBasicContext *context = [MSIDBasicContext new];
     [MSIDAccountCredentialCache setDisableFRT:NO];
@@ -3136,7 +3136,7 @@
 
 - (void)testCheckFRTEnabled_whenKillSwitchIsOn_shouldDisableAndPersist
 {
-    [self setSfrtFlightMockDisableStatus:@"on" legacyStatus:nil];
+    [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_ENABLED legacyStatus:nil];
 
     MSIDBasicContext *context = [MSIDBasicContext new];
     [MSIDAccountCredentialCache setDisableFRT:NO];
@@ -3193,7 +3193,7 @@
 
 - (void)testCheckFRTEnabled_whenCachedSettingIsEnabledAndKillSwitchIsEnabled_shouldDisableAndPersist
 {
-    [self setSfrtFlightMockDisableStatus:@"on" legacyStatus:nil];
+    [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_ENABLED legacyStatus:nil];
 
     MSIDBasicContext *context = [MSIDBasicContext new];
     [MSIDAccountCredentialCache setDisableFRT:NO];
@@ -3208,7 +3208,7 @@
 
 - (void)testCheckFRTEnabled_whenWriteToDisableEnabledFRTFails_shouldKeepEnabledStatusAndPersistedValue
 {
-    [self setSfrtFlightMockDisableStatus:@"on" legacyStatus:nil];
+    [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_ENABLED legacyStatus:nil];
     MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
     self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
     [self saveFRTSetting:YES];
@@ -3225,7 +3225,7 @@
 
 - (void)testCheckFRTEnabled_whenWriteToEnableDisabledFRTFails_shouldKeepDisabledStatusAndPersistedValue
 {
-    [self setSfrtFlightMockDisableStatus:@"off" legacyStatus:nil];
+    [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_DISABLED legacyStatus:nil];
     MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
     self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
     [self saveFRTSetting:NO];
