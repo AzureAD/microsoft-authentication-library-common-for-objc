@@ -3078,7 +3078,7 @@
     XCTAssertEqualObjects([self persistedFRTSetting], @YES);
 }
 
-- (void)testCheckFRTEnabled_whenLegacyFlightSaysDisabledAndKillSwitchIsAbsent_shouldEnableAndPersist
+- (void)testCheckFRTEnabled_whenLegacyFlightSaysDisabledAndKillSwitchIsAbsent_shouldDisableAndPersist
 {
     [self setSfrtFlightMockDisabled:NO legacyStatus:MSID_FRT_STATUS_DISABLED];
 
@@ -3088,8 +3088,22 @@
     NSError *error = nil;
     MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
-    XCTAssertEqualObjects([self persistedFRTSetting], @YES);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+    XCTAssertEqualObjects([self persistedFRTSetting], @NO);
+}
+
+- (void)testCheckFRTEnabled_whenKillSwitchIsEnabledAndLegacyFlightSaysEnabled_shouldDisableAndPersist
+{
+    [self setSfrtFlightMockDisabled:YES legacyStatus:MSID_FRT_STATUS_ENABLED];
+
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+    XCTAssertEqualObjects([self persistedFRTSetting], @NO);
 }
 
 - (void)testCheckFRTEnabled_whenKillSwitchIsEnabledAndNoItemInCache_shouldDisableAndPersist
