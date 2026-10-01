@@ -88,6 +88,14 @@
             reasons[@"ssoExtensionAvailability"] = reason;
         }
     }
+    if ((self.brokerAvailability == MSIDOnboardingReadinessStateUnknown
+         && !reasons[@"brokerAvailability"])
+        || (self.ssoExtensionAvailability == MSIDOnboardingReadinessStateUnknown
+            && !reasons[@"ssoExtensionAvailability"]))
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to serialize onboarding readiness unknown reason.");
+        return nil;
+    }
     if (reasons.count)
     {
         result[@"unknownReasons"] = [reasons copy];
