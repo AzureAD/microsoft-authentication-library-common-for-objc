@@ -142,18 +142,26 @@
 
 - (void)setUp
 {
-    id<MSIDExtendedTokenCacheDataSource> dataSource = nil;
+    [super setUp];
 
+    id<MSIDExtendedTokenCacheDataSource> dataSource = nil;
+    NSString *testName = NSStringFromSelector(self.invocation.selector);
+    if ([testName hasPrefix:@"testCheckFRTEnabled"])
+    {
+        dataSource = [MSIDFailingFRTCacheDataSource new];
+    }
+    else
+    {
 #if !TARGET_OS_OSX
-    dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
+        dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
 #else
-    // TODO: this should be replaced with a real macOS datasource instead
-    dataSource = [[MSIDTestCacheDataSource alloc] init];
+        // TODO: this should be replaced with a real macOS datasource instead
+        dataSource = [[MSIDTestCacheDataSource alloc] init];
 #endif
+    }
 
     self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
     self.originalFlightProvider = [MSIDFlightManager sharedInstance].flightProvider;
-    [super setUp];
 }
 
 - (void)tearDown
@@ -3386,8 +3394,7 @@
 - (void)testCheckFRTEnabled_whenWriteToDisableEnabledFRTFails_shouldDisableForCallButKeepPersistedValue
 {
     [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_ENABLED legacyStatus:nil];
-    MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
-    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    MSIDFailingFRTCacheDataSource *dataSource = (MSIDFailingFRTCacheDataSource *)self.cache.dataSource;
     [self saveFRTSetting:YES];
     dataSource.failFRTWrites = YES;
 
@@ -3403,8 +3410,7 @@
 - (void)testCheckFRTEnabled_whenWriteToEnableDisabledFRTFails_shouldKeepDisabledStatusAndPersistedValue
 {
     [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_DISABLED legacyStatus:nil];
-    MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
-    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    MSIDFailingFRTCacheDataSource *dataSource = (MSIDFailingFRTCacheDataSource *)self.cache.dataSource;
     [self saveFRTSetting:NO];
     dataSource.failFRTWrites = YES;
 
@@ -3420,8 +3426,7 @@
 - (void)testCheckFRTEnabled_whenEnableWriteFailsWithoutError_shouldKeepPriorStatus
 {
     [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_DISABLED legacyStatus:nil];
-    MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
-    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    MSIDFailingFRTCacheDataSource *dataSource = (MSIDFailingFRTCacheDataSource *)self.cache.dataSource;
     dataSource.failFRTWrites = YES;
     dataSource.failFRTWritesWithoutError = YES;
 
@@ -3438,8 +3443,7 @@
 - (void)testCheckFRTEnabled_whenEnableWriteFromDisabledStateFailsWithoutError_shouldKeepDisabledStatusAndPersistence
 {
     [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_DISABLED legacyStatus:nil];
-    MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
-    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    MSIDFailingFRTCacheDataSource *dataSource = (MSIDFailingFRTCacheDataSource *)self.cache.dataSource;
     [self saveFRTSetting:NO];
     dataSource.failFRTWrites = YES;
     dataSource.failFRTWritesWithoutError = YES;
@@ -3457,8 +3461,7 @@
 - (void)testCheckFRTEnabled_whenEnableWriteFromDeserializationErrorFailsWithoutError_shouldKeepPriorStatus
 {
     [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_DISABLED legacyStatus:nil];
-    MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
-    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    MSIDFailingFRTCacheDataSource *dataSource = (MSIDFailingFRTCacheDataSource *)self.cache.dataSource;
 
     NSError *saveError = nil;
     MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:@{@"invalid": @NO} error:&saveError];
@@ -3565,8 +3568,7 @@
 - (void)testCheckFRTEnabled_whenItemInCacheInvalidAndEnableWriteFails_shouldKeepDeserializationErrorAndNotOverwriteCache
 {
     [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_DISABLED legacyStatus:nil];
-    MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
-    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    MSIDFailingFRTCacheDataSource *dataSource = (MSIDFailingFRTCacheDataSource *)self.cache.dataSource;
 
     NSError *saveError = nil;
     NSDictionary *json = @{@"some_key": @(123)};
@@ -3596,8 +3598,7 @@
 - (void)testCheckFRTEnabled_whenItemInCacheInvalidAndDisableWriteFails_shouldKeepDeserializationErrorAndNotOverwriteCache
 {
     [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_ENABLED legacyStatus:nil];
-    MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
-    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    MSIDFailingFRTCacheDataSource *dataSource = (MSIDFailingFRTCacheDataSource *)self.cache.dataSource;
 
     NSError *saveError = nil;
     NSDictionary *json = @{@"some_key": @(123)};
@@ -3627,8 +3628,7 @@
 - (void)testCheckFRTEnabled_whenDisableWriteFromEnabledStateFailsWithoutError_shouldDisableStatus
 {
     [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_ENABLED legacyStatus:nil];
-    MSIDFailingFRTCacheDataSource *dataSource = [MSIDFailingFRTCacheDataSource new];
-    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    MSIDFailingFRTCacheDataSource *dataSource = (MSIDFailingFRTCacheDataSource *)self.cache.dataSource;
     [self saveFRTSetting:YES];
     dataSource.failFRTWrites = YES;
     dataSource.failFRTWritesWithoutError = YES;
