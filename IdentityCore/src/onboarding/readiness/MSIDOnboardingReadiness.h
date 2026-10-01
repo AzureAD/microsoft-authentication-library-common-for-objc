@@ -52,6 +52,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) MSIDOnboardingReadinessUnknownReason brokerUnknownReason;
 @property (nonatomic, readonly) MSIDOnboardingReadinessUnknownReason ssoExtensionUnknownReason;
 
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
 - (instancetype)initWithBrokerAvailability:(MSIDOnboardingReadinessState)brokerAvailability
                        brokerUnknownReason:(MSIDOnboardingReadinessUnknownReason)brokerUnknownReason
                   ssoExtensionAvailability:(MSIDOnboardingReadinessState)ssoExtensionAvailability
