@@ -42,6 +42,7 @@
 #import "MSIDJsonObject.h"
 #import "MSIDConstants.h"
 #import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDCacheKey.h"
 #if !AD_BROKER
@@ -131,6 +132,7 @@
 @interface MSIDAccountCredentialsCacheTests : XCTestCase
 
 @property (nonatomic) MSIDAccountCredentialCache *cache;
+@property (nonatomic) id<MSIDFlightManagerInterface> originalFlightProvider;
 
 @end
 
@@ -150,11 +152,13 @@
 #endif
 
     self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    self.originalFlightProvider = [MSIDFlightManager sharedInstance].flightProvider;
     [super setUp];
 }
 
 - (void)tearDown
 {
+    [MSIDFlightManager sharedInstance].flightProvider = self.originalFlightProvider;
     [MSIDTestSwizzle reset];
     [self cleanCache];
     [super tearDown];
@@ -3475,9 +3479,9 @@
 
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByDeserializationError);
     XCTAssertEqualObjects([dataSource jsonObjectsWithKey:[self checkFRTCacheKey]
-                                               serializer:[MSIDCacheItemJsonSerializer new]
-                                                  context:nil
-                                                    error:nil].firstObject.jsonDictionary, @{@"invalid": @NO});
+                                              serializer:[MSIDCacheItemJsonSerializer new]
+                                                 context:nil
+                                                   error:nil].firstObject.jsonDictionary, @{@"invalid": @NO});
     XCTAssertNil(error);
 }
 
@@ -3795,17 +3799,19 @@
 
 - (void)setSfrtFlightMockDisableStatus:(NSString *)disableSfrtV2Status legacyStatus:(NSString *)legacyStatus
 {
-    [MSIDTestSwizzle instanceMethod:@selector(stringForKey:)
-                              class:[MSIDFlightManager class]
-                              block:(id)^(__unused id *obj, NSString *flightKey)
-     {
-        if ([flightKey isEqualToString:MSID_FLIGHT_DISABLE_SFRT_V2])
-        {
-            return disableSfrtV2Status;
-        }
+    NSMutableDictionary *flightContainer = [NSMutableDictionary new];
+    if (disableSfrtV2Status)
+    {
+        flightContainer[MSID_FLIGHT_DISABLE_SFRT_V2] = disableSfrtV2Status;
+    }
+    if (legacyStatus)
+    {
+        flightContainer[MSID_FLIGHT_CLIENT_SFRT_STATUS] = legacyStatus;
+    }
 
-        return [flightKey isEqualToString:MSID_FLIGHT_CLIENT_SFRT_STATUS] ? legacyStatus : nil;
-     }];
+    MSIDFlightManagerMockProvider *mockProvider = [MSIDFlightManagerMockProvider new];
+    mockProvider.stringForKeyContainer = flightContainer;
+    [MSIDFlightManager sharedInstance].flightProvider = mockProvider;
 }
 
 - (void)saveFRTSetting:(BOOL)enabled
