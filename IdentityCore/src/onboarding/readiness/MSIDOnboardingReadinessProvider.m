@@ -48,36 +48,44 @@
 
 - (instancetype)init
 {
-    return [self initWithAppExtensionProbe:^BOOL
-    {
 #if TARGET_OS_IPHONE
+    BOOL (^appExtensionProbe)(void) = ^BOOL
+    {
         NSString *bundlePath = [NSBundle mainBundle].bundlePath;
         // The compliant-extension override permits some APIs, but cannot make broker presence observable.
         return [MSIDAppExtensionUtil isExecutingInAppExtension]
             || !bundlePath.length
             || [bundlePath hasSuffix:@".appex"];
-#else
-        return NO;
-#endif
-    } querySchemesProbe:^BOOL
+    };
+    BOOL (^querySchemesProbe)(void) = ^BOOL
     {
-#if TARGET_OS_IPHONE
         return [MSIDRedirectUriVerifier verifyAdditionalRequiredSchemesAreRegistered:nil];
-#else
-        return NO;
-#endif
-    } brokerProbe:^NSNumber *
+    };
+    // A nil probe result is unobservable; @NO is a trustworthy negative.
+    NSNumber * _Nullable (^brokerProbe)(void) = ^NSNumber *
     {
-#if TARGET_OS_IPHONE
         MSIDBrokerInvocationOptions *options = [[MSIDBrokerInvocationOptions alloc]
             initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithNonceSupport
                           protocolType:MSIDBrokerProtocolTypeCustomScheme
                      aadRequestVersion:MSIDBrokerAADRequestVersionV2];
         return options ? @(options.isRequiredBrokerPresent) : nil;
+    };
 #else
+    BOOL (^appExtensionProbe)(void) = ^BOOL
+    {
+        return NO;
+    };
+    BOOL (^querySchemesProbe)(void) = ^BOOL
+    {
+        return NO;
+    };
+    NSNumber * _Nullable (^brokerProbe)(void) = ^NSNumber *
+    {
         return nil;
+    };
 #endif
-    } ssoExtensionProbe:^NSNumber *
+
+    NSNumber * _Nullable (^ssoExtensionProbe)(void) = ^NSNumber *
     {
 #if MSID_ENABLE_SSO_EXTENSION && !TARGET_OS_VISION
         if (@available(iOS 13.0, macOS 10.15, *))
@@ -92,7 +100,12 @@
         }
 #endif
         return nil;
-    }];
+    };
+
+    return [self initWithAppExtensionProbe:appExtensionProbe
+                        querySchemesProbe:querySchemesProbe
+                              brokerProbe:brokerProbe
+                        ssoExtensionProbe:ssoExtensionProbe];
 }
 
 - (instancetype)initWithAppExtensionProbe:(BOOL (^)(void))appExtensionProbe
