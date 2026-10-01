@@ -2213,6 +2213,9 @@
 		FAC100010000000000000009 /* MSIDWebCPOnboardingReadinessContract.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000016 /* MSIDWebCPOnboardingReadinessContract.m */; };
 		FAC10001000000000000000A /* MSIDOnboardingReadinessProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000017 /* MSIDOnboardingReadinessProviderTests.m */; };
 		FAC10001000000000000000B /* MSIDWebCPOnboardingReadinessContractTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000018 /* MSIDWebCPOnboardingReadinessContractTests.m */; };
+		FAC10001000000000000000C /* MSIDOnboardingReadiness.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000011 /* MSIDOnboardingReadiness.h */; };
+		FAC10001000000000000000D /* MSIDOnboardingReadinessProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000012 /* MSIDOnboardingReadinessProvider.h */; };
+		FAC10001000000000000000E /* MSIDWebCPOnboardingReadinessContract.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000013 /* MSIDWebCPOnboardingReadinessContract.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -6592,6 +6595,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAC10001000000000000000C /* MSIDOnboardingReadiness.h in Headers */,
+				FAC10001000000000000000D /* MSIDOnboardingReadinessProvider.h in Headers */,
+				FAC10001000000000000000E /* MSIDWebCPOnboardingReadinessContract.h in Headers */,
 				73D7C94FBD27C5CA3480B739 /* MSIDDIContainer.h in Headers */,
 				AE6838E26F5648EFAB74A481 /* MSIDThrottlingRefreshing.h in Headers */,
 				B4134C1C2FEA3E410037FE68 /* MSIDMobileOnboardingState.h in Headers */,
