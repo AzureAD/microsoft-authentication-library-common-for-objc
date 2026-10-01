@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDOnboardingReadinessProvider : NSObject
 
 // A host that cannot safely probe a fact receives unknown; the other fact is still evaluated.
+// Broker probing synchronously uses the main thread when called from a background thread.
 - (MSIDOnboardingReadiness *)readiness;
 
 // Probe blocks allow the host preconditions and platform observations to be tested independently.

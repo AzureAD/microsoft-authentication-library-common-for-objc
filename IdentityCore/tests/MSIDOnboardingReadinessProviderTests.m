@@ -110,7 +110,28 @@
     XCTAssertEqual(readiness.ssoExtensionAvailability, MSIDOnboardingReadinessStateAvailable);
 }
 
-#if !AD_BROKER
+- (void)testReadiness_whenCalledOffMainThread_shouldProbeBrokerOnMainThread
+{
+    __block BOOL brokerProbedOnMainThread = NO;
+    __block MSIDOnboardingReadiness *readiness = nil;
+    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
+        initWithAppExtensionProbe:^{ return NO; }
+                  querySchemesProbe:^{ return YES; }
+                        brokerProbe:^{
+                            brokerProbedOnMainThread = [NSThread isMainThread];
+                            return @YES;
+                        }
+                  ssoExtensionProbe:^{ return @NO; }];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Background readiness completes"];
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+        readiness = provider.readiness;
+        [expectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+    XCTAssertTrue(brokerProbedOnMainThread);
+    XCTAssertEqual(readiness.brokerAvailability, MSIDOnboardingReadinessStateAvailable);
+}
+
 - (void)testReadiness_whenRequiredBrokerSchemesPresent_shouldUseNonceCapableBrokerProbe
 {
     [MSIDTestBundle overrideObject:@[@"msauthv2", @"msauthv3"] forKey:@"LSApplicationQueriesSchemes"];
@@ -131,7 +152,6 @@
     XCTAssertEqual(readiness.brokerAvailability, MSIDOnboardingReadinessStateUnknown);
     XCTAssertEqual(readiness.brokerUnknownReason, MSIDOnboardingReadinessUnknownReasonMissingQuerySchemeConfiguration);
 }
-#endif
 #endif
 
 - (void)testReadiness_whenSSOPlatformProbeUnavailable_shouldReportUnknown

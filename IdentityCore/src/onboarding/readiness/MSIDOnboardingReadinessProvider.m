@@ -26,8 +26,8 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDOnboardingReadinessProvider.h"
+#import "MSIDBrokerConstants.h"
 #import "MSIDBrokerInvocationOptions.h"
-#import "MSIDRedirectUriVerifier.h"
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #endif
@@ -59,7 +59,11 @@
     };
     BOOL (^querySchemesProbe)(void) = ^BOOL
     {
-        return [MSIDRedirectUriVerifier verifyAdditionalRequiredSchemesAreRegistered:nil];
+        // The redirect verifier skips this check in Broker builds, but readiness needs an observable result.
+        NSArray *querySchemes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LSApplicationQueriesSchemes"];
+        return [querySchemes isKindOfClass:[NSArray class]]
+            && [querySchemes containsObject:MSID_BROKER_MSAL_SCHEME]
+            && [querySchemes containsObject:MSID_BROKER_NONCE_SCHEME];
     };
     // A nil probe result is unobservable; @NO is a trustworthy negative.
     NSNumber * _Nullable (^brokerProbe)(void) = ^NSNumber *
@@ -140,7 +144,17 @@
     }
     else
     {
-        NSNumber *present = self.brokerProbe();
+        __block NSNumber *present = nil;
+        if ([NSThread isMainThread])
+        {
+            present = self.brokerProbe();
+        }
+        else
+        {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                present = self.brokerProbe();
+            });
+        }
         if (present)
         {
             brokerState = present.boolValue ? MSIDOnboardingReadinessStateAvailable : MSIDOnboardingReadinessStateUnavailable;
