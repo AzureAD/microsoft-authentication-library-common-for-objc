@@ -228,6 +228,7 @@ extern NSString * _Nonnull const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH;
 extern NSString * _Nonnull const MSID_FLIGHT_CLIENT_SFRT_STATUS;
+extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_SFRT_V2;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA;
 /**
  Enable stricter host validation for the macOS CBA preferred-identity fallback.
