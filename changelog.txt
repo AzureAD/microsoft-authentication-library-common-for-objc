@@ -1,5 +1,5 @@
 Version 2.16.1
-* Enable single FRT by default with the per-tenant `disable_sfrt_v2` kill flight in Broker; preserve `sfrt_v2` behavior for external clients.
+* Enable single FRT by default and honor the per-tenant `disable_sfrt_v2` kill flight in Broker.
 
 Version 2.16.0
 * Allow embedded webview hosts to intercept MDM enrollment URLs through the existing external browser-navigation callback, enabling post-enrollment JIT troubleshooting while preserving the normal enrollment request when no override is returned.

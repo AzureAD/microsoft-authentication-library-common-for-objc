@@ -586,27 +586,13 @@ static BOOL s_disableFRT = NO;
             flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId
                                                                 keyType:MSIDFlightManagerQueryKeyTypeTenantId];
         }
+#endif
         // Check the SFRT kill flight, ignoring case. Possible values:
         // - "on": disables SFRT
         // - "off", nil, empty, or any other value: enables SFRT
         NSString *disableSFRTFlagStatus = [flightManager stringForKey:MSID_FLIGHT_DISABLE_SFRT_V2];
         BOOL shouldDisableFRT = disableSFRTFlagStatus && [disableSFRTFlagStatus caseInsensitiveCompare:@"on"] == NSOrderedSame;
         BOOL shouldEnableFRT = !shouldDisableFRT;
-#else
-        // Check if FRT is enabled by feature flight, possible values:
-        // - MSID_FRT_STATUS_ENABLED => "on": FRT will be enabled
-        // - MSID_FRT_STATUS_DISABLED => "off": FRT will be disabled
-        // - nil, empty or any other value: no change to FRT
-        NSString *flagEnableFRT = [flightManager stringForKey:MSID_FLIGHT_CLIENT_SFRT_STATUS];
-        BOOL shouldEnableFRT = [MSID_FRT_STATUS_ENABLED isEqualToString:flagEnableFRT];
-        BOOL shouldDisableFRT = [MSID_FRT_STATUS_DISABLED isEqualToString:flagEnableFRT];
-
-        if ([NSString msidIsStringNilOrBlank:flagEnableFRT] || (!shouldEnableFRT && !shouldDisableFRT))
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT flight set to keep current status: %ld", (long)status);
-            return status;
-        }
-#endif
         MSIDIsFRTEnabledStatus newStatus = status;
         NSError *updateError = nil;
         

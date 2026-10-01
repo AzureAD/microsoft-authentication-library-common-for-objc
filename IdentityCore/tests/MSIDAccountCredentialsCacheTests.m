@@ -3186,7 +3186,6 @@
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByClientApp);
 }
 
-#if AD_BROKER
 - (void)testCheckFRTEnabled_whenNoItemInCacheAndKillSwitchIsAbsent_shouldEnableAndPersist
 {
     MSIDBasicContext *context = [MSIDBasicContext new];
@@ -3389,65 +3388,6 @@
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
     XCTAssertEqualObjects([self persistedFRTSetting], @YES);
 }
-#else
-- (void)testCheckFRTEnabled_whenClientHasNoFlights_shouldLeaveMissingItemAbsent
-{
-    [self setSfrtFlightMockDisableStatus:nil legacyStatus:nil];
-    [MSIDAccountCredentialCache setDisableFRT:NO];
-
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:[MSIDBasicContext new] error:nil];
-
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusNotEnabled);
-    XCTAssertNil([self persistedFRTSetting]);
-}
-
-- (void)testCheckFRTEnabled_whenClientReceivesLegacyOn_shouldEnableAndPersist
-{
-    [self setSfrtFlightMockDisableStatus:nil legacyStatus:MSID_FRT_STATUS_ENABLED];
-    [MSIDAccountCredentialCache setDisableFRT:NO];
-
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:[MSIDBasicContext new] error:nil];
-
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
-    XCTAssertEqualObjects([self persistedFRTSetting], @YES);
-}
-
-- (void)testCheckFRTEnabled_whenClientReceivesLegacyOff_shouldDisableAndPersist
-{
-    [self setSfrtFlightMockDisableStatus:nil legacyStatus:MSID_FRT_STATUS_DISABLED];
-    [MSIDAccountCredentialCache setDisableFRT:NO];
-    [self saveFRTSetting:YES];
-
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:[MSIDBasicContext new] error:nil];
-
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
-    XCTAssertEqualObjects([self persistedFRTSetting], @NO);
-}
-
-- (void)testCheckFRTEnabled_whenClientReceivesOnlyNewKillFlight_shouldIgnoreIt
-{
-    [self setSfrtFlightMockDisableStatus:MSID_FRT_STATUS_ENABLED legacyStatus:nil];
-    [MSIDAccountCredentialCache setDisableFRT:NO];
-    [self saveFRTSetting:YES];
-
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:[MSIDBasicContext new] error:nil];
-
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
-    XCTAssertEqualObjects([self persistedFRTSetting], @YES);
-}
-
-- (void)testCheckFRTEnabled_whenClientReceivesUnknownLegacyFlight_shouldKeepDisabledSetting
-{
-    [self setSfrtFlightMockDisableStatus:nil legacyStatus:@"ON"];
-    [MSIDAccountCredentialCache setDisableFRT:NO];
-    [self saveFRTSetting:NO];
-
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:[MSIDBasicContext new] error:nil];
-
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
-    XCTAssertEqualObjects([self persistedFRTSetting], @NO);
-}
-#endif
 
 #pragma mark - Helpers
 
