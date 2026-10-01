@@ -40,10 +40,6 @@
 #import "MSIDConstants.h"
 #import "MSIDJsonObject.h"
 #import "MSIDFlightManager.h"
-#if AD_BROKER
-#import "MSIDRequestParameters.h"
-#import "MSIDAccountIdentifier.h"
-#endif
 
 @interface MSIDAccountCredentialCache()
 {
@@ -573,24 +569,10 @@ static BOOL s_disableFRT = NO;
     // of the keychain item, avoiding an unnecessary read or update if status is the same
     MSIDIsFRTEnabledStatus (^checkFeatureFlagsAndReturn)(MSIDIsFRTEnabledStatus) = ^MSIDIsFRTEnabledStatus(MSIDIsFRTEnabledStatus status)
     {
-        MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
-#if AD_BROKER
-        NSString *tenantId = nil;
-        if ([(NSObject *)context isKindOfClass:[MSIDRequestParameters class]])
-        {
-            tenantId = ((MSIDRequestParameters *)context).accountIdentifier.utid;
-        }
-
-        if (tenantId.length > 0)
-        {
-            flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId
-                                                                keyType:MSIDFlightManagerQueryKeyTypeTenantId];
-        }
-#endif
         // Check the SFRT kill flight, ignoring case. Possible values:
         // - "on": disables SFRT
         // - "off", nil, empty, or any other value: enables SFRT
-        NSString *disableSFRTFlagStatus = [flightManager stringForKey:MSID_FLIGHT_DISABLE_SFRT_V2];
+        NSString *disableSFRTFlagStatus = [[MSIDFlightManager sharedInstance] stringForKey:MSID_FLIGHT_DISABLE_SFRT_V2];
         BOOL shouldDisableFRT = disableSFRTFlagStatus && [disableSFRTFlagStatus caseInsensitiveCompare:@"on"] == NSOrderedSame;
         BOOL shouldEnableFRT = !shouldDisableFRT;
         MSIDIsFRTEnabledStatus newStatus = status;

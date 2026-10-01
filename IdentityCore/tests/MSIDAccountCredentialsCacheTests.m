@@ -44,6 +44,10 @@
 #import "MSIDFlightManager.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDCacheKey.h"
+#if !AD_BROKER
+#import "MSIDDeviceInfo.h"
+#import "MSIDBrokerConstants.h"
+#endif
 #if AD_BROKER
 #import "MSIDRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
@@ -3101,44 +3105,43 @@
 
 #pragma mark - checkFRTEnabled
 
-#if AD_BROKER
-- (void)testCheckFRTEnabled_whenBrokerRequestHasTenantId_shouldUseTenantScopedDisableFlight
+#if !AD_BROKER
+- (void)testCheckFRTEnabled_whenBrokerClientFlightsChange_shouldPersistBothTransitions
 {
-    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
-    id<MSIDFlightManagerInterface> originalFlightProvider = sharedFlightManager.flightProvider;
-    id<MSIDFlightManagerQueryKeyDelegate> originalQueryKeyFlightProvider = sharedFlightManager.queryKeyFlightProvider;
-
-    MSIDAccountCredentialCacheTestFlightProvider *sharedFlightProvider = [MSIDAccountCredentialCacheTestFlightProvider new];
-    sharedFlightProvider.disableSFRTStatus = MSID_FRT_STATUS_DISABLED;
-    MSIDAccountCredentialCacheTestFlightProvider *tenantFlightProvider = [MSIDAccountCredentialCacheTestFlightProvider new];
-    tenantFlightProvider.disableSFRTStatus = MSID_FRT_STATUS_ENABLED;
-    MSIDAccountCredentialCacheTestQueryKeyDelegate *queryKeyDelegate = [MSIDAccountCredentialCacheTestQueryKeyDelegate new];
-    queryKeyDelegate.flightProvider = tenantFlightProvider;
-    sharedFlightManager.flightProvider = sharedFlightProvider;
-    sharedFlightManager.queryKeyFlightProvider = queryKeyDelegate;
-
-    NSString *tenantId = [NSUUID UUID].UUIDString;
-    MSIDRequestParameters *requestParameters = [MSIDRequestParameters new];
-    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@example.com"
-                                                                                       homeAccountId:@"uid.utid"];
-    accountIdentifier.utid = tenantId;
-    requestParameters.accountIdentifier = accountIdentifier;
-
+    MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
+    id<MSIDFlightManagerInterface> originalFlightProvider = flightManager.flightProvider;
+    [MSIDAccountCredentialCache setDisableFRT:NO];
     [self saveFRTSetting:YES];
-    NSError *error = nil;
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:requestParameters error:&error];
 
-    sharedFlightManager.flightProvider = originalFlightProvider;
-    sharedFlightManager.queryKeyFlightProvider = originalQueryKeyFlightProvider;
+    @try
+    {
+        for (NSString *killStatus in @[@"on", @"off"])
+        {
+            NSDictionary *flights = @{MSID_FLIGHT_DISABLE_SFRT_V2: killStatus};
+            NSData *payloadData = [NSJSONSerialization dataWithJSONObject:flights options:0 error:nil];
+            NSString *payload = [payloadData base64EncodedStringWithOptions:0];
+            NSDictionary *deviceInfoJSON = @{MSID_BROKER_CLIENT_FLIGHTS_KEY: payload};
+            MSIDDeviceInfo *deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:deviceInfoJSON error:nil];
+            XCTAssertNotNil(deviceInfo);
 
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
-    XCTAssertEqualObjects([self persistedFRTSetting], @NO);
-    XCTAssertEqualObjects(queryKeyDelegate.requestedQueryKey, tenantId);
-    XCTAssertEqual(queryKeyDelegate.requestedKeyType, MSIDFlightManagerQueryKeyTypeTenantId);
-    XCTAssertNil(error);
+            NSError *error = nil;
+            MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:[MSIDBasicContext new] error:&error];
+
+            XCTAssertNil(error);
+            XCTAssertEqual(result, [killStatus isEqualToString:@"on"] ?
+                           MSIDIsFRTEnabledStatusDisabledByKeychainItem : MSIDIsFRTEnabledStatusEnabled);
+            XCTAssertEqualObjects([self persistedFRTSetting], [killStatus isEqualToString:@"on"] ? @NO : @YES);
+        }
+    }
+    @finally
+    {
+        flightManager.flightProvider = originalFlightProvider;
+    }
 }
+#endif
 
-- (void)testCheckFRTEnabled_whenTenantDisableFlightIsOff_shouldEnableAndPersistFRT
+#if AD_BROKER
+- (void)testCheckFRTEnabled_whenBrokerRequestHasTenantId_shouldUseSharedDisableFlight
 {
     MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
     id<MSIDFlightManagerInterface> originalFlightProvider = sharedFlightManager.flightProvider;
@@ -3160,6 +3163,41 @@
     accountIdentifier.utid = tenantId;
     requestParameters.accountIdentifier = accountIdentifier;
 
+    [self saveFRTSetting:YES];
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:requestParameters error:&error];
+
+    sharedFlightManager.flightProvider = originalFlightProvider;
+    sharedFlightManager.queryKeyFlightProvider = originalQueryKeyFlightProvider;
+
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+    XCTAssertEqualObjects([self persistedFRTSetting], @NO);
+    XCTAssertNil(queryKeyDelegate.requestedQueryKey);
+    XCTAssertNil(error);
+}
+
+- (void)testCheckFRTEnabled_whenSharedDisableFlightIsOff_shouldEnableAndPersistFRT
+{
+    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
+    id<MSIDFlightManagerInterface> originalFlightProvider = sharedFlightManager.flightProvider;
+    id<MSIDFlightManagerQueryKeyDelegate> originalQueryKeyFlightProvider = sharedFlightManager.queryKeyFlightProvider;
+
+    MSIDAccountCredentialCacheTestFlightProvider *sharedFlightProvider = [MSIDAccountCredentialCacheTestFlightProvider new];
+    sharedFlightProvider.disableSFRTStatus = MSID_FRT_STATUS_DISABLED;
+    MSIDAccountCredentialCacheTestFlightProvider *tenantFlightProvider = [MSIDAccountCredentialCacheTestFlightProvider new];
+    tenantFlightProvider.disableSFRTStatus = MSID_FRT_STATUS_ENABLED;
+    MSIDAccountCredentialCacheTestQueryKeyDelegate *queryKeyDelegate = [MSIDAccountCredentialCacheTestQueryKeyDelegate new];
+    queryKeyDelegate.flightProvider = tenantFlightProvider;
+    sharedFlightManager.flightProvider = sharedFlightProvider;
+    sharedFlightManager.queryKeyFlightProvider = queryKeyDelegate;
+
+    NSString *tenantId = [NSUUID UUID].UUIDString;
+    MSIDRequestParameters *requestParameters = [MSIDRequestParameters new];
+    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@example.com"
+                                                                                       homeAccountId:@"uid.utid"];
+    accountIdentifier.utid = tenantId;
+    requestParameters.accountIdentifier = accountIdentifier;
+
     [self saveFRTSetting:NO];
     NSError *error = nil;
     MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:requestParameters error:&error];
@@ -3169,8 +3207,7 @@
 
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
     XCTAssertEqualObjects([self persistedFRTSetting], @YES);
-    XCTAssertEqualObjects(queryKeyDelegate.requestedQueryKey, tenantId);
-    XCTAssertEqual(queryKeyDelegate.requestedKeyType, MSIDFlightManagerQueryKeyTypeTenantId);
+    XCTAssertNil(queryKeyDelegate.requestedQueryKey);
     XCTAssertNil(error);
 }
 #endif
