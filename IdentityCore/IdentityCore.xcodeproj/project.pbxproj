@@ -2216,6 +2216,9 @@
 		FAC10001000000000000000C /* MSIDOnboardingReadiness.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000011 /* MSIDOnboardingReadiness.h */; };
 		FAC10001000000000000000D /* MSIDOnboardingReadinessProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000012 /* MSIDOnboardingReadinessProvider.h */; };
 		FAC10001000000000000000E /* MSIDWebCPOnboardingReadinessContract.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000013 /* MSIDWebCPOnboardingReadinessContract.h */; };
+		FAC200010000000000000001 /* MSIDWebCPScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC200010000000000000011 /* MSIDWebCPScriptMessageHandler.h */; };
+		FAC200010000000000000002 /* MSIDWebCPScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC200010000000000000012 /* MSIDWebCPScriptMessageHandler.m */; };
+		FAC200010000000000000003 /* MSIDWebCPScriptMessageHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC200010000000000000013 /* MSIDWebCPScriptMessageHandlerTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3880,6 +3883,9 @@
 		FAC100010000000000000016 /* MSIDWebCPOnboardingReadinessContract.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebCPOnboardingReadinessContract.m; sourceTree = "<group>"; };
 		FAC100010000000000000017 /* MSIDOnboardingReadinessProviderTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOnboardingReadinessProviderTests.m; sourceTree = "<group>"; };
 		FAC100010000000000000018 /* MSIDWebCPOnboardingReadinessContractTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebCPOnboardingReadinessContractTests.m; sourceTree = "<group>"; };
+		FAC200010000000000000011 /* MSIDWebCPScriptMessageHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebCPScriptMessageHandler.h; sourceTree = "<group>"; };
+		FAC200010000000000000012 /* MSIDWebCPScriptMessageHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebCPScriptMessageHandler.m; sourceTree = "<group>"; };
+		FAC200010000000000000013 /* MSIDWebCPScriptMessageHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebCPScriptMessageHandlerTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5068,6 +5074,8 @@
 				B4FDC6F62F3EFFB600091B6C /* MSIDWebviewNavigationDecisionResolver.h */,
 				96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */,
 				96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */,
+				FAC200010000000000000011 /* MSIDWebCPScriptMessageHandler.h */,
+				FAC200010000000000000012 /* MSIDWebCPScriptMessageHandler.m */,
 				6057EE8E20B5FCF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.h */,
 				6057EE8F20B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m */,
 				60B3856D20AB3CDC00D546D0 /* ui */,
@@ -6329,6 +6337,7 @@
 			children = (
 				FAC100010000000000000017 /* MSIDOnboardingReadinessProviderTests.m */,
 				FAC100010000000000000018 /* MSIDWebCPOnboardingReadinessContractTests.m */,
+				FAC200010000000000000013 /* MSIDWebCPScriptMessageHandlerTests.m */,
 				72DB19CB30072077008AE594 /* MSIDDeviceTokenUtilTests.m */,
 				B2C758FE207EE58200C1FE74 /* automation */,
 				1EE8FF6424F4C0E600CA1445 /* File.swift */,
@@ -6978,6 +6987,7 @@
 				FAC100010000000000000001 /* MSIDOnboardingReadiness.h in Headers */,
 				FAC100010000000000000002 /* MSIDOnboardingReadinessProvider.h in Headers */,
 				FAC100010000000000000003 /* MSIDWebCPOnboardingReadinessContract.h in Headers */,
+				FAC200010000000000000001 /* MSIDWebCPScriptMessageHandler.h in Headers */,
 				B286B9B22389DD75007833AD /* MSIDWebOAuth2AuthCodeResponse.h in Headers */,
 				238EF042208FE88C0035ABE6 /* MSIDAADAuthorizationCodeGrantRequest.h in Headers */,
 				B28686C6240655EF004E83FC /* MSIDLoginKeychainUtil.h in Headers */,
@@ -7798,6 +7808,7 @@
 				583BFCB124D907410035B901 /* MSIDRedirectUriVerifierTests.m in Sources */,
 				FAC10001000000000000000A /* MSIDOnboardingReadinessProviderTests.m in Sources */,
 				FAC10001000000000000000B /* MSIDWebCPOnboardingReadinessContractTests.m in Sources */,
+				FAC200010000000000000003 /* MSIDWebCPScriptMessageHandlerTests.m in Sources */,
 				B2936F4F20AA908F0050C585 /* MSIDCredentialCacheItemTests.m in Sources */,
 				B2936F7520ABF4940050C585 /* MSIDIdTokenTests.m in Sources */,
 				B2936F9120AE913E0050C585 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */,
@@ -8943,6 +8954,7 @@
 				FAC100010000000000000004 /* MSIDOnboardingReadiness.m in Sources */,
 				FAC100010000000000000006 /* MSIDOnboardingReadinessProvider.m in Sources */,
 				FAC100010000000000000008 /* MSIDWebCPOnboardingReadinessContract.m in Sources */,
+				FAC200010000000000000002 /* MSIDWebCPScriptMessageHandler.m in Sources */,
 				600D19B620964D2F0004CD43 /* MSIDWorkPlaceJoinConstants.m in Sources */,
 				96B8D57B20946D2600E3F4A6 /* MSIDPkce.m in Sources */,
 				239FE696236A507700D846AC /* MSIDJsonSerializableTypes.m in Sources */,
