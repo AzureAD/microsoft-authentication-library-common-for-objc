@@ -1,5 +1,5 @@
 Version 2.16.0
-* Add a reply-capable WebCP onboarding-readiness handler to app-hosted iOS OAuth WebViews, including supplied WebViews, with narrow enrollment-origin checks and a disable flight. Reuse the versioned two-Boolean CommonCore provider and contract without changing Broker's existing script handler.
+* Add a reply-capable WebCP script handler to app-hosted iOS OAuth WebViews, including supplied WebViews, with narrow enrollment-origin checks and a readiness-specific disable flight. Reuse the versioned two-Boolean CommonCore provider and contract without changing Broker's existing script handler.
 * Add versioned native WebCP onboarding readiness with independent Boolean Broker and SSO-extension controller eligibility results for app-hosted requests.
 * Allow embedded webview hosts to intercept MDM enrollment URLs through the existing external browser-navigation callback, enabling post-enrollment JIT troubleshooting while preserving the normal enrollment request when no override is returned.
 * Preserve legacy browser-native-message GetToken response shaping for token-response-backed results: echo empty or whitespace-only state and UPN values, use the request UPN only when the response UPN is nil, and emit an empty properties dictionary when neither UPN nor MATS is present. Cache-only result shaping is unchanged.

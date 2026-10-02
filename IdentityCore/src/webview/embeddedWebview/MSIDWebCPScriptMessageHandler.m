@@ -5,7 +5,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebCPOnboardingReadinessScriptMessageHandler.h"
+#import "MSIDWebCPScriptMessageHandler.h"
 #import "MSIDWebCPOnboardingReadinessContract.h"
 #import "MSIDOnboardingReadinessProvider.h"
 #import "MSIDWebviewConstants.h"
@@ -13,10 +13,10 @@
 #import "MSIDConstants.h"
 #import <objc/runtime.h>
 
-NSString * const MSIDWebCPOnboardingReadinessScriptMessageHandlerName = @"msidWebCPOnboardingReadiness";
-static char MSIDWebCPOnboardingReadinessHandlerKey;
+NSString * const MSIDWebCPScriptMessageHandlerName = @"msidWebCP";
+static char MSIDWebCPHandlerKey;
 
-@interface MSIDWebCPOnboardingReadinessScriptMessageHandler ()
+@interface MSIDWebCPScriptMessageHandler ()
 
 @property (nonatomic, weak) WKUserContentController *contentController;
 @property (nonatomic) NSHashTable<WKWebView *> *webViews;
@@ -24,7 +24,7 @@ static char MSIDWebCPOnboardingReadinessHandlerKey;
 
 @end
 
-@implementation MSIDWebCPOnboardingReadinessScriptMessageHandler
+@implementation MSIDWebCPScriptMessageHandler
 
 + (instancetype)attachToWebView:(WKWebView *)webView
                readinessProvider:(MSIDOnboardingReadinessProvider *)provider
@@ -33,15 +33,15 @@ static char MSIDWebCPOnboardingReadinessHandlerKey;
     WKUserContentController *contentController = webView.configuration.userContentController;
     if (!contentController)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"WebCP readiness WebView has no user content controller.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"WebCP WebView has no user content controller.");
         return nil;
     }
 
-    MSIDWebCPOnboardingReadinessScriptMessageHandler *handler =
-        objc_getAssociatedObject(contentController, &MSIDWebCPOnboardingReadinessHandlerKey);
+    MSIDWebCPScriptMessageHandler *handler =
+        objc_getAssociatedObject(contentController, &MSIDWebCPHandlerKey);
     if (!handler)
     {
-        handler = [MSIDWebCPOnboardingReadinessScriptMessageHandler new];
+        handler = [MSIDWebCPScriptMessageHandler new];
         handler.contentController = contentController;
         handler.webViews = [NSHashTable weakObjectsHashTable];
         handler.readinessProvider = provider ?: [MSIDOnboardingReadinessProvider new];
@@ -49,7 +49,7 @@ static char MSIDWebCPOnboardingReadinessHandlerKey;
         {
             [contentController addScriptMessageHandlerWithReply:handler
                                                    contentWorld:WKContentWorld.pageWorld
-                                                           name:MSIDWebCPOnboardingReadinessScriptMessageHandlerName];
+                                                           name:MSIDWebCPScriptMessageHandlerName];
         }
         @catch (NSException *exception)
         {
@@ -57,10 +57,10 @@ static char MSIDWebCPOnboardingReadinessHandlerKey;
             {
                 @throw;
             }
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"WebCP readiness handler name is already in use.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"WebCP script handler name is already in use.");
             return nil;
         }
-        objc_setAssociatedObject(contentController, &MSIDWebCPOnboardingReadinessHandlerKey,
+        objc_setAssociatedObject(contentController, &MSIDWebCPHandlerKey,
                                  handler, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
@@ -73,16 +73,16 @@ static char MSIDWebCPOnboardingReadinessHandlerKey;
     NSAssert([NSThread isMainThread], @"WebKit handler removal must run on the main thread.");
     WKUserContentController *contentController = self.contentController;
     if (!contentController
-        || objc_getAssociatedObject(contentController, &MSIDWebCPOnboardingReadinessHandlerKey) != self)
+        || objc_getAssociatedObject(contentController, &MSIDWebCPHandlerKey) != self)
     {
         return;
     }
     [self.webViews removeObject:webView];
     if (self.webViews.count == 0)
     {
-        [contentController removeScriptMessageHandlerForName:MSIDWebCPOnboardingReadinessScriptMessageHandlerName
+        [contentController removeScriptMessageHandlerForName:MSIDWebCPScriptMessageHandlerName
                                                 contentWorld:WKContentWorld.pageWorld];
-        objc_setAssociatedObject(contentController, &MSIDWebCPOnboardingReadinessHandlerKey,
+        objc_setAssociatedObject(contentController, &MSIDWebCPHandlerKey,
                                  nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
@@ -113,28 +113,19 @@ contentController:(WKUserContentController *)contentController
     if (bundlePath.length == 0 || [bundlePath.pathExtension.lowercaseString isEqualToString:@"appex"]
         || contentController != self.contentController
         || ![self.webViews containsObject:webView]
-        || ![messageName isEqualToString:MSIDWebCPOnboardingReadinessScriptMessageHandlerName]
+        || ![messageName isEqualToString:MSIDWebCPScriptMessageHandlerName]
         || !fromMainFrame
         || ![sourceURL.scheme.lowercaseString isEqualToString:@"https"]
         || (sourceURL.port && sourceURL.port.integerValue != 443)
         || ![MSIDASWebAuthenticationConstants.asWebAuthAllowedDomains containsObject:host]
         || ![sourceURL.path hasPrefix:@"/enrollment/webenrollment/"])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Rejected WebCP readiness message from an unauthorized context.");
-        replyHandler(nil, @"WebCP readiness is not available in this context.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Rejected WebCP message from an unauthorized context.");
+        replyHandler(nil, @"WebCP bridge is not available in this context.");
         return;
     }
 
     NSString *correlationID = [MSIDWebCPOnboardingReadinessContract correlationIDForRequest:body generated:NULL];
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS])
-    {
-        replyHandler([MSIDWebCPOnboardingReadinessContract
-                      responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusNotSupported
-                      correlationID:correlationID
-                      readiness:nil], nil);
-        return;
-    }
-
     MSIDWebCPOnboardingReadinessRequestValidation validation =
         [MSIDWebCPOnboardingReadinessContract validateRequest:body];
     if (validation != MSIDWebCPOnboardingReadinessRequestValidationValid)
@@ -146,6 +137,15 @@ contentController:(WKUserContentController *)contentController
         replyHandler([MSIDWebCPOnboardingReadinessContract responseWithStatus:status
                                                                 correlationID:correlationID
                                                                     readiness:nil], nil);
+        return;
+    }
+
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS])
+    {
+        replyHandler([MSIDWebCPOnboardingReadinessContract
+                      responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusNotSupported
+                      correlationID:correlationID
+                      readiness:nil], nil);
         return;
     }
 

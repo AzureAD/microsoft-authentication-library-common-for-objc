@@ -6,7 +6,7 @@
 //------------------------------------------------------------------------------
 
 #import <XCTest/XCTest.h>
-#import "MSIDWebCPOnboardingReadinessScriptMessageHandler.h"
+#import "MSIDWebCPScriptMessageHandler.h"
 #import "MSIDOnboardingReadiness.h"
 #import "MSIDOnboardingReadinessProvider.h"
 #import "MSIDFlightManager.h"
@@ -14,7 +14,7 @@
 #import "MSIDConstants.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 
-@interface MSIDWebCPOnboardingReadinessScriptMessageHandler (Testing)
+@interface MSIDWebCPScriptMessageHandler (Testing)
 - (void)handleBody:(id)body
          sourceURL:(NSURL *)sourceURL
      fromMainFrame:(BOOL)fromMainFrame
@@ -25,7 +25,7 @@ contentController:(WKUserContentController *)contentController
 @end
 
 @interface MSIDOAuth2EmbeddedWebviewController (ReadinessTesting)
-@property (nonatomic, readonly) MSIDWebCPOnboardingReadinessScriptMessageHandler *webCPReadinessHandler;
+@property (nonatomic, readonly) MSIDWebCPScriptMessageHandler *webCPScriptMessageHandler;
 @end
 
 @interface MSIDReadinessTestProvider : MSIDOnboardingReadinessProvider
@@ -41,14 +41,14 @@ contentController:(WKUserContentController *)contentController
 }
 @end
 
-@interface MSIDWebCPOnboardingReadinessScriptMessageHandlerTests : XCTestCase
+@interface MSIDWebCPScriptMessageHandlerTests : XCTestCase
 @property (nonatomic) WKWebView *webView;
 @property (nonatomic) MSIDReadinessTestProvider *provider;
-@property (nonatomic) MSIDWebCPOnboardingReadinessScriptMessageHandler *handler;
+@property (nonatomic) MSIDWebCPScriptMessageHandler *handler;
 @property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
 @end
 
-@implementation MSIDWebCPOnboardingReadinessScriptMessageHandlerTests
+@implementation MSIDWebCPScriptMessageHandlerTests
 
 - (void)setUp
 {
@@ -59,8 +59,8 @@ contentController:(WKUserContentController *)contentController
     self.provider = [MSIDReadinessTestProvider new];
     self.provider.readinessResult = [[MSIDOnboardingReadiness alloc] initWithBrokerAvailability:NO
                                                                      ssoExtensionAvailability:YES];
-    self.handler = [MSIDWebCPOnboardingReadinessScriptMessageHandler attachToWebView:self.webView
-                                                                   readinessProvider:self.provider];
+    self.handler = [MSIDWebCPScriptMessageHandler attachToWebView:self.webView
+                                                 readinessProvider:self.provider];
     XCTAssertNotNil(self.handler);
 }
 
@@ -90,7 +90,7 @@ contentController:(WKUserContentController *)contentController
               fromMainFrame:mainFrame
                    webView:webView
           contentController:self.webView.configuration.userContentController
-                messageName:MSIDWebCPOnboardingReadinessScriptMessageHandlerName
+                messageName:MSIDWebCPScriptMessageHandlerName
                replyHandler:completion];
 }
 
@@ -120,6 +120,20 @@ contentController:(WKUserContentController *)contentController
         XCTAssertNil(error);
         XCTAssertEqualObjects(response[@"status"], @"NotSupported");
         XCTAssertEqualObjects(response[@"result"][@"supportedContractVersions"], (@[@1]));
+    }];
+    XCTAssertEqual(self.provider.invocationCount, 0u);
+}
+
+- (void)testHandleBody_whenAnotherActionIsRequested_shouldNotProbe
+{
+    NSMutableDictionary *body = [[self requestWithVersion:@1] mutableCopy];
+    body[@"action_name"] = @"fooBarCheck";
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS: @YES};
+    [self sendBody:body
+               url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
+         mainFrame:YES webView:self.webView completion:^(NSDictionary *response, NSString *error) {
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(response[@"status"], @"NotSupported");
     }];
     XCTAssertEqual(self.provider.invocationCount, 0u);
 }
@@ -208,8 +222,8 @@ contentController:(WKUserContentController *)contentController
 {
     WKWebView *otherWebView = [[WKWebView alloc] initWithFrame:CGRectZero
                                                  configuration:self.webView.configuration];
-    XCTAssertEqual([MSIDWebCPOnboardingReadinessScriptMessageHandler attachToWebView:otherWebView
-                                                                    readinessProvider:nil], self.handler);
+    XCTAssertEqual([MSIDWebCPScriptMessageHandler attachToWebView:otherWebView
+                                                readinessProvider:nil], self.handler);
     [self.handler detachFromWebView:self.webView];
     [self sendBody:[self requestWithVersion:@1]
                url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
@@ -222,8 +236,9 @@ contentController:(WKUserContentController *)contentController
     [self.handler detachFromWebView:otherWebView];
 }
 
-- (void)testOAuthController_whenSuppliedWebView_shouldAttachReadinessBeforeNavigation
+- (void)testOAuthController_whenReadinessDisabled_shouldAttachBridgeToSuppliedWebView
 {
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS: @YES};
     WKWebView *suppliedWebView = [[WKWebView alloc] initWithFrame:CGRectZero
                                                     configuration:[WKWebViewConfiguration new]];
     MSIDOAuth2EmbeddedWebviewController *controller =
@@ -237,7 +252,7 @@ contentController:(WKUserContentController *)contentController
     NSError *error = nil;
     XCTAssertTrue([controller loadView:&error]);
     XCTAssertNil(error);
-    XCTAssertNotNil(controller.webCPReadinessHandler);
+    XCTAssertNotNil(controller.webCPScriptMessageHandler);
     XCTAssertEqual(controller.webView, suppliedWebView);
 }
 

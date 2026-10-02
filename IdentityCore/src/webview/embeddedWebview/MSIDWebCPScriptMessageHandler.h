@@ -12,9 +12,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSString * const MSIDWebCPOnboardingReadinessScriptMessageHandlerName;
+/// Stable WebKit endpoint; the request action identifies the supported operation.
+FOUNDATION_EXPORT NSString * const MSIDWebCPScriptMessageHandlerName;
 
-@interface MSIDWebCPOnboardingReadinessScriptMessageHandler : NSObject <WKScriptMessageHandlerWithReply>
+@interface MSIDWebCPScriptMessageHandler : NSObject <WKScriptMessageHandlerWithReply>
 
 + (nullable instancetype)attachToWebView:(WKWebView *)webView
                        readinessProvider:(nullable MSIDOnboardingReadinessProvider *)provider;

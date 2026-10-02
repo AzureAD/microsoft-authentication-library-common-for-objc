@@ -47,8 +47,8 @@
 #import "MSIDExecutionFlowConstants.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDAADAuthority.h"
-#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER && !MSID_EXCLUDE_WEBKIT
-#import "MSIDWebCPOnboardingReadinessScriptMessageHandler.h"
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_WEBKIT
+#import "MSIDWebCPScriptMessageHandler.h"
 #endif
 
 #if !MSID_EXCLUDE_WEBKIT
@@ -56,8 +56,8 @@
 @interface MSIDOAuth2EmbeddedWebviewController()
 
 @property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
-#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER
-@property (nonatomic) MSIDWebCPOnboardingReadinessScriptMessageHandler *webCPReadinessHandler;
+#if TARGET_OS_IPHONE
+@property (nonatomic) MSIDWebCPScriptMessageHandler *webCPScriptMessageHandler;
 #endif
 
 @end
@@ -128,9 +128,9 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 -(void)dealloc
 {
-#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER
+#if TARGET_OS_IPHONE
     WKWebView *webView = self.webView;
-    MSIDWebCPOnboardingReadinessScriptMessageHandler *handler = self.webCPReadinessHandler;
+    MSIDWebCPScriptMessageHandler *handler = self.webCPScriptMessageHandler;
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [handler detachFromWebView:webView];
     }];
@@ -209,14 +209,13 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     // create and load the view if not provided
     BOOL result = [super loadView:error];
 
-#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER
+#if TARGET_OS_IPHONE
     NSString *bundlePath = [NSBundle mainBundle].bundlePath;
     if (result && self.webView && bundlePath.length > 0
-        && ![bundlePath.pathExtension.lowercaseString isEqualToString:@"appex"]
-        && ![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS])
+        && ![bundlePath.pathExtension.lowercaseString isEqualToString:@"appex"])
     {
-        self.webCPReadinessHandler = [MSIDWebCPOnboardingReadinessScriptMessageHandler
-                                      attachToWebView:self.webView readinessProvider:nil];
+        self.webCPScriptMessageHandler = [MSIDWebCPScriptMessageHandler
+                                          attachToWebView:self.webView readinessProvider:nil];
     }
 #endif
     
@@ -243,12 +242,12 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"endWebAuthWithURL called for a second time, disregarding");
         return;
     }
-#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER
+#if TARGET_OS_IPHONE
     WKWebView *readinessWebView = self.webView;
-    MSIDWebCPOnboardingReadinessScriptMessageHandler *readinessHandler = self.webCPReadinessHandler;
-    self.webCPReadinessHandler = nil;
+    MSIDWebCPScriptMessageHandler *webCPHandler = self.webCPScriptMessageHandler;
+    self.webCPScriptMessageHandler = nil;
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        [readinessHandler detachFromWebView:readinessWebView];
+        [webCPHandler detachFromWebView:readinessWebView];
     }];
 #endif
     self.complete = YES;
