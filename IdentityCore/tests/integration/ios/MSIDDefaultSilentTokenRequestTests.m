@@ -57,12 +57,16 @@
 #import "MSIDOAuth2Constants.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
 #import "MSIDBartFeatureUtil.h"
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
+
+@property (nonatomic) id<MSIDFlightManagerInterface> originalFlightProvider;
 
 @end
 
@@ -118,6 +122,10 @@
 - (void)setUp
 {
     [super setUp];
+    self.originalFlightProvider = MSIDFlightManager.sharedInstance.flightProvider;
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.stringForKeyContainer = @{MSID_FLIGHT_DISABLE_SFRT_V2: @"on"};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
     MSIDKeychainTokenCache *cache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
     [cache clearWithContext:nil error:nil];
@@ -133,6 +141,7 @@
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
     [MSIDTestSwizzle reset];
+    MSIDFlightManager.sharedInstance.flightProvider = self.originalFlightProvider;
     [super tearDown];
 }
 
@@ -2900,17 +2909,9 @@
 
 - (void)setUseSingleFRTFeatureFlagMock:(BOOL)useSingleFRTStatus
 {
-    [MSIDTestSwizzle instanceMethod:@selector(stringForKey:)
-                              class:[MSIDFlightManager class]
-                              block:(id)^(__unused id *obj, NSString *flightKey)
-     {
-        if ([flightKey isEqualToString:MSID_FLIGHT_CLIENT_SFRT_STATUS])
-        {
-            return useSingleFRTStatus ? MSID_FRT_STATUS_ENABLED : MSID_FRT_STATUS_DISABLED;
-        }
-        
-        return @"";
-     }];
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.stringForKeyContainer = @{MSID_FLIGHT_DISABLE_SFRT_V2: useSingleFRTStatus ? @"off" : @"on"};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 
 @end
