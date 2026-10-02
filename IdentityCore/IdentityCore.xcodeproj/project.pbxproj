@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA1963000000000000000001 /* MSIDAuthenticationAvailabilityStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000011 /* MSIDAuthenticationAvailabilityStatus.h */; };
+		FA1963000000000000000002 /* MSIDAuthenticationAvailabilityStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000011 /* MSIDAuthenticationAvailabilityStatus.h */; };
+		FA1963000000000000000003 /* MSIDAuthenticationAvailabilityStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000012 /* MSIDAuthenticationAvailabilityStatus.m */; };
+		FA1963000000000000000004 /* MSIDAuthenticationAvailabilityStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000012 /* MSIDAuthenticationAvailabilityStatus.m */; };
+		FA1963000000000000000005 /* MSIDAuthenticationAvailabilityStatusTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000013 /* MSIDAuthenticationAvailabilityStatusTests.m */; };
+		FA1963000000000000000006 /* MSIDAuthenticationAvailabilityStatusTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000013 /* MSIDAuthenticationAvailabilityStatusTests.m */; };
+		FA1963000000000000000007 /* MSIDAuthenticationStatusScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000014 /* MSIDAuthenticationStatusScriptMessageHandler.h */; };
+		FA1963000000000000000008 /* MSIDAuthenticationStatusScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000014 /* MSIDAuthenticationStatusScriptMessageHandler.h */; };
+		FA1963000000000000000009 /* MSIDAuthenticationStatusScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000015 /* MSIDAuthenticationStatusScriptMessageHandler.m */; };
+		FA196300000000000000000A /* MSIDAuthenticationStatusScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000015 /* MSIDAuthenticationStatusScriptMessageHandler.m */; };
+		FA196300000000000000000B /* MSIDAuthenticationStatusScriptMessageHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000016 /* MSIDAuthenticationStatusScriptMessageHandlerTests.m */; };
+		FA196300000000000000000C /* MSIDAuthenticationStatusScriptMessageHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1963000000000000000016 /* MSIDAuthenticationStatusScriptMessageHandlerTests.m */; };
 		04930F851FEC8E6800FC4DCD /* MSIDAadAuthorityCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 04930F831FEC8E6800FC4DCD /* MSIDAadAuthorityCache.m */; };
 		04930F8B1FEC8EB900FC4DCD /* MSIDAadAuthorityCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 04930F831FEC8E6800FC4DCD /* MSIDAadAuthorityCache.m */; };
 		04930F951FEDB2E100FC4DCD /* MSIDAuthority.m in Sources */ = {isa = PBXBuildFile; fileRef = 04930F941FEDB2E000FC4DCD /* MSIDAuthority.m */; };
@@ -2298,6 +2310,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FA1963000000000000000011 /* MSIDAuthenticationAvailabilityStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthenticationAvailabilityStatus.h; sourceTree = "<group>"; };
+		FA1963000000000000000012 /* MSIDAuthenticationAvailabilityStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthenticationAvailabilityStatus.m; sourceTree = "<group>"; };
+		FA1963000000000000000013 /* MSIDAuthenticationAvailabilityStatusTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthenticationAvailabilityStatusTests.m; sourceTree = "<group>"; };
+		FA1963000000000000000014 /* MSIDAuthenticationStatusScriptMessageHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthenticationStatusScriptMessageHandler.h; sourceTree = "<group>"; };
+		FA1963000000000000000015 /* MSIDAuthenticationStatusScriptMessageHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthenticationStatusScriptMessageHandler.m; sourceTree = "<group>"; };
+		FA1963000000000000000016 /* MSIDAuthenticationStatusScriptMessageHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthenticationStatusScriptMessageHandlerTests.m; sourceTree = "<group>"; };
 		04930F831FEC8E6800FC4DCD /* MSIDAadAuthorityCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAadAuthorityCache.m; sourceTree = "<group>"; };
 		04930F841FEC8E6800FC4DCD /* MSIDAadAuthorityCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAadAuthorityCache.h; sourceTree = "<group>"; };
 		04930F931FEDB2C700FC4DCD /* MSIDAuthority.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthority.h; sourceTree = "<group>"; };
@@ -5023,6 +5041,8 @@
 				B46F3B6A2F3C323500CDD8F7 /* MSIDWebviewNavigationDecision.h */,
 				B4FDC6F82F3EFFD800091B6C /* MSIDWebviewNavigationDecisionResolver.m */,
 				B4FDC6F62F3EFFB600091B6C /* MSIDWebviewNavigationDecisionResolver.h */,
+				FA1963000000000000000014 /* MSIDAuthenticationStatusScriptMessageHandler.h */,
+				FA1963000000000000000015 /* MSIDAuthenticationStatusScriptMessageHandler.m */,
 				96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */,
 				96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */,
 				6057EE8E20B5FCF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.h */,
@@ -6195,9 +6215,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		FA1963000000000000000020 /* onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				FA1963000000000000000011 /* MSIDAuthenticationAvailabilityStatus.h */,
+				FA1963000000000000000012 /* MSIDAuthenticationAvailabilityStatus.m */,
+			);
+			path = onboarding;
+			sourceTree = "<group>";
+		};
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				FA1963000000000000000020 /* onboarding */,
 				B4F104BC2FE3A16500EBEB5F /* MSIDUXCallbackProtocol.h */,
 				B4F104BD2FE3A16500EBEB5F /* MSIDUXCallbackProvider.h */,
 				B4F104BE2FE3A16500EBEB5F /* MSIDUXCallbackProvider.m */,
@@ -6283,6 +6313,8 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				FA1963000000000000000013 /* MSIDAuthenticationAvailabilityStatusTests.m */,
+				FA1963000000000000000016 /* MSIDAuthenticationStatusScriptMessageHandlerTests.m */,
 				72DB19CB30072077008AE594 /* MSIDDeviceTokenUtilTests.m */,
 				B2C758FE207EE58200C1FE74 /* automation */,
 				1EE8FF6424F4C0E600CA1445 /* File.swift */,
@@ -6549,6 +6581,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA1963000000000000000001 /* MSIDAuthenticationAvailabilityStatus.h in Headers */,
+				FA1963000000000000000007 /* MSIDAuthenticationStatusScriptMessageHandler.h in Headers */,
 				73D7C94FBD27C5CA3480B739 /* MSIDDIContainer.h in Headers */,
 				AE6838E26F5648EFAB74A481 /* MSIDThrottlingRefreshing.h in Headers */,
 				B4134C1C2FEA3E410037FE68 /* MSIDMobileOnboardingState.h in Headers */,
@@ -6628,6 +6662,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA1963000000000000000002 /* MSIDAuthenticationAvailabilityStatus.h in Headers */,
+				FA1963000000000000000008 /* MSIDAuthenticationStatusScriptMessageHandler.h in Headers */,
 				2A465DD22F0C5DA0006E7571 /* MSIDExecutionFlowLogger.h in Headers */,
 				B434A1172F8DFFE400CCC890 /* MSIDWebMDMEnrollmentCompletionOperation.h in Headers */,
 				B2000C9A20EC64E50092790A /* MSIDTelemetryPiiOiiRules.h in Headers */,
@@ -7708,6 +7744,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA1963000000000000000005 /* MSIDAuthenticationAvailabilityStatusTests.m in Sources */,
+				FA196300000000000000000B /* MSIDAuthenticationStatusScriptMessageHandlerTests.m in Sources */,
 				6E4F659324D48B630070CA36 /* MSIDSymmetricKeyTests.m in Sources */,
 				B2E7698E206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m in Sources */,
 				2347D6632D52F4C700372D20 /* MSIDSwitchBrowserResponseTest.swift in Sources */,
@@ -7958,6 +7996,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA1963000000000000000004 /* MSIDAuthenticationAvailabilityStatus.m in Sources */,
+				FA196300000000000000000A /* MSIDAuthenticationStatusScriptMessageHandler.m in Sources */,
 				2A59B43B2D78FE6B00304FB1 /* MSIDSSORemoteInteractiveTokenRequest.m in Sources */,
 				80878AF0247A9961000BC522 /* MSIDWorkPlaceJoinUtilBase.m in Sources */,
 				B217863523A5948D00839CE8 /* MSIDSignoutController.m in Sources */,
@@ -8407,6 +8447,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA1963000000000000000006 /* MSIDAuthenticationAvailabilityStatusTests.m in Sources */,
+				FA196300000000000000000C /* MSIDAuthenticationStatusScriptMessageHandlerTests.m in Sources */,
 				6E4F659424D48B6D0070CA36 /* MSIDSymmetricKeyTests.m in Sources */,
 				72DB19CD30072079008AE594 /* MSIDDeviceTokenUtilTests.m in Sources */,
 				B29A36B620AFA03200427B63 /* MSIDOauth2FactoryTests.m in Sources */,
@@ -8764,6 +8806,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA1963000000000000000003 /* MSIDAuthenticationAvailabilityStatus.m in Sources */,
+				FA1963000000000000000009 /* MSIDAuthenticationStatusScriptMessageHandler.m in Sources */,
 				6E4F658E24D4883A0070CA36 /* MSIDSymmetricKey.m in Sources */,
 				23B39AC2209BD901000AA905 /* MSIDAdfsAuthorityResolver.m in Sources */,
 				B2000C8E20EC62DF0092790A /* MSIDAADV1IdTokenClaims.m in Sources */,

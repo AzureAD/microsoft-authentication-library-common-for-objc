@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDWebviewUIController.h"
+#import "MSIDAuthenticationStatusScriptMessageHandler.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
 
@@ -58,11 +59,15 @@ static WKWebViewConfiguration *s_webConfig;
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
     webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
     webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
+    [MSIDAuthenticationStatusScriptMessageHandler
+        installInUserContentController:webConfig.userContentController];
     return webConfig;
 }
 
 + (void)setSharedWKWebviewConfiguration:(WKWebViewConfiguration *)configuration
 {
+    [MSIDAuthenticationStatusScriptMessageHandler
+        installInUserContentController:configuration.userContentController];
     @synchronized(self) {
         s_webConfig = configuration;
     }
