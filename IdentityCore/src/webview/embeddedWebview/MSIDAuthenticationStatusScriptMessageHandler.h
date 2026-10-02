@@ -25,30 +25,26 @@
 //
 //------------------------------------------------------------------------------
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #import <Foundation/Foundation.h>
+#import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDOnboardingReadiness : NSObject
+/**
+ Installs the host-neutral authentication-status JavaScript API used by WebCP.
+ */
+@interface MSIDAuthenticationStatusScriptMessageHandler : NSObject <WKScriptMessageHandlerWithReply>
 
 /**
- Whether the current host can invoke a compatible broker application.
+ Installs `window.identity.getAuthenticationStatus()` into the supplied content
+ controller. Repeated installation on the same controller has no effect.
  */
-@property (nonatomic, readonly) BOOL brokerAppAvailable;
-
-/**
- Whether the SSO extension can currently perform authorization.
- */
-@property (nonatomic, readonly) BOOL ssoExtensionAvailable;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-/**
- Returns a snapshot of the native authentication capabilities available to the current host.
- */
-+ (instancetype)currentReadiness;
++ (void)installInUserContentController:(WKUserContentController *)userContentController;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

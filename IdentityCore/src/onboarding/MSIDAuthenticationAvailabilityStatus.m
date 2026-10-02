@@ -25,14 +25,17 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDOnboardingReadiness.h"
+#import "MSIDAuthenticationAvailabilityStatus.h"
 #import "MSIDBrokerConstants.h"
 #import "MSIDBrokerInvocationOptions.h"
 #if MSID_ENABLE_SSO_EXTENSION && !TARGET_OS_VISION
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #endif
 
-@interface MSIDOnboardingReadiness ()
+static NSString * const MSIDBrokerAppAvailableKey = @"brokerAppAvailable";
+static NSString * const MSIDSSOExtensionAvailableKey = @"ssoExtensionAvailable";
+
+@interface MSIDAuthenticationAvailabilityStatus ()
 
 @property (nonatomic, readwrite) BOOL brokerAppAvailable;
 @property (nonatomic, readwrite) BOOL ssoExtensionAvailable;
@@ -42,9 +45,9 @@
 
 @end
 
-@implementation MSIDOnboardingReadiness
+@implementation MSIDAuthenticationAvailabilityStatus
 
-+ (instancetype)currentReadiness
++ (instancetype)currentStatus
 {
     return [[self alloc] initWithBrokerAppAvailabilityProbe:^BOOL
     {
@@ -90,6 +93,14 @@
     }
 
     return self;
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)statusDictionary
+{
+    return @{
+        MSIDBrokerAppAvailableKey : @(self.brokerAppAvailable),
+        MSIDSSOExtensionAvailableKey : @(self.ssoExtensionAvailable)
+    };
 }
 
 @end

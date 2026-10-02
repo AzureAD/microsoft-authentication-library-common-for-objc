@@ -24,6 +24,7 @@
 #if !MSID_EXCLUDE_WEBKIT
 
 #import "MSIDWebviewUIController.h"
+#import "MSIDAuthenticationStatusScriptMessageHandler.h"
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBackgroundTaskManager.h"
@@ -109,12 +110,16 @@ static WKWebViewConfiguration *s_webConfig;
     webConfig.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
     // This allows the camera to show inline, otherwise it defaults to showing up fullscreen
     webConfig.allowsInlineMediaPlayback = YES;
+    [MSIDAuthenticationStatusScriptMessageHandler
+        installInUserContentController:webConfig.userContentController];
 
     return webConfig;
 }
 
 + (void)setSharedWKWebviewConfiguration:(WKWebViewConfiguration *)configuration
 {
+    [MSIDAuthenticationStatusScriptMessageHandler
+        installInUserContentController:configuration.userContentController];
     @synchronized(self) {
         s_webConfig = configuration;
     }

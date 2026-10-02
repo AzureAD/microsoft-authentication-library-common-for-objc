@@ -26,24 +26,24 @@
 //------------------------------------------------------------------------------
 
 #import <XCTest/XCTest.h>
-#import "MSIDOnboardingReadiness.h"
+#import "MSIDAuthenticationAvailabilityStatus.h"
 
-@interface MSIDOnboardingReadiness (Testing)
+@interface MSIDAuthenticationAvailabilityStatus (Testing)
 
 - (instancetype)initWithBrokerAppAvailabilityProbe:(BOOL (^)(void))brokerAppAvailabilityProbe
                      ssoExtensionAvailabilityProbe:(BOOL (^)(void))ssoExtensionAvailabilityProbe;
 
 @end
 
-@interface MSIDOnboardingReadinessTests : XCTestCase
+@interface MSIDAuthenticationAvailabilityStatusTests : XCTestCase
 
 @end
 
-@implementation MSIDOnboardingReadinessTests
+@implementation MSIDAuthenticationAvailabilityStatusTests
 
 - (void)testInit_whenBothCapabilitiesAreAvailable_shouldExposeBothValues
 {
-    MSIDOnboardingReadiness *readiness = [[MSIDOnboardingReadiness alloc]
+    MSIDAuthenticationAvailabilityStatus *status = [[MSIDAuthenticationAvailabilityStatus alloc]
         initWithBrokerAppAvailabilityProbe:^BOOL
         {
             return YES;
@@ -53,13 +53,17 @@
             return YES;
         }];
 
-    XCTAssertTrue(readiness.brokerAppAvailable);
-    XCTAssertTrue(readiness.ssoExtensionAvailable);
+    XCTAssertTrue(status.brokerAppAvailable);
+    XCTAssertTrue(status.ssoExtensionAvailable);
+    XCTAssertEqualObjects(status.statusDictionary, (@{
+        @"brokerAppAvailable" : @YES,
+        @"ssoExtensionAvailable" : @YES
+    }));
 }
 
 - (void)testInit_whenCapabilitiesAreUnavailable_shouldExposeBothValues
 {
-    MSIDOnboardingReadiness *readiness = [[MSIDOnboardingReadiness alloc]
+    MSIDAuthenticationAvailabilityStatus *status = [[MSIDAuthenticationAvailabilityStatus alloc]
         initWithBrokerAppAvailabilityProbe:^BOOL
         {
             return NO;
@@ -69,19 +73,23 @@
             return NO;
         }];
 
-    XCTAssertFalse(readiness.brokerAppAvailable);
-    XCTAssertFalse(readiness.ssoExtensionAvailable);
+    XCTAssertFalse(status.brokerAppAvailable);
+    XCTAssertFalse(status.ssoExtensionAvailable);
+    XCTAssertEqualObjects(status.statusDictionary, (@{
+        @"brokerAppAvailable" : @NO,
+        @"ssoExtensionAvailable" : @NO
+    }));
 }
 
 - (void)testInit_whenCalledOffMainThread_shouldProbeBrokerOnMainThread
 {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Readiness completed"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Status completed"];
     __block BOOL brokerProbedOnMainThread = NO;
-    __block MSIDOnboardingReadiness *readiness = nil;
+    __block MSIDAuthenticationAvailabilityStatus *status = nil;
 
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^
     {
-        readiness = [[MSIDOnboardingReadiness alloc]
+        status = [[MSIDAuthenticationAvailabilityStatus alloc]
             initWithBrokerAppAvailabilityProbe:^BOOL
             {
                 brokerProbedOnMainThread = NSThread.isMainThread;
@@ -96,8 +104,8 @@
 
     [self waitForExpectationsWithTimeout:5 handler:nil];
     XCTAssertTrue(brokerProbedOnMainThread);
-    XCTAssertTrue(readiness.brokerAppAvailable);
-    XCTAssertFalse(readiness.ssoExtensionAvailable);
+    XCTAssertTrue(status.brokerAppAvailable);
+    XCTAssertFalse(status.ssoExtensionAvailable);
 }
 
 @end
