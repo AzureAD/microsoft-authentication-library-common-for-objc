@@ -27,9 +27,15 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDOnboardingReadinessProvider.h"
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !TARGET_OS_VISION
 #import "MSIDApplicationTestUtil.h"
-#import "MSIDTestBundle.h"
+#import "MSIDBrokerInteractiveController.h"
+#import "MSIDBrokerInvocationOptions.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDTestSwizzle.h"
+#endif
+#if MSID_ENABLE_SSO_EXTENSION && !TARGET_OS_VISION
+#import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #endif
 
 @interface MSIDOnboardingReadinessProviderTests : XCTestCase
@@ -37,133 +43,104 @@
 
 @implementation MSIDOnboardingReadinessProviderTests
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !TARGET_OS_VISION
 - (void)tearDown
 {
     MSIDApplicationTestUtil.canOpenURLSchemes = nil;
     [MSIDApplicationTestUtil reset];
-    [MSIDTestBundle reset];
+    [MSIDTestSwizzle reset];
     [super tearDown];
 }
 
-- (void)testReadiness_whenApplicationHasBrokerAndSSO_shouldReturnAvailableForBoth
+- (void)testReadiness_usesExistingControllersAndReturnsBooleans
 {
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
-        initWithAppExtensionProbe:^{ return NO; }
-                  querySchemesProbe:^{ return YES; }
-                        brokerProbe:^{ return @YES; }
-                  ssoExtensionProbe:^{ return @YES; }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
-    XCTAssertEqual(readiness.brokerAvailability, MSIDOnboardingReadinessStateAvailable);
-    XCTAssertEqual(readiness.ssoExtensionAvailability, MSIDOnboardingReadinessStateAvailable);
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest:)
+                          class:[MSIDBrokerInteractiveController class]
+                          block:(id)^BOOL(__unused Class controller, MSIDInteractiveTokenRequestParameters *parameters)
+    {
+        XCTAssertEqual(parameters.brokerInvocationOptions.minRequiredBrokerType, MSIDRequiredBrokerTypeWithNonceSupport);
+        return YES;
+    }];
+#if MSID_ENABLE_SSO_EXTENSION && !TARGET_OS_VISION
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
+                          class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                          block:(id)^BOOL(__unused Class controller)
+    {
+        return YES;
+    }];
+#endif
+    MSIDOnboardingReadiness *readiness = [MSIDOnboardingReadinessProvider new].readiness;
+    XCTAssertNotNil(readiness);
+    XCTAssertTrue(readiness.brokerAvailability);
+#if MSID_ENABLE_SSO_EXTENSION && !TARGET_OS_VISION
+    XCTAssertTrue(readiness.ssoExtensionAvailability);
+#else
+    XCTAssertFalse(readiness.ssoExtensionAvailability);
+#endif
+    XCTAssertEqualObjects(readiness.jsonDictionary[@"brokerAvailability"], @YES);
     XCTAssertNil(readiness.jsonDictionary[@"unknownReasons"]);
 }
 
-- (void)testReadiness_whenProbesReturnNo_shouldReturnUnavailableForBoth
+- (void)testReadiness_whenControllerCannotPerformRequest_returnsFalse
 {
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
-        initWithAppExtensionProbe:^{ return NO; }
-                  querySchemesProbe:^{ return YES; }
-                        brokerProbe:^{ return @NO; }
-                  ssoExtensionProbe:^{ return @NO; }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
-    XCTAssertEqual(readiness.brokerAvailability, MSIDOnboardingReadinessStateUnavailable);
-    XCTAssertEqual(readiness.ssoExtensionAvailability, MSIDOnboardingReadinessStateUnavailable);
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest:)
+                          class:[MSIDBrokerInteractiveController class]
+                          block:(id)^BOOL(__unused Class controller, __unused MSIDInteractiveTokenRequestParameters *parameters)
+    {
+        return NO;
+    }];
+#if MSID_ENABLE_SSO_EXTENSION && !TARGET_OS_VISION
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
+                          class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                          block:(id)^BOOL(__unused Class controller)
+    {
+        return NO;
+    }];
+#endif
+    MSIDOnboardingReadiness *readiness = [MSIDOnboardingReadinessProvider new].readiness;
+    XCTAssertNotNil(readiness);
+    XCTAssertFalse(readiness.brokerAvailability);
+    XCTAssertFalse(readiness.ssoExtensionAvailability);
+    XCTAssertEqualObjects(readiness.jsonDictionary[@"brokerAvailability"], @NO);
+    XCTAssertEqualObjects(readiness.jsonDictionary[@"ssoExtensionAvailability"], @NO);
 }
 
-- (void)testReadiness_whenInAppExtension_shouldNotProbeBrokerButStillProbeSSO
+- (void)testReadiness_whenBrokerOptionsCannotBeCreated_fails
 {
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
-        initWithAppExtensionProbe:^{ return YES; }
-                  querySchemesProbe:^{ XCTFail(@"Query schemes must not be checked in an extension"); return NO; }
-                        brokerProbe:^{ XCTFail(@"Broker must not be probed in an extension"); return @NO; }
-                  ssoExtensionProbe:^{ return @YES; }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
-    XCTAssertEqual(readiness.brokerAvailability, MSIDOnboardingReadinessStateUnknown);
-    XCTAssertEqual(readiness.brokerUnknownReason, MSIDOnboardingReadinessUnknownReasonNotProbeableInCurrentHost);
-    XCTAssertEqual(readiness.ssoExtensionAvailability, MSIDOnboardingReadinessStateAvailable);
+    [MSIDTestSwizzle instanceMethod:@selector(initWithRequiredBrokerType:protocolType:aadRequestVersion:)
+                             class:[MSIDBrokerInvocationOptions class]
+                             block:(id)^id(__unused MSIDBrokerInvocationOptions *options,
+                                          __unused MSIDRequiredBrokerType brokerType,
+                                          __unused MSIDBrokerProtocolType protocolType,
+                                          __unused MSIDBrokerAADRequestVersion aadRequestVersion)
+    {
+        return nil;
+    }];
+    XCTAssertNil([MSIDOnboardingReadinessProvider new].readiness);
 }
 
-- (void)testReadiness_whenMissingQuerySchemes_shouldNotInterpretBrokerAsAbsent
+#if !AD_BROKER
+- (void)testReadiness_whenBrokerSchemeIsMissing_returnsFalse
 {
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
-        initWithAppExtensionProbe:^{ return NO; }
-                  querySchemesProbe:^{ return NO; }
-                        brokerProbe:^{ XCTFail(@"Cannot trust broker probe without query schemes"); return @NO; }
-                  ssoExtensionProbe:^{ return @NO; }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
-    XCTAssertEqual(readiness.brokerAvailability, MSIDOnboardingReadinessStateUnknown);
-    XCTAssertEqual(readiness.brokerUnknownReason, MSIDOnboardingReadinessUnknownReasonMissingQuerySchemeConfiguration);
-    XCTAssertEqual(readiness.ssoExtensionAvailability, MSIDOnboardingReadinessStateUnavailable);
+    MSIDApplicationTestUtil.canOpenURLSchemes = @[@"msauthv2"];
+    MSIDOnboardingReadiness *readiness = [MSIDOnboardingReadinessProvider new].readiness;
+    XCTAssertNotNil(readiness);
+    XCTAssertFalse(readiness.brokerAvailability);
 }
 
-- (void)testReadiness_whenBrokerProbeFails_shouldReportUnknownIndependently
+- (void)testReadiness_whenCalledOffMainThread_completesBrokerCheck
 {
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
-        initWithAppExtensionProbe:^{ return NO; }
-                  querySchemesProbe:^{ return YES; }
-                        brokerProbe:^{ return (NSNumber *)nil; }
-                  ssoExtensionProbe:^{ return @YES; }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
-    XCTAssertEqual(readiness.brokerAvailability, MSIDOnboardingReadinessStateUnknown);
-    XCTAssertEqual(readiness.brokerUnknownReason, MSIDOnboardingReadinessUnknownReasonProbeFailed);
-    XCTAssertEqual(readiness.ssoExtensionAvailability, MSIDOnboardingReadinessStateAvailable);
-}
-
-- (void)testReadiness_whenCalledOffMainThread_shouldProbeBrokerOnMainThread
-{
-    __block BOOL brokerProbedOnMainThread = NO;
-    __block MSIDOnboardingReadiness *readiness = nil;
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
-        initWithAppExtensionProbe:^{ return NO; }
-                  querySchemesProbe:^{ return YES; }
-                        brokerProbe:^{
-                            brokerProbedOnMainThread = [NSThread isMainThread];
-                            return @YES;
-                        }
-                  ssoExtensionProbe:^{ return @NO; }];
+    MSIDApplicationTestUtil.canOpenURLSchemes = @[@"msauthv2", @"msauthv3"];
     XCTestExpectation *expectation = [self expectationWithDescription:@"Background readiness completes"];
+    __block MSIDOnboardingReadiness *readiness = nil;
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-        readiness = provider.readiness;
+        readiness = [MSIDOnboardingReadinessProvider new].readiness;
         [expectation fulfill];
     });
     [self waitForExpectationsWithTimeout:5 handler:nil];
-    XCTAssertTrue(brokerProbedOnMainThread);
-    XCTAssertEqual(readiness.brokerAvailability, MSIDOnboardingReadinessStateAvailable);
-}
-
-- (void)testReadiness_whenRequiredBrokerSchemesPresent_shouldUseNonceCapableBrokerProbe
-{
-    [MSIDTestBundle overrideObject:@[@"msauthv2", @"msauthv3"] forKey:@"LSApplicationQueriesSchemes"];
-    MSIDApplicationTestUtil.canOpenURLSchemes = @[@"msauthv2", @"msauthv3"];
-    MSIDOnboardingReadinessProvider *provider = [MSIDOnboardingReadinessProvider new];
-    XCTAssertEqual(provider.readiness.brokerAvailability, MSIDOnboardingReadinessStateAvailable);
-
-    MSIDApplicationTestUtil.canOpenURLSchemes = @[@"msauthv2"];
-    XCTAssertEqual(provider.readiness.brokerAvailability, MSIDOnboardingReadinessStateUnavailable);
-}
-
-- (void)testReadiness_whenHostDoesNotDeclareQuerySchemes_shouldReturnUnknown
-{
-    [MSIDTestBundle overrideObject:@[@"msauthv2"] forKey:@"LSApplicationQueriesSchemes"];
-    MSIDApplicationTestUtil.canOpenURLSchemes = @[@"msauthv2", @"msauthv3"];
-    MSIDOnboardingReadinessProvider *provider = [MSIDOnboardingReadinessProvider new];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
-    XCTAssertEqual(readiness.brokerAvailability, MSIDOnboardingReadinessStateUnknown);
-    XCTAssertEqual(readiness.brokerUnknownReason, MSIDOnboardingReadinessUnknownReasonMissingQuerySchemeConfiguration);
+    XCTAssertTrue(readiness.brokerAvailability);
 }
 #endif
-
-- (void)testReadiness_whenSSOPlatformProbeUnavailable_shouldReportUnknown
-{
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
-        initWithAppExtensionProbe:^{ return NO; }
-                  querySchemesProbe:^{ return YES; }
-                        brokerProbe:^{ return @YES; }
-                  ssoExtensionProbe:^{ return (NSNumber *)nil; }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
-    XCTAssertEqual(readiness.ssoExtensionAvailability, MSIDOnboardingReadinessStateUnknown);
-    XCTAssertEqual(readiness.ssoExtensionUnknownReason, MSIDOnboardingReadinessUnknownReasonPlatformCapabilityUnavailable);
-}
+#endif
 
 @end

@@ -27,41 +27,21 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, MSIDOnboardingReadinessState)
-{
-    MSIDOnboardingReadinessStateAvailable,
-    MSIDOnboardingReadinessStateUnavailable,
-    MSIDOnboardingReadinessStateUnknown
-};
-
-typedef NS_ENUM(NSInteger, MSIDOnboardingReadinessUnknownReason)
-{
-    MSIDOnboardingReadinessUnknownReasonNone,
-    MSIDOnboardingReadinessUnknownReasonNotProbeableInCurrentHost,
-    MSIDOnboardingReadinessUnknownReasonMissingQuerySchemeConfiguration,
-    MSIDOnboardingReadinessUnknownReasonPlatformCapabilityUnavailable,
-    MSIDOnboardingReadinessUnknownReasonProbeFailed
-};
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDOnboardingReadiness : NSObject
 
-@property (nonatomic, readonly) MSIDOnboardingReadinessState brokerAvailability;
-@property (nonatomic, readonly) MSIDOnboardingReadinessState ssoExtensionAvailability;
-@property (nonatomic, readonly) MSIDOnboardingReadinessUnknownReason brokerUnknownReason;
-@property (nonatomic, readonly) MSIDOnboardingReadinessUnknownReason ssoExtensionUnknownReason;
+@property (nonatomic, readonly) BOOL brokerAvailability;
+@property (nonatomic, readonly) BOOL ssoExtensionAvailability;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
-- (instancetype)initWithBrokerAvailability:(MSIDOnboardingReadinessState)brokerAvailability
-                       brokerUnknownReason:(MSIDOnboardingReadinessUnknownReason)brokerUnknownReason
-                  ssoExtensionAvailability:(MSIDOnboardingReadinessState)ssoExtensionAvailability
-                 ssoExtensionUnknownReason:(MSIDOnboardingReadinessUnknownReason)ssoExtensionUnknownReason;
+- (instancetype)initWithBrokerAvailability:(BOOL)brokerAvailability
+                  ssoExtensionAvailability:(BOOL)ssoExtensionAvailability;
 
-// The two observations are independent; reasons appear only for unknown values.
-- (nullable NSDictionary<NSString *, id> *)jsonDictionary;
+// Each Boolean describes whether the corresponding controller can perform a request.
+- (NSDictionary<NSString *, id> *)jsonDictionary;
 
 @end
 

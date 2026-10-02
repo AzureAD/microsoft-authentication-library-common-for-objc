@@ -30,101 +30,33 @@
 
 @interface MSIDOnboardingReadiness ()
 
-@property (nonatomic, readwrite) MSIDOnboardingReadinessState brokerAvailability;
-@property (nonatomic, readwrite) MSIDOnboardingReadinessState ssoExtensionAvailability;
-@property (nonatomic, readwrite) MSIDOnboardingReadinessUnknownReason brokerUnknownReason;
-@property (nonatomic, readwrite) MSIDOnboardingReadinessUnknownReason ssoExtensionUnknownReason;
+@property (nonatomic, readwrite) BOOL brokerAvailability;
+@property (nonatomic, readwrite) BOOL ssoExtensionAvailability;
 
 @end
 
 @implementation MSIDOnboardingReadiness
 
-- (instancetype)initWithBrokerAvailability:(MSIDOnboardingReadinessState)brokerAvailability
-                       brokerUnknownReason:(MSIDOnboardingReadinessUnknownReason)brokerUnknownReason
-                  ssoExtensionAvailability:(MSIDOnboardingReadinessState)ssoExtensionAvailability
-                 ssoExtensionUnknownReason:(MSIDOnboardingReadinessUnknownReason)ssoExtensionUnknownReason
+- (instancetype)initWithBrokerAvailability:(BOOL)brokerAvailability
+                  ssoExtensionAvailability:(BOOL)ssoExtensionAvailability
 {
     self = [super init];
     if (self)
     {
         _brokerAvailability = brokerAvailability;
-        _brokerUnknownReason = brokerUnknownReason;
         _ssoExtensionAvailability = ssoExtensionAvailability;
-        _ssoExtensionUnknownReason = ssoExtensionUnknownReason;
     }
     return self;
 }
 
-- (nullable NSDictionary<NSString *, id> *)jsonDictionary
+- (NSDictionary<NSString *, id> *)jsonDictionary
 {
-    NSString *brokerState = [self stringForState:self.brokerAvailability];
-    NSString *ssoState = [self stringForState:self.ssoExtensionAvailability];
-    if (!brokerState || !ssoState)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to serialize onboarding readiness state.");
-        return nil;
-    }
-    NSMutableDictionary<NSString *, id> *result = [@{
+    return @{
         @"contractVersion": @(MSIDWebCPOnboardingReadinessContractVersion),
         @"capabilities": @[@"brokerAvailability", @"ssoExtensionAvailability"],
-        @"brokerAvailability": brokerState,
-        @"ssoExtensionAvailability": ssoState
-    } mutableCopy];
-    NSMutableDictionary<NSString *, NSString *> *reasons = [NSMutableDictionary new];
-
-    if (self.brokerAvailability == MSIDOnboardingReadinessStateUnknown)
-    {
-        NSString *reason = [self stringForReason:self.brokerUnknownReason];
-        if (reason)
-        {
-            reasons[@"brokerAvailability"] = reason;
-        }
-    }
-    if (self.ssoExtensionAvailability == MSIDOnboardingReadinessStateUnknown)
-    {
-        NSString *reason = [self stringForReason:self.ssoExtensionUnknownReason];
-        if (reason)
-        {
-            reasons[@"ssoExtensionAvailability"] = reason;
-        }
-    }
-    if ((self.brokerAvailability == MSIDOnboardingReadinessStateUnknown
-         && !reasons[@"brokerAvailability"])
-        || (self.ssoExtensionAvailability == MSIDOnboardingReadinessStateUnknown
-            && !reasons[@"ssoExtensionAvailability"]))
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to serialize onboarding readiness unknown reason.");
-        return nil;
-    }
-    if (reasons.count)
-    {
-        result[@"unknownReasons"] = [reasons copy];
-    }
-    return [result copy];
-}
-
-- (nullable NSString *)stringForState:(MSIDOnboardingReadinessState)state
-{
-    switch (state)
-    {
-        case MSIDOnboardingReadinessStateAvailable: return @"available";
-        case MSIDOnboardingReadinessStateUnavailable: return @"unavailable";
-        case MSIDOnboardingReadinessStateUnknown: return @"unknown";
-    }
-    return nil;
-}
-
-- (nullable NSString *)stringForReason:(MSIDOnboardingReadinessUnknownReason)reason
-{
-    switch (reason)
-    {
-        case MSIDOnboardingReadinessUnknownReasonNone: return nil;
-        case MSIDOnboardingReadinessUnknownReasonNotProbeableInCurrentHost: return @"notProbeableInCurrentHost";
-        case MSIDOnboardingReadinessUnknownReasonMissingQuerySchemeConfiguration: return @"missingQuerySchemeConfiguration";
-        case MSIDOnboardingReadinessUnknownReasonPlatformCapabilityUnavailable: return @"platformCapabilityUnavailable";
-        case MSIDOnboardingReadinessUnknownReasonProbeFailed: return @"probeFailed";
-    }
-    return nil;
+        @"brokerAvailability": @(self.brokerAvailability),
+        @"ssoExtensionAvailability": @(self.ssoExtensionAvailability)
+    };
 }
 
 @end
