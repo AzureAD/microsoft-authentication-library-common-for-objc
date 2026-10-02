@@ -47,12 +47,18 @@
 #import "MSIDExecutionFlowConstants.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDAADAuthority.h"
+#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER && !MSID_EXCLUDE_WEBKIT
+#import "MSIDWebCPOnboardingReadinessScriptMessageHandler.h"
+#endif
 
 #if !MSID_EXCLUDE_WEBKIT
 
 @interface MSIDOAuth2EmbeddedWebviewController()
 
 @property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
+#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER
+@property (nonatomic) MSIDWebCPOnboardingReadinessScriptMessageHandler *webCPReadinessHandler;
+#endif
 
 @end
 
@@ -122,6 +128,13 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 -(void)dealloc
 {
+#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER
+    WKWebView *webView = self.webView;
+    MSIDWebCPOnboardingReadinessScriptMessageHandler *handler = self.webCPReadinessHandler;
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        [handler detachFromWebView:webView];
+    }];
+#endif
     if ([self.webView.navigationDelegate isEqual:self])
     {
         [self.webView setNavigationDelegate:nil];
@@ -195,6 +208,17 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 {
     // create and load the view if not provided
     BOOL result = [super loadView:error];
+
+#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER
+    NSString *bundlePath = [NSBundle mainBundle].bundlePath;
+    if (result && self.webView && bundlePath.length > 0
+        && ![bundlePath.pathExtension.lowercaseString isEqualToString:@"appex"]
+        && ![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS])
+    {
+        self.webCPReadinessHandler = [MSIDWebCPOnboardingReadinessScriptMessageHandler
+                                      attachToWebView:self.webView readinessProvider:nil];
+    }
+#endif
     
     self.webView.navigationDelegate = self;
     self.webView.UIDelegate = self;
@@ -219,6 +243,14 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"endWebAuthWithURL called for a second time, disregarding");
         return;
     }
+#if TARGET_OS_IOS && !TARGET_OS_VISION && !AD_BROKER
+    WKWebView *readinessWebView = self.webView;
+    MSIDWebCPOnboardingReadinessScriptMessageHandler *readinessHandler = self.webCPReadinessHandler;
+    self.webCPReadinessHandler = nil;
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        [readinessHandler detachFromWebView:readinessWebView];
+    }];
+#endif
     self.complete = YES;
     
     // Record the terminal onboarding step on the shared builder
