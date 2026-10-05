@@ -8477,6 +8477,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAC10001000000000000001B /* MSIDOnboardingReadinessProviderTests.m in Sources */,
+				FAC10001000000000000001C /* MSIDWebCPOnboardingReadinessContractTests.m in Sources */,
 				6E4F659424D48B6D0070CA36 /* MSIDSymmetricKeyTests.m in Sources */,
 				72DB19CD30072079008AE594 /* MSIDDeviceTokenUtilTests.m in Sources */,
 				B29A36B620AFA03200427B63 /* MSIDOauth2FactoryTests.m in Sources */,
@@ -8774,8 +8776,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FAC10001000000000000001B /* MSIDOnboardingReadinessProviderTests.m in Sources */,
-				FAC10001000000000000001C /* MSIDWebCPOnboardingReadinessContractTests.m in Sources */,
 				D6D9A4581FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
 				D626FFF21FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
 				D626FFF81FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
