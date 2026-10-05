@@ -26,11 +26,22 @@
 //------------------------------------------------------------------------------
 
 #import <XCTest/XCTest.h>
-#import "MSIDOnboardingReadinessProvider.h"
+#import "MSIDAuthenticationAvailabilityProvider.h"
+@class MSIDBrokerInvocationOptions;
+@class MSIDInteractiveTokenRequestParameters;
+typedef MSIDBrokerInvocationOptions * _Nullable (^MSIDTestBrokerOptionsFactory)(void);
+typedef BOOL (^MSIDTestBrokerAvailabilityCheck)(MSIDInteractiveTokenRequestParameters *parameters);
+typedef BOOL (^MSIDTestSSOExtensionAvailabilityCheck)(void);
 #if TARGET_OS_IPHONE && !TARGET_OS_VISION
 #import "MSIDBrokerInvocationOptions.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #endif
+
+@interface MSIDAuthenticationAvailabilityProvider (Testing)
+- (instancetype)initWithBrokerOptionsFactory:(nullable MSIDTestBrokerOptionsFactory)brokerOptionsFactory
+                     brokerAvailabilityCheck:(nullable MSIDTestBrokerAvailabilityCheck)brokerAvailabilityCheck
+              ssoExtensionAvailabilityCheck:(nullable MSIDTestSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck;
+@end
 
 #if TARGET_OS_IPHONE && !TARGET_OS_VISION && !AD_BROKER
 @interface MSIDUnavailableBrokerInvocationOptions : MSIDBrokerInvocationOptions
@@ -44,17 +55,17 @@
 @end
 #endif
 
-@interface MSIDOnboardingReadinessProviderTests : XCTestCase
+@interface MSIDAuthenticationAvailabilityProviderTests : XCTestCase
 @end
 
-@implementation MSIDOnboardingReadinessProviderTests
+@implementation MSIDAuthenticationAvailabilityProviderTests
 
 #if TARGET_OS_IPHONE && !TARGET_OS_VISION
 - (void)testReadiness_usesExistingControllersAndReturnsBooleans
 {
     __block NSUInteger brokerChecks = 0;
     __block NSUInteger ssoChecks = 0;
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
+    MSIDAuthenticationAvailabilityProvider *provider = [[MSIDAuthenticationAvailabilityProvider alloc]
         initWithBrokerOptionsFactory:nil
              brokerAvailabilityCheck:^BOOL(MSIDInteractiveTokenRequestParameters *parameters) {
                  brokerChecks++;
@@ -68,24 +79,22 @@
           ssoChecks++;
           return YES;
       }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
+    MSIDAuthenticationAvailabilityStatus *readiness = provider.availabilityStatus;
     XCTAssertNotNil(readiness);
-    XCTAssertTrue(readiness.brokerAvailability);
+    XCTAssertTrue(readiness.brokerAppAvailable);
 #if MSID_ENABLE_SSO_EXTENSION
-    XCTAssertTrue(readiness.ssoExtensionAvailability);
+    XCTAssertTrue(readiness.ssoExtensionAvailable);
     XCTAssertEqual(ssoChecks, 1u);
 #else
-    XCTAssertFalse(readiness.ssoExtensionAvailability);
+    XCTAssertFalse(readiness.ssoExtensionAvailable);
     XCTAssertEqual(ssoChecks, 0u);
 #endif
     XCTAssertEqual(brokerChecks, 1u);
-    XCTAssertEqualObjects(readiness.jsonDictionary[@"brokerAvailability"], @YES);
-    XCTAssertNil(readiness.jsonDictionary[@"unknownReasons"]);
 }
 
 - (void)testReadiness_whenControllerCannotPerformRequest_returnsFalse
 {
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
+    MSIDAuthenticationAvailabilityProvider *provider = [[MSIDAuthenticationAvailabilityProvider alloc]
         initWithBrokerOptionsFactory:nil
              brokerAvailabilityCheck:^BOOL(__unused MSIDInteractiveTokenRequestParameters *parameters) {
                  return NO;
@@ -93,19 +102,17 @@
       ssoExtensionAvailabilityCheck:^BOOL{
           return NO;
       }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
+    MSIDAuthenticationAvailabilityStatus *readiness = provider.availabilityStatus;
     XCTAssertNotNil(readiness);
-    XCTAssertFalse(readiness.brokerAvailability);
-    XCTAssertFalse(readiness.ssoExtensionAvailability);
-    XCTAssertEqualObjects(readiness.jsonDictionary[@"brokerAvailability"], @NO);
-    XCTAssertEqualObjects(readiness.jsonDictionary[@"ssoExtensionAvailability"], @NO);
+    XCTAssertFalse(readiness.brokerAppAvailable);
+    XCTAssertFalse(readiness.ssoExtensionAvailable);
 }
 
 - (void)testReadiness_whenBrokerOptionsCannotBeCreated_fails
 {
     __block NSUInteger brokerChecks = 0;
     __block NSUInteger ssoChecks = 0;
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
+    MSIDAuthenticationAvailabilityProvider *provider = [[MSIDAuthenticationAvailabilityProvider alloc]
         initWithBrokerOptionsFactory:^MSIDBrokerInvocationOptions *{
             return nil;
         }
@@ -117,7 +124,7 @@
           ssoChecks++;
           return YES;
       }];
-    XCTAssertNil(provider.readiness);
+    XCTAssertNil(provider.availabilityStatus);
     XCTAssertEqual(brokerChecks, 0u);
     XCTAssertEqual(ssoChecks, 0u);
 }
@@ -130,7 +137,7 @@
     {
         __block NSUInteger brokerChecks = 0;
         __block NSUInteger ssoChecks = 0;
-        MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
+        MSIDAuthenticationAvailabilityProvider *provider = [[MSIDAuthenticationAvailabilityProvider alloc]
             initWithBrokerOptionsFactory:nil
                  brokerAvailabilityCheck:^BOOL(__unused MSIDInteractiveTokenRequestParameters *parameters) {
                      brokerChecks++;
@@ -140,9 +147,9 @@
               ssoChecks++;
               return availability[1].boolValue;
           }];
-        MSIDOnboardingReadiness *readiness = provider.readiness;
-        XCTAssertEqual(readiness.brokerAvailability, availability[0].boolValue);
-        XCTAssertEqual(readiness.ssoExtensionAvailability, availability[1].boolValue);
+        MSIDAuthenticationAvailabilityStatus *readiness = provider.availabilityStatus;
+        XCTAssertEqual(readiness.brokerAppAvailable, availability[0].boolValue);
+        XCTAssertEqual(readiness.ssoExtensionAvailable, availability[1].boolValue);
         XCTAssertEqual(brokerChecks, 1u);
         XCTAssertEqual(ssoChecks, 1u);
     }
@@ -152,7 +159,7 @@
 #if !AD_BROKER
 - (void)testReadiness_whenBrokerOptionsReportUnavailable_returnsFalse
 {
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
+    MSIDAuthenticationAvailabilityProvider *provider = [[MSIDAuthenticationAvailabilityProvider alloc]
         initWithBrokerOptionsFactory:^MSIDBrokerInvocationOptions *{
             return [[MSIDUnavailableBrokerInvocationOptions alloc]
                 initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithNonceSupport
@@ -163,11 +170,11 @@
       ssoExtensionAvailabilityCheck:^BOOL{
           return YES;
       }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
+    MSIDAuthenticationAvailabilityStatus *readiness = provider.availabilityStatus;
     XCTAssertNotNil(readiness);
-    XCTAssertFalse(readiness.brokerAvailability);
+    XCTAssertFalse(readiness.brokerAppAvailable);
 #if MSID_ENABLE_SSO_EXTENSION
-    XCTAssertTrue(readiness.ssoExtensionAvailability);
+    XCTAssertTrue(readiness.ssoExtensionAvailable);
 #endif
 }
 #endif
@@ -175,9 +182,9 @@
 - (void)testReadiness_whenCalledOffMainThread_completesDefaultBrokerCheck
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Background readiness completes"];
-    __block MSIDOnboardingReadiness *readiness = nil;
+    __block MSIDAuthenticationAvailabilityStatus *readiness = nil;
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-        readiness = [MSIDOnboardingReadinessProvider new].readiness;
+        readiness = [MSIDAuthenticationAvailabilityProvider new].availabilityStatus;
         [expectation fulfill];
     });
     [self waitForExpectationsWithTimeout:5 handler:nil];
@@ -189,7 +196,7 @@
     __block NSUInteger brokerFactoryCalls = 0;
     __block NSUInteger brokerChecks = 0;
     __block NSUInteger ssoChecks = 0;
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
+    MSIDAuthenticationAvailabilityProvider *provider = [[MSIDAuthenticationAvailabilityProvider alloc]
         initWithBrokerOptionsFactory:^MSIDBrokerInvocationOptions *{
             brokerFactoryCalls++;
             return nil;
@@ -202,14 +209,14 @@
           ssoChecks++;
           return YES;
       }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
+    MSIDAuthenticationAvailabilityStatus *readiness = provider.availabilityStatus;
     XCTAssertNotNil(readiness);
-    XCTAssertFalse(readiness.brokerAvailability);
+    XCTAssertFalse(readiness.brokerAppAvailable);
 #if MSID_ENABLE_SSO_EXTENSION
-    XCTAssertTrue(readiness.ssoExtensionAvailability);
+    XCTAssertTrue(readiness.ssoExtensionAvailable);
     XCTAssertEqual(ssoChecks, 1u);
 #else
-    XCTAssertFalse(readiness.ssoExtensionAvailability);
+    XCTAssertFalse(readiness.ssoExtensionAvailable);
     XCTAssertEqual(ssoChecks, 0u);
 #endif
     XCTAssertEqual(brokerFactoryCalls, 0u);
@@ -221,7 +228,7 @@
     __block NSUInteger brokerFactoryCalls = 0;
     __block NSUInteger brokerChecks = 0;
     __block NSUInteger ssoChecks = 0;
-    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
+    MSIDAuthenticationAvailabilityProvider *provider = [[MSIDAuthenticationAvailabilityProvider alloc]
         initWithBrokerOptionsFactory:^MSIDBrokerInvocationOptions *{
             brokerFactoryCalls++;
             return nil;
@@ -234,10 +241,10 @@
           ssoChecks++;
           return YES;
       }];
-    MSIDOnboardingReadiness *readiness = provider.readiness;
+    MSIDAuthenticationAvailabilityStatus *readiness = provider.availabilityStatus;
     XCTAssertNotNil(readiness);
-    XCTAssertFalse(readiness.brokerAvailability);
-    XCTAssertFalse(readiness.ssoExtensionAvailability);
+    XCTAssertFalse(readiness.brokerAppAvailable);
+    XCTAssertFalse(readiness.ssoExtensionAvailable);
     XCTAssertEqual(brokerFactoryCalls, 0u);
     XCTAssertEqual(brokerChecks, 0u);
     XCTAssertEqual(ssoChecks, 0u);

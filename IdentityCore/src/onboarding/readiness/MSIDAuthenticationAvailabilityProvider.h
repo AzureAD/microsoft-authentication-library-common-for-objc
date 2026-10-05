@@ -26,22 +26,14 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDAuthenticationAvailabilityStatus.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDOnboardingReadiness : NSObject
+@interface MSIDAuthenticationAvailabilityProvider : NSObject
 
-@property (nonatomic, readonly) BOOL brokerAvailability;
-@property (nonatomic, readonly) BOOL ssoExtensionAvailability;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithBrokerAvailability:(BOOL)brokerAvailability
-                  ssoExtensionAvailability:(BOOL)ssoExtensionAvailability;
-
-// Each Boolean describes whether the corresponding controller can perform a request.
-- (NSDictionary<NSString *, id> *)jsonDictionary;
+// Call from an application process; the Broker controller handles main-thread access.
+- (nullable MSIDAuthenticationAvailabilityStatus *)availabilityStatus;
 
 @end
 

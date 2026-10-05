@@ -27,9 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDOnboardingReadiness;
-
-FOUNDATION_EXPORT const NSInteger MSIDWebCPOnboardingReadinessContractVersion;
+@class MSIDAuthenticationAvailabilityStatus;
 
 typedef NS_ENUM(NSInteger, MSIDWebCPOnboardingReadinessRequestValidation)
 {
@@ -49,18 +47,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDWebCPOnboardingReadinessContract : NSObject
 
-+ (instancetype)sharedInstance;
-
 - (NSString *)actionName;
 - (NSString *)actionComponent;
-// Unsupported actions or integer versions differ from malformed envelopes and parameters.
+// Unsupported actions differ from malformed envelopes and parameters.
 - (MSIDWebCPOnboardingReadinessRequestValidation)validateRequest:(nullable id)request;
 // The generated flag lets each adapter distinguish a replacement ID in its telemetry.
 - (NSString *)correlationIDForRequest:(nullable id)request generated:(nullable BOOL *)generated;
-// A missing or unserializable readiness result cannot produce Success.
+// A missing availability result cannot produce Success.
 - (NSDictionary<NSString *, id> *)responseWithStatus:(MSIDWebCPOnboardingReadinessResponseStatus)status
                                         correlationID:(NSString *)correlationID
-                                            readiness:(nullable MSIDOnboardingReadiness *)readiness;
+                                         availability:(nullable MSIDAuthenticationAvailabilityStatus *)availability;
 
 @end
 

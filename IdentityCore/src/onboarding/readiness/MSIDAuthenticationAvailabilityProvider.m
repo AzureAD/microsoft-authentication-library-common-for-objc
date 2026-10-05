@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDOnboardingReadinessProvider.h"
+#import "MSIDAuthenticationAvailabilityProvider.h"
 #if TARGET_OS_IPHONE && !TARGET_OS_VISION
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDBrokerInvocationOptions.h"
@@ -35,15 +35,26 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #endif
 
-@interface MSIDOnboardingReadinessProvider ()
+@class MSIDBrokerInvocationOptions;
+@class MSIDInteractiveTokenRequestParameters;
 
-@property (nonatomic, copy, nullable) MSIDOnboardingBrokerOptionsFactory brokerOptionsFactory;
-@property (nonatomic, copy, nullable) MSIDOnboardingBrokerAvailabilityCheck brokerAvailabilityCheck;
-@property (nonatomic, copy, nullable) MSIDOnboardingSSOExtensionAvailabilityCheck ssoExtensionAvailabilityCheck;
+typedef MSIDBrokerInvocationOptions * _Nullable (^MSIDAuthenticationBrokerOptionsFactory)(void);
+typedef BOOL (^MSIDAuthenticationBrokerAvailabilityCheck)(MSIDInteractiveTokenRequestParameters *parameters);
+typedef BOOL (^MSIDAuthenticationSSOExtensionAvailabilityCheck)(void);
+
+@interface MSIDAuthenticationAvailabilityProvider ()
+
+@property (nonatomic, copy, nullable) MSIDAuthenticationBrokerOptionsFactory brokerOptionsFactory;
+@property (nonatomic, copy, nullable) MSIDAuthenticationBrokerAvailabilityCheck brokerAvailabilityCheck;
+@property (nonatomic, copy, nullable) MSIDAuthenticationSSOExtensionAvailabilityCheck ssoExtensionAvailabilityCheck;
+
+- (instancetype)initWithBrokerOptionsFactory:(nullable MSIDAuthenticationBrokerOptionsFactory)brokerOptionsFactory
+                     brokerAvailabilityCheck:(nullable MSIDAuthenticationBrokerAvailabilityCheck)brokerAvailabilityCheck
+              ssoExtensionAvailabilityCheck:(nullable MSIDAuthenticationSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck;
 
 @end
 
-@implementation MSIDOnboardingReadinessProvider
+@implementation MSIDAuthenticationAvailabilityProvider
 
 - (instancetype)init
 {
@@ -52,9 +63,9 @@
               ssoExtensionAvailabilityCheck:nil];
 }
 
-- (instancetype)initWithBrokerOptionsFactory:(MSIDOnboardingBrokerOptionsFactory)brokerOptionsFactory
-                     brokerAvailabilityCheck:(MSIDOnboardingBrokerAvailabilityCheck)brokerAvailabilityCheck
-              ssoExtensionAvailabilityCheck:(MSIDOnboardingSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck
+- (instancetype)initWithBrokerOptionsFactory:(MSIDAuthenticationBrokerOptionsFactory)brokerOptionsFactory
+                     brokerAvailabilityCheck:(MSIDAuthenticationBrokerAvailabilityCheck)brokerAvailabilityCheck
+              ssoExtensionAvailabilityCheck:(MSIDAuthenticationSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck
 {
     self = [super init];
     if (self)
@@ -66,9 +77,9 @@
     return self;
 }
 
-- (nullable MSIDOnboardingReadiness *)readiness
+- (nullable MSIDAuthenticationAvailabilityStatus *)availabilityStatus
 {
-    BOOL brokerAvailability = NO;
+    BOOL brokerAppAvailable = NO;
 #if TARGET_OS_IPHONE && !TARGET_OS_VISION
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.brokerInvocationOptions = self.brokerOptionsFactory
@@ -82,16 +93,16 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to initialize onboarding Broker request options.");
         return nil;
     }
-    brokerAvailability = self.brokerAvailabilityCheck
+    brokerAppAvailable = self.brokerAvailabilityCheck
         ? self.brokerAvailabilityCheck(parameters)
         : [MSIDBrokerInteractiveController canPerformRequest:parameters];
 #else
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Onboarding Broker routing is not supported on this platform.");
 #endif
 
-    BOOL ssoExtensionAvailability = NO;
+    BOOL ssoExtensionAvailable = NO;
 #if MSID_ENABLE_SSO_EXTENSION && !TARGET_OS_VISION
-    ssoExtensionAvailability = self.ssoExtensionAvailabilityCheck
+    ssoExtensionAvailable = self.ssoExtensionAvailabilityCheck
         ? self.ssoExtensionAvailabilityCheck()
         : [MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest];
 #else
@@ -99,9 +110,9 @@
 #endif
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Onboarding readiness: Broker can perform %@; SSO extension can perform %@.",
-                      @(brokerAvailability), @(ssoExtensionAvailability));
-    return [[MSIDOnboardingReadiness alloc] initWithBrokerAvailability:brokerAvailability
-                                             ssoExtensionAvailability:ssoExtensionAvailability];
+                      @(brokerAppAvailable), @(ssoExtensionAvailable));
+    return [[MSIDAuthenticationAvailabilityStatus alloc] initWithBrokerAppAvailable:brokerAppAvailable
+                                                           ssoExtensionAvailable:ssoExtensionAvailable];
 }
 
 @end

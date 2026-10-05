@@ -25,27 +25,27 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDOnboardingReadiness.h"
+#import "MSIDAuthenticationAvailabilityStatus.h"
 
-@class MSIDBrokerInvocationOptions;
-@class MSIDInteractiveTokenRequestParameters;
+@interface MSIDAuthenticationAvailabilityStatus ()
 
-NS_ASSUME_NONNULL_BEGIN
-
-typedef MSIDBrokerInvocationOptions * _Nullable (^MSIDOnboardingBrokerOptionsFactory)(void);
-typedef BOOL (^MSIDOnboardingBrokerAvailabilityCheck)(MSIDInteractiveTokenRequestParameters *parameters);
-typedef BOOL (^MSIDOnboardingSSOExtensionAvailabilityCheck)(void);
-
-@interface MSIDOnboardingReadinessProvider : NSObject
-
-- (instancetype)initWithBrokerOptionsFactory:(nullable MSIDOnboardingBrokerOptionsFactory)brokerOptionsFactory
-                     brokerAvailabilityCheck:(nullable MSIDOnboardingBrokerAvailabilityCheck)brokerAvailabilityCheck
-              ssoExtensionAvailabilityCheck:(nullable MSIDOnboardingSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck;
-
-// Call from an application process; the Broker controller handles main-thread access.
-- (nullable MSIDOnboardingReadiness *)readiness;
+@property (nonatomic, readwrite) BOOL brokerAppAvailable;
+@property (nonatomic, readwrite) BOOL ssoExtensionAvailable;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDAuthenticationAvailabilityStatus
+
+- (instancetype)initWithBrokerAppAvailable:(BOOL)brokerAppAvailable
+             ssoExtensionAvailable:(BOOL)ssoExtensionAvailable
+{
+    self = [super init];
+    if (self)
+    {
+        _brokerAppAvailable = brokerAppAvailable;
+        _ssoExtensionAvailable = ssoExtensionAvailable;
+    }
+    return self;
+}
+
+@end
