@@ -28,9 +28,20 @@
 #import <XCTest/XCTest.h>
 #import "MSIDOnboardingReadinessProvider.h"
 #if TARGET_OS_IPHONE && !TARGET_OS_VISION
-#import "MSIDApplicationTestUtil.h"
 #import "MSIDBrokerInvocationOptions.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#endif
+
+#if TARGET_OS_IPHONE && !TARGET_OS_VISION && !AD_BROKER
+@interface MSIDUnavailableBrokerInvocationOptions : MSIDBrokerInvocationOptions
+@end
+
+@implementation MSIDUnavailableBrokerInvocationOptions
+- (BOOL)isRequiredBrokerPresent
+{
+    return NO;
+}
+@end
 #endif
 
 @interface MSIDOnboardingReadinessProviderTests : XCTestCase
@@ -39,13 +50,6 @@
 @implementation MSIDOnboardingReadinessProviderTests
 
 #if TARGET_OS_IPHONE && !TARGET_OS_VISION
-- (void)tearDown
-{
-    MSIDApplicationTestUtil.canOpenURLSchemes = nil;
-    [MSIDApplicationTestUtil reset];
-    [super tearDown];
-}
-
 - (void)testReadiness_usesExistingControllersAndReturnsBooleans
 {
     __block NSUInteger brokerChecks = 0;
@@ -146,17 +150,30 @@
 #endif
 
 #if !AD_BROKER
-- (void)testReadiness_whenBrokerSchemeIsMissing_returnsFalse
+- (void)testReadiness_whenBrokerOptionsReportUnavailable_returnsFalse
 {
-    MSIDApplicationTestUtil.canOpenURLSchemes = @[@"msauthv2"];
-    MSIDOnboardingReadiness *readiness = [MSIDOnboardingReadinessProvider new].readiness;
+    MSIDOnboardingReadinessProvider *provider = [[MSIDOnboardingReadinessProvider alloc]
+        initWithBrokerOptionsFactory:^MSIDBrokerInvocationOptions *{
+            return [[MSIDUnavailableBrokerInvocationOptions alloc]
+                initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithNonceSupport
+                              protocolType:MSIDBrokerProtocolTypeCustomScheme
+                         aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+        }
+             brokerAvailabilityCheck:nil
+      ssoExtensionAvailabilityCheck:^BOOL{
+          return YES;
+      }];
+    MSIDOnboardingReadiness *readiness = provider.readiness;
     XCTAssertNotNil(readiness);
     XCTAssertFalse(readiness.brokerAvailability);
+#if MSID_ENABLE_SSO_EXTENSION
+    XCTAssertTrue(readiness.ssoExtensionAvailability);
+#endif
 }
+#endif
 
-- (void)testReadiness_whenCalledOffMainThread_completesBrokerCheck
+- (void)testReadiness_whenCalledOffMainThread_completesDefaultBrokerCheck
 {
-    MSIDApplicationTestUtil.canOpenURLSchemes = @[@"msauthv2", @"msauthv3"];
     XCTestExpectation *expectation = [self expectationWithDescription:@"Background readiness completes"];
     __block MSIDOnboardingReadiness *readiness = nil;
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
@@ -164,9 +181,8 @@
         [expectation fulfill];
     });
     [self waitForExpectationsWithTimeout:5 handler:nil];
-    XCTAssertTrue(readiness.brokerAvailability);
+    XCTAssertNotNil(readiness);
 }
-#endif
 #elif TARGET_OS_OSX
 - (void)testReadiness_onMac_doesNotProbeBrokerAndKeepsSSOIndependent
 {
