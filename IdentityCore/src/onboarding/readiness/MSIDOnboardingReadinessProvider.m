@@ -35,30 +35,65 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #endif
 
+@interface MSIDOnboardingReadinessProvider ()
+
+@property (nonatomic, copy, nullable) MSIDOnboardingBrokerOptionsFactory brokerOptionsFactory;
+@property (nonatomic, copy, nullable) MSIDOnboardingBrokerAvailabilityCheck brokerAvailabilityCheck;
+@property (nonatomic, copy, nullable) MSIDOnboardingSSOExtensionAvailabilityCheck ssoExtensionAvailabilityCheck;
+
+@end
+
 @implementation MSIDOnboardingReadinessProvider
+
+- (instancetype)init
+{
+    return [self initWithBrokerOptionsFactory:nil
+                     brokerAvailabilityCheck:nil
+              ssoExtensionAvailabilityCheck:nil];
+}
+
+- (instancetype)initWithBrokerOptionsFactory:(MSIDOnboardingBrokerOptionsFactory)brokerOptionsFactory
+                     brokerAvailabilityCheck:(MSIDOnboardingBrokerAvailabilityCheck)brokerAvailabilityCheck
+              ssoExtensionAvailabilityCheck:(MSIDOnboardingSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck
+{
+    self = [super init];
+    if (self)
+    {
+        _brokerOptionsFactory = [brokerOptionsFactory copy];
+        _brokerAvailabilityCheck = [brokerAvailabilityCheck copy];
+        _ssoExtensionAvailabilityCheck = [ssoExtensionAvailabilityCheck copy];
+    }
+    return self;
+}
 
 - (nullable MSIDOnboardingReadiness *)readiness
 {
     BOOL brokerAvailability = NO;
 #if TARGET_OS_IPHONE && !TARGET_OS_VISION
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
-    parameters.brokerInvocationOptions = [[MSIDBrokerInvocationOptions alloc]
-        initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithNonceSupport
-                      protocolType:MSIDBrokerProtocolTypeCustomScheme
-                 aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    parameters.brokerInvocationOptions = self.brokerOptionsFactory
+        ? self.brokerOptionsFactory()
+        : [[MSIDBrokerInvocationOptions alloc]
+           initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithNonceSupport
+                         protocolType:MSIDBrokerProtocolTypeCustomScheme
+                    aadRequestVersion:MSIDBrokerAADRequestVersionV2];
     if (!parameters.brokerInvocationOptions)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to initialize onboarding Broker request options.");
         return nil;
     }
-    brokerAvailability = [MSIDBrokerInteractiveController canPerformRequest:parameters];
+    brokerAvailability = self.brokerAvailabilityCheck
+        ? self.brokerAvailabilityCheck(parameters)
+        : [MSIDBrokerInteractiveController canPerformRequest:parameters];
 #else
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Onboarding Broker routing is not supported on this platform.");
 #endif
 
     BOOL ssoExtensionAvailability = NO;
 #if MSID_ENABLE_SSO_EXTENSION && !TARGET_OS_VISION
-    ssoExtensionAvailability = [MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest];
+    ssoExtensionAvailability = self.ssoExtensionAvailabilityCheck
+        ? self.ssoExtensionAvailabilityCheck()
+        : [MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest];
 #else
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Onboarding SSO extension routing is not supported in this build.");
 #endif

@@ -2216,6 +2216,8 @@
 		FAC10001000000000000000C /* MSIDOnboardingReadiness.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000011 /* MSIDOnboardingReadiness.h */; };
 		FAC10001000000000000000D /* MSIDOnboardingReadinessProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000012 /* MSIDOnboardingReadinessProvider.h */; };
 		FAC10001000000000000000E /* MSIDWebCPOnboardingReadinessContract.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000013 /* MSIDWebCPOnboardingReadinessContract.h */; };
+		FAC10001000000000000001B /* MSIDOnboardingReadinessProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000017 /* MSIDOnboardingReadinessProviderTests.m */; };
+		FAC10001000000000000001C /* MSIDWebCPOnboardingReadinessContractTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000018 /* MSIDWebCPOnboardingReadinessContractTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -8761,6 +8763,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAC10001000000000000001B /* MSIDOnboardingReadinessProviderTests.m in Sources */,
+				FAC10001000000000000001C /* MSIDWebCPOnboardingReadinessContractTests.m in Sources */,
 				D6D9A4581FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
 				D626FFF21FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
 				D626FFF81FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,

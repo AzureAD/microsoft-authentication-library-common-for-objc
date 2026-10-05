@@ -49,14 +49,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDWebCPOnboardingReadinessContract : NSObject
 
-+ (NSString *)actionName;
-+ (NSString *)actionComponent;
++ (instancetype)sharedInstance;
+
+- (NSString *)actionName;
+- (NSString *)actionComponent;
 // Unsupported actions or integer versions differ from malformed envelopes and parameters.
-+ (MSIDWebCPOnboardingReadinessRequestValidation)validateRequest:(nullable id)request;
+- (MSIDWebCPOnboardingReadinessRequestValidation)validateRequest:(nullable id)request;
 // The generated flag lets each adapter distinguish a replacement ID in its telemetry.
-+ (NSString *)correlationIDForRequest:(nullable id)request generated:(nullable BOOL *)generated;
+- (NSString *)correlationIDForRequest:(nullable id)request generated:(nullable BOOL *)generated;
 // A missing or unserializable readiness result cannot produce Success.
-+ (NSDictionary<NSString *, id> *)responseWithStatus:(MSIDWebCPOnboardingReadinessResponseStatus)status
+- (NSDictionary<NSString *, id> *)responseWithStatus:(MSIDWebCPOnboardingReadinessResponseStatus)status
                                         correlationID:(NSString *)correlationID
                                             readiness:(nullable MSIDOnboardingReadiness *)readiness;
 
