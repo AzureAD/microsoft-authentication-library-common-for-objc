@@ -28,9 +28,20 @@
 #import <Foundation/Foundation.h>
 #import "MSIDOnboardingReadiness.h"
 
+@class MSIDBrokerInvocationOptions;
+@class MSIDInteractiveTokenRequestParameters;
+
 NS_ASSUME_NONNULL_BEGIN
 
+typedef MSIDBrokerInvocationOptions * _Nullable (^MSIDOnboardingBrokerOptionsFactory)(void);
+typedef BOOL (^MSIDOnboardingBrokerAvailabilityCheck)(MSIDInteractiveTokenRequestParameters *parameters);
+typedef BOOL (^MSIDOnboardingSSOExtensionAvailabilityCheck)(void);
+
 @interface MSIDOnboardingReadinessProvider : NSObject
+
+- (instancetype)initWithBrokerOptionsFactory:(nullable MSIDOnboardingBrokerOptionsFactory)brokerOptionsFactory
+                     brokerAvailabilityCheck:(nullable MSIDOnboardingBrokerAvailabilityCheck)brokerAvailabilityCheck
+              ssoExtensionAvailabilityCheck:(nullable MSIDOnboardingSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck;
 
 // Call from an application process; the Broker controller handles main-thread access.
 - (nullable MSIDOnboardingReadiness *)readiness;

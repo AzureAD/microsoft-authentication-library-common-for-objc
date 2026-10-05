@@ -21,6 +21,7 @@ static char MSIDWebCPHandlerKey;
 @property (nonatomic, weak) WKUserContentController *contentController;
 @property (nonatomic) NSHashTable<WKWebView *> *webViews;
 @property (nonatomic) MSIDOnboardingReadinessProvider *readinessProvider;
+@property (nonatomic) MSIDWebCPOnboardingReadinessContract *readinessContract;
 
 @end
 
@@ -45,6 +46,7 @@ static char MSIDWebCPHandlerKey;
         handler.contentController = contentController;
         handler.webViews = [NSHashTable weakObjectsHashTable];
         handler.readinessProvider = provider ?: [MSIDOnboardingReadinessProvider new];
+        handler.readinessContract = MSIDWebCPOnboardingReadinessContract.sharedInstance;
         @try
         {
             [contentController addScriptMessageHandlerWithReply:handler
@@ -125,36 +127,36 @@ contentController:(WKUserContentController *)contentController
         return;
     }
 
-    NSString *correlationID = [MSIDWebCPOnboardingReadinessContract correlationIDForRequest:body generated:NULL];
+    NSString *correlationID = [self.readinessContract correlationIDForRequest:body generated:NULL];
     MSIDWebCPOnboardingReadinessRequestValidation validation =
-        [MSIDWebCPOnboardingReadinessContract validateRequest:body];
+        [self.readinessContract validateRequest:body];
     if (validation != MSIDWebCPOnboardingReadinessRequestValidationValid)
     {
         MSIDWebCPOnboardingReadinessResponseStatus status =
             validation == MSIDWebCPOnboardingReadinessRequestValidationNotSupported
             ? MSIDWebCPOnboardingReadinessResponseStatusNotSupported
             : MSIDWebCPOnboardingReadinessResponseStatusFailed;
-        replyHandler([MSIDWebCPOnboardingReadinessContract responseWithStatus:status
-                                                                correlationID:correlationID
-                                                                    readiness:nil], nil);
+        replyHandler([self.readinessContract responseWithStatus:status
+                                                  correlationID:correlationID
+                                                      readiness:nil], nil);
         return;
     }
 
     if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS])
     {
-        replyHandler([MSIDWebCPOnboardingReadinessContract
+        replyHandler([self.readinessContract
                       responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusNotSupported
-                      correlationID:correlationID
-                      readiness:nil], nil);
+                           correlationID:correlationID
+                               readiness:nil], nil);
         return;
     }
 
     MSIDOnboardingReadiness *readiness = [self.readinessProvider readiness];
     MSIDWebCPOnboardingReadinessResponseStatus status = readiness
         ? MSIDWebCPOnboardingReadinessResponseStatusSuccess : MSIDWebCPOnboardingReadinessResponseStatusFailed;
-    replyHandler([MSIDWebCPOnboardingReadinessContract responseWithStatus:status
-                                                            correlationID:correlationID
-                                                                readiness:readiness], nil);
+    replyHandler([self.readinessContract responseWithStatus:status
+                                              correlationID:correlationID
+                                                  readiness:readiness], nil);
 }
 
 @end

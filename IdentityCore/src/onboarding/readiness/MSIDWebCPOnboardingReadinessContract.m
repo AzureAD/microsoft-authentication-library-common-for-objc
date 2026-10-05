@@ -35,17 +35,27 @@ static NSString * const MSIDWebCPOnboardingReadinessActionComponent = @"native";
 
 @implementation MSIDWebCPOnboardingReadinessContract
 
-+ (NSString *)actionName
++ (instancetype)sharedInstance
+{
+    static MSIDWebCPOnboardingReadinessContract *instance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [MSIDWebCPOnboardingReadinessContract new];
+    });
+    return instance;
+}
+
+- (NSString *)actionName
 {
     return MSIDWebCPOnboardingReadinessActionName;
 }
 
-+ (NSString *)actionComponent
+- (NSString *)actionComponent
 {
     return MSIDWebCPOnboardingReadinessActionComponent;
 }
 
-+ (MSIDWebCPOnboardingReadinessRequestValidation)validateRequest:(nullable id)request
+- (MSIDWebCPOnboardingReadinessRequestValidation)validateRequest:(nullable id)request
 {
     if (![request isKindOfClass:[NSDictionary class]])
     {
@@ -95,7 +105,7 @@ static NSString * const MSIDWebCPOnboardingReadinessActionComponent = @"native";
     return MSIDWebCPOnboardingReadinessRequestValidationValid;
 }
 
-+ (NSString *)correlationIDForRequest:(nullable id)request generated:(BOOL *)generated
+- (NSString *)correlationIDForRequest:(nullable id)request generated:(BOOL *)generated
 {
     id value = [request isKindOfClass:[NSDictionary class]] ? request[@"correlationID"] : nil;
     NSUUID *uuid = [value isKindOfClass:[NSString class]] ? [[NSUUID alloc] initWithUUIDString:value] : nil;
@@ -111,7 +121,7 @@ static NSString * const MSIDWebCPOnboardingReadinessActionComponent = @"native";
     return valid ? value : [NSUUID UUID].UUIDString;
 }
 
-+ (NSDictionary<NSString *, id> *)responseWithStatus:(MSIDWebCPOnboardingReadinessResponseStatus)status
+- (NSDictionary<NSString *, id> *)responseWithStatus:(MSIDWebCPOnboardingReadinessResponseStatus)status
                                         correlationID:(NSString *)correlationID
                                             readiness:(MSIDOnboardingReadiness *)readiness
 {
