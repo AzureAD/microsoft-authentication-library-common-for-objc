@@ -243,11 +243,20 @@ contentController:(WKUserContentController *)contentController
 
 - (void)testRegistration_whenViewsShareContentController_shouldPreserveRemainingView
 {
+    WKUserContentController *contentController = self.webView.configuration.userContentController;
+    XCTAssertEqual(contentController.userScripts.count, 1u);
+    WKUserScript *script = contentController.userScripts.firstObject;
+    XCTAssertTrue([script.source containsString:@"window.msidWebCP ="]);
+    XCTAssertTrue([script.source containsString:@"messageHandlers.msidWebCP.postMessage(message)"]);
+    XCTAssertEqual(script.injectionTime, WKUserScriptInjectionTimeAtDocumentStart);
+    XCTAssertTrue(script.forMainFrameOnly);
+
     WKWebView *otherWebView = [[WKWebView alloc] initWithFrame:CGRectZero
                                                  configuration:self.webView.configuration];
     XCTAssertEqual([MSIDWebCPScriptMessageHandler attachToWebView:otherWebView
                                                 readinessProvider:nil
                                                 readinessContract:self.contract], self.handler);
+    XCTAssertEqual(contentController.userScripts.count, 1u);
     [self.handler detachFromWebView:self.webView];
     [self sendBody:[self request]
                url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
@@ -258,9 +267,14 @@ contentController:(WKUserContentController *)contentController
     XCTAssertEqual(self.provider.invocationCount, 1u);
     [self.handler detachFromWebView:otherWebView];
     [self.handler detachFromWebView:otherWebView];
+    MSIDWebCPScriptMessageHandler *reattached = [MSIDWebCPScriptMessageHandler
+        attachToWebView:otherWebView readinessProvider:nil readinessContract:self.contract];
+    XCTAssertNotNil(reattached);
+    XCTAssertEqual(contentController.userScripts.count, 1u);
+    [reattached detachFromWebView:otherWebView];
 }
 
-- (void)testOAuthController_whenReadinessDisabled_shouldAttachBridgeToSuppliedWebView
+- (void)testOAuthController_whenReadinessDisabled_shouldNotAttachBridge
 {
     self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS: @YES};
     WKWebView *suppliedWebView = [[WKWebView alloc] initWithFrame:CGRectZero
@@ -276,8 +290,82 @@ contentController:(WKUserContentController *)contentController
     NSError *error = nil;
     XCTAssertTrue([controller loadView:&error]);
     XCTAssertNil(error);
-    XCTAssertNotNil(controller.webCPScriptMessageHandler);
+    XCTAssertNil(controller.webCPScriptMessageHandler);
+    XCTAssertEqual(suppliedWebView.configuration.userContentController.userScripts.count, 0u);
     XCTAssertEqual(controller.webView, suppliedWebView);
+}
+
+- (void)testOAuthController_whenCanceled_shouldDetachOnlySuppliedWebView
+{
+    WKWebView *suppliedWebView = [[WKWebView alloc] initWithFrame:CGRectZero
+                                                    configuration:self.webView.configuration];
+    MSIDOAuth2EmbeddedWebviewController *controller =
+        [[MSIDOAuth2EmbeddedWebviewController alloc]
+         initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/"]
+                   endURL:[NSURL URLWithString:@"msauth://callback"]
+                  webview:suppliedWebView
+            customHeaders:nil
+           platfromParams:nil
+                  context:nil];
+    NSError *error = nil;
+    XCTAssertTrue([controller loadView:&error]);
+    XCTAssertNil(error);
+    XCTAssertEqual(controller.webCPScriptMessageHandler, self.handler);
+
+    [controller cancelProgrammatically];
+    XCTAssertNil(controller.webCPScriptMessageHandler);
+
+    NSURL *enrollmentURL = [NSURL URLWithString:
+        @"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"];
+    [self sendBody:[self request] url:enrollmentURL mainFrame:YES webView:suppliedWebView
+        completion:^(id response, NSString *replyError) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(replyError);
+    }];
+    [self sendBody:[self request] url:enrollmentURL mainFrame:YES webView:self.webView
+        completion:^(NSDictionary *response, NSString *replyError) {
+        XCTAssertNil(replyError);
+        XCTAssertEqualObjects(response[@"status"], @"Success");
+    }];
+    XCTAssertEqual(self.provider.invocationCount, 1u);
+}
+
+- (void)testOAuthController_whenDeallocated_shouldDetachOnlySuppliedWebView
+{
+    WKWebView *suppliedWebView = [[WKWebView alloc] initWithFrame:CGRectZero
+                                                    configuration:self.webView.configuration];
+    __weak MSIDOAuth2EmbeddedWebviewController *weakController;
+    @autoreleasepool
+    {
+        MSIDOAuth2EmbeddedWebviewController *controller =
+            [[MSIDOAuth2EmbeddedWebviewController alloc]
+             initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/"]
+                       endURL:[NSURL URLWithString:@"msauth://callback"]
+                      webview:suppliedWebView
+                customHeaders:nil
+               platfromParams:nil
+                      context:nil];
+        NSError *error = nil;
+        XCTAssertTrue([controller loadView:&error]);
+        XCTAssertNil(error);
+        XCTAssertEqual(controller.webCPScriptMessageHandler, self.handler);
+        weakController = controller;
+    }
+    XCTAssertNil(weakController);
+
+    NSURL *enrollmentURL = [NSURL URLWithString:
+        @"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"];
+    [self sendBody:[self request] url:enrollmentURL mainFrame:YES webView:suppliedWebView
+        completion:^(id response, NSString *replyError) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(replyError);
+    }];
+    [self sendBody:[self request] url:enrollmentURL mainFrame:YES webView:self.webView
+        completion:^(NSDictionary *response, NSString *replyError) {
+        XCTAssertNil(replyError);
+        XCTAssertEqualObjects(response[@"status"], @"Success");
+    }];
+    XCTAssertEqual(self.provider.invocationCount, 1u);
 }
 
 @end

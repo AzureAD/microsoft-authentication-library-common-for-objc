@@ -213,7 +213,8 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 #if TARGET_OS_IPHONE
     NSString *bundlePath = [NSBundle mainBundle].bundlePath;
     if (result && self.webView && bundlePath.length > 0
-        && ![bundlePath.pathExtension.lowercaseString isEqualToString:@"appex"])
+        && ![bundlePath.pathExtension.lowercaseString isEqualToString:@"appex"]
+        && ![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS])
     {
         self.webCPScriptMessageHandler = [MSIDWebCPScriptMessageHandler
                                           attachToWebView:self.webView

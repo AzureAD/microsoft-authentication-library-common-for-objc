@@ -15,6 +15,14 @@
 
 NSString * const MSIDWebCPScriptMessageHandlerName = @"msidWebCP";
 static char MSIDWebCPHandlerKey;
+static char MSIDWebCPUserScriptKey;
+static NSString * const MSIDWebCPJavaScriptAPI =
+    @"(function() {"
+    @"if (window.msidWebCP) { return; }"
+    @"window.msidWebCP = { postMessage: function(message) {"
+    @"return window.webkit.messageHandlers.msidWebCP.postMessage(message);"
+    @"} };"
+    @"})();";
 
 @interface MSIDWebCPScriptMessageHandler ()
 
@@ -70,6 +78,17 @@ static char MSIDWebCPHandlerKey;
         }
         objc_setAssociatedObject(contentController, &MSIDWebCPHandlerKey,
                                  handler, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+
+    WKUserScript *script = objc_getAssociatedObject(contentController, &MSIDWebCPUserScriptKey);
+    if (!script || ![contentController.userScripts containsObject:script])
+    {
+        script = [[WKUserScript alloc] initWithSource:MSIDWebCPJavaScriptAPI
+                                      injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+                                   forMainFrameOnly:YES];
+        [contentController addUserScript:script];
+        objc_setAssociatedObject(contentController, &MSIDWebCPUserScriptKey,
+                                 script, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
     [handler.webViews addObject:webView];
