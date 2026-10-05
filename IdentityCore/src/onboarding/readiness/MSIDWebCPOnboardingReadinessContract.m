@@ -75,15 +75,8 @@ static NSString * const MSIDWebCPOnboardingReadinessActionComponent = @"native";
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"WebCP readiness action or component not supported.");
         return MSIDWebCPOnboardingReadinessRequestValidationNotSupported;
     }
-    NSSet *allowedKeys = [NSSet setWithArray:@[@"correlationID", @"action_name", @"action_component", @"params"]];
-    if (![[NSSet setWithArray:envelope.allKeys] isSubsetOfSet:allowedKeys])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"WebCP readiness request has unexpected envelope keys.");
-        return MSIDWebCPOnboardingReadinessRequestValidationMalformed;
-    }
-
     id parameters = envelope[@"params"];
-    if (![parameters isKindOfClass:[NSDictionary class]] || [parameters count] != 1)
+    if (![parameters isKindOfClass:[NSDictionary class]])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"WebCP readiness request parameters are malformed.");
         return MSIDWebCPOnboardingReadinessRequestValidationMalformed;

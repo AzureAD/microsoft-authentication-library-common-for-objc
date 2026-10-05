@@ -65,6 +65,16 @@
                    MSIDWebCPOnboardingReadinessRequestValidationNotSupported);
 }
 
+- (void)testValidateRequest_whenAdditionalFieldsArePresent_shouldAccept
+{
+    NSDictionary *request = @{@"action_name": @"get_onboarding_readiness",
+                              @"action_component": @"native",
+                              @"params": @{@"contractVersion": @1, @"operation": @"open"},
+                              @"before_action": @[]};
+    XCTAssertEqual([self.contract validateRequest:request],
+                   MSIDWebCPOnboardingReadinessRequestValidationValid);
+}
+
 - (void)testValidateRequest_whenActionIsUnsupported_shouldReturnNotSupported
 {
     NSDictionary *request = @{@"action_name": @"get_tokens",
@@ -83,10 +93,6 @@
           @"params": @{@"contractVersion": @YES}},
         @{@"action_name": @"get_onboarding_readiness", @"action_component": @"native",
           @"params": @{@"contractVersion": @1.5}},
-        @{@"action_name": @"get_onboarding_readiness", @"action_component": @"native",
-          @"params": @{@"contractVersion": @1, @"operation": @"open"}},
-        @{@"action_name": @"get_onboarding_readiness", @"action_component": @"native",
-          @"params": @{@"contractVersion": @1}, @"before_action": @[]},
         @{@"action_name": @1, @"action_component": @"native", @"params": @{@"contractVersion": @1}}
     ];
     for (id request in requests)

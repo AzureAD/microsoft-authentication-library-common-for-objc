@@ -138,17 +138,20 @@ contentController:(WKUserContentController *)contentController
     XCTAssertEqual(self.provider.invocationCount, 0u);
 }
 
-- (void)testHandleBody_whenRequestHasNestedAction_shouldFailWithoutProbing
+- (void)testHandleBody_whenRequestHasAdditionalFields_shouldOnlyProbeReadiness
 {
     NSMutableDictionary *body = [[self requestWithVersion:@1] mutableCopy];
     body[@"before_action"] = @{};
+    body[@"params"] = @{@"contractVersion": @1, @"operation": @"open"};
     [self sendBody:body
                url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
          mainFrame:YES webView:self.webView completion:^(NSDictionary *response, NSString *error) {
         XCTAssertNil(error);
-        XCTAssertEqualObjects(response[@"status"], @"Failed");
+        XCTAssertEqualObjects(response[@"status"], @"Success");
+        XCTAssertEqualObjects(response[@"result"][@"brokerAvailability"], @NO);
+        XCTAssertEqualObjects(response[@"result"][@"ssoExtensionAvailability"], @YES);
     }];
-    XCTAssertEqual(self.provider.invocationCount, 0u);
+    XCTAssertEqual(self.provider.invocationCount, 1u);
 }
 
 - (void)testHandleBody_whenProviderFails_shouldReturnFailedInsteadOfFalseBooleans
