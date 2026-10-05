@@ -7,7 +7,7 @@
 
 #import "MSIDWebCPScriptMessageHandler.h"
 #import "MSIDWebCPOnboardingReadinessContract.h"
-#import "MSIDOnboardingReadinessProvider.h"
+#import "MSIDAuthenticationAvailabilityProvider.h"
 #import "MSIDWebviewConstants.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
@@ -20,7 +20,7 @@ static char MSIDWebCPHandlerKey;
 
 @property (nonatomic, weak) WKUserContentController *contentController;
 @property (nonatomic) NSHashTable<WKWebView *> *webViews;
-@property (nonatomic) MSIDOnboardingReadinessProvider *readinessProvider;
+@property (nonatomic) MSIDAuthenticationAvailabilityProvider *availabilityProvider;
 @property (nonatomic) MSIDWebCPOnboardingReadinessContract *readinessContract;
 
 @end
@@ -28,13 +28,19 @@ static char MSIDWebCPHandlerKey;
 @implementation MSIDWebCPScriptMessageHandler
 
 + (instancetype)attachToWebView:(WKWebView *)webView
-               readinessProvider:(MSIDOnboardingReadinessProvider *)provider
+               readinessProvider:(MSIDAuthenticationAvailabilityProvider *)provider
+               readinessContract:(MSIDWebCPOnboardingReadinessContract *)contract
 {
     NSAssert([NSThread isMainThread], @"WebKit handler registration must run on the main thread.");
     WKUserContentController *contentController = webView.configuration.userContentController;
     if (!contentController)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"WebCP WebView has no user content controller.");
+        return nil;
+    }
+    if (!contract)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"WebCP script handler requires a readiness contract.");
         return nil;
     }
 
@@ -45,8 +51,8 @@ static char MSIDWebCPHandlerKey;
         handler = [MSIDWebCPScriptMessageHandler new];
         handler.contentController = contentController;
         handler.webViews = [NSHashTable weakObjectsHashTable];
-        handler.readinessProvider = provider ?: [MSIDOnboardingReadinessProvider new];
-        handler.readinessContract = MSIDWebCPOnboardingReadinessContract.sharedInstance;
+        handler.availabilityProvider = provider ?: [MSIDAuthenticationAvailabilityProvider new];
+        handler.readinessContract = contract;
         @try
         {
             [contentController addScriptMessageHandlerWithReply:handler
@@ -138,7 +144,7 @@ contentController:(WKUserContentController *)contentController
             : MSIDWebCPOnboardingReadinessResponseStatusFailed;
         replyHandler([self.readinessContract responseWithStatus:status
                                                   correlationID:correlationID
-                                                      readiness:nil], nil);
+                                                   availability:nil], nil);
         return;
     }
 
@@ -147,16 +153,16 @@ contentController:(WKUserContentController *)contentController
         replyHandler([self.readinessContract
                       responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusNotSupported
                            correlationID:correlationID
-                               readiness:nil], nil);
+                            availability:nil], nil);
         return;
     }
 
-    MSIDOnboardingReadiness *readiness = [self.readinessProvider readiness];
-    MSIDWebCPOnboardingReadinessResponseStatus status = readiness
+    MSIDAuthenticationAvailabilityStatus *availability = [self.availabilityProvider availabilityStatus];
+    MSIDWebCPOnboardingReadinessResponseStatus status = availability
         ? MSIDWebCPOnboardingReadinessResponseStatusSuccess : MSIDWebCPOnboardingReadinessResponseStatusFailed;
     replyHandler([self.readinessContract responseWithStatus:status
                                               correlationID:correlationID
-                                                  readiness:readiness], nil);
+                                               availability:availability], nil);
 }
 
 @end

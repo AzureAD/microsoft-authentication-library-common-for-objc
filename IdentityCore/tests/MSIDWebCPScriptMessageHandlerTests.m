@@ -7,8 +7,9 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDWebCPScriptMessageHandler.h"
-#import "MSIDOnboardingReadiness.h"
-#import "MSIDOnboardingReadinessProvider.h"
+#import "MSIDAuthenticationAvailabilityStatus.h"
+#import "MSIDAuthenticationAvailabilityProvider.h"
+#import "MSIDWebCPOnboardingReadinessContract.h"
 #import "MSIDFlightManager.h"
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
@@ -28,22 +29,35 @@ contentController:(WKUserContentController *)contentController
 @property (nonatomic, readonly) MSIDWebCPScriptMessageHandler *webCPScriptMessageHandler;
 @end
 
-@interface MSIDReadinessTestProvider : MSIDOnboardingReadinessProvider
-@property (nonatomic) MSIDOnboardingReadiness *readinessResult;
+@interface MSIDReadinessTestProvider : MSIDAuthenticationAvailabilityProvider
+@property (nonatomic) MSIDAuthenticationAvailabilityStatus *availabilityResult;
 @property (nonatomic) NSUInteger invocationCount;
 @end
 
 @implementation MSIDReadinessTestProvider
-- (MSIDOnboardingReadiness *)readiness
+- (MSIDAuthenticationAvailabilityStatus *)availabilityStatus
 {
     self.invocationCount++;
-    return self.readinessResult;
+    return self.availabilityResult;
+}
+@end
+
+@interface MSIDTrackingReadinessContract : MSIDWebCPOnboardingReadinessContract
+@property (nonatomic) NSUInteger validationCount;
+@end
+
+@implementation MSIDTrackingReadinessContract
+- (MSIDWebCPOnboardingReadinessRequestValidation)validateRequest:(id)request
+{
+    self.validationCount++;
+    return [super validateRequest:request];
 }
 @end
 
 @interface MSIDWebCPScriptMessageHandlerTests : XCTestCase
 @property (nonatomic) WKWebView *webView;
 @property (nonatomic) MSIDReadinessTestProvider *provider;
+@property (nonatomic) MSIDTrackingReadinessContract *contract;
 @property (nonatomic) MSIDWebCPScriptMessageHandler *handler;
 @property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
 @end
@@ -57,10 +71,12 @@ contentController:(WKUserContentController *)contentController
     MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
     self.webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:[WKWebViewConfiguration new]];
     self.provider = [MSIDReadinessTestProvider new];
-    self.provider.readinessResult = [[MSIDOnboardingReadiness alloc] initWithBrokerAvailability:NO
-                                                                     ssoExtensionAvailability:YES];
+    self.contract = [MSIDTrackingReadinessContract new];
+    self.provider.availabilityResult = [[MSIDAuthenticationAvailabilityStatus alloc] initWithBrokerAppAvailable:NO
+                                                                                    ssoExtensionAvailable:YES];
     self.handler = [MSIDWebCPScriptMessageHandler attachToWebView:self.webView
-                                                 readinessProvider:self.provider];
+                                                 readinessProvider:self.provider
+                                                 readinessContract:self.contract];
     XCTAssertNotNil(self.handler);
 }
 
@@ -71,12 +87,12 @@ contentController:(WKUserContentController *)contentController
     [super tearDown];
 }
 
-- (NSDictionary *)requestWithVersion:(NSNumber *)version
+- (NSDictionary *)request
 {
     return @{@"correlationID": @"a7c08f6d-b239-49fb-a494-85f70f1a2fcb",
              @"action_name": @"get_onboarding_readiness",
              @"action_component": @"native",
-             @"params": @{@"contractVersion": version}};
+             @"params": @{}};
 }
 
 - (void)sendBody:(id)body
@@ -97,36 +113,40 @@ contentController:(WKUserContentController *)contentController
 - (void)testHandleBody_whenRequestIsValid_shouldReturnIndependentBooleans
 {
     __block NSUInteger replies = 0;
-    [self sendBody:[self requestWithVersion:@1]
+    [self sendBody:[self request]
                url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
          mainFrame:YES webView:self.webView completion:^(NSDictionary *response, NSString *error) {
         replies++;
         XCTAssertNil(error);
         XCTAssertEqualObjects(response[@"correlationID"], @"a7c08f6d-b239-49fb-a494-85f70f1a2fcb");
         XCTAssertEqualObjects(response[@"status"], @"Success");
-        XCTAssertEqualObjects(response[@"result"][@"brokerAvailability"], @NO);
-        XCTAssertEqualObjects(response[@"result"][@"ssoExtensionAvailability"], @YES);
-        XCTAssertEqualObjects(response[@"result"][@"contractVersion"], @1);
+        XCTAssertEqualObjects(response[@"result"][@"brokerAppAvailable"], @NO);
+        XCTAssertEqualObjects(response[@"result"][@"ssoExtensionAvailable"], @YES);
+        XCTAssertEqualObjects(response[@"result"],
+                              (@{@"brokerAppAvailable": @NO, @"ssoExtensionAvailable": @YES}));
     }];
     XCTAssertEqual(replies, 1u);
     XCTAssertEqual(self.provider.invocationCount, 1u);
+    XCTAssertEqual(self.contract.validationCount, 1u);
 }
 
-- (void)testHandleBody_whenVersionIsUnsupported_shouldNotProbe
+- (void)testHandleBody_whenAdditionalVersionFieldIsPresent_shouldIgnoreIt
 {
-    [self sendBody:[self requestWithVersion:@2]
+    NSMutableDictionary *body = [[self request] mutableCopy];
+    body[@"params"] = @{@"contractVersion": @2};
+    [self sendBody:body
                url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
          mainFrame:YES webView:self.webView completion:^(NSDictionary *response, NSString *error) {
         XCTAssertNil(error);
-        XCTAssertEqualObjects(response[@"status"], @"NotSupported");
-        XCTAssertEqualObjects(response[@"result"][@"supportedContractVersions"], (@[@1]));
+        XCTAssertEqualObjects(response[@"status"], @"Success");
+        XCTAssertEqualObjects(response[@"result"][@"brokerAppAvailable"], @NO);
     }];
-    XCTAssertEqual(self.provider.invocationCount, 0u);
+    XCTAssertEqual(self.provider.invocationCount, 1u);
 }
 
 - (void)testHandleBody_whenAnotherActionIsRequested_shouldNotProbe
 {
-    NSMutableDictionary *body = [[self requestWithVersion:@1] mutableCopy];
+    NSMutableDictionary *body = [[self request] mutableCopy];
     body[@"action_name"] = @"fooBarCheck";
     self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS: @YES};
     [self sendBody:body
@@ -140,7 +160,7 @@ contentController:(WKUserContentController *)contentController
 
 - (void)testHandleBody_whenRequestHasAdditionalFields_shouldOnlyProbeReadiness
 {
-    NSMutableDictionary *body = [[self requestWithVersion:@1] mutableCopy];
+    NSMutableDictionary *body = [[self request] mutableCopy];
     body[@"before_action"] = @{};
     body[@"params"] = @{@"contractVersion": @1, @"operation": @"open"};
     [self sendBody:body
@@ -148,16 +168,16 @@ contentController:(WKUserContentController *)contentController
          mainFrame:YES webView:self.webView completion:^(NSDictionary *response, NSString *error) {
         XCTAssertNil(error);
         XCTAssertEqualObjects(response[@"status"], @"Success");
-        XCTAssertEqualObjects(response[@"result"][@"brokerAvailability"], @NO);
-        XCTAssertEqualObjects(response[@"result"][@"ssoExtensionAvailability"], @YES);
+        XCTAssertEqualObjects(response[@"result"][@"brokerAppAvailable"], @NO);
+        XCTAssertEqualObjects(response[@"result"][@"ssoExtensionAvailable"], @YES);
     }];
     XCTAssertEqual(self.provider.invocationCount, 1u);
 }
 
 - (void)testHandleBody_whenProviderFails_shouldReturnFailedInsteadOfFalseBooleans
 {
-    self.provider.readinessResult = nil;
-    [self sendBody:[self requestWithVersion:@1]
+    self.provider.availabilityResult = nil;
+    [self sendBody:[self request]
                url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
          mainFrame:YES webView:self.webView completion:^(NSDictionary *response, NSString *error) {
         XCTAssertNil(error);
@@ -170,7 +190,7 @@ contentController:(WKUserContentController *)contentController
 - (void)testHandleBody_whenDisabledByFlight_shouldNotProbe
 {
     self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS: @YES};
-    [self sendBody:[self requestWithVersion:@1]
+    [self sendBody:[self request]
                url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
          mainFrame:YES webView:self.webView completion:^(NSDictionary *response, NSString *error) {
         XCTAssertNil(error);
@@ -189,13 +209,13 @@ contentController:(WKUserContentController *)contentController
     ];
     for (NSURL *url in urls)
     {
-        [self sendBody:[self requestWithVersion:@1] url:url mainFrame:YES webView:self.webView
+        [self sendBody:[self request] url:url mainFrame:YES webView:self.webView
             completion:^(id response, NSString *error) {
             XCTAssertNil(response);
             XCTAssertNotNil(error);
         }];
     }
-    [self sendBody:[self requestWithVersion:@1]
+    [self sendBody:[self request]
                url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
          mainFrame:NO webView:self.webView completion:^(id response, NSString *error) {
         XCTAssertNil(response);
@@ -210,7 +230,7 @@ contentController:(WKUserContentController *)contentController
     __block NSUInteger replies = 0;
     for (NSUInteger index = 0; index < 2; index++)
     {
-        [self sendBody:[self requestWithVersion:@1] url:url mainFrame:YES webView:self.webView
+        [self sendBody:[self request] url:url mainFrame:YES webView:self.webView
             completion:^(NSDictionary *response, NSString *error) {
             XCTAssertNil(error);
             XCTAssertEqualObjects(response[@"status"], @"Success");
@@ -226,9 +246,10 @@ contentController:(WKUserContentController *)contentController
     WKWebView *otherWebView = [[WKWebView alloc] initWithFrame:CGRectZero
                                                  configuration:self.webView.configuration];
     XCTAssertEqual([MSIDWebCPScriptMessageHandler attachToWebView:otherWebView
-                                                readinessProvider:nil], self.handler);
+                                                readinessProvider:nil
+                                                readinessContract:self.contract], self.handler);
     [self.handler detachFromWebView:self.webView];
-    [self sendBody:[self requestWithVersion:@1]
+    [self sendBody:[self request]
                url:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]
          mainFrame:YES webView:otherWebView completion:^(NSDictionary *response, NSString *error) {
         XCTAssertNil(error);

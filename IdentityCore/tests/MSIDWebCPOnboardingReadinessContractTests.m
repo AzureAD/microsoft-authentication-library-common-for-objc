@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <XCTest/XCTest.h>
-#import "MSIDOnboardingReadiness.h"
+#import "MSIDAuthenticationAvailabilityStatus.h"
 #import "MSIDWebCPOnboardingReadinessContract.h"
 
 @interface MSIDWebCPOnboardingReadinessContractTests : XCTestCase
@@ -38,38 +38,24 @@
 - (void)setUp
 {
     [super setUp];
-    self.contract = MSIDWebCPOnboardingReadinessContract.sharedInstance;
+    self.contract = [MSIDWebCPOnboardingReadinessContract new];
 }
 
-- (void)testSharedInstance_isStable
-{
-    XCTAssertEqual(self.contract, MSIDWebCPOnboardingReadinessContract.sharedInstance);
-}
-
-- (void)testValidateRequest_whenV1EnvelopeIsValid_shouldAccept
+- (void)testValidateRequest_whenEnvelopeIsValid_shouldAccept
 {
     NSDictionary *request = @{@"correlationID": @"a7c08f6d-b239-49fb-a494-85f70f1a2fcb",
                               @"action_name": @"get_onboarding_readiness",
                               @"action_component": @"native",
-                              @"params": @{@"contractVersion": @1}};
+                              @"params": @{}};
     XCTAssertEqual([self.contract validateRequest:request],
                    MSIDWebCPOnboardingReadinessRequestValidationValid);
-}
-
-- (void)testValidateRequest_whenVersionIsUnsupported_shouldReturnNotSupported
-{
-    NSDictionary *request = @{@"action_name": @"get_onboarding_readiness",
-                              @"action_component": @"native",
-                              @"params": @{@"contractVersion": @2}};
-    XCTAssertEqual([self.contract validateRequest:request],
-                   MSIDWebCPOnboardingReadinessRequestValidationNotSupported);
 }
 
 - (void)testValidateRequest_whenAdditionalFieldsArePresent_shouldAccept
 {
     NSDictionary *request = @{@"action_name": @"get_onboarding_readiness",
                               @"action_component": @"native",
-                              @"params": @{@"contractVersion": @1, @"operation": @"open"},
+                              @"params": @{@"contractVersion": @2, @"operation": @"open"},
                               @"before_action": @[]};
     XCTAssertEqual([self.contract validateRequest:request],
                    MSIDWebCPOnboardingReadinessRequestValidationValid);
@@ -79,7 +65,7 @@
 {
     NSDictionary *request = @{@"action_name": @"get_tokens",
                               @"action_component": @"native",
-                              @"params": @{@"contractVersion": @1}};
+                              @"params": @{}};
     XCTAssertEqual([self.contract validateRequest:request],
                    MSIDWebCPOnboardingReadinessRequestValidationNotSupported);
 }
@@ -90,10 +76,10 @@
         @[],
         @{@"action_name": @"get_onboarding_readiness", @"action_component": @"native"},
         @{@"action_name": @"get_onboarding_readiness", @"action_component": @"native",
-          @"params": @{@"contractVersion": @YES}},
+          @"params": @YES},
         @{@"action_name": @"get_onboarding_readiness", @"action_component": @"native",
-          @"params": @{@"contractVersion": @1.5}},
-        @{@"action_name": @1, @"action_component": @"native", @"params": @{@"contractVersion": @1}}
+          @"params": @[]},
+        @{@"action_name": @1, @"action_component": @"native", @"params": @{}}
     ];
     for (id request in requests)
     {
@@ -123,47 +109,43 @@
     }
 }
 
-- (void)testResponse_whenBothAvailable_shouldMatchVersionOneEnvelope
+- (void)testResponse_whenBothAvailable_shouldContainOnlyIndependentBooleans
 {
-    MSIDOnboardingReadiness *readiness = [[MSIDOnboardingReadiness alloc]
-        initWithBrokerAvailability:YES ssoExtensionAvailability:YES];
+    MSIDAuthenticationAvailabilityStatus *readiness = [[MSIDAuthenticationAvailabilityStatus alloc]
+        initWithBrokerAppAvailable:YES ssoExtensionAvailable:YES];
     NSString *identifier = @"a7c08f6d-b239-49fb-a494-85f70f1a2fcb";
     NSDictionary *response = [self.contract
         responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusSuccess
             correlationID:identifier
-                readiness:readiness];
+             availability:readiness];
     XCTAssertEqualObjects(response, (@{@"correlationID": identifier, @"status": @"Success",
-        @"result": @{@"contractVersion": @1,
-                    @"capabilities": @[@"brokerAvailability", @"ssoExtensionAvailability"],
-                    @"brokerAvailability": @YES, @"ssoExtensionAvailability": @YES}}));
+        @"result": @{@"brokerAppAvailable": @YES, @"ssoExtensionAvailable": @YES}}));
     XCTAssertNil(response[@"result"][@"ready"]);
     XCTAssertNil(response[@"result"][@"isBrokerFlow"]);
 }
 
 - (void)testResponse_whenOnlySSOCanPerformRequest_shouldKeepBooleansIndependent
 {
-    MSIDOnboardingReadiness *readiness = [[MSIDOnboardingReadiness alloc]
-        initWithBrokerAvailability:NO ssoExtensionAvailability:YES];
+    MSIDAuthenticationAvailabilityStatus *readiness = [[MSIDAuthenticationAvailabilityStatus alloc]
+        initWithBrokerAppAvailable:NO ssoExtensionAvailable:YES];
     NSDictionary *response = [self.contract
         responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusSuccess
             correlationID:@"a7c08f6d-b239-49fb-a494-85f70f1a2fcb"
-                readiness:readiness];
-    XCTAssertEqualObjects(response[@"result"][@"brokerAvailability"], @NO);
-    XCTAssertEqualObjects(response[@"result"][@"ssoExtensionAvailability"], @YES);
-    XCTAssertNil(response[@"result"][@"unknownReasons"]);
+             availability:readiness];
+    XCTAssertEqualObjects(response[@"result"][@"brokerAppAvailable"], @NO);
+    XCTAssertEqualObjects(response[@"result"][@"ssoExtensionAvailable"], @YES);
 }
 
 - (void)testResponse_whenNeitherControllerCanPerformRequest_shouldReturnFalseForBoth
 {
-    MSIDOnboardingReadiness *readiness = [[MSIDOnboardingReadiness alloc]
-        initWithBrokerAvailability:NO ssoExtensionAvailability:NO];
+    MSIDAuthenticationAvailabilityStatus *readiness = [[MSIDAuthenticationAvailabilityStatus alloc]
+        initWithBrokerAppAvailable:NO ssoExtensionAvailable:NO];
     NSDictionary *response = [self.contract
         responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusSuccess
             correlationID:@"a7c08f6d-b239-49fb-a494-85f70f1a2fcb"
-                readiness:readiness];
-    XCTAssertEqualObjects(response[@"result"][@"brokerAvailability"], @NO);
-    XCTAssertEqualObjects(response[@"result"][@"ssoExtensionAvailability"], @NO);
-    XCTAssertNil(response[@"result"][@"unknownReasons"]);
+             availability:readiness];
+    XCTAssertEqualObjects(response[@"result"][@"brokerAppAvailable"], @NO);
+    XCTAssertEqualObjects(response[@"result"][@"ssoExtensionAvailable"], @NO);
 }
 
 - (void)testResponse_whenUnsupportedOrFailed_shouldNotReturnReadiness
@@ -171,16 +153,16 @@
     NSString *identifier = @"a7c08f6d-b239-49fb-a494-85f70f1a2fcb";
     NSDictionary *unsupported = [self.contract
         responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusNotSupported
-            correlationID:identifier readiness:nil];
+            correlationID:identifier availability:nil];
     XCTAssertEqualObjects(unsupported, (@{@"correlationID": identifier, @"status": @"NotSupported",
-        @"result": @{@"contractVersion": @1, @"supportedContractVersions": @[@1]}}));
+        @"result": @{}}));
     NSDictionary *failed = [self.contract
         responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusFailed
-            correlationID:identifier readiness:nil];
+            correlationID:identifier availability:nil];
     XCTAssertEqualObjects(failed, (@{@"correlationID": identifier, @"status": @"Failed", @"result": @{}}));
     NSDictionary *missingReadiness = [self.contract
         responseWithStatus:MSIDWebCPOnboardingReadinessResponseStatusSuccess
-            correlationID:identifier readiness:nil];
+            correlationID:identifier availability:nil];
     XCTAssertEqualObjects(missingReadiness, failed);
 }
 

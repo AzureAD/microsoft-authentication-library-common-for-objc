@@ -25,38 +25,21 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDOnboardingReadiness.h"
-#import "MSIDWebCPOnboardingReadinessContract.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDOnboardingReadiness ()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, readwrite) BOOL brokerAvailability;
-@property (nonatomic, readwrite) BOOL ssoExtensionAvailability;
+@interface MSIDAuthenticationAvailabilityStatus : NSObject
 
-@end
+@property (nonatomic, readonly) BOOL brokerAppAvailable;
+@property (nonatomic, readonly) BOOL ssoExtensionAvailable;
 
-@implementation MSIDOnboardingReadiness
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
-- (instancetype)initWithBrokerAvailability:(BOOL)brokerAvailability
-                  ssoExtensionAvailability:(BOOL)ssoExtensionAvailability
-{
-    self = [super init];
-    if (self)
-    {
-        _brokerAvailability = brokerAvailability;
-        _ssoExtensionAvailability = ssoExtensionAvailability;
-    }
-    return self;
-}
-
-- (NSDictionary<NSString *, id> *)jsonDictionary
-{
-    return @{
-        @"contractVersion": @(MSIDWebCPOnboardingReadinessContractVersion),
-        @"capabilities": @[@"brokerAvailability", @"ssoExtensionAvailability"],
-        @"brokerAvailability": @(self.brokerAvailability),
-        @"ssoExtensionAvailability": @(self.ssoExtensionAvailability)
-    };
-}
+- (instancetype)initWithBrokerAppAvailable:(BOOL)brokerAppAvailable
+             ssoExtensionAvailable:(BOOL)ssoExtensionAvailable;
 
 @end
+
+NS_ASSUME_NONNULL_END

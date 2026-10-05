@@ -8,7 +8,8 @@
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
 
-@class MSIDOnboardingReadinessProvider;
+@class MSIDAuthenticationAvailabilityProvider;
+@class MSIDWebCPOnboardingReadinessContract;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,7 +19,8 @@ FOUNDATION_EXPORT NSString * const MSIDWebCPScriptMessageHandlerName;
 @interface MSIDWebCPScriptMessageHandler : NSObject <WKScriptMessageHandlerWithReply>
 
 + (nullable instancetype)attachToWebView:(WKWebView *)webView
-                       readinessProvider:(nullable MSIDOnboardingReadinessProvider *)provider;
+                       readinessProvider:(nullable MSIDAuthenticationAvailabilityProvider *)provider
+                       readinessContract:(MSIDWebCPOnboardingReadinessContract *)contract;
 - (void)detachFromWebView:(WKWebView *)webView;
 
 @end

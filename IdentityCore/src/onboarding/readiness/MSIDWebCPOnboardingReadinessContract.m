@@ -26,24 +26,12 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebCPOnboardingReadinessContract.h"
-#import "MSIDOnboardingReadiness.h"
-
-const NSInteger MSIDWebCPOnboardingReadinessContractVersion = 1;
+#import "MSIDAuthenticationAvailabilityStatus.h"
 
 static NSString * const MSIDWebCPOnboardingReadinessActionName = @"get_onboarding_readiness";
 static NSString * const MSIDWebCPOnboardingReadinessActionComponent = @"native";
 
 @implementation MSIDWebCPOnboardingReadinessContract
-
-+ (instancetype)sharedInstance
-{
-    static MSIDWebCPOnboardingReadinessContract *instance;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [MSIDWebCPOnboardingReadinessContract new];
-    });
-    return instance;
-}
 
 - (NSString *)actionName
 {
@@ -81,20 +69,6 @@ static NSString * const MSIDWebCPOnboardingReadinessActionComponent = @"native";
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"WebCP readiness request parameters are malformed.");
         return MSIDWebCPOnboardingReadinessRequestValidationMalformed;
     }
-    NSDictionary *parameterDictionary = parameters;
-    id version = parameterDictionary[@"contractVersion"];
-    if (![version isKindOfClass:[NSNumber class]]
-        || CFGetTypeID((__bridge CFTypeRef)version) == CFBooleanGetTypeID()
-        || [version doubleValue] != [version integerValue])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"WebCP readiness contract version is malformed.");
-        return MSIDWebCPOnboardingReadinessRequestValidationMalformed;
-    }
-    if ([version integerValue] != MSIDWebCPOnboardingReadinessContractVersion)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"WebCP readiness contract version is not supported.");
-        return MSIDWebCPOnboardingReadinessRequestValidationNotSupported;
-    }
     return MSIDWebCPOnboardingReadinessRequestValidationValid;
 }
 
@@ -116,28 +90,26 @@ static NSString * const MSIDWebCPOnboardingReadinessActionComponent = @"native";
 
 - (NSDictionary<NSString *, id> *)responseWithStatus:(MSIDWebCPOnboardingReadinessResponseStatus)status
                                         correlationID:(NSString *)correlationID
-                                            readiness:(MSIDOnboardingReadiness *)readiness
+                                         availability:(MSIDAuthenticationAvailabilityStatus *)availability
 {
     NSString *statusString = @"Failed";
     NSDictionary *result = @{};
     if (status == MSIDWebCPOnboardingReadinessResponseStatusSuccess)
     {
-        NSDictionary *readinessResult = readiness.jsonDictionary;
-        if (readinessResult)
+        if (availability)
         {
             statusString = @"Success";
-            result = readinessResult;
+            result = @{@"brokerAppAvailable": @(availability.brokerAppAvailable),
+                       @"ssoExtensionAvailable": @(availability.ssoExtensionAvailable)};
         }
         else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to serialize onboarding readiness response.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Missing authentication availability status.");
         }
     }
     else if (status == MSIDWebCPOnboardingReadinessResponseStatusNotSupported)
     {
         statusString = @"NotSupported";
-        result = @{@"contractVersion": @(MSIDWebCPOnboardingReadinessContractVersion),
-                   @"supportedContractVersions": @[@(MSIDWebCPOnboardingReadinessContractVersion)]};
     }
     return @{@"correlationID": correlationID, @"status": statusString, @"result": result};
 }

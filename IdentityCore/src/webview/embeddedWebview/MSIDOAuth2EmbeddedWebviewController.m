@@ -49,6 +49,7 @@
 #import "MSIDAADAuthority.h"
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_WEBKIT
 #import "MSIDWebCPScriptMessageHandler.h"
+#import "MSIDWebCPOnboardingReadinessContract.h"
 #endif
 
 #if !MSID_EXCLUDE_WEBKIT
@@ -215,7 +216,9 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         && ![bundlePath.pathExtension.lowercaseString isEqualToString:@"appex"])
     {
         self.webCPScriptMessageHandler = [MSIDWebCPScriptMessageHandler
-                                          attachToWebView:self.webView readinessProvider:nil];
+                                          attachToWebView:self.webView
+                                          readinessProvider:nil
+                                          readinessContract:[MSIDWebCPOnboardingReadinessContract new]];
     }
 #endif
     
