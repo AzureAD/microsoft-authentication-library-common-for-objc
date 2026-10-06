@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
 
@@ -46,3 +48,5 @@ FOUNDATION_EXPORT NSString * const MSIDWebCPScriptMessageHandlerName;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // !MSID_EXCLUDE_WEBKIT

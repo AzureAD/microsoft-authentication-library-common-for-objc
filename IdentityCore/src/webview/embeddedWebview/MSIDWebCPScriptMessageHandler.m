@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #import "MSIDWebCPScriptMessageHandler.h"
 #import "MSIDWebCPOnboardingReadinessContract.h"
 #import "MSIDAuthenticationAvailabilityProvider.h"
@@ -251,3 +253,5 @@ contentController:(WKUserContentController *)contentController
 }
 
 @end
+
+#endif // !MSID_EXCLUDE_WEBKIT
