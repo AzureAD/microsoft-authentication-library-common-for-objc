@@ -1,3 +1,5 @@
+TBD
+* Add an onboarding telemetry step for redirects to Defender during compliance remediation.
 Version 2.16.0
 * Add native WebCP onboarding readiness with independent Boolean Broker-app and SSO-extension controller eligibility results for app-hosted requests.
 * Allow embedded webview hosts to intercept MDM enrollment URLs through the existing external browser-navigation callback, enabling post-enrollment JIT troubleshooting while preserving the normal enrollment request when no override is returned.

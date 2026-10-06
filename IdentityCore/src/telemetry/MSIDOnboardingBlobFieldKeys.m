@@ -64,6 +64,7 @@ NSString * const MSIDOnboardingBlobStepTokenIssued = @"TokenIssued";
 // New mobile-onboarding funnel steps
 NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted = @"ProfileDownloadCompleted";
 NSString * const MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect = @"ComplianceRemediationMSAuthRedirect";
+NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirect = @"ComplianceRemediationDefenderRedirect";
 NSString * const MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback = @"MobileOnboardingClientFlightDisabledLegacyFallback";
 NSString * const MSIDOnboardingBlobStepProfileInstallNotificationScheduled = @"ProfileInstallNotificationScheduled";
 NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable = @"SSOExtensionUnavailable";
