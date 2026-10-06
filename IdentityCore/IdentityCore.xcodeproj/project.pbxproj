@@ -2218,7 +2218,6 @@
 		FAC10001000000000000000E /* MSIDWebCPOnboardingReadinessContract.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000013 /* MSIDWebCPOnboardingReadinessContract.h */; };
 		FAC10001000000000000001B /* MSIDAuthenticationAvailabilityProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000017 /* MSIDAuthenticationAvailabilityProviderTests.m */; };
 		FAC10001000000000000001C /* MSIDWebCPOnboardingReadinessContractTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC100010000000000000018 /* MSIDWebCPOnboardingReadinessContractTests.m */; };
-		FAC200010000000000000001 /* MSIDWebCPScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = FAC200010000000000000011 /* MSIDWebCPScriptMessageHandler.h */; };
 		FAC200010000000000000002 /* MSIDWebCPScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC200010000000000000012 /* MSIDWebCPScriptMessageHandler.m */; };
 		FAC200010000000000000003 /* MSIDWebCPScriptMessageHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC200010000000000000013 /* MSIDWebCPScriptMessageHandlerTests.m */; };
 /* End PBXBuildFile section */
@@ -6989,7 +6988,6 @@
 				FAC100010000000000000001 /* MSIDAuthenticationAvailabilityStatus.h in Headers */,
 				FAC100010000000000000002 /* MSIDAuthenticationAvailabilityProvider.h in Headers */,
 				FAC100010000000000000003 /* MSIDWebCPOnboardingReadinessContract.h in Headers */,
-				FAC200010000000000000001 /* MSIDWebCPScriptMessageHandler.h in Headers */,
 				B286B9B22389DD75007833AD /* MSIDWebOAuth2AuthCodeResponse.h in Headers */,
 				238EF042208FE88C0035ABE6 /* MSIDAADAuthorizationCodeGrantRequest.h in Headers */,
 				B28686C6240655EF004E83FC /* MSIDLoginKeychainUtil.h in Headers */,

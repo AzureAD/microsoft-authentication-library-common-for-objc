@@ -110,7 +110,7 @@ contentController:(WKUserContentController *)contentController
 - (NSDictionary *)request
 {
     return @{@"correlationID": @"a7c08f6d-b239-49fb-a494-85f70f1a2fcb",
-             @"action_name": @"get_onboarding_readiness",
+             @"action_name": @"get_broker_status",
              @"action_component": @"native",
              @"params": @{}};
 }
