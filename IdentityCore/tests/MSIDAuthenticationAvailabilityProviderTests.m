@@ -179,16 +179,40 @@ typedef BOOL (^MSIDTestSSOExtensionAvailabilityCheck)(void);
 }
 #endif
 
-- (void)testReadiness_whenCalledOffMainThread_completesDefaultBrokerCheck
+- (void)testReadiness_whenCalledOffMainThread_completesWithStubbedAvailabilityChecks
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Background readiness completes"];
     __block MSIDAuthenticationAvailabilityStatus *readiness = nil;
+    __block BOOL calledOffMainThread = NO;
+    __block NSUInteger brokerChecks = 0;
+    __block NSUInteger ssoChecks = 0;
+    MSIDAuthenticationAvailabilityProvider *provider = [[MSIDAuthenticationAvailabilityProvider alloc]
+        initWithBrokerOptionsFactory:nil
+             brokerAvailabilityCheck:^BOOL(__unused MSIDInteractiveTokenRequestParameters *parameters) {
+                 brokerChecks++;
+                 return YES;
+             }
+      ssoExtensionAvailabilityCheck:^BOOL{
+          ssoChecks++;
+          return YES;
+      }];
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-        readiness = [MSIDAuthenticationAvailabilityProvider new].availabilityStatus;
+        calledOffMainThread = ![NSThread isMainThread];
+        readiness = provider.availabilityStatus;
         [expectation fulfill];
     });
     [self waitForExpectationsWithTimeout:5 handler:nil];
+    XCTAssertTrue(calledOffMainThread);
     XCTAssertNotNil(readiness);
+    XCTAssertTrue(readiness.brokerAppAvailable);
+    XCTAssertEqual(brokerChecks, 1u);
+#if MSID_ENABLE_SSO_EXTENSION
+    XCTAssertTrue(readiness.ssoExtensionAvailable);
+    XCTAssertEqual(ssoChecks, 1u);
+#else
+    XCTAssertFalse(readiness.ssoExtensionAvailable);
+    XCTAssertEqual(ssoChecks, 0u);
+#endif
 }
 #elif TARGET_OS_OSX
 - (void)testReadiness_onMac_doesNotProbeBrokerAndKeepsSSOIndependent
