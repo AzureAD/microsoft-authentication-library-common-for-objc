@@ -1,5 +1,5 @@
 TBD
-* Add an onboarding telemetry step for redirects to Defender during compliance remediation.
+* Add onboarding telemetry steps for successful and failed redirects to Defender during compliance remediation.
 * Add a reply-capable WebCP script handler and `window.msidWebCP.postMessage` wrapper to app-hosted iOS OAuth WebViews, including supplied WebViews. Restrict readiness to enrollment origins and skip bridge attachment when its disable flight is on, without changing Broker's existing script handler.
 Version 2.16.0
 * Add native WebCP onboarding readiness with independent Boolean Broker-app and SSO-extension controller eligibility results for app-hosted requests.

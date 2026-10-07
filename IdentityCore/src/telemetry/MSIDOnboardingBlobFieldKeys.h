@@ -71,6 +71,7 @@ extern NSString * const MSIDOnboardingBlobStepTokenIssued;
 extern NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted;
 extern NSString * const MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect;
 extern NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirect;
+extern NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirectFailed;
 extern NSString * const MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback;
 extern NSString * const MSIDOnboardingBlobStepProfileInstallNotificationScheduled;
 extern NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable;
