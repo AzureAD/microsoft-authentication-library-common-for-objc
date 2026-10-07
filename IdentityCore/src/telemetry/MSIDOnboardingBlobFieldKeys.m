@@ -65,6 +65,7 @@ NSString * const MSIDOnboardingBlobStepTokenIssued = @"TokenIssued";
 NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted = @"ProfileDownloadCompleted";
 NSString * const MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect = @"ComplianceRemediationMSAuthRedirect";
 NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirect = @"ComplianceRemediationDefenderRedirect";
+NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirectFailed = @"ComplianceRemediationDefenderRedirectFailed";
 NSString * const MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback = @"MobileOnboardingClientFlightDisabledLegacyFallback";
 NSString * const MSIDOnboardingBlobStepProfileInstallNotificationScheduled = @"ProfileInstallNotificationScheduled";
 NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable = @"SSOExtensionUnavailable";
