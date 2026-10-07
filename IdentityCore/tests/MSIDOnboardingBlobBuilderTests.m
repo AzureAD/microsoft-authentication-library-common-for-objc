@@ -679,7 +679,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
 #pragma mark - ensureBrokeredOnboardingMode
 
-- (void)testEnsureBrokeredOnboardingMode_whenSeedModeNonBrokered_shouldSetToBrokered
+- (void)testEnsureBrokeredOnboardingMode_whenSeedModeNonBrokered_shouldPreserveMode
 {
     NSString *seed = [self seedJsonWithVersion:@"1.0.0" correlationId:@"abc-123" mode:@"non-brokered"];
     MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed
@@ -692,7 +692,25 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     [builder ensureBrokeredOnboardingMode];
 
     parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
-    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"brokered");
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"non-brokered");
+
+    [builder ensureBrokeredOnboardingMode];
+
+    parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"non-brokered");
+}
+
+- (void)testEnsureBrokeredOnboardingMode_whenSeedModeUnknown_shouldPreserveMode
+{
+    NSString *seed = [self seedJsonWithVersion:@"1.0.0" correlationId:@"abc-123" mode:@"future-mode"];
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed
+                                                                                    clientId:@"client"
+                                                                                      target:@"target"];
+
+    [builder ensureBrokeredOnboardingMode];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"future-mode");
 }
 
 - (void)testEnsureBrokeredOnboardingMode_whenSeedModeEmpty_shouldSetToBrokered
@@ -708,6 +726,32 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     [builder ensureBrokeredOnboardingMode];
 
     parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"brokered");
+}
+
+- (void)testEnsureBrokeredOnboardingMode_whenSeedModeBlank_shouldSetToBrokered
+{
+    NSString *seed = [self seedJsonWithVersion:@"1.0.0" correlationId:@"abc-123" mode:@"  "];
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed
+                                                                                    clientId:@"client"
+                                                                                      target:@"target"];
+
+    [builder ensureBrokeredOnboardingMode];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"brokered");
+}
+
+- (void)testEnsureBrokeredOnboardingMode_whenSeedModeIsNotString_shouldSetToBrokered
+{
+    NSString *seed = @"{\"schema_version\":\"1.0.0\",\"onboarding_mode\":42}";
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed
+                                                                                    clientId:@"client"
+                                                                                      target:@"target"];
+
+    [builder ensureBrokeredOnboardingMode];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
     XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"brokered");
 }
 

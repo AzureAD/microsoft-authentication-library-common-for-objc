@@ -1,4 +1,5 @@
 TBD
+* Preserve a nonempty onboarding mode when a journey later enters Broker, while supplying `brokered` only as a fallback for legacy seeds without a usable mode.
 * Add an onboarding telemetry step for redirects to Defender during compliance remediation.
 * Add a reply-capable WebCP script handler and `window.msidWebCP.postMessage` wrapper to app-hosted iOS OAuth WebViews, including supplied WebViews. Restrict readiness to enrollment origins and skip bridge attachment when its disable flight is on, without changing Broker's existing script handler.
 Version 2.16.0
