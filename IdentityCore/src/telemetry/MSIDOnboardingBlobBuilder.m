@@ -246,7 +246,7 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
 - (void)ensureBrokeredOnboardingMode
 {
-    if (![self.onboardingMode isEqualToString:MSIDOnboardingModeBrokered])
+    if ([NSString msidIsStringNilOrBlank:self.onboardingMode])
     {
         self.onboardingMode = MSIDOnboardingModeBrokered;
     }
