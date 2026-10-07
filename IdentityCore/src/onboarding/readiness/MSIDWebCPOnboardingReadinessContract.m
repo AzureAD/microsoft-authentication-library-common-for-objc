@@ -28,7 +28,7 @@
 #import "MSIDWebCPOnboardingReadinessContract.h"
 #import "MSIDAuthenticationAvailabilityStatus.h"
 
-static NSString * const MSIDWebCPOnboardingReadinessActionName = @"get_onboarding_readiness";
+static NSString * const MSIDWebCPOnboardingReadinessActionName = @"get_broker_status";
 static NSString * const MSIDWebCPOnboardingReadinessActionComponent = @"native";
 
 @implementation MSIDWebCPOnboardingReadinessContract

@@ -138,6 +138,8 @@ NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_
 
 NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboarding";
 
+NSString *const MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS = @"disable_webcp_onboarding_readiness";
+
 NSString *const MSID_FLIGHT_ENFORCE_BROKER_NONCE = @"enforce_broker_nonce";
 
 NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_profile_installed_notification_delay";

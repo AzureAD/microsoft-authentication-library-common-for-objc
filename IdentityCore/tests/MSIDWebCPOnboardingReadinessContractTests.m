@@ -44,7 +44,7 @@
 - (void)testValidateRequest_whenEnvelopeIsValid_shouldAccept
 {
     NSDictionary *request = @{@"correlationID": @"a7c08f6d-b239-49fb-a494-85f70f1a2fcb",
-                              @"action_name": @"get_onboarding_readiness",
+                              @"action_name": @"get_broker_status",
                               @"action_component": @"native",
                               @"params": @{}};
     XCTAssertEqual([self.contract validateRequest:request],
@@ -53,7 +53,7 @@
 
 - (void)testValidateRequest_whenAdditionalFieldsArePresent_shouldAccept
 {
-    NSDictionary *request = @{@"action_name": @"get_onboarding_readiness",
+    NSDictionary *request = @{@"action_name": @"get_broker_status",
                               @"action_component": @"native",
                               @"params": @{@"contractVersion": @2, @"operation": @"open"},
                               @"before_action": @[]};
@@ -74,10 +74,10 @@
 {
     NSArray *requests = @[
         @[],
-        @{@"action_name": @"get_onboarding_readiness", @"action_component": @"native"},
-        @{@"action_name": @"get_onboarding_readiness", @"action_component": @"native",
+        @{@"action_name": @"get_broker_status", @"action_component": @"native"},
+        @{@"action_name": @"get_broker_status", @"action_component": @"native",
           @"params": @YES},
-        @{@"action_name": @"get_onboarding_readiness", @"action_component": @"native",
+        @{@"action_name": @"get_broker_status", @"action_component": @"native",
           @"params": @[]},
         @{@"action_name": @1, @"action_component": @"native", @"params": @{}}
     ];
