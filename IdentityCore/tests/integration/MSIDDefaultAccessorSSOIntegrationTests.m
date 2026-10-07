@@ -60,9 +60,6 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDBartFeatureUtil.h"
-#import "MSIDConstants.h"
-#import "MSIDFlightManager.h"
-#import "MSIDFlightManagerMockProvider.h"
 
 @interface MSIDDefaultTokenCacheAccessor (TestUtil)
 
@@ -81,7 +78,6 @@
     id<MSIDTokenCacheDataSource> _otherDataSource;
 
     MSIDAccountMetadataCacheAccessor *_accountMetadataCache;
-    id<MSIDFlightManagerInterface> _originalFlightProvider;
 }
  
 @end
@@ -90,11 +86,6 @@
 
 - (void)setUp
 {
-    [super setUp];
-    _originalFlightProvider = MSIDFlightManager.sharedInstance.flightProvider;
-    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.stringForKeyContainer = @{MSID_FLIGHT_DISABLE_SFRT_V2: @"on"};
-    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 
 #if TARGET_OS_IOS
     _defaultDataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
@@ -109,11 +100,12 @@
     _nonSSOAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_defaultDataSource otherCacheAccessors:nil];
     
     _accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:_defaultDataSource];
+    
+    [super setUp];
 }
 
 - (void)tearDown
 {
-    MSIDFlightManager.sharedInstance.flightProvider = _originalFlightProvider;
     [super tearDown];
     [_defaultDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
     [_otherDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
