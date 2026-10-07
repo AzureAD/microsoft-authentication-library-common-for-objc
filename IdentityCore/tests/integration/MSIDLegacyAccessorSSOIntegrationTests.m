@@ -45,9 +45,6 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDTestCacheAccessorHelper.h"
-#import "MSIDConstants.h"
-#import "MSIDFlightManager.h"
-#import "MSIDFlightManagerMockProvider.h"
 
 @interface MSIDLegacyAccessorSSOIntegrationTests : XCTestCase
 {
@@ -56,7 +53,7 @@
     MSIDDefaultTokenCacheAccessor *_otherAccessor;
     id<MSIDTokenCacheDataSource> _legacyDataSource;
     id<MSIDExtendedTokenCacheDataSource> _otherDataSource;
-    id<MSIDFlightManagerInterface> _originalFlightProvider;
+
 }
 
 @end
@@ -65,11 +62,6 @@
 
 - (void)setUp
 {
-    [super setUp];
-    _originalFlightProvider = MSIDFlightManager.sharedInstance.flightProvider;
-    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.stringForKeyContainer = @{MSID_FLIGHT_DISABLE_SFRT_V2: @"on"};
-    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 
 #if TARGET_OS_IOS
     _legacyDataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
@@ -82,11 +74,11 @@
     _otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_otherDataSource otherCacheAccessors:nil];
     _legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_legacyDataSource otherCacheAccessors:@[_otherAccessor]];
     _nonSSOAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_legacyDataSource otherCacheAccessors:nil];
+    [super setUp];
 }
 
 - (void)tearDown
 {
-    MSIDFlightManager.sharedInstance.flightProvider = _originalFlightProvider;
     [super tearDown];
     [_legacyDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
     [_otherDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];

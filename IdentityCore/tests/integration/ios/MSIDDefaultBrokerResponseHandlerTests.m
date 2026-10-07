@@ -55,7 +55,6 @@
 
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *cacheAccessor;
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
-@property (nonatomic) id<MSIDFlightManagerInterface> originalFlightProvider;
 
 @end
 
@@ -63,10 +62,6 @@
 
 - (void)setUp {
     [super setUp];
-    self.originalFlightProvider = MSIDFlightManager.sharedInstance.flightProvider;
-    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.stringForKeyContainer = @{MSID_FLIGHT_DISABLE_SFRT_V2: @"on"};
-    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
     [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:MSID_BROKER_SYMMETRIC_KEY_TAG];
     
     id<MSIDExtendedTokenCacheDataSource> dataSource =  [[MSIDKeychainTokenCache alloc] init];
@@ -85,7 +80,7 @@
     
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     
-    MSIDFlightManager.sharedInstance.flightProvider = self.originalFlightProvider;
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
     
     [super tearDown];
 }
@@ -1935,7 +1930,6 @@
 {
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
     flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENFORCE_BROKER_NONCE: @(enabled) };
-    flightProvider.stringForKeyContainer = @{MSID_FLIGHT_DISABLE_SFRT_V2: @"on"};
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 
