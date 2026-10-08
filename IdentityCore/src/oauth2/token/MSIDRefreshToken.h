@@ -32,5 +32,6 @@
 
 @property (atomic, readwrite) NSString *refreshToken;
 @property (atomic, readwrite) NSString *familyId;
+@property (nonatomic, readonly) BOOL isBoundRefreshToken;
 
 @end

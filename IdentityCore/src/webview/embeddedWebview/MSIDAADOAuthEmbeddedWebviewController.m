@@ -39,6 +39,8 @@
 #import "NSURL+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDInteractiveRequestParameters.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -124,6 +126,9 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                 @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
             interactiveRequestParameters.isNewMobileOnboardingFlow = YES;
+
+            // Tag the blob with the new mobile onboarding UX (nil-safe).
+            [self.onboardingBlobBuilder addUxFlowUsed:MSIDOnboardingUxFlowMobileOnboardingPhase1];
         }
         else
         {
@@ -142,6 +147,8 @@
 
             if (legacyBrowserURL)
             {
+                [self.onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback
+                                          timestamp:[NSDate date]];
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                     @"Mobile onboarding disabled on client; falling back to legacy "
                     @"flow by opening intuneRedirectUrl via browser:// scheme.");

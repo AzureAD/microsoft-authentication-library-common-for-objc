@@ -71,7 +71,7 @@ typedef NS_ENUM(NSInteger, MSIDExecutionFlowNetworkTag)
 };
 
 /// Returns the string representation for each MSIDExecutionFlowNetworkTag value.
-FOUNDATION_EXPORT NSString * _Nonnull MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowNetworkTag state);
+FOUNDATION_EXPORT NSString * _Nonnull MSIDStringFromExecutionFlowNetworkTag(MSIDExecutionFlowNetworkTag state);
 
 /// A enum of MSIDTokenRequestTag.
 typedef NS_ENUM(NSInteger, MSIDTokenRequestTag)
@@ -80,7 +80,7 @@ typedef NS_ENUM(NSInteger, MSIDTokenRequestTag)
 };
 
 /// Returns the string representation for each MSIDTokenRequestTag value.
-FOUNDATION_EXPORT NSString * _Nonnull MSIDTokenRequestTagToString(MSIDTokenRequestTag state);
+FOUNDATION_EXPORT NSString * _Nonnull MSIDStringFromTokenRequestTag(MSIDTokenRequestTag state);
 
 /// An enum of MSIDRequestControllerFactoryTag.
 typedef NS_ENUM(NSInteger, MSIDRequestControllerFactoryTag)
@@ -100,7 +100,7 @@ typedef NS_ENUM(NSInteger, MSIDRequestControllerFactoryTag)
 };
 
 /// Returns the string representation for each MSIDRequestControllerFactoryTag value.
-FOUNDATION_EXPORT NSString * _Nonnull MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryTag state);
+FOUNDATION_EXPORT NSString * _Nonnull MSIDStringFromRequestControllerFactoryTag(MSIDRequestControllerFactoryTag state);
 
 /// An enum of MSIDSSORemoteInteractiveTokenRequestTag.
 typedef NS_ENUM(NSInteger, MSIDSSORemoteInteractiveTokenRequestTag)
@@ -112,7 +112,7 @@ typedef NS_ENUM(NSInteger, MSIDSSORemoteInteractiveTokenRequestTag)
 };
 
 /// Returns the string representation for each MSIDSSORemoteInteractiveTokenRequestTag value.
-FOUNDATION_EXPORT NSString * _Nonnull MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestTag state);
+FOUNDATION_EXPORT NSString * _Nonnull MSIDStringFromSSORemoteInteractiveTokenRequestTag(MSIDSSORemoteInteractiveTokenRequestTag state);
 
 /// An enum of MSIDSSORemoteSilentTokenRequestTag.
 typedef NS_ENUM(NSInteger, MSIDSSORemoteSilentTokenRequestTag)
@@ -122,7 +122,7 @@ typedef NS_ENUM(NSInteger, MSIDSSORemoteSilentTokenRequestTag)
     MSIDSilentCompletionTag
 };
 /// Returns the string representation for each MSIDSSORemoteSilentTokenRequestTag value.
-FOUNDATION_EXPORT NSString * _Nonnull MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestTag state);
+FOUNDATION_EXPORT NSString * _Nonnull MSIDStringFromSSORemoteSilentTokenRequestTag(MSIDSSORemoteSilentTokenRequestTag state);
 
 /// An enum of MSIDCloudInstanceHostNameTag.
 typedef NS_ENUM(NSInteger, MSIDCloudInstanceHostNameTag)
@@ -130,7 +130,7 @@ typedef NS_ENUM(NSInteger, MSIDCloudInstanceHostNameTag)
     MSIDCloudInstanceHostNameIgnoredTag = 0
 };
 /// Returns the string representation for each MSIDCloudInstanceHostNameTag value.
-FOUNDATION_EXPORT NSString * _Nonnull MSIDCloudInstanceHostNameTagToString(MSIDCloudInstanceHostNameTag state);
+FOUNDATION_EXPORT NSString * _Nonnull MSIDStringFromCloudInstanceHostNameTag(MSIDCloudInstanceHostNameTag state);
 
 /// An enum of MSIDPkeyAuthTag.
 typedef NS_ENUM(NSInteger, MSIDPkeyAuthTag)
@@ -140,4 +140,14 @@ typedef NS_ENUM(NSInteger, MSIDPkeyAuthTag)
 };
 
 /// Returns the string representation for each MSIDPkeyAuthTag value.
-FOUNDATION_EXPORT NSString * _Nonnull MSIDPkeyAuthTagToString(MSIDPkeyAuthTag state);
+FOUNDATION_EXPORT NSString * _Nonnull MSIDStringFromPkeyAuthTag(MSIDPkeyAuthTag state);
+
+/// An enum of MSIDCustomHeaderTag.
+typedef NS_ENUM(NSInteger, MSIDCustomHeaderTag)
+{
+    MSIDCustomHeaderAddedTag = 0,
+    MSIDCustomHeaderSkippedUntrustedHostTag
+};
+
+/// Returns the string representation for each MSIDCustomHeaderTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDCustomHeaderTagToString(MSIDCustomHeaderTag state);

@@ -41,7 +41,7 @@ jobs:
         script: |
           set -euo pipefail
 
-          target_branch_ref="$(System.PullRequest.TargetBranch)"
+          target_branch_ref="${SYSTEM_PULLREQUEST_TARGETBRANCH:-}"
           if [[ "${target_branch_ref}" != refs/* ]]; then
             target_branch_ref="refs/heads/${target_branch_ref}"
           fi

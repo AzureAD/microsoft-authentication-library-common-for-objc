@@ -36,6 +36,8 @@
 #import "MSIDAssymetricKeyLookupAttributes.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDMacKeychainTokenCache.h"
+#import "MSIDError.h"
+#import "MSIDKeyOperationUtil.h"
 
 @interface MSIDDevicePopManagerTest : XCTestCase
 
@@ -88,6 +90,111 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
                                                     error:&error];
     XCTAssertNotNil(signedAT);
     XCTAssertNil(error);
+}
+
+- (void)test_initWithExternalKeyPair_ShouldUseProvidedPairWithoutKeyGenerator
+{
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
+    MSIDAssymetricKeyLookupAttributes *attributes = [MSIDAssymetricKeyLookupAttributes new];
+    attributes.privateKeyIdentifier = [NSString stringWithFormat:@"%@.%@", MSID_POP_TOKEN_PRIVATE_KEY, NSUUID.UUID.UUIDString];
+    NSError *error = nil;
+    MSIDAssymetricKeyPair *keyPair = [generator generateKeyPairForAttributes:attributes error:&error];
+    XCTAssertNotNil(keyPair);
+    XCTAssertNil(error);
+
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithExternalKeyPair:keyPair];
+    XCTAssertEqual(manager.keyPair, keyPair);
+    XCTAssertNil([manager valueForKey:@"keyGeneratorFactory"]);
+    XCTAssertNil([manager valueForKey:@"keyPairAttributes"]);
+
+    [self deleteKeyWithTag:attributes.privateKeyIdentifier];
+}
+
+- (void)test_initWithExternalKeyPair_NilKeyPair_ShouldReturnNil
+{
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithExternalKeyPair:nil];
+    XCTAssertNil(manager);
+}
+
+- (void)test_initWithExternalKeyPair_MismatchedPair_ShouldReturnNilAndError
+{
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
+    MSIDAssymetricKeyLookupAttributes *firstAttributes = [MSIDAssymetricKeyLookupAttributes new];
+    firstAttributes.privateKeyIdentifier = [NSString stringWithFormat:@"%@.%@", MSID_POP_TOKEN_PRIVATE_KEY, NSUUID.UUID.UUIDString];
+    MSIDAssymetricKeyLookupAttributes *secondAttributes = [MSIDAssymetricKeyLookupAttributes new];
+    secondAttributes.privateKeyIdentifier = [NSString stringWithFormat:@"%@.%@", MSID_POP_TOKEN_PRIVATE_KEY, NSUUID.UUID.UUIDString];
+    NSError *error = nil;
+    MSIDAssymetricKeyPair *firstKeyPair = [generator generateKeyPairForAttributes:firstAttributes error:&error];
+    XCTAssertNotNil(firstKeyPair);
+    XCTAssertNil(error);
+    MSIDAssymetricKeyPair *secondKeyPair = [generator generateKeyPairForAttributes:secondAttributes error:&error];
+    XCTAssertNotNil(secondKeyPair);
+    XCTAssertNil(error);
+
+    MSIDAssymetricKeyPair *mismatchedKeyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:firstKeyPair.privateKeyRef
+                                                                                       publicKey:secondKeyPair.publicKeyRef
+                                                                                  privateKeyDict:@{}];
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithExternalKeyPair:mismatchedKeyPair
+                                                                                  context:nil
+                                                                                    error:&error];
+    XCTAssertNil(manager);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+    XCTAssertEqual([error.userInfo[MSIDExternalKeyPairValidationFailureReasonKey] integerValue],
+                   MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch);
+
+    [self deleteKeyWithTag:firstAttributes.privateKeyIdentifier];
+    [self deleteKeyWithTag:secondAttributes.privateKeyIdentifier];
+}
+
+- (void)test_createSignedAccess_withExternalKeyPair_ShouldReturnSignedAT
+{
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
+    MSIDAssymetricKeyLookupAttributes *attributes = [MSIDAssymetricKeyLookupAttributes new];
+    attributes.privateKeyIdentifier = [NSString stringWithFormat:@"%@.%@", MSID_POP_TOKEN_PRIVATE_KEY, NSUUID.UUID.UUIDString];
+    NSError *error = nil;
+    MSIDAssymetricKeyPair *keyPair = [generator generateKeyPairForAttributes:attributes error:&error];
+    XCTAssertNotNil(keyPair);
+    XCTAssertNil(error);
+
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithExternalKeyPair:keyPair
+                                                                                  context:nil
+                                                                                    error:&error];
+    XCTAssertNotNil(manager);
+    XCTAssertNil(error);
+    XCTAssertEqual(manager.keyPair, keyPair);
+
+    NSString *signedAT = [manager createSignedAccessToken:@"accessToken"
+                                               httpMethod:@"POST"
+                                               requestUrl:@"https://signedhttprequest.azurewebsites.net/api/validateSHR"
+                                                    nonce:@"48D1E0E2-2AB4-491A-87F9-BCBAAAD777CC"
+                                                    error:&error];
+    XCTAssertNotNil(signedAT);
+    XCTAssertNil(error);
+    XCTAssertEqual(manager.keyPair, keyPair);
+
+    [self deleteKeyWithTag:attributes.privateKeyIdentifier];
+}
+
+- (void)test_keyPair_whenExternalPairIsCleared_ShouldNotGenerateReplacement
+{
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
+    MSIDAssymetricKeyLookupAttributes *attributes = [MSIDAssymetricKeyLookupAttributes new];
+    attributes.privateKeyIdentifier = [NSString stringWithFormat:@"%@.%@", MSID_POP_TOKEN_PRIVATE_KEY, NSUUID.UUID.UUIDString];
+    NSError *error = nil;
+    MSIDAssymetricKeyPair *keyPair = [generator generateKeyPairForAttributes:attributes error:&error];
+    XCTAssertNotNil(keyPair);
+    XCTAssertNil(error);
+
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithExternalKeyPair:keyPair];
+    [manager setValue:generator forKey:@"keyGeneratorFactory"];
+    [manager setValue:attributes forKey:@"keyPairAttributes"];
+    [manager setValue:nil forKey:@"keyPair"];
+
+    XCTAssertNil(manager.keyPair);
+
+    [self deleteKeyWithTag:attributes.privateKeyIdentifier];
 }
 
 - (void)test_createSignedAccess_DeletePublickey_ShouldRegeneratePublicKey_AndReturnSignedAT

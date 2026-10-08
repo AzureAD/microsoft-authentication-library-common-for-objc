@@ -24,6 +24,7 @@
 #import "MSIDLocalInteractiveController+Internal.h"
 #import "MSIDInteractiveTokenRequest+Internal.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDWebviewConstants.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryAPIEvent.h"
@@ -285,7 +286,7 @@
                           @"Passed nil completionBlock to handleWebMDMEnrollmentCompletionResponse.");
         return;
     }
-
+    
     NSString *status = mdmEnrollmentCompletionResponse.status ?: @"<none>";
 
     // Failure path: MDM enrollment did not complete.
@@ -308,7 +309,8 @@
         return;
     }
 
-    // MDM enrollment complete. Retry the token request through the appropriate controller.
+    // MDM enrollment complete.
+    // Retry the token request through the appropriate controller.
     // If broker is installed and SSO extension is active, the factory returns the SSO controller.
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
                       @"MDM enrollment complete (status=%@); retrying token request.", status);
@@ -358,11 +360,11 @@
                                           completion:completion];
 }
 
-- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
-                                              responseURL:(NSURL *)responseURL
+- (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
+                                   embeddedWebviewController:(nullable MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
 {
-    return [self.navigationHandler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:responseURL];
+    return [self.navigationHandler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                                              embeddedWebviewController:embeddedWebviewController];
 }
 
 #if !MSID_EXCLUDE_SYSTEMWV

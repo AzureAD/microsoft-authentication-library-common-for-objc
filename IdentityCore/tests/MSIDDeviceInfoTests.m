@@ -302,7 +302,7 @@
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
 }
 
-#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
+#if TARGET_OS_OSX
 - (void)testInitWithJSONDictionary_whenJsonValid_PlatformSSOEnabled_shouldInitWithJsonWithPlatformSSOStatus {
     NSDictionary *json = @{
         MSID_BROKER_DEVICE_MODE_KEY : @"personal",

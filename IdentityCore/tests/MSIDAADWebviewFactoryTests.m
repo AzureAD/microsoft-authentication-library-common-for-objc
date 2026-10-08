@@ -39,6 +39,11 @@
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDSwitchBrowserResponse.h"
+#import "MSIDSwitchBrowserResumeResponse.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDTestParametersProvider.h"
@@ -56,6 +61,14 @@
 @end
 
 @implementation MSIDAADWebviewFactoryTests
+
+// The DUNA tests below install a flight provider on a shared singleton; restore it so the override
+// cannot leak into other tests in this bundle.
+- (void)tearDown
+{
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    [super tearDown];
+}
 
 - (void)setUp {
     [super setUp];
@@ -739,4 +752,132 @@
 }
 
 #endif
+#pragma mark - switch_browser (DUNA) response errors
+
+// The factory previously constructed both switch-browser response types with error:nil, so every
+// initializer failure was discarded. Two consequences, both covered below:
+//   1. The sub-errors identifying WHY a response was rejected never reached the caller.
+//   2. A malformed switch-browser URL could fall through and be accepted as an ordinary auth-code
+//      response - a missing action_uri with a present code is the concrete case.
+
+- (MSIDFlightManagerMockProvider *)enableDUNAFlights
+{
+    MSIDFlightManagerMockProvider *provider = [MSIDFlightManagerMockProvider new];
+    // Both flights, not just MSID_FLIGHT_SUPPORT_DUNA_CBA. State validation inside
+    // MSIDSwitchBrowserResponse is gated separately on MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA, and the mock
+    // provider returns NO for any key absent from boolForKeyContainer -- so leaving it out silently
+    // disabled state validation and made the mismatch test assert nothing.
+    provider.boolForKeyContainer = @{
+        MSID_FLIGHT_SUPPORT_DUNA_CBA: @YES,
+        MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA: @YES,
+    };
+    MSIDFlightManager.sharedInstance.flightProvider = provider;
+    return provider;
+}
+
+- (NSError *)errorForSwitchBrowserURLString:(NSString *)urlString
+                               requestState:(NSString *)requestState
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    NSError *error = nil;
+    MSIDWebviewResponse *response = [factory oAuthResponseWithURL:[NSURL URLWithString:urlString]
+                                                     requestState:requestState
+                                               ignoreInvalidState:NO
+                                                   endRedirectUri:@"msauth.com.microsoft.msaltestapp://auth"
+                                                          context:nil
+                                                            error:&error];
+    XCTAssertNil(response);
+    return error;
+}
+
+- (void)testOAuthResponseWithURL_whenSwitchBrowserMissingActionUri_shouldReturnSubError_andNotFallThrough
+{
+    [self enableDUNAFlights];
+
+    // Carries a code but no action_uri. Before the fix this fell through to the generic auth-code
+    // response and the malformed switch-browser URL was accepted.
+    NSError *error = [self errorForSwitchBrowserURLString:@"msauth.com.microsoft.msaltestapp://auth/switch_browser?code=some_code"
+                                            requestState:nil];
+
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_SWITCH_BROWSER_SUB_ERROR_MISSING_ACTION_URI);
+}
+
+- (void)testOAuthResponseWithURL_whenSwitchBrowserMissingCode_shouldReturnSubError
+{
+    [self enableDUNAFlights];
+
+    NSError *error = [self errorForSwitchBrowserURLString:@"msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri"
+                                            requestState:nil];
+
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_SWITCH_BROWSER_SUB_ERROR_MISSING_CODE);
+}
+
+- (void)testOAuthResponseWithURL_whenSwitchBrowserResumeMissingActionUri_shouldReturnSubError
+{
+    [self enableDUNAFlights];
+
+    // The resume operation is a separate response class and was equally affected.
+    NSError *error = [self errorForSwitchBrowserURLString:@"msauth.com.microsoft.msaltestapp://auth/switch_browser_resume?code=some_code"
+                                            requestState:nil];
+
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_SWITCH_BROWSER_SUB_ERROR_MISSING_ACTION_URI);
+}
+
+- (void)testOAuthResponseWithURL_whenSwitchBrowserStateMismatches_shouldReturnMismatchSubError
+{
+    [self enableDUNAFlights];
+
+    // Asserting the flight is actually on: a skip-if-off guard here would make the whole test a no-op
+    // if the helper ever stops enabling it, which is exactly the failure this test previously had.
+    XCTAssertTrue([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA],
+                  @"State validation must be flighted on, otherwise there is no mismatch to surface.");
+
+    // base64url("some_other_state") does not decode to "state".
+    NSError *error = [self errorForSwitchBrowserURLString:@"msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code&state=c29tZV9vdGhlcl9zdGF0ZQ"
+                                            requestState:@"state"];
+
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_SWITCH_BROWSER_SUB_ERROR_STATE_MISMATCH);
+}
+
+- (void)testOAuthResponseWithURL_whenValidSwitchBrowserUrl_shouldStillReturnResponse
+{
+    [self enableDUNAFlights];
+
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    NSError *error = nil;
+    MSIDWebviewResponse *response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code"]
+                                                     requestState:nil
+                                               ignoreInvalidState:NO
+                                                   endRedirectUri:@"msauth.com.microsoft.msaltestapp://auth"
+                                                          context:nil
+                                                            error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertTrue([response isKindOfClass:MSIDSwitchBrowserResponse.class]);
+}
+
+- (void)testOAuthResponseWithURL_whenNotASwitchBrowserUrl_shouldFallThroughUnaffected
+{
+    [self enableDUNAFlights];
+
+    // Guarding on isDUNAActionUrl: keeps ordinary auth-code URLs on their existing path; this is the
+    // regression the narrower gate exists to prevent.
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    NSError *error = nil;
+    MSIDWebviewResponse *response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth.com.microsoft.msaltestapp://auth?code=some_code"]
+                                                     requestState:nil
+                                               ignoreInvalidState:NO
+                                                   endRedirectUri:@"msauth.com.microsoft.msaltestapp://auth"
+                                                          context:nil
+                                                            error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(response);
+    XCTAssertFalse([response isKindOfClass:MSIDSwitchBrowserResponse.class]);
+}
+
 @end

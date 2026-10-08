@@ -27,8 +27,6 @@
 #import <Foundation/Foundation.h>
 #import "MSIDDeviceTokenGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
-#import "MSIDKeyOperationUtil.h"
-#import "MSIDJWTHelper.h"
 #import "MSIDNonceTokenRequest.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestParameters.h"
@@ -38,11 +36,11 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDDeviceTokenResponseHandler.h"
 #import "MSIDTokenResponseValidator.h"
+#import "MSIDDeviceTokenUtil.h"
 
 @interface MSIDDeviceTokenGrantRequest()
 
 @property (nonatomic) NSString *redirectUri;
-@property (nonatomic) NSString *nonce;
 @property (nonatomic) NSString *enrollmentId;
 @property (nonatomic) MSIDWPJKeyPairWithCert *wpjInfo;
 @property (nonatomic) NSString *clientId;
@@ -69,26 +67,46 @@
 {
     if (!registrationInformation)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: registration information is nil.");
+        NSString *errorMessage = @"Failed to create device token request parameters: registration information is nil.";
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+        }
         return nil;
     }
     
     if (registrationInformation.certificateData == nil || registrationInformation.privateKeyRef == nil)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: registration information is missing certificate data or private key.");
+        NSString *errorMessage = @"Failed to create device token request parameters: registration information is missing certificate data or private key.";
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+        }
         return nil;
     }
     
     if ([NSString msidIsStringNilOrBlank:endpoint.absoluteString])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: authorityEndpoint is nil.");
+        NSString *errorMessage = @"Failed to create device token request parameters: authorityEndpoint is nil.";
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+        }
         return nil;
     }
     
     NSString *clientId = requestParameters.clientId;
     if ([NSString msidIsStringNilOrBlank:clientId])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: clientId is nil or blank.");
+        NSString *errorMessage = @"Failed to create device token request parameters: clientId is nil or blank.";
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+        }
         return nil;
     }
     
@@ -108,25 +126,45 @@
                 
         if ([NSString msidIsStringNilOrBlank:resource])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: resource is nil or blank.");
+            NSString *errorMessage = @"Failed to create device token request parameters: resource is nil or blank.";
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+            }
             return nil;
         }
         
         if ([NSString msidIsStringNilOrBlank:redirectUri])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: redirectURI is nil or blank.");
+            NSString *errorMessage = @"Failed to create device token request parameters: redirectURI is nil or blank.";
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+            }
             return nil;
         }
         
         if (!scopesSet || scopesSet.count == 0)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: scope is nil or empty.");
+            NSString *errorMessage = @"Failed to create device token request parameters: scope is nil or empty.";
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+            }
             return nil;
         }
                 
         if ([scopesSet containsObject:@"aza"])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: scopes contains aza.");
+            NSString *errorMessage = @"Failed to create device token request parameters: scopes contains aza.";
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+            }
             return nil;
         }
         
@@ -146,44 +184,29 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDRequestParameters *nonceReqParams = [MSIDRequestParameters new];
-    nonceReqParams.correlationId = self.context.correlationId;
-    nonceReqParams.authority = [[MSIDAADAuthority alloc] initWithURL:self.urlRequest.URL rawTenant:MSIDAADTenantTypeCommonRawValue context:self.context error:nil];
-    // Passing blank accountId details as device token is not associated with a specific account. This is required to bypass cache look up in nonce request and directly request new nonce from server.
-    nonceReqParams.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"" homeAccountId:@""];
-    MSIDNonceTokenRequest *nonceRequest = [[MSIDNonceTokenRequest alloc] initWithRequestParameters:nonceReqParams];
-    __weak typeof(self) weakSelf = self;
-    [nonceRequest executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    if ([NSString msidIsStringNilOrBlank:self.nonce])
     {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf)
-        {
-            return;
-        }
-        
-        if (!resultNonce || error)
-        {
-            NSError *nonceError = error ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to retrieve nonce for device token request: nonce is nil.", nil, nil, nil, strongSelf.context.correlationId, nil, YES);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context, @"Failed to retrieve nonce for device token request: %@", nonceError);
-            completionBlock(nil, nonceError);
-            return;
-        }
-        strongSelf.nonce = resultNonce;
-        [strongSelf tokenRequestWithCompletionBlock:completionBlock];
-    }];
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Failed to execute device token request: nonce is nil or blank.");
+        NSError *nonceError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to execute device token request: nonce is nil or blank.", nil, nil, nil, self.context.correlationId, nil, YES);
+        completionBlock(nil, nonceError);
+        return;
+    }
+    [self tokenRequestWithCompletionBlock:completionBlock];
 }
 
 - (void)tokenRequestWithCompletionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     NSError *jwtError;
-    NSString *jwt = [self getTokenRedemptionJwtForResource:self.resource
-                                                    scopes:self.scopesSet
-                                               redirectUri:self.redirectUri
-                                                  audience:self.urlRequest.URL.absoluteString
-                                                  clientId:self.clientId
-                                        extraPayloadClaims:nil
-                                                   context:self.context
-                                                     error:&jwtError];
+    NSString *jwt = [MSIDDeviceTokenUtil getDeviceTokenRequestJwtForResource:self.resource
+                                                                     scopes:self.scopesSet
+                                                                redirectUri:self.redirectUri
+                                                                   audience:self.urlRequest.URL.absoluteString
+                                                                   clientId:self.clientId
+                                                                      nonce:self.nonce
+                                                    registrationInformation:self.wpjInfo
+                                                         extraPayloadClaims:nil
+                                                                    context:self.context
+                                                                      error:&jwtError];
 
     if ([NSString msidIsStringNilOrBlank:jwt])
     {
@@ -198,17 +221,9 @@
     __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
     [requestConfigurator configure:self];
 
-    NSMutableDictionary *requestParameters = [NSMutableDictionary new];
-    requestParameters[MSID_OAUTH2_CLIENT_INFO] = @NO;  // Set client_info = 0 to explicitly set that id token is not expected.
-
-    if (self.enrollmentId)
-    {
-        requestParameters[MSID_ENROLLMENT_ID] = self.enrollmentId;
-    }
-    requestParameters[MSID_OAUTH2_GRANT_TYPE] = @"urn:ietf:params:oauth:grant-type:jwt-bearer";
-    requestParameters[@"request"] = jwt;
-
-    self.parameters = requestParameters;
+    self.parameters = [MSIDDeviceTokenUtil deviceTokenRequestBodyParametersWithJwt:jwt
+                                                                     enrollmentId:self.enrollmentId
+                                                                  extraParameters:nil];
     __weak typeof(self) weakSelf = self;
     [self sendWithBlock:^(NSDictionary *tokenJsonResponse, NSError *tokenError)
     {
@@ -225,78 +240,13 @@
             return;
         }
 
-        MSIDDeviceTokenResponseHandler *tokenResponseHandler = (MSIDDeviceTokenResponseHandler *)strongSelf.tokenResponseHandler;
-        [tokenResponseHandler handleTokenResponse:tokenJsonResponse
-                                          context:strongSelf.requestParameters
-                                            error:tokenError
-                                  completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-            completionBlock(result, error);
-        }];
+        [MSIDDeviceTokenUtil handleDeviceTokenResponse:tokenJsonResponse
+                                     requestParameters:strongSelf.requestParameters
+                                       responseHandler:(MSIDDeviceTokenResponseHandler *)strongSelf.tokenResponseHandler
+                                                 error:tokenError
+                                       completionBlock:completionBlock];
     }];
 }
-
-#pragma mark standard payload
-
-- (NSString *)getTokenRedemptionJwtForResource:(nonnull NSString *)resource
-                                        scopes:(NSSet *)scopes
-                                   redirectUri:(nonnull NSString *)redirectUri
-                                      audience:(nonnull NSString *)audience
-                                      clientId:(nonnull NSString *)clientId
-                            extraPayloadClaims:(NSDictionary *)extraPayloadClaims
-                                       context:(id<MSIDRequestContext> _Nullable)context
-                                         error:(NSError * __autoreleasing *)error
-{
-    MSIDWPJKeyPairWithCert *workplacejoinData = self.wpjInfo;
-    NSMutableDictionary *jwtPayload = [NSMutableDictionary new];
-    for (NSString *key in extraPayloadClaims)
-    {
-        jwtPayload[key] = extraPayloadClaims[key];
-    }
-    jwtPayload[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_DEVICE_TOKEN;
-    jwtPayload[@"aud"] = audience;
-    jwtPayload[@"iss"] = clientId; // Issuer is the client ID
-    jwtPayload[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
-    [jwtPayload setObject:clientId forKey:MSID_OAUTH2_CLIENT_ID];
-    if (![NSString msidIsStringNilOrBlank:self.nonce])
-    {
-        [jwtPayload setObject:self.nonce forKey:@"request_nonce"];
-    }
-    NSString *scopeString = [scopes.allObjects componentsJoinedByString:@" "];
-    if (![NSString msidIsStringNilOrBlank:scopeString])
-    {
-        [jwtPayload setObject:scopeString forKey:MSID_OAUTH2_SCOPE];
-    }
-    [jwtPayload setObject:resource forKey:@"resource"];
-    
-    NSArray *certificateData = @[[NSString stringWithFormat:@"%@", [[workplacejoinData certificateData] base64EncodedStringWithOptions:kNilOptions]]];
-    MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:self.wpjInfo.privateKeyRef context:context error:error];
-    if (!alg)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Device token] Failed to get JWT algorithm for signing key.");
-        return nil;
-    }
-    
-    NSDictionary *header = @{
-                             @"alg" : alg,
-                             @"typ" : @"JWT",
-                             @"x5c" : certificateData
-                             };
-                                                                                 
-    NSString *signedJwt = [MSIDJWTHelper createSignedJWTforHeader:header payload:jwtPayload signingKey:workplacejoinData.privateKeyRef];
-    if ([NSString msidIsStringNilOrBlank:signedJwt])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Device token] Failed to sign JWT for requesting device token.");
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to sign JWT for requesting device token.", nil, nil, nil, context.correlationId, nil, YES);
-        }
-        return nil;
-    }
-    
-    return signedJwt;
-}
-
-
 
 @end
 #endif

@@ -482,7 +482,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 {
     // TODO: vt handling for older broker (not necessary for MSAL, so can come later)
 
-    MSIDExecutionFlowInsertTag(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDLegacyBrokerInteractiveCompletionTag), error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil, self.requestParameters.correlationId);
+    MSIDExecutionFlowInsertTag(MSIDStringFromSSORemoteInteractiveTokenRequestTag(MSIDLegacyBrokerInteractiveCompletionTag), error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil, self.requestParameters.correlationId);
     [self.class stopTrackingAppState];
 
 #if !EXCLUDE_FROM_MSALCPP

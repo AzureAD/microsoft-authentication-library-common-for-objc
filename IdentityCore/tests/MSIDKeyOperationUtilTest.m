@@ -28,6 +28,8 @@
 #import "NSData+JWT.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDTestSecureEnclaveKeyPairGenerator.h"
+#import "MSIDTestContext.h"
+#import "MSIDError.h"
 
 @interface MSIDKeyOperationUtilTest : XCTestCase
     @property (nonatomic) SecKeyRef eccPrivateKey;
@@ -213,7 +215,118 @@
     signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] privateKey:self.eccPublicKey signingAlgorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 context:nil error:&error];
     XCTAssertNil(signature);
     XCTAssertNotNil(error);
-    error = nil;
+
+    // Trying to sign a digest using an RSA public key
+    NSData *dataDigest = [[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
+    NSData *rsaDataSignature = [dataDigest msidSignHashWithPrivateKey:self.rsaPublicKey];
+    XCTAssertNil(rsaDataSignature);
+}
+
+- (void)testSignHashWithPrivateKey_NullPrivateKey_ReturnsNil
+{
+    NSData *dataDigest = [[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
+    XCTAssertNil([dataDigest msidSignHashWithPrivateKey:NULL]);
+}
+
+- (void)testValidateExternalRSAKeyPair_ValidPair_ShouldSucceed
+{
+    NSError *error = nil;
+    MSIDExternalKeyPairValidationFailureReason reason = MSIDExternalKeyPairValidationFailureReasonNone;
+    BOOL valid = [[MSIDKeyOperationUtil sharedInstance] validateExternalRSAKeyPair:self.rsaPrivateKey
+                                                                         publicKey:self.rsaPublicKey
+                                                                     failureReason:&reason
+                                                                           context:nil
+                                                                             error:&error];
+    XCTAssertTrue(valid);
+    XCTAssertEqual(reason, MSIDExternalKeyPairValidationFailureReasonNone);
+    XCTAssertNil(error);
+}
+
+- (void)testValidateExternalRSAKeyPair_MismatchedPair_ShouldFail
+{
+    NSDictionary *attributes = @{
+        (id)kSecAttrKeyType : (id)kSecAttrKeyTypeRSA,
+        (id)kSecAttrKeySizeInBits : @2048
+    };
+    CFErrorRef generationError = NULL;
+    SecKeyRef otherPrivateKey = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &generationError);
+    XCTAssertNotEqual(otherPrivateKey, NULL);
+    XCTAssertEqual(generationError, NULL);
+    SecKeyRef otherPublicKey = SecKeyCopyPublicKey(otherPrivateKey);
+
+    NSError *error = nil;
+    MSIDExternalKeyPairValidationFailureReason reason = MSIDExternalKeyPairValidationFailureReasonNone;
+    BOOL valid = [[MSIDKeyOperationUtil sharedInstance] validateExternalRSAKeyPair:self.rsaPrivateKey
+                                                                         publicKey:otherPublicKey
+                                                                     failureReason:&reason
+                                                                           context:nil
+                                                                             error:&error];
+    XCTAssertFalse(valid);
+    XCTAssertEqual(reason, MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch);
+    XCTAssertNotNil(error);
+
+    CFRelease(otherPublicKey);
+    CFRelease(otherPrivateKey);
+}
+
+- (void)testValidateExternalRSAKeyPair_EccPair_ShouldFail
+{
+    NSError *error = nil;
+    MSIDExternalKeyPairValidationFailureReason reason = MSIDExternalKeyPairValidationFailureReasonNone;
+    BOOL valid = [[MSIDKeyOperationUtil sharedInstance] validateExternalRSAKeyPair:self.eccPrivateKey
+                                                                         publicKey:self.eccPublicKey
+                                                                     failureReason:&reason
+                                                                           context:nil
+                                                                             error:&error];
+    XCTAssertFalse(valid);
+    XCTAssertEqual(reason, MSIDExternalKeyPairValidationFailureReasonUnsupportedKeyType);
+    XCTAssertNotNil(error);
+}
+
+- (void)testValidateExternalRSAKeyPair_1024BitPair_ShouldFail
+{
+    NSDictionary *attributes = @{
+        (id)kSecAttrKeyType : (id)kSecAttrKeyTypeRSA,
+        (id)kSecAttrKeySizeInBits : @1024
+    };
+    CFErrorRef generationError = NULL;
+    SecKeyRef privateKey = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &generationError);
+    XCTAssertNotEqual(privateKey, NULL);
+    XCTAssertEqual(generationError, NULL);
+    SecKeyRef publicKey = SecKeyCopyPublicKey(privateKey);
+
+    NSError *error = nil;
+    MSIDExternalKeyPairValidationFailureReason reason = MSIDExternalKeyPairValidationFailureReasonNone;
+    BOOL valid = [[MSIDKeyOperationUtil sharedInstance] validateExternalRSAKeyPair:privateKey
+                                                                         publicKey:publicKey
+                                                                     failureReason:&reason
+                                                                           context:nil
+                                                                             error:&error];
+    XCTAssertFalse(valid);
+    XCTAssertEqual(reason, MSIDExternalKeyPairValidationFailureReasonKeySizeTooSmall);
+    XCTAssertNotNil(error);
+
+    CFRelease(publicKey);
+    CFRelease(privateKey);
+}
+
+- (void)testValidateExternalRSAKeyPair_InvalidKeyClass_ShouldFail
+{
+    NSError *error = nil;
+    MSIDTestContext *context = [MSIDTestContext new];
+    context.correlationId = [NSUUID UUID];
+    MSIDExternalKeyPairValidationFailureReason reason = MSIDExternalKeyPairValidationFailureReasonNone;
+    BOOL valid = [[MSIDKeyOperationUtil sharedInstance] validateExternalRSAKeyPair:self.rsaPublicKey
+                                                                         publicKey:self.rsaPublicKey
+                                                                     failureReason:&reason
+                                                                           context:context
+                                                                             error:&error];
+    XCTAssertFalse(valid);
+    XCTAssertEqual(reason, MSIDExternalKeyPairValidationFailureReasonInvalidKeyClass);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], context.correlationId.UUIDString);
+    XCTAssertEqual([error.userInfo[MSIDExternalKeyPairValidationFailureReasonKey] integerValue],
+                   MSIDExternalKeyPairValidationFailureReasonInvalidKeyClass);
 }
 
 #pragma mark -- Test Utility

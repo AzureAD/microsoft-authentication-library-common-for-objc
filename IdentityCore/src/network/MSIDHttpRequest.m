@@ -272,7 +272,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
 - (NSString *)toString:(MSIDExecutionFlowNetworkTag)tag
 {
-    return MSIDExecutionFlowNetworkTagToString(tag);
+    return MSIDStringFromExecutionFlowNetworkTag(tag);
 }
 
 @end

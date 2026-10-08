@@ -108,7 +108,7 @@
             [responseReq setValue:credentialHeader forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
             if (context.correlationId)
             {
-                MSIDExecutionFlowInsertTag(MSIDPkeyAuthTagToString(MSIDPkeyAuthAddedRefreshTokenCredentialTag), nil, context.correlationId);
+                MSIDExecutionFlowInsertTag(MSIDStringFromPkeyAuthTag(MSIDPkeyAuthAddedRefreshTokenCredentialTag), nil, context.correlationId);
             }
         }
         else
@@ -116,7 +116,7 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Skipped adding refresh token to the PkeyAuth response because the submit URL host is not a known AAD host.");
             if (context.correlationId)
             {
-                MSIDExecutionFlowInsertTag(MSIDPkeyAuthTagToString(MSIDPkeyAuthSkippedRefreshTokenCredentialUntrustedHostTag), nil, context.correlationId);
+                MSIDExecutionFlowInsertTag(MSIDStringFromPkeyAuthTag(MSIDPkeyAuthSkippedRefreshTokenCredentialUntrustedHostTag), nil, context.correlationId);
             }
         }
     }

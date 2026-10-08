@@ -25,6 +25,23 @@
 #import "MSIDRequestContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, MSIDExternalKeyPairValidationFailureReason)
+{
+    MSIDExternalKeyPairValidationFailureReasonNone = 0,
+    MSIDExternalKeyPairValidationFailureReasonInvalidKeyHandle,
+    MSIDExternalKeyPairValidationFailureReasonUnsupportedKeyType,
+    MSIDExternalKeyPairValidationFailureReasonKeySizeTooSmall,
+    MSIDExternalKeyPairValidationFailureReasonInvalidKeyClass,
+    MSIDExternalKeyPairValidationFailureReasonNotSigningCapable,
+    MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch,
+    MSIDExternalKeyPairValidationFailureReasonPublicKeySerializationFailed,
+    MSIDExternalKeyPairValidationFailureReasonPublicKeyDerivationFailed
+};
+
+/// userInfo key for MSIDExternalKeyPairValidationFailureReason on validation errors.
+extern NSString * const MSIDExternalKeyPairValidationFailureReasonKey;
+
 @interface MSIDKeyOperationUtil : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -68,5 +85,24 @@ NS_ASSUME_NONNULL_BEGIN
                                 signingAlgorithm:(SecKeyAlgorithm)algorithm
                                          context:(_Nullable id<MSIDRequestContext>)context
                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
+/// Validates that the supplied keys form an RSA key pair suitable for external AT PoP signing.
+/// External AT PoP accepts RSA only (minimum 2048-bit). EC keys (including ES256 Secure Enclave
+/// keys used by the internal generator) are rejected with UnsupportedKeyType.
+/// The private key must support RS256 Digest selection and RS256 Message signing (JWT path).
+/// The public key must support RS256 Message verification and SecKeyCopyExternalRepresentation
+/// (pair match + JWK/kid). HSM/token keys that can sign but cannot verify or export fail closed.
+/// Validation derives the public key from the private key and fails closed if derivation is
+/// unavailable. It does not sign a challenge because caller-owned keys may require user presence.
+/// @param privateKey private key to validate
+/// @param publicKey public key to validate
+/// @param failureReason validation failure reason
+/// @param context request context
+/// @param error error if validation fails
+- (BOOL)validateExternalRSAKeyPair:(SecKeyRef _Nullable)privateKey
+                        publicKey:(SecKeyRef _Nullable)publicKey
+                    failureReason:(MSIDExternalKeyPairValidationFailureReason * _Nullable)failureReason
+                          context:(_Nullable id<MSIDRequestContext>)context
+                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 @end
 NS_ASSUME_NONNULL_END

@@ -88,6 +88,10 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (BOOL)supportsBrokeredAuthentication;
 
+// Whether this authority is an AAD authority (MSIDAADAuthority). Lets callers gate
+// AAD-only behavior without depending on the concrete MSIDAADAuthority type.
+- (BOOL)isAADAuthority;
+
 // Only certain authorities support passing clientID as an allowed scope
 - (BOOL)supportsClientIDAsScope;
 

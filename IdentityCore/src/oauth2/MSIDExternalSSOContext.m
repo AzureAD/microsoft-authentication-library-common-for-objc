@@ -32,7 +32,6 @@
 - (MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(id<MSIDRequestContext>)context
 {
 #if TARGET_OS_OSX
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
     if (@available(macOS 13.0, *))
     {
         if (!self.loginManager)
@@ -91,7 +90,6 @@
         return keypair;
     }
 #endif
-#endif
 
     return nil;
 }
@@ -99,7 +97,6 @@
 - (nullable NSURL *)tokenEndpointURL
 {
 #if TARGET_OS_OSX
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
     if (@available(macOS 13.0, *))
     {
         if (!self.loginManager)
@@ -110,7 +107,6 @@
         return self.loginManager.loginConfiguration.tokenEndpointURL;
     }
 #endif
-#endif
     
     return nil;
 }
@@ -118,19 +114,17 @@
 - (void)getPlatformSSOIdentity:(SecIdentityRef _Nullable *_Nullable)identityRef API_AVAILABLE(macos(13.0))
 {
     
-#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
+#if TARGET_OS_OSX
     if (!identityRef)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"identityRef passed is nil, cannot set identity from LoginManager");
         return;
     }
-#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
     if (@available(macOS 14.0, *))
     {
         *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeCurrentDeviceSigning];
         return;
     }
-#endif
     *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
 #endif
 

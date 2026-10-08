@@ -56,6 +56,11 @@
 
 #pragma mark - MSIDRefreshToken
 
+- (void)testIsBoundRefreshToken_shouldReturnFalse
+{
+    XCTAssertFalse([MSIDRefreshToken new].isBoundRefreshToken);
+}
+
 - (void)testRefreshTokenIsEqual_whenRefreshTokenIsNotEqual_shouldReturnFalse
 {
     MSIDRefreshToken *lhs = [MSIDRefreshToken new];

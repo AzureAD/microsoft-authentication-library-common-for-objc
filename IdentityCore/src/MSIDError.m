@@ -177,6 +177,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       // Interactive flow errors
                       @(MSIDErrorUserCancel),
                       @(MSIDErrorSessionCanceledProgrammatically),
+                      @(MSIDErrorSessionCanceledBrowserHandoff),
                       @(MSIDErrorInteractiveSessionStartFailure),
                       @(MSIDErrorInteractiveSessionAlreadyRunning),
                       @(MSIDErrorNoMainViewController),
@@ -339,6 +340,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorUserCancel";
         case MSIDErrorSessionCanceledProgrammatically:
             return @"MSIDErrorSessionCanceledProgrammatically";
+        case MSIDErrorSessionCanceledBrowserHandoff:
+            return @"MSIDErrorSessionCanceledBrowserHandoff";
         case MSIDErrorInteractiveSessionStartFailure:
             return @"MSIDErrorInteractiveSessionStartFailure";
         case MSIDErrorInteractiveSessionAlreadyRunning:

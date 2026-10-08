@@ -1493,7 +1493,7 @@
         XCTAssertEqualObjects(error.userInfo[MSIDHTTPResponseCodeKey], @"403");
         MSIDExecutionFlowRetrieve(silentParameters.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
             XCTAssertNotNil(executionFlow);
-            XCTAssertTrue([executionFlow containsString:MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag)]);
+            XCTAssertTrue([executionFlow containsString:MSIDStringFromTokenRequestTag(MSIDAtExpirationElapsedTag)]);
             [expectation fulfill];
         });
     }];

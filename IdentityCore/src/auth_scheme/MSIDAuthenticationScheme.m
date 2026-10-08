@@ -60,6 +60,11 @@
     return MSIDAuthSchemeBearer;
 }
 
+- (NSDictionary *)tokenEndpointParameters
+{
+    return self.schemeParameters;
+}
+
 - (MSIDCredentialType)credentialType
 {
     return MSIDAccessTokenType;
@@ -80,6 +85,12 @@
 {
     return YES;
 }
+
+#if !EXCLUDE_FROM_MSALCPP
+- (void)configureTelemetryEvent:(__unused MSIDTelemetryAPIEvent *)event
+{
+}
+#endif
 
 - (instancetype)initWithJSONDictionary:(__unused NSDictionary *)json error:(__unused NSError *__autoreleasing*)error
 {

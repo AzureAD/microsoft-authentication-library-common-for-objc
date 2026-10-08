@@ -190,7 +190,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             if (accessToken.cachedAt)
             {
                 NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:accessToken.expiresOn];
-                MSIDExecutionFlowInsertTag(MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag),
+                MSIDExecutionFlowInsertTag(MSIDStringFromTokenRequestTag(MSIDAtExpirationElapsedTag),
                                                @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@((int64_t)elapsed)},
                                                self.requestParameters.correlationId);
             }

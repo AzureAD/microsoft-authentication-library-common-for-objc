@@ -44,4 +44,13 @@
                                         context:(nullable id<MSIDRequestContext>)context
                                           error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+/*!
+ Returns YES when @c host is a recognized AAD identity host: either a known static
+ public/sovereign cloud host, or a network environment already discovered via instance
+ metadata. This is authority-independent (it only consults the global static cloud list
+ and the shared authority cache), so it can be used to gate host trust without an
+ authority instance. Matching is case-insensitive. Returns NO for nil or blank input.
+ */
++ (BOOL)isRecognizedAADHost:(nullable NSString *)host;
+
 @end

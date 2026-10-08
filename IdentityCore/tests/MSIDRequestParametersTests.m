@@ -659,7 +659,7 @@
     XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should record the ignored cloud host tag"];
     MSIDExecutionFlowRetrieve(parameters.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
-        XCTAssertTrue([executionFlow containsString:MSIDCloudInstanceHostNameTagToString(MSIDCloudInstanceHostNameIgnoredTag)], @"Flow should record the ignored cloud host tag");
+        XCTAssertTrue([executionFlow containsString:MSIDStringFromCloudInstanceHostNameTag(MSIDCloudInstanceHostNameIgnoredTag)], @"Flow should record the ignored cloud host tag");
         [flowExpectation fulfill];
     });
     [self waitForExpectationsWithTimeout:1 handler:nil];

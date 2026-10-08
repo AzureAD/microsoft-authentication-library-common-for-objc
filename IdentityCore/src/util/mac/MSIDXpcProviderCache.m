@@ -200,27 +200,18 @@ NSString *const MSID_XPC_PROVIDER_TYPE_KEY = @"xpc_provider_type";
 
 - (BOOL)isXpcProviderExist:(NSString *)xpcIdentifier
 {
-    if (@available(macOS 12.0, *))
-    {
 #if DEBUG
-        NSString *folderConstrats = @"DerivedData";
+    NSString *folderConstrats = @"DerivedData";
 #else
-        NSString *folderConstrats = @"Applications";
+    NSString *folderConstrats = @"Applications";
 #endif
-        NSArray <NSURL *> *appURLs = [[NSWorkspace sharedWorkspace] URLsForApplicationsWithBundleIdentifier:xpcIdentifier];
-        for (NSURL *appURL in appURLs)
-        {
-            if ([appURL.absoluteString containsString:folderConstrats] && [[NSFileManager defaultManager] fileExistsAtPath:[appURL path]])
-            {
-                return YES;
-            }
-        }
-    }
-    else
+    NSArray <NSURL *> *appURLs = [[NSWorkspace sharedWorkspace] URLsForApplicationsWithBundleIdentifier:xpcIdentifier];
+    for (NSURL *appURL in appURLs)
     {
-        // This should not happen since the entry point has been guarded by version (macOS 13 and above)
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Entra broker] CLIENT - fall into unsupported platform end XPC disconnect from service!", nil);
-        return NO;
+        if ([appURL.absoluteString containsString:folderConstrats] && [[NSFileManager defaultManager] fileExistsAtPath:[appURL path]])
+        {
+            return YES;
+        }
     }
     
     return NO;

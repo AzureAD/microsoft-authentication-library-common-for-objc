@@ -252,6 +252,11 @@
     return YES;
 }
 
+- (BOOL)isAADAuthority
+{
+    return YES;
+}
+
 - (BOOL)supportsMAMScenarios
 {
 #if TARGET_OS_IPHONE
@@ -358,6 +363,11 @@
 #pragma mark - Sovereign
 
 - (BOOL)isRecognizedMicrosoftIdentityHost:(NSString *)host
+{
+    return [MSIDAADAuthority isRecognizedAADHost:host];
+}
+
++ (BOOL)isRecognizedAADHost:(NSString *)host
 {
     if ([NSString msidIsStringNilOrBlank:host]) return NO;
 

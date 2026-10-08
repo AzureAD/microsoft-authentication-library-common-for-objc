@@ -132,6 +132,11 @@
 
 #pragma mark - Token type
 
+- (BOOL)isBoundRefreshToken
+{
+    return YES;
+}
+
 - (MSIDCredentialType)credentialType
 {
     return MSIDBoundRefreshTokenType;

@@ -30,6 +30,15 @@
 #import "MSIDRequestContext.h"
 #import "MSIDWebviewNavigationDelegate.h"
 #import "MSIDWebviewConstants.h"
+#import "MSIDConstants.h"
+#import "MSIDUXCallbackProvider.h"
+#import "MSIDFlightManager.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDConstants.h"
+#import "MSIDHelpers.h"
+#import "MSIDKeychainUtil.h"
+#import "NSBundle+MSIDExtensions.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -37,6 +46,7 @@
 
 @property (nonatomic) id<MSIDRequestContext> context;
 @property (nonatomic) NSDictionary<NSString *, id> *lastResponseHeaders;
+@property (nonatomic, weak) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 
 @end
 
@@ -76,22 +86,66 @@
        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
 {
+    // Non-broker (in-app) flow: the running process is the caller, so supply its first-party
+    // app-identity headers rather than nil. The broker flow calls the variant below with the
+    // broker version instead.
+    [self handleSpecialRedirectURL:URL
+         embeddedWebviewController:embeddedWebviewController
+                 additionalHeaders:[self firstPartyAppHeadersForCurrentProcess]
+                        completion:completion];
+}
+
+- (void)handleSpecialRedirectURL:(NSURL *)URL
+       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+               additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
+                      completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
+{
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                       @"Handling special redirect: %@", _PII_NULLIFY(URL));
 
     MSIDWebviewNavigationDecisionResolver *util = [MSIDWebviewNavigationDecisionResolver sharedInstance];
     MSIDWebviewNavigationDecision *navigationDecision = [util resolveDecisionForURL:URL
-                                                          embeddedWebviewController:embeddedWebviewController];
+                                                          embeddedWebviewController:embeddedWebviewController
+                                                                  additionalHeaders:additionalHeaders];
     completion(navigationDecision, nil);
 }
 
-- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
-                                              responseURL:(NSURL *)responseURL
+// Builds the running process's first-party app-identity headers for the non-broker
+// (in-app) enrollment flow. The current process is the caller, so its keychain team ID
+// gates the headers and its main bundle supplies x-app-name / x-app-ver. Returns an empty
+// dictionary for non first-party processes so no attribution headers are stamped.
+- (NSDictionary<NSString *, NSString *> *)firstPartyAppHeadersForCurrentProcess
 {
+    if (![MSIDHelpers isMicrosoftFirstPartyAppWithTeamId:[MSIDKeychainUtil sharedInstance].teamId])
+    {
+        return @{};
+    }
+
+    NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary new];
+    NSString *appName = [NSBundle msidAppName];
+    NSString *appVersion = [NSBundle msidAppVersion];
+    if (appName.length) headers[MSID_APP_NAME_KEY] = appName;
+    if (appVersion.length) headers[MSID_APP_VER_KEY] = appVersion;
+    return headers;
+}
+
+- (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
+                                   embeddedWebviewController:(nullable MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
+{
+    NSDictionary *headers = response.allHeaderFields;
+    NSURL *responseURL = response.URL;
+
     // Normalize and capture headers for later use. This also allows for case-insensitive lookup of header values.
     self.lastResponseHeaders = [self normalizeHeaders:headers];
 
-    // TODO: Add telemetry for response headers
+    // Process onboarding telemetry from the response if the builder is available.
+    // This records blocking errors (x-ms-clitelem) and last-loaded domain.
+    MSIDOnboardingBlobBuilder *builder = embeddedWebviewController.onboardingBlobBuilder;
+    self.onboardingBlobBuilder = builder;
+    if (builder && response)
+    {
+        [builder processResponseHeaders:response.allHeaderFields responseURL:response.URL];
+    }
 
     NSString *handoffURLString = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
     BOOL hasHandoffHeader = [handoffURLString isKindOfClass:NSString.class] && ((NSString *)handoffURLString).length > 0;
@@ -127,8 +181,29 @@
         return;
     }
 
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.onboardingBlobBuilder;
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadFlowStarted timestamp:[NSDate date]];
+
+    void (^completionBlock)(MSIDWebviewNavigationDecision * _Nullable, NSError * _Nullable) = completion;
+    completion = ^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
+    {
+        // The hand-off outcome is carried on the decision (failWithError embeds the
+        // error; loadRequest signals success) and mirrored in the trailing error param.
+        // Classify the outcome from the decision, falling back to the error param.
+        NSError *outcomeError = decision.error ?: error;
+        if ([outcomeError.domain isEqualToString:MSIDErrorDomain] && outcomeError.code == MSIDErrorUserCancel)
+        {
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadFlowCancelled timestamp:[NSDate date]];
+        }
+        else if (outcomeError)
+        {
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadFlowFailed timestamp:[NSDate date]];
+        }
+        completionBlock(decision, error);
+    };
+
     // Retrieve the hand-off URL captured by the most recent
-    // processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: call.
+    // processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: call.
     id rawHandoffURL = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
     NSString *handoffURLString = [rawHandoffURL isKindOfClass:NSString.class] ? (NSString *)rawHandoffURL : nil;
     NSURL *handoffURL = handoffURLString.length > 0 ? [NSURL URLWithString:handoffURLString] : nil;
@@ -141,7 +216,7 @@
                                                    MSIDErrorInternal,
                                                    @"ASWebAuthentication hand-off requested without a valid hand-off URL.",
                                                    nil, nil, nil, self.context.correlationId, nil, YES);
-        completion([MSIDWebviewNavigationDecision failWithError:missingURLError], nil);
+        completion([MSIDWebviewNavigationDecision failWithError:missingURLError], missingURLError);
         return;
     }
 
@@ -170,7 +245,7 @@
                                          MSIDErrorSessionCanceledProgrammatically,
                                          @"ASWebAuthentication handoff URL is invalid",
                                          nil, nil, validationError, self.context.correlationId, nil, YES);
-        completion([MSIDWebviewNavigationDecision failWithError:error], nil);
+        completion([MSIDWebviewNavigationDecision failWithError:error], error);
         return;
     }
     
@@ -209,11 +284,18 @@
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
                                          @"ASWebAuthentication transition called with no URL",
                                          nil, nil, nil, self.context.correlationId, nil, YES);
-        completion([MSIDWebviewNavigationDecision failWithError:error], nil);
+        completion([MSIDWebviewNavigationDecision failWithError:error], error);
         return;
     }
     
     NSString *redirectURI = [NSString stringWithFormat:@"%@://", callbackURLScheme];
+
+    // Schedule the MDM profile-installed reminder *before* handing off to the system
+    // browser/Settings, so it can fire while the user is away installing the profile.
+    // The post-return `profile_download_complete` callback arrives only after the user is
+    // back in Authenticator (foreground), at which point the banner would be suppressed.
+    [self scheduleMDMProfileInstalledNotificationIfNeeded];
+
     // Launch ASWebAuthenticationSession with the provided URL and configuration
     [[MSIDSystemWebviewTransitionManager sharedInstance] transitionToSystemWebviewWithURL:URL
                                                                               redirectURI:redirectURI
@@ -241,14 +323,57 @@
         {
             // Neither URL nor error - unexpected
             MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"[MSIDWebviewNavigationHandler] Transition completed with neither URL nor error");
-            NSError *unexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                                       @"Transition completed with neither URL nor error",
-                                                       nil, nil, nil, self.context.correlationId, nil, YES);
-            navigationDecision = [MSIDWebviewNavigationDecision failWithError:unexpectedError];
+            error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                    @"Transition completed with neither URL nor error",
+                                    nil, nil, nil, self.context.correlationId, nil, YES);
+            navigationDecision = [MSIDWebviewNavigationDecision failWithError:error];
         }
         
-        completion(navigationDecision, nil);
+        completion(navigationDecision, error);
     }];
+}
+
+// Schedules the "MDM profile installed" reminder before presenting the
+// profile-download ASWebAuthenticationSession (i.e. before the user leaves
+// for Settings). Must happen here, not in the later `profile_download_complete`
+// callback, since that only fires after we're foreground again, when
+// notifications don't show.
+//
+// Detected via the `x-ms-aswebauth-handoff-purpose: download-profile` response
+// header rather than the hand-off URL, to stay decoupled from Intune's URL shape.
+- (void)scheduleMDMProfileInstalledNotificationIfNeeded
+{
+    // Only arm for the MDM profile-download hand-off, not for other ASWebAuthenticationSession transitions.
+    id purpose = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY];
+    if (![purpose isKindOfClass:NSString.class]
+        || [purpose caseInsensitiveCompare:MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE] != NSOrderedSame)
+    {
+        return;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                      @"[ProfileDownload] Detected MDM profile-download hand-off; scheduling profile-installed notification before system webview transition.");
+
+    NSString *delayString = [[MSIDFlightManager sharedInstance] stringForKey:MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY];
+    NSTimeInterval delay = delayString.length > 0 ? delayString.doubleValue : MSIDMDMProfileInstalledNotificationDefaultDelay;
+    if (delay <= 0)
+    {
+        delay = MSIDMDMProfileInstalledNotificationDefaultDelay;
+    }
+
+    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
+    if (provider)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                          @"[ProfileDownload] Scheduling MDM profile-installed notification with delay %.2f seconds.", delay);
+        [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
+        [self.onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallNotificationScheduled timestamp:[NSDate date]];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                          @"[ProfileDownload] No UX callback provider registered; cannot schedule MDM profile-installed notification.");
+    }
 }
 
 #endif // !MSID_EXCLUDE_SYSTEMWV
