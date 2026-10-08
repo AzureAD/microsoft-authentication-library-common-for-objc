@@ -34,6 +34,7 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDOAuth2Constants.h"
+#import "MSIDInteractiveRequestParameters.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -200,7 +201,10 @@
     NSMutableDictionary *allQueryParams = [NSMutableDictionary dictionary];
 
     // Add enrollment-specific parameters.
-    allQueryParams[MSID_IN_APP_KEY] = @"true";
+    id requestContext = embeddedWebviewController.context;
+    MSIDInteractiveRequestParameters *interactiveRequestParameters =
+        [requestContext isKindOfClass:MSIDInteractiveRequestParameters.class]
+            ? (MSIDInteractiveRequestParameters *)requestContext : nil;
     allQueryParams[@"webauthn"] = @"1";
 
     // Copy additional params from the original msauth URL (excluding intuneUrl itself).
@@ -210,6 +214,10 @@
         {
             allQueryParams[key] = params[key];
         }
+    }
+    if (interactiveRequestParameters.isNewMobileOnboardingFlow)
+    {
+        allQueryParams[MSID_IN_APP_KEY] = @"true";
     }
 
     // Re-attach intuneDeviceId from keychain if it was captured during a prior
@@ -475,6 +483,14 @@
             allQueryParams[key] = params[key];
         }
     }
+    id requestContext = embeddedWebviewController.context;
+    MSIDInteractiveRequestParameters *interactiveRequestParameters =
+        [requestContext isKindOfClass:MSIDInteractiveRequestParameters.class]
+            ? (MSIDInteractiveRequestParameters *)requestContext : nil;
+    if (interactiveRequestParameters.isNewMobileOnboardingFlow)
+    {
+        allQueryParams[MSID_IN_APP_KEY] = @"true";
+    }
 
     NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary new];
     [self applyEligibleIntuneCorrelationHeaderFromCallerHeaders:callerHeaders
@@ -612,6 +628,15 @@
     {
         NSMutableArray<NSURLQueryItem *> *queryItems =
             [NSMutableArray arrayWithArray:components.queryItems ?: @[]];
+
+        if (extraParams[MSID_IN_APP_KEY] != nil)
+        {
+            NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
+            {
+                return [queryItem.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
+            }];
+            [queryItems removeObjectsAtIndexes:existingInAppIndexes];
+        }
 
         for (NSString *key in extraParams)
         {
