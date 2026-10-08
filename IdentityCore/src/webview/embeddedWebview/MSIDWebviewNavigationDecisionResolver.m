@@ -33,8 +33,17 @@
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDOAuth2Constants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
+
+@interface MSIDWebviewNavigationDecisionResolver ()
+
+- (void)applyEligibleIntuneCorrelationHeaderFromCallerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
+                                                   toHeaders:(NSMutableDictionary<NSString *, NSString *> *)headers
+                                                   URLString:(NSString *)URLString;
+
+@end
 
 @implementation MSIDWebviewNavigationDecisionResolver
 
@@ -138,7 +147,8 @@
     else if ([host isEqualToString:MSID_COMPLIANCE_HOST])
     {
         return [self decisionForComplianceURL:params
-                    embeddedWebviewController:embeddedWebviewController];
+                    embeddedWebviewController:embeddedWebviewController
+                                callerHeaders:callerHeaders];
     }
     else if ([host isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_HOST])
     {
@@ -236,6 +246,9 @@
     {
         [headers addEntriesFromDictionary:additionalHeaders];
     }
+    [self applyEligibleIntuneCorrelationHeaderFromCallerHeaders:additionalHeaders
+                                                     toHeaders:headers
+                                                     URLString:decodedIntuneURL];
 
     NSString *platformName = [MSIDVersion platformName];
     if (platformName.length > 0)
@@ -424,6 +437,7 @@
 
 - (MSIDWebviewNavigationDecision *)decisionForComplianceURL:(NSDictionary *)params
                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                              callerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
     [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect timestamp:[NSDate date]];
@@ -462,9 +476,14 @@
         }
     }
 
+    NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary new];
+    [self applyEligibleIntuneCorrelationHeaderFromCallerHeaders:callerHeaders
+                                                     toHeaders:headers
+                                                     URLString:decodedIntuneURL];
+
     // Build the final request with all query params.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
-                                        extraHeaders:nil  // TODO: Add compliance-specific headers if needed.
+                                        extraHeaders:headers
                                          extraParams:allQueryParams];
 
     if (!request)
@@ -491,6 +510,50 @@
 }
 
 #pragma mark - Helper Methods
+
+- (void)applyEligibleIntuneCorrelationHeaderFromCallerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
+                                                   toHeaders:(NSMutableDictionary<NSString *, NSString *> *)headers
+                                                   URLString:(NSString *)URLString
+{
+    NSString *correlationId = callerHeaders[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
+
+    for (NSString *headerName in callerHeaders)
+    {
+        if ([headerName caseInsensitiveCompare:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] == NSOrderedSame)
+        {
+            if (!correlationId.length)
+            {
+                correlationId = callerHeaders[headerName];
+            }
+        }
+    }
+
+    for (NSString *headerName in headers.allKeys)
+    {
+        if ([headerName caseInsensitiveCompare:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] == NSOrderedSame)
+        {
+            [headers removeObjectForKey:headerName];
+        }
+    }
+
+    if (!correlationId.length)
+    {
+        return;
+    }
+
+    NSURLComponents *components = [NSURLComponents componentsWithString:URLString];
+    NSString *host = components.host.lowercaseString;
+    BOOL eligibleIntuneDestination = [components.scheme.lowercaseString isEqualToString:@"https"]
+        && [MSIDASWebAuthenticationConstants.asWebAuthAllowedDomains containsObject:host];
+
+    if (!eligibleIntuneDestination)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Omitting client-request-id from non-Intune destination host '%@'.", host);
+        return;
+    }
+
+    headers[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] = correlationId;
+}
 
 - (NSURLRequest * _Nullable)externallyOverriddenRequestForRequest:(NSURLRequest *)request
                                        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
