@@ -48,6 +48,14 @@ enum {
 
 - (NSData *)brokerKeyWithError:(NSError *__autoreleasing*)error;
 
+// Versioned discovery is provisioned by Broker, never by the caller. All operations
+// use the fixed, team-prefixed adalcache group without legacy group fallback.
++ (BOOL)hasBoundSPASupportWithError:(NSError * __autoreleasing *)error;
++ (NSString *)boundSPAProofForParameters:(NSDictionary *)parameters sourceApplication:(NSString *)sourceApplication error:(NSError * __autoreleasing *)error;
++ (BOOL)validateBoundSPAProofForParameters:(NSDictionary *)parameters sourceApplication:(NSString *)sourceApplication error:(NSError * __autoreleasing *)error;
++ (BOOL)excludeBoundSPARefreshToken:(NSString *)refreshToken error:(NSError * __autoreleasing *)error;
++ (BOOL)isBoundSPARefreshTokenExcluded:(NSString *)refreshToken error:(NSError * __autoreleasing *)error;
+
 - (NSString *)base64BrokerKeyWithContext:(id<MSIDRequestContext>)context
                                    error:(NSError *__autoreleasing*)error;
 
