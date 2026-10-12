@@ -251,6 +251,25 @@
     XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
 }
 
+- (void)testEnrollURL_whenNewMobileOnboardingAndDestinationUsesHTTP_doesNotAddInApp
+{
+    NSString *targetURL = @"http://portal.manage.microsoft.com/enroll?existing=value&in-app=false";
+    NSURLComponents *outerComponents = [NSURLComponents new];
+    outerComponents.scheme = MSID_SCHEME_MSAUTH;
+    outerComponents.host = MSID_MDM_ENROLL_HOST;
+    outerComponents.queryItems = @[[NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL]];
+
+    MSIDWebviewNavigationDecision *decision =
+        [self.resolver resolveDecisionForURL:outerComponents.URL
+                   embeddedWebviewController:[self createWebviewControllerForNewMobileOnboarding:YES]
+                                   additionalHeaders:nil];
+
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 1);
+    XCTAssertEqualObjects(inAppItems.firstObject.value, @"false");
+    XCTAssertEqualObjects([self queryItemsNamed:@"existing" inURL:decision.request.URL].firstObject.value, @"value");
+}
+
 - (void)testEnrollURL_whenExternalBlockReturnsNil_shouldLoadEnrollmentRequest
 {
     NSString *targetURL = @"https://manage.microsoft.com/enroll";
@@ -681,6 +700,25 @@
     NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
     XCTAssertEqual(inAppItems.count, 1);
     XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
+}
+
+- (void)testComplianceURL_whenNewMobileOnboardingAndDestinationUsesHTTP_doesNotAddInApp
+{
+    NSString *targetURL = @"http://portal.manage.microsoft.com/check?existing=value&in-app=false";
+    NSURLComponents *outerComponents = [NSURLComponents new];
+    outerComponents.scheme = MSID_SCHEME_MSAUTH;
+    outerComponents.host = MSID_COMPLIANCE_HOST;
+    outerComponents.queryItems = @[[NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL]];
+
+    MSIDWebviewNavigationDecision *decision =
+        [self.resolver resolveDecisionForURL:outerComponents.URL
+                   embeddedWebviewController:[self createWebviewControllerForNewMobileOnboarding:YES]
+                                   additionalHeaders:nil];
+
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 1);
+    XCTAssertEqualObjects(inAppItems.firstObject.value, @"false");
+    XCTAssertEqualObjects([self queryItemsNamed:@"existing" inURL:decision.request.URL].firstObject.value, @"value");
 }
 
 - (void)testComplianceURL_whenApprovedIntuneHostAndCorrelationHeaderProvided_attachesOnlyCorrelationHeader

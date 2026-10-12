@@ -215,7 +215,9 @@
             allQueryParams[key] = params[key];
         }
     }
-    if (interactiveRequestParameters.isNewMobileOnboardingFlow)
+    NSURLComponents *intuneURLComponents = [NSURLComponents componentsWithString:decodedIntuneURL];
+    if (interactiveRequestParameters.isNewMobileOnboardingFlow &&
+        [intuneURLComponents.scheme.lowercaseString isEqualToString:@"https"])
     {
         allQueryParams[MSID_IN_APP_KEY] = @"true";
     }
@@ -487,7 +489,9 @@
     MSIDInteractiveRequestParameters *interactiveRequestParameters =
         [requestContext isKindOfClass:MSIDInteractiveRequestParameters.class]
             ? (MSIDInteractiveRequestParameters *)requestContext : nil;
-    if (interactiveRequestParameters.isNewMobileOnboardingFlow)
+    NSURLComponents *intuneURLComponents = [NSURLComponents componentsWithString:decodedIntuneURL];
+    if (interactiveRequestParameters.isNewMobileOnboardingFlow &&
+        [intuneURLComponents.scheme.lowercaseString isEqualToString:@"https"])
     {
         allQueryParams[MSID_IN_APP_KEY] = @"true";
     }
