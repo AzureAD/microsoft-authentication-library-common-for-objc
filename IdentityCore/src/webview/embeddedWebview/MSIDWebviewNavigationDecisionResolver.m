@@ -38,15 +38,41 @@
 
 #if !MSID_EXCLUDE_WEBKIT
 
+typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
+
 @interface MSIDWebviewNavigationDecisionResolver ()
+
+@property (nonatomic, copy, nullable) MSIDSSOExtensionAvailabilityCheck ssoExtensionAvailabilityCheck;
+
+- (instancetype)initWithSSOExtensionAvailabilityCheck:(nullable MSIDSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck;
 
 - (void)applyEligibleIntuneCorrelationHeaderFromCallerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
                                                    toHeaders:(NSMutableDictionary<NSString *, NSString *> *)headers
                                                    URLString:(NSString *)URLString;
 
+- (BOOL)isSSOExtensionAvailable;
+
+- (void)setCanonicalInAppParameterInQueryParameters:(NSMutableDictionary<NSString *, NSString *> *)queryParameters;
+
 @end
 
 @implementation MSIDWebviewNavigationDecisionResolver
+
+- (instancetype)init
+{
+    return [self initWithSSOExtensionAvailabilityCheck:nil];
+}
+
+- (instancetype)initWithSSOExtensionAvailabilityCheck:(MSIDSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck
+{
+    self = [super init];
+    if (self)
+    {
+        _ssoExtensionAvailabilityCheck = [ssoExtensionAvailabilityCheck copy];
+    }
+
+    return self;
+}
 
 + (instancetype)sharedInstance
 {
@@ -216,10 +242,11 @@
         }
     }
     NSURLComponents *intuneURLComponents = [NSURLComponents componentsWithString:decodedIntuneURL];
-    if (interactiveRequestParameters.isNewMobileOnboardingFlow &&
-        [intuneURLComponents.scheme.lowercaseString isEqualToString:@"https"])
+    BOOL shouldNormalizeInAppParameter = interactiveRequestParameters.isNewMobileOnboardingFlow &&
+        [intuneURLComponents.scheme.lowercaseString isEqualToString:@"https"];
+    if (shouldNormalizeInAppParameter)
     {
-        allQueryParams[MSID_IN_APP_KEY] = @"true";
+        [self setCanonicalInAppParameterInQueryParameters:allQueryParams];
     }
 
     // Re-attach intuneDeviceId from keychain if it was captured during a prior
@@ -275,7 +302,8 @@
     // Build the final request with all query params and headers.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
                                         extraHeaders:headers
-                                         extraParams:allQueryParams];
+                                         extraParams:allQueryParams
+                               normalizeInAppParameter:shouldNormalizeInAppParameter];
 
     if (!request)
     {
@@ -399,7 +427,7 @@
     }
 
     // Check if SSO extension can perform request
-    if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
+    if ([self isSSOExtensionAvailable])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] SSO extension available; completing web auth with enrollment completion URL.");
         return [MSIDWebviewNavigationDecision completeWithURL:URL];
@@ -490,10 +518,11 @@
         [requestContext isKindOfClass:MSIDInteractiveRequestParameters.class]
             ? (MSIDInteractiveRequestParameters *)requestContext : nil;
     NSURLComponents *intuneURLComponents = [NSURLComponents componentsWithString:decodedIntuneURL];
-    if (interactiveRequestParameters.isNewMobileOnboardingFlow &&
-        [intuneURLComponents.scheme.lowercaseString isEqualToString:@"https"])
+    BOOL shouldNormalizeInAppParameter = interactiveRequestParameters.isNewMobileOnboardingFlow &&
+        [intuneURLComponents.scheme.lowercaseString isEqualToString:@"https"];
+    if (shouldNormalizeInAppParameter)
     {
-        allQueryParams[MSID_IN_APP_KEY] = @"true";
+        [self setCanonicalInAppParameterInQueryParameters:allQueryParams];
     }
 
     NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary new];
@@ -504,7 +533,8 @@
     // Build the final request with all query params.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
                                         extraHeaders:headers
-                                         extraParams:allQueryParams];
+                                         extraParams:allQueryParams
+                               normalizeInAppParameter:shouldNormalizeInAppParameter];
 
     if (!request)
     {
@@ -530,6 +560,26 @@
 }
 
 #pragma mark - Helper Methods
+
+- (BOOL)isSSOExtensionAvailable
+{
+    return self.ssoExtensionAvailabilityCheck
+        ? self.ssoExtensionAvailabilityCheck()
+        : [MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest];
+}
+
+- (void)setCanonicalInAppParameterInQueryParameters:(NSMutableDictionary<NSString *, NSString *> *)queryParameters
+{
+    for (NSString *key in queryParameters.allKeys)
+    {
+        if ([key caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame)
+        {
+            [queryParameters removeObjectForKey:key];
+        }
+    }
+
+    queryParameters[MSID_IN_APP_KEY] = @"true";
+}
 
 - (void)applyEligibleIntuneCorrelationHeaderFromCallerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
                                                    toHeaders:(NSMutableDictionary<NSString *, NSString *> *)headers
@@ -612,6 +662,7 @@
 - (nullable NSURLRequest *)buildRequestForURL:(NSString *)URLString
                                  extraHeaders:(nullable NSDictionary<NSString *, NSString *> *)extraHeaders
                                   extraParams:(nullable NSDictionary<NSString *, NSString *> *)extraParams
+                        normalizeInAppParameter:(BOOL)normalizeInAppParameter
 {
     // Validate input URL string.
     if (URLString.length == 0)
@@ -633,7 +684,7 @@
         NSMutableArray<NSURLQueryItem *> *queryItems =
             [NSMutableArray arrayWithArray:components.queryItems ?: @[]];
 
-        if (extraParams[MSID_IN_APP_KEY] != nil)
+        if (normalizeInAppParameter)
         {
             NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
             {
@@ -645,7 +696,10 @@
         for (NSString *key in extraParams)
         {
             NSString *value = extraParams[key];
-            if (key.length > 0 && value != nil)
+            BOOL isNoncanonicalInAppParameter = normalizeInAppParameter &&
+                [key caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame &&
+                ![key isEqualToString:MSID_IN_APP_KEY];
+            if (key.length > 0 && value != nil && !isNoncanonicalInAppParameter)
             {
                 [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:value]];
             }

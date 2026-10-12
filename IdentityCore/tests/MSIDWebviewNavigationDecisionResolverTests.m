@@ -29,10 +29,8 @@
 #import "MSIDWebviewNavigationDecision.h"
 #import "MSIDWebviewConstants.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
-#import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDIntuneDeviceIdCache.h"
 #import "MSIDTestCacheDataSource.h"
-#import "MSIDTestSwizzle.h"
 #import "MSIDVersion.h"
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDUXCallbackProtocol.h"
@@ -45,11 +43,18 @@
 #import "MSIDOAuth2Constants.h"
 #import "MSIDInteractiveRequestParameters.h"
 
+@interface MSIDWebviewNavigationDecisionResolver (Testing)
+
+- (instancetype)initWithSSOExtensionAvailabilityCheck:(BOOL (^)(void))ssoExtensionAvailabilityCheck;
+
+@end
+
 @interface MSIDWebviewNavigationDecisionResolverTests : XCTestCase
 
 @property (nonatomic) MSIDWebviewNavigationDecisionResolver *resolver;
 @property (nonatomic) MSIDTestCacheDataSource *dataSource;
 @property (nonatomic) MSIDIntuneDeviceIdCache *deviceIdCache;
+@property (nonatomic) BOOL ssoExtensionAvailable;
 
 @end
 
@@ -58,7 +63,10 @@
 - (void)setUp
 {
     [super setUp];
-    self.resolver = [MSIDWebviewNavigationDecisionResolver sharedInstance];
+    __weak typeof(self) weakSelf = self;
+    self.resolver = [[MSIDWebviewNavigationDecisionResolver alloc] initWithSSOExtensionAvailabilityCheck:^BOOL{
+        return weakSelf.ssoExtensionAvailable;
+    }];
 
     // Inject a fresh in-memory device-id cache (backed by a mock data source) for each test.
     // Mirrors the approach used in MSIDIntuneDeviceIdCacheTests so the keychain is never touched.
@@ -70,7 +78,6 @@
 
 - (void)tearDown
 {
-    [MSIDTestSwizzle reset];
     [self.dataSource reset];
     MSIDUXCallbackProvider.uxCallbackProvider = nil;
     [super tearDown];
@@ -249,6 +256,50 @@
     NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
     XCTAssertEqual(inAppItems.count, 1);
     XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
+}
+
+- (void)testEnrollURL_whenNewMobileOnboarding_replacesMixedCaseInAppWithSingleCanonicalTrue
+{
+    NSString *targetURL = @"https://portal.manage.microsoft.com/enroll?IN-APP=false";
+    NSURLComponents *outerComponents = [NSURLComponents new];
+    outerComponents.scheme = MSID_SCHEME_MSAUTH;
+    outerComponents.host = MSID_MDM_ENROLL_HOST;
+    outerComponents.queryItems = @[
+        [NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL],
+        [NSURLQueryItem queryItemWithName:@"In-App" value:@"false"]
+    ];
+
+    MSIDWebviewNavigationDecision *decision =
+        [self.resolver resolveDecisionForURL:outerComponents.URL
+                   embeddedWebviewController:[self createWebviewControllerForNewMobileOnboarding:YES]
+                                   additionalHeaders:nil];
+
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 1);
+    XCTAssertEqualObjects(inAppItems.firstObject.name, MSID_IN_APP_KEY);
+    XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
+}
+
+- (void)testEnrollURL_whenContextIsNil_preservesConflictingInnerAndOuterInAppValues
+{
+    NSString *targetURL = @"https://portal.manage.microsoft.com/enroll?in-app=true";
+    NSURLComponents *outerComponents = [NSURLComponents new];
+    outerComponents.scheme = MSID_SCHEME_MSAUTH;
+    outerComponents.host = MSID_MDM_ENROLL_HOST;
+    outerComponents.queryItems = @[
+        [NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL],
+        [NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"false"]
+    ];
+
+    MSIDWebviewNavigationDecision *decision =
+        [self.resolver resolveDecisionForURL:outerComponents.URL
+                   embeddedWebviewController:nil
+                                   additionalHeaders:nil];
+
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 2);
+    XCTAssertTrue([[inAppItems valueForKey:@"value"] containsObject:@"true"]);
+    XCTAssertTrue([[inAppItems valueForKey:@"value"] containsObject:@"false"]);
 }
 
 - (void)testEnrollURL_whenNewMobileOnboardingAndDestinationUsesHTTP_doesNotAddInApp
@@ -491,6 +542,40 @@
                           @"00000000-0000-0000-0000-000000000001");
 }
 
+- (void)testEnrollURL_whenOnlyMixedCaseCorrelationHeaderProvided_usesItsValue
+{
+    NSString *targetURL = @"https://portal.manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                         embeddedWebviewController:nil
+                                                                         additionalHeaders:@{@"Client-Request-Id": @"00000000-0000-0000-0000-000000000098"}];
+
+    XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE],
+                          @"00000000-0000-0000-0000-000000000098");
+}
+
+- (void)testEnrollURL_whenCanonicalCorrelationHeaderIsEmpty_usesMixedCaseValue
+{
+    NSString *targetURL = @"https://portal.manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    NSDictionary *headers = @{MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE: @"",
+                              @"Client-Request-Id": @"00000000-0000-0000-0000-000000000097"};
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                         embeddedWebviewController:nil
+                                                                         additionalHeaders:headers];
+
+    XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE],
+                          @"00000000-0000-0000-0000-000000000097");
+}
+
 - (void)testEnrollURL_whenDestinationIsNotApproved_omitsCorrelationHeaderAndPreservesOtherHeaders
 {
     NSString *targetURL = @"https://example.com/enroll";
@@ -702,6 +787,50 @@
     XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
 }
 
+- (void)testComplianceURL_whenNewMobileOnboarding_replacesMixedCaseInAppWithSingleCanonicalTrue
+{
+    NSString *targetURL = @"https://portal.manage.microsoft.com/check?IN-APP=false";
+    NSURLComponents *outerComponents = [NSURLComponents new];
+    outerComponents.scheme = MSID_SCHEME_MSAUTH;
+    outerComponents.host = MSID_COMPLIANCE_HOST;
+    outerComponents.queryItems = @[
+        [NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL],
+        [NSURLQueryItem queryItemWithName:@"In-App" value:@"false"]
+    ];
+
+    MSIDWebviewNavigationDecision *decision =
+        [self.resolver resolveDecisionForURL:outerComponents.URL
+                   embeddedWebviewController:[self createWebviewControllerForNewMobileOnboarding:YES]
+                                   additionalHeaders:nil];
+
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 1);
+    XCTAssertEqualObjects(inAppItems.firstObject.name, MSID_IN_APP_KEY);
+    XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
+}
+
+- (void)testComplianceURL_whenNotNewMobileOnboarding_preservesConflictingInnerAndOuterInAppValues
+{
+    NSString *targetURL = @"https://portal.manage.microsoft.com/check?in-app=true";
+    NSURLComponents *outerComponents = [NSURLComponents new];
+    outerComponents.scheme = MSID_SCHEME_MSAUTH;
+    outerComponents.host = MSID_COMPLIANCE_HOST;
+    outerComponents.queryItems = @[
+        [NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL],
+        [NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"false"]
+    ];
+
+    MSIDWebviewNavigationDecision *decision =
+        [self.resolver resolveDecisionForURL:outerComponents.URL
+                   embeddedWebviewController:[self createWebviewControllerForNewMobileOnboarding:NO]
+                                   additionalHeaders:nil];
+
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 2);
+    XCTAssertTrue([[inAppItems valueForKey:@"value"] containsObject:@"true"]);
+    XCTAssertTrue([[inAppItems valueForKey:@"value"] containsObject:@"false"]);
+}
+
 - (void)testComplianceURL_whenNewMobileOnboardingAndDestinationUsesHTTP_doesNotAddInApp
 {
     NSString *targetURL = @"http://portal.manage.microsoft.com/check?existing=value&in-app=false";
@@ -819,12 +948,7 @@
 
 - (void)testEnrollmentCompletion_ssoExtensionAvailable_returnsCompleteWithURL
 {
-    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
-                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
-                           block:(id)^(void)
-    {
-        return YES;
-    }];
+    self.ssoExtensionAvailable = YES;
 
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
     NSURL *url = [NSURL URLWithString:urlString];
@@ -839,12 +963,7 @@
 
 - (void)testEnrollmentCompletion_ssoExtensionUnavailable_noErrorURL_returnsFailWithError
 {
-    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
-                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
-                           block:(id)^(void)
-    {
-        return NO;
-    }];
+    self.ssoExtensionAvailable = NO;
 
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
     NSURL *url = [NSURL URLWithString:urlString];
@@ -859,12 +978,7 @@
 
 - (void)testEnrollmentCompletion_ssoExtensionUnavailable_withErrorURL_returnsLoadRequest
 {
-    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
-                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
-                           block:(id)^(void)
-    {
-        return NO;
-    }];
+    self.ssoExtensionAvailable = NO;
 
     NSString *errorURL = @"https://enroll.microsoft.com/error";
     NSString *encoded = [errorURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
@@ -884,12 +998,7 @@
 
 - (void)testEnrollmentCompletionFallback_whenCorrelationHeaderProvided_doesNotAttachIt
 {
-    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
-                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
-                           block:(id)^(void)
-    {
-        return NO;
-    }];
+    self.ssoExtensionAvailable = NO;
 
     NSString *errorURL = @"https://portal.manage.microsoft.com/error";
     NSString *encoded = [errorURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
@@ -976,12 +1085,7 @@
 
 - (void)testEnrollmentCompletion_ssoExtensionUnavailable_whitespaceErrorURL_returnsFailWithError
 {
-    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
-                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
-                           block:(id)^(void)
-    {
-        return NO;
-    }];
+    self.ssoExtensionAvailable = NO;
 
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
                            MSID_MDM_ENROLLMENT_COMPLETION_HOST,
@@ -1079,13 +1183,7 @@
 {
     MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
-
-    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
-                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
-                           block:(id)^(void)
-    {
-        return YES;
-    }];
+    self.ssoExtensionAvailable = YES;
 
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
     NSURL *url = [NSURL URLWithString:urlString];
@@ -1099,13 +1197,7 @@
 - (void)testEnrollmentCompletion_whenProviderIsNil_shouldNotCrash
 {
     MSIDUXCallbackProvider.uxCallbackProvider = nil;
-
-    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
-                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
-                           block:(id)^(void)
-    {
-        return YES;
-    }];
+    self.ssoExtensionAvailable = YES;
 
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
     NSURL *url = [NSURL URLWithString:urlString];
@@ -1238,9 +1330,7 @@
 
 - (void)testResolveEnrollmentCompletion_whenSSOUnavailableNoErrorURL_shouldStampSSOExtensionUnavailable
 {
-    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
-                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
-                           block:(id)^(void) { return NO; }];
+    self.ssoExtensionAvailable = NO;
 
     MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
     MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
@@ -1255,9 +1345,7 @@
 
 - (void)testResolveEnrollmentCompletion_whenSSOUnavailableWithErrorURL_shouldStampMdmEnrollmentCompletionRetryStarted
 {
-    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
-                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
-                           block:(id)^(void) { return NO; }];
+    self.ssoExtensionAvailable = NO;
 
     MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
     MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
