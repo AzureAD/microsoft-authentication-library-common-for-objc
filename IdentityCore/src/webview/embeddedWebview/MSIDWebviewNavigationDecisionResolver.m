@@ -202,6 +202,7 @@
             allQueryParams[key] = params[key];
         }
     }
+    
     // Re-attach intuneDeviceId from keychain if it was captured during a prior
     // profile download complete redirect and is not already present in the URL.
     if (!allQueryParams[MSID_INTUNE_DEVICE_ID_KEY])
@@ -236,6 +237,7 @@
     {
         [headers addEntriesFromDictionary:additionalHeaders];
     }
+    
     NSString *platformName = [MSIDVersion platformName];
     if (platformName.length > 0)
     {
