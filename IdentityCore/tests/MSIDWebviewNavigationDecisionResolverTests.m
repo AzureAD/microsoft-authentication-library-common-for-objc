@@ -219,9 +219,12 @@
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertNotNil(decision.request);
     XCTAssertTrue([decision.request.URL.host isEqualToString:@"manage.microsoft.com"]);
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 1);
+    XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
 }
 
-- (void)testEnrollURL_whenNotNewMobileOnboarding_doesNotAddInApp
+- (void)testEnrollURL_whenNotNewMobileOnboarding_preservesEnrollmentDefault
 {
     NSString *targetURL = @"https://portal.manage.microsoft.com/enroll";
     NSURLComponents *outerComponents = [NSURLComponents new];
@@ -229,12 +232,59 @@
     outerComponents.host = MSID_MDM_ENROLL_HOST;
     outerComponents.queryItems = @[[NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL]];
 
+    __block NSURL *receivedURL = nil;
+    MSIDOAuth2EmbeddedWebviewController *webviewController = [self createWebviewControllerForNewMobileOnboarding:NO];
+    webviewController.externalDecidePolicyForBrowserAction =
+        ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController * __unused controller, NSURL *URL)
+    {
+        receivedURL = URL;
+        return nil;
+    };
+
     MSIDWebviewNavigationDecision *decision =
         [self.resolver resolveDecisionForURL:outerComponents.URL
-                   embeddedWebviewController:[self createWebviewControllerForNewMobileOnboarding:NO]
+                   embeddedWebviewController:webviewController
                                    additionalHeaders:nil];
 
-    XCTAssertEqual([self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL].count, 0);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 1);
+    XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
+    XCTAssertNotNil(receivedURL);
+    XCTAssertEqualObjects([self queryItemsNamed:MSID_IN_APP_KEY inURL:receivedURL], inAppItems);
+}
+
+- (void)testEnrollURL_whenNotNewMobileOnboarding_preservesExplicitOuterInAppValue
+{
+    NSString *targetURL = @"https://portal.manage.microsoft.com/enroll";
+    NSURLComponents *outerComponents = [NSURLComponents new];
+    outerComponents.scheme = MSID_SCHEME_MSAUTH;
+    outerComponents.host = MSID_MDM_ENROLL_HOST;
+    outerComponents.queryItems = @[
+        [NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL],
+        [NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"false"]
+    ];
+
+    __block NSURL *receivedURL = nil;
+    MSIDOAuth2EmbeddedWebviewController *webviewController = [self createWebviewControllerForNewMobileOnboarding:NO];
+    webviewController.externalDecidePolicyForBrowserAction =
+        ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController * __unused controller, NSURL *URL)
+    {
+        receivedURL = URL;
+        return nil;
+    };
+
+    MSIDWebviewNavigationDecision *decision =
+        [self.resolver resolveDecisionForURL:outerComponents.URL
+                   embeddedWebviewController:webviewController
+                                   additionalHeaders:nil];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 1);
+    XCTAssertEqualObjects(inAppItems.firstObject.value, @"false");
+    XCTAssertNotNil(receivedURL);
+    XCTAssertEqualObjects([self queryItemsNamed:MSID_IN_APP_KEY inURL:receivedURL], inAppItems);
 }
 
 - (void)testEnrollURL_whenNewMobileOnboarding_replacesExistingInAppWithSingleTrue
@@ -302,7 +352,7 @@
     XCTAssertTrue([[inAppItems valueForKey:@"value"] containsObject:@"false"]);
 }
 
-- (void)testEnrollURL_whenNewMobileOnboardingAndDestinationUsesHTTP_doesNotAddInApp
+- (void)testEnrollURL_whenNewMobileOnboardingAndDestinationUsesHTTP_preservesEnrollmentDefaultAndExistingInApp
 {
     NSString *targetURL = @"http://portal.manage.microsoft.com/enroll?existing=value&in-app=false";
     NSURLComponents *outerComponents = [NSURLComponents new];
@@ -316,8 +366,9 @@
                                    additionalHeaders:nil];
 
     NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
-    XCTAssertEqual(inAppItems.count, 1);
-    XCTAssertEqualObjects(inAppItems.firstObject.value, @"false");
+    XCTAssertEqual(inAppItems.count, 2);
+    XCTAssertTrue([[inAppItems valueForKey:@"value"] containsObject:@"true"]);
+    XCTAssertTrue([[inAppItems valueForKey:@"value"] containsObject:@"false"]);
     XCTAssertEqualObjects([self queryItemsNamed:@"existing" inURL:decision.request.URL].firstObject.value, @"value");
 }
 
@@ -354,6 +405,10 @@
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertEqualObjects(decision.request.URL.scheme, @"https");
     XCTAssertEqualObjects(decision.request.URL.host, @"manage.microsoft.com");
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 1);
+    XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
+    XCTAssertEqualObjects([self queryItemsNamed:MSID_IN_APP_KEY inURL:receivedURL], inAppItems);
     NSArray<NSString *> *steps = onboardingBlobBuilder.msidStampedStepIds;
     XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepJITTroubleshootingFlowStarted]);
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentStarted]);
@@ -393,6 +448,9 @@
     XCTAssertNotNil(receivedURL);
     XCTAssertEqualObjects(receivedURL.scheme, MSID_SCHEME_BROWSER);
     XCTAssertEqualObjects(receivedURL.host, @"portal.manage.microsoft.com");
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:receivedURL];
+    XCTAssertEqual(inAppItems.count, 1);
+    XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertEqualObjects(decision.request.URL, overrideURL);
     XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE]);

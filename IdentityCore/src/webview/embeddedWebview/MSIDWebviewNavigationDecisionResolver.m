@@ -231,6 +231,7 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
     MSIDInteractiveRequestParameters *interactiveRequestParameters =
         [requestContext isKindOfClass:MSIDInteractiveRequestParameters.class]
             ? (MSIDInteractiveRequestParameters *)requestContext : nil;
+    allQueryParams[MSID_IN_APP_KEY] = @"true";
     allQueryParams[@"webauthn"] = @"1";
 
     // Copy additional params from the original msauth URL (excluding intuneUrl itself).
