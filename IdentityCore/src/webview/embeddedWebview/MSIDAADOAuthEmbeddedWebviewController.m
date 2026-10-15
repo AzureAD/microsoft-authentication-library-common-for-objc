@@ -127,8 +127,7 @@
                 @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
             interactiveRequestParameters.isNewMobileOnboardingFlow = YES;
 
-            // Tag the blob with the new mobile onboarding UX (nil-safe).
-            [self.onboardingBlobBuilder addUxFlowUsed:MSIDOnboardingUxFlowMobileOnboardingPhase1];
+            [self.onboardingBlobBuilder addUxFlowUsed:MSIDOnboardingUxFlowNewCAMdmRedirect];
         }
         else
         {

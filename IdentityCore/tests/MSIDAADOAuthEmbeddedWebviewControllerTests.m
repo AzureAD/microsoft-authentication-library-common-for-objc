@@ -552,18 +552,45 @@
     return webVC;
 }
 
-- (void)testDecidePolicyForNavigationAction_whenMsauthEnrollAndOnboardingEnabled_shouldStampPhase1UxFlowAndEnableFlow
+- (void)testDecidePolicyForNavigationAction_whenOnboardingRedirectEnabled_shouldStampCARedirectWithoutPhase1AndEnableFlow
+{
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @NO };
+
+    for (NSString *host in @[MSID_MDM_ENROLL_HOST, MSID_COMPLIANCE_HOST])
+    {
+        MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+        [builder addUxFlowUsed:@"PriorUxFlow"];
+        MSIDInteractiveTokenRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
+        MSIDAADOAuthEmbeddedWebviewController *webVC = [self onboardingControllerWithBuilder:builder context:params];
+
+        NSString *encoded = [@"https://manage.microsoft.com/enroll" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+        NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@", host, MSID_INTUNE_URL_KEY, encoded];
+        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:urlString]];
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+        XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+        [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy __unused decision) {
+            [expectation fulfill];
+        }];
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+        XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"PriorUxFlow", @"new CA mdm redirect"]));
+        XCTAssertTrue(params.isNewMobileOnboardingFlow);
+    }
+}
+
+- (void)testDecidePolicyForNavigationAction_whenOnboardingAlreadyEnabled_shouldPreserveExistingUxFlows
 {
     self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @NO };
 
     MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    [builder addUxFlowUsed:@"new CA mdm redirect"];
+    [builder addUxFlowUsed:MSIDOnboardingUxFlowMobileOnboardingPhase1];
     MSIDInteractiveTokenRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
+    params.isNewMobileOnboardingFlow = YES;
     MSIDAADOAuthEmbeddedWebviewController *webVC = [self onboardingControllerWithBuilder:builder context:params];
-
-    NSString *encoded = [@"https://manage.microsoft.com/enroll" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@", MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:urlString]];
-    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc]
+        initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"msauth://compliance"]]];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
     [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy __unused decision) {
@@ -571,7 +598,7 @@
     }];
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
-    XCTAssertTrue([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"new CA mdm redirect", @"MobileOnboardingPhase1"]));
     XCTAssertTrue(params.isNewMobileOnboardingFlow);
 }
 
@@ -596,6 +623,7 @@
 
     XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback]);
     XCTAssertFalse(params.isNewMobileOnboardingFlow);
+    XCTAssertEqual([builder msidUxFlowsUsed].count, 0U);
 }
 
 - (void)testDecidePolicyForNavigationAction_whenMsauthEnrollAndOnboardingDisabledWithMissingIntuneUrl_shouldNotStampFallback
@@ -618,6 +646,7 @@
 
     XCTAssertFalse([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback]);
     XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
+    XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:@"new CA mdm redirect"]);
 }
 
 #pragma mark - openid-vc handler delegation

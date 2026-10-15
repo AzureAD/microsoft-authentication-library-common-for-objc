@@ -290,6 +290,13 @@
     
     NSString *redirectURI = [NSString stringWithFormat:@"%@://", callbackURLScheme];
 
+    id purpose = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY];
+    if ([purpose isKindOfClass:NSString.class]
+        && [purpose caseInsensitiveCompare:MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE] == NSOrderedSame)
+    {
+        [self.onboardingBlobBuilder addUxFlowUsed:MSIDOnboardingUxFlowMobileOnboardingPhase1];
+    }
+
     // Schedule the MDM profile-installed reminder *before* handing off to the system
     // browser/Settings, so it can fire while the user is away installing the profile.
     // The post-return `profile_download_complete` callback arrives only after the user is
