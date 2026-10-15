@@ -71,6 +71,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.forceUI = parameters.forceUI;
     request.bypassRedirectURIValidation = parameters.bypassRedirectURIValidation;
     request.showHeadsUp = parameters.showHeadsUp;
+    request.isBoundAppRefreshTokenRequested = parameters.isBoundAppRefreshTokenRequested;
     return YES;
 }
 
@@ -127,6 +128,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
         _clientSku = [json msidStringObjectForKey:MSID_CLIENT_SKU_KEY];
         _skipValidateResultAccount = [json msidBoolObjectForKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
         _forceRefresh = [json msidBoolObjectForKey:MSID_FORCE_REFRESH_KEY];
+        _isBoundAppRefreshTokenRequested = [json msidBoolObjectForKey:MSID_BOUND_RT_REDEEM];
     }
     
     return self;
@@ -161,7 +163,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     json[MSID_CLIENT_SKU_KEY] = self.clientSku;
     json[MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY] = [@(self.skipValidateResultAccount) stringValue];
     json[MSID_FORCE_REFRESH_KEY] = [@(self.forceRefresh) stringValue];
-    
+    json[MSID_BOUND_RT_REDEEM] = [@(self.isBoundAppRefreshTokenRequested) stringValue];
     return json;
 }
 

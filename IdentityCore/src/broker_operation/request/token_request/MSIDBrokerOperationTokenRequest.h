@@ -54,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL forceUI;
 @property (nonatomic) BOOL bypassRedirectURIValidation;
 @property (nonatomic) BOOL showHeadsUp;
+@property (nonatomic) BOOL isBoundAppRefreshTokenRequested;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters

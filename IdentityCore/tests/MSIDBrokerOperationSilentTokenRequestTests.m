@@ -29,6 +29,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTestIdentifiers.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDConstants.h"
 
 @interface MSIDBrokerOperationSilentTokenRequestTests : XCTestCase
 
@@ -46,11 +48,26 @@
     XCTAssertTrue([MSIDBrokerOperationSilentTokenRequest.class isSubclassOfClass:MSIDBrokerOperationTokenRequest.class]);
 }
 
+- (void)testTokenRequestWithParameters_shouldCopyBoundAppRefreshTokenRequested
+{
+    MSIDRequestParameters *parameters = [MSIDRequestParameters new];
+    parameters.isBoundAppRefreshTokenRequested = YES;
+
+    MSIDBrokerOperationSilentTokenRequest *request = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:parameters
+                                                                                                           providerType:MSIDProviderTypeAADV2
+                                                                                                          enrollmentIds:nil
+                                                                                                           mamResources:nil
+                                                                                                         requestSentDate:[NSDate date]];
+
+    XCTAssertTrue(request.isBoundAppRefreshTokenRequested);
+}
+
 - (void)testInitWithJSONDictionary_whenAllProperties_shouldInitRequest
 {
     NSDictionary *json = @{
         @"authority": @"https://login.microsoftonline.com/common",
         @"broker_key": @"broker_key_value",
+        MSID_BOUND_RT_REDEEM: @"1",
         @"claims": @"{\"id_token\": {\"given_name\": {\"essential\": true}}}",
         @"client_app_name": @"MSAL Test App",
         @"client_app_version": @"1.0",
@@ -104,6 +121,7 @@
     XCTAssertTrue(request.claimsRequest.hasClaims);
     XCTAssertEqualObjects(DEFAULT_TEST_ID_TOKEN_USERNAME, request.accountIdentifier.displayableId);
     XCTAssertEqualObjects(DEFAULT_TEST_HOME_ACCOUNT_ID, request.accountIdentifier.homeAccountId);
+    XCTAssertTrue(request.isBoundAppRefreshTokenRequested);
 }
 
 - (void)testJsonDictionary_whenAllPropertiesSet_shouldReturnJson
@@ -142,10 +160,11 @@
     request.clientSku = @"MSAL.iOS";
     request.skipValidateResultAccount = YES;
     request.forceRefresh = YES;
+    request.isBoundAppRefreshTokenRequested = YES;
     
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(23, json.allKeys.count);
+    XCTAssertEqual(24, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"claims"], @"{\"id_token\":{\"nickname\":null}}");
@@ -169,6 +188,7 @@
     XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
     XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"1");
     XCTAssertEqualObjects(json[@"force_refresh"], @"1");
+    XCTAssertEqualObjects(json[MSID_BOUND_RT_REDEEM], @"1");
 
 }
 
@@ -191,7 +211,7 @@
     
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(13, json.allKeys.count);
+    XCTAssertEqual(14, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"client_id"], @"client id");
@@ -205,6 +225,7 @@
     XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
     XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"0");
     XCTAssertEqualObjects(json[@"force_refresh"], @"0");
+    XCTAssertEqualObjects(json[MSID_BOUND_RT_REDEEM], @"0");
 }
 
 - (void)testInitWithJSONDictionary_whenRequiredPropertiesWithHomeAccountId_shouldInitRequest
