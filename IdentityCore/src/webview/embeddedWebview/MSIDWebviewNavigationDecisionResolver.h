@@ -60,9 +60,13 @@ NS_ASSUME_NONNULL_BEGIN
  * - profile_download_complete: Profile download completion flow
  * - in_app_enrollment_complete: In-app enrollment completion flow
  *
+ * The caller must gate enrollment and compliance redirects on new mobile onboarding.
+ * HTTPS enrollment/compliance requests normalize in-app=true. The original context
+ * correlation ID is attached only to approved HTTPS Intune hosts.
+ *
  * @param URL The special redirect URL to resolve (msauth://, browser://, etc.). If nil or missing a scheme, returns a failWithError decision.
  * @param embeddedWebviewController The webview controller handling the navigation. May be nil for flows that do not require it.
- * @param additionalHeaders Extra headers to merge onto the MDM enrollment request. The broker flow supplies the broker version (x-client-brkrver); the non-broker flow supplies the running process's first-party app-identity headers. Pass nil to add none.
+ * @param additionalHeaders Extra headers to merge onto the MDM enrollment request. The broker flow supplies the broker version (x-client-brkrver); the non-broker flow supplies the running process's first-party app-identity headers. Correlation-header entries are ignored in favor of the controller's request context. Pass nil to add none.
  * @return Navigation decision to apply. Always non-nil: unhandled schemes resolve to continueDefault and invalid/unprocessable URLs resolve to a failWithError decision.
  */
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL

@@ -34,45 +34,10 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDOAuth2Constants.h"
-#import "MSIDInteractiveRequestParameters.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
-typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
-
-@interface MSIDWebviewNavigationDecisionResolver ()
-
-@property (nonatomic, copy, nullable) MSIDSSOExtensionAvailabilityCheck ssoExtensionAvailabilityCheck;
-
-- (instancetype)initWithSSOExtensionAvailabilityCheck:(nullable MSIDSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck;
-
-- (void)applyEligibleIntuneCorrelationHeaderFromCallerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
-                                                   toHeaders:(NSMutableDictionary<NSString *, NSString *> *)headers
-                                                   URLString:(NSString *)URLString;
-
-- (BOOL)isSSOExtensionAvailable;
-
-- (void)setCanonicalInAppParameterInQueryParameters:(NSMutableDictionary<NSString *, NSString *> *)queryParameters;
-
-@end
-
 @implementation MSIDWebviewNavigationDecisionResolver
-
-- (instancetype)init
-{
-    return [self initWithSSOExtensionAvailabilityCheck:nil];
-}
-
-- (instancetype)initWithSSOExtensionAvailabilityCheck:(MSIDSSOExtensionAvailabilityCheck)ssoExtensionAvailabilityCheck
-{
-    self = [super init];
-    if (self)
-    {
-        _ssoExtensionAvailabilityCheck = [ssoExtensionAvailabilityCheck copy];
-    }
-
-    return self;
-}
 
 + (instancetype)sharedInstance
 {
@@ -174,8 +139,7 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
     else if ([host isEqualToString:MSID_COMPLIANCE_HOST])
     {
         return [self decisionForComplianceURL:params
-                    embeddedWebviewController:embeddedWebviewController
-                                callerHeaders:callerHeaders];
+                    embeddedWebviewController:embeddedWebviewController];
     }
     else if ([host isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_HOST])
     {
@@ -227,10 +191,6 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
     NSMutableDictionary *allQueryParams = [NSMutableDictionary dictionary];
 
     // Add enrollment-specific parameters.
-    id requestContext = embeddedWebviewController.context;
-    MSIDInteractiveRequestParameters *interactiveRequestParameters =
-        [requestContext isKindOfClass:MSIDInteractiveRequestParameters.class]
-            ? (MSIDInteractiveRequestParameters *)requestContext : nil;
     allQueryParams[MSID_IN_APP_KEY] = @"true";
     allQueryParams[@"webauthn"] = @"1";
 
@@ -242,14 +202,6 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
             allQueryParams[key] = params[key];
         }
     }
-    NSURLComponents *intuneURLComponents = [NSURLComponents componentsWithString:decodedIntuneURL];
-    BOOL shouldNormalizeInAppParameter = interactiveRequestParameters.isNewMobileOnboardingFlow &&
-        [intuneURLComponents.scheme.lowercaseString isEqualToString:@"https"];
-    if (shouldNormalizeInAppParameter)
-    {
-        [self setCanonicalInAppParameterInQueryParameters:allQueryParams];
-    }
-
     // Re-attach intuneDeviceId from keychain if it was captured during a prior
     // profile download complete redirect and is not already present in the URL.
     if (!allQueryParams[MSID_INTUNE_DEVICE_ID_KEY])
@@ -284,10 +236,6 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
     {
         [headers addEntriesFromDictionary:additionalHeaders];
     }
-    [self applyEligibleIntuneCorrelationHeaderFromCallerHeaders:additionalHeaders
-                                                     toHeaders:headers
-                                                     URLString:decodedIntuneURL];
-
     NSString *platformName = [MSIDVersion platformName];
     if (platformName.length > 0)
     {
@@ -304,7 +252,7 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
                                         extraHeaders:headers
                                          extraParams:allQueryParams
-                               normalizeInAppParameter:shouldNormalizeInAppParameter];
+                                             context:embeddedWebviewController.context];
 
     if (!request)
     {
@@ -428,7 +376,7 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
     }
 
     // Check if SSO extension can perform request
-    if ([self isSSOExtensionAvailable])
+    if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] SSO extension available; completing web auth with enrollment completion URL.");
         return [MSIDWebviewNavigationDecision completeWithURL:URL];
@@ -476,7 +424,6 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
 
 - (MSIDWebviewNavigationDecision *)decisionForComplianceURL:(NSDictionary *)params
                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                              callerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
     [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect timestamp:[NSDate date]];
@@ -514,28 +461,11 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
             allQueryParams[key] = params[key];
         }
     }
-    id requestContext = embeddedWebviewController.context;
-    MSIDInteractiveRequestParameters *interactiveRequestParameters =
-        [requestContext isKindOfClass:MSIDInteractiveRequestParameters.class]
-            ? (MSIDInteractiveRequestParameters *)requestContext : nil;
-    NSURLComponents *intuneURLComponents = [NSURLComponents componentsWithString:decodedIntuneURL];
-    BOOL shouldNormalizeInAppParameter = interactiveRequestParameters.isNewMobileOnboardingFlow &&
-        [intuneURLComponents.scheme.lowercaseString isEqualToString:@"https"];
-    if (shouldNormalizeInAppParameter)
-    {
-        [self setCanonicalInAppParameterInQueryParameters:allQueryParams];
-    }
-
-    NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary new];
-    [self applyEligibleIntuneCorrelationHeaderFromCallerHeaders:callerHeaders
-                                                     toHeaders:headers
-                                                     URLString:decodedIntuneURL];
-
     // Build the final request with all query params.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
-                                        extraHeaders:headers
+                                        extraHeaders:nil
                                          extraParams:allQueryParams
-                               normalizeInAppParameter:shouldNormalizeInAppParameter];
+                                             context:embeddedWebviewController.context];
 
     if (!request)
     {
@@ -561,70 +491,6 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
 }
 
 #pragma mark - Helper Methods
-
-- (BOOL)isSSOExtensionAvailable
-{
-    return self.ssoExtensionAvailabilityCheck
-        ? self.ssoExtensionAvailabilityCheck()
-        : [MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest];
-}
-
-- (void)setCanonicalInAppParameterInQueryParameters:(NSMutableDictionary<NSString *, NSString *> *)queryParameters
-{
-    for (NSString *key in queryParameters.allKeys)
-    {
-        if ([key caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame)
-        {
-            [queryParameters removeObjectForKey:key];
-        }
-    }
-
-    queryParameters[MSID_IN_APP_KEY] = @"true";
-}
-
-- (void)applyEligibleIntuneCorrelationHeaderFromCallerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
-                                                   toHeaders:(NSMutableDictionary<NSString *, NSString *> *)headers
-                                                   URLString:(NSString *)URLString
-{
-    NSString *correlationId = callerHeaders[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-
-    for (NSString *headerName in callerHeaders)
-    {
-        if ([headerName caseInsensitiveCompare:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] == NSOrderedSame)
-        {
-            if (!correlationId.length)
-            {
-                correlationId = callerHeaders[headerName];
-            }
-        }
-    }
-
-    for (NSString *headerName in headers.allKeys)
-    {
-        if ([headerName caseInsensitiveCompare:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] == NSOrderedSame)
-        {
-            [headers removeObjectForKey:headerName];
-        }
-    }
-
-    if (!correlationId.length)
-    {
-        return;
-    }
-
-    NSURLComponents *components = [NSURLComponents componentsWithString:URLString];
-    NSString *host = components.host.lowercaseString;
-    BOOL eligibleIntuneDestination = [components.scheme.lowercaseString isEqualToString:@"https"]
-        && [MSIDASWebAuthenticationConstants.asWebAuthAllowedDomains containsObject:host];
-
-    if (!eligibleIntuneDestination)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Omitting client-request-id from non-Intune destination host '%@'.", host);
-        return;
-    }
-
-    headers[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] = correlationId;
-}
 
 - (NSURLRequest * _Nullable)externallyOverriddenRequestForRequest:(NSURLRequest *)request
                                        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
@@ -663,7 +529,7 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
 - (nullable NSURLRequest *)buildRequestForURL:(NSString *)URLString
                                  extraHeaders:(nullable NSDictionary<NSString *, NSString *> *)extraHeaders
                                   extraParams:(nullable NSDictionary<NSString *, NSString *> *)extraParams
-                        normalizeInAppParameter:(BOOL)normalizeInAppParameter
+                                      context:(nullable id<MSIDRequestContext>)context
 {
     // Validate input URL string.
     if (URLString.length == 0)
@@ -679,33 +545,29 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
         return nil;
     }
 
-    // Append additional query parameters while preserving any existing ones.
-    if (extraParams.count > 0)
+    NSMutableArray<NSURLQueryItem *> *queryItems = [components.queryItems mutableCopy] ?: [NSMutableArray new];
+    for (NSString *key in extraParams)
     {
-        NSMutableArray<NSURLQueryItem *> *queryItems =
-            [NSMutableArray arrayWithArray:components.queryItems ?: @[]];
-
-        if (normalizeInAppParameter)
+        NSString *value = extraParams[key];
+        if (key.length > 0 && value != nil)
         {
-            NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
-            {
-                return [queryItem.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
-            }];
-            [queryItems removeObjectsAtIndexes:existingInAppIndexes];
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:value]];
         }
+    }
 
-        for (NSString *key in extraParams)
+    // The navigation controller gates this resolver on new mobile onboarding.
+    BOOL isHTTPS = [components.scheme.lowercaseString isEqualToString:@"https"];
+    if (isHTTPS)
+    {
+        NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
         {
-            NSString *value = extraParams[key];
-            BOOL isNoncanonicalInAppParameter = normalizeInAppParameter &&
-                [key caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame &&
-                ![key isEqualToString:MSID_IN_APP_KEY];
-            if (key.length > 0 && value != nil && !isNoncanonicalInAppParameter)
-            {
-                [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:value]];
-            }
-        }
-
+            return [queryItem.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
+        }];
+        [queryItems removeObjectsAtIndexes:existingInAppIndexes];
+        [queryItems addObject:[NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"true"]];
+    }
+    if (queryItems.count > 0)
+    {
         components.queryItems = queryItems;
     }
 
@@ -725,11 +587,17 @@ typedef BOOL (^MSIDSSOExtensionAvailabilityCheck)(void);
         for (NSString *key in extraHeaders)
         {
             NSString *value = extraHeaders[key];
-            if (key.length > 0 && value != nil)
+            if (key.length > 0 && value != nil &&
+                [key caseInsensitiveCompare:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] != NSOrderedSame)
             {
                 [request setValue:value forHTTPHeaderField:key];
             }
         }
+    }
+
+    if (isHTTPS && [MSIDASWebAuthenticationConstants.asWebAuthAllowedDomains containsObject:components.host.lowercaseString])
+    {
+        [request setValue:context.correlationId.UUIDString forHTTPHeaderField:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
     }
 
     return request;
