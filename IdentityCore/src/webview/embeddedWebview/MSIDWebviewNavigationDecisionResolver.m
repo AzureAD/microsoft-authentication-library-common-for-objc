@@ -202,6 +202,7 @@
             allQueryParams[key] = params[key];
         }
     }
+    
     // Re-attach intuneDeviceId from keychain if it was captured during a prior
     // profile download complete redirect and is not already present in the URL.
     if (!allQueryParams[MSID_INTUNE_DEVICE_ID_KEY])
@@ -236,6 +237,7 @@
     {
         [headers addEntriesFromDictionary:additionalHeaders];
     }
+    
     NSString *platformName = [MSIDVersion platformName];
     if (platformName.length > 0)
     {
@@ -556,20 +558,13 @@
     }
 
     // The navigation controller gates this resolver on new mobile onboarding.
-    BOOL isHTTPS = [components.scheme.lowercaseString isEqualToString:@"https"];
-    if (isHTTPS)
+    NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
     {
-        NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
-        {
-            return [queryItem.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
-        }];
-        [queryItems removeObjectsAtIndexes:existingInAppIndexes];
-        [queryItems addObject:[NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"true"]];
-    }
-    if (queryItems.count > 0)
-    {
-        components.queryItems = queryItems;
-    }
+        return [queryItem.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
+    }];
+    [queryItems removeObjectsAtIndexes:existingInAppIndexes];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"true"]];
+    components.queryItems = queryItems;
 
     // Create the final URL from components.
     NSURL *finalURL = components.URL;
@@ -595,10 +590,7 @@
         }
     }
 
-    if (isHTTPS && [MSIDASWebAuthenticationConstants.asWebAuthAllowedDomains containsObject:components.host.lowercaseString])
-    {
-        [request setValue:context.correlationId.UUIDString forHTTPHeaderField:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-    }
+    [request setValue:context.correlationId.UUIDString forHTTPHeaderField:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
 
     return request;
 }
