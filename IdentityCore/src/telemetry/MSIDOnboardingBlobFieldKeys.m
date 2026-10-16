@@ -31,7 +31,7 @@ NSString * const MSIDOnboardingBlobIPCKey = @"onboardingBlob";
 NSString * const MSIDOnboardingModeBrokered = @"brokered";
 
 // UX flow tags (appended to the `ux_flow_used` array).
-NSString * const MSIDOnboardingUxFlowNewCAMdmRedirect = @"new CA mdm redirect";
+NSString * const MSIDOnboardingUxFlowNewCAMdmRedirect = @"NewCAMdmRedirect";
 NSString * const MSIDOnboardingUxFlowMobileOnboardingPhase1 = @"MobileOnboardingPhase1";
 
 // Field keys for populated blob

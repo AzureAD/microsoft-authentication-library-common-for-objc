@@ -594,7 +594,7 @@
         }];
         [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
-        XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"PriorUxFlow", @"new CA mdm redirect"]));
+        XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"PriorUxFlow", @"NewCAMdmRedirect"]));
         XCTAssertTrue(params.isNewMobileOnboardingFlow);
     }
 }
@@ -690,7 +690,7 @@
     self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @NO };
 
     MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
-    [builder addUxFlowUsed:@"new CA mdm redirect"];
+    [builder addUxFlowUsed:MSIDOnboardingUxFlowNewCAMdmRedirect];
     [builder addUxFlowUsed:MSIDOnboardingUxFlowMobileOnboardingPhase1];
     MSIDInteractiveTokenRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
     params.isNewMobileOnboardingFlow = YES;
@@ -704,7 +704,7 @@
     }];
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
-    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"new CA mdm redirect", @"MobileOnboardingPhase1"]));
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"NewCAMdmRedirect", @"MobileOnboardingPhase1"]));
     XCTAssertTrue(params.isNewMobileOnboardingFlow);
 }
 
@@ -752,7 +752,7 @@
 
     XCTAssertFalse([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback]);
     XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
-    XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:@"new CA mdm redirect"]);
+    XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowNewCAMdmRedirect]);
 }
 
 #pragma mark - openid-vc handler delegation

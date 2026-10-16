@@ -643,7 +643,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 {
     MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
     [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:[NSDate date]];
-    [builder addUxFlowUsed:@"new CA mdm redirect"];
+    [builder addUxFlowUsed:MSIDOnboardingUxFlowNewCAMdmRedirect];
     NSDictionary *before = [self parsedJsonFromBlob:[builder finalizeBlob]];
 
     [builder finalizeForEndURL:[NSURL URLWithString:@"browser://itunes.apple.com/us/app/intune-company-portal/id719171358?mt=8"]

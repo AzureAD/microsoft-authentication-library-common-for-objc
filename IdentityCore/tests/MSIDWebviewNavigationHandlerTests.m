@@ -981,6 +981,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
     XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"MobileOnboardingPhase1"]));
     XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
                   @"A successful schedule must stamp ProfileInstallNotificationScheduled.");
 }
@@ -997,6 +998,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
     XCTAssertFalse(mockProvider.scheduleCalled);
+    XCTAssertEqual([builder msidUxFlowsUsed].count, 0U);
     XCTAssertFalse([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
                    @"No scheduling for a non profile-download purpose means no stamp.");
 }
@@ -1011,8 +1013,9 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 
     [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"MobileOnboardingPhase1"]));
     XCTAssertFalse([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
-                   @"The stamp is recorded only alongside an actual schedule, so a nil provider records nothing.");
+                   @"The notification step requires a provider, but the profile-download UX does not.");
 }
 
 #pragma mark - performASWebAuthenticationHandoff onboarding telemetry
@@ -1148,7 +1151,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
 
     MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
-    [builder addUxFlowUsed:@"new CA mdm redirect"];
+    [builder addUxFlowUsed:MSIDOnboardingUxFlowNewCAMdmRedirect];
     self.handler.onboardingBlobBuilder = builder;
     self.handler.lastResponseHeaders = @{
         MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff",
@@ -1160,7 +1163,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     {
         XCTAssertTrue(mockProvider.scheduleCalled, @"The reminder must be scheduled before the system transition starts.");
         XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
-        XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"new CA mdm redirect", @"MobileOnboardingPhase1"]));
+        XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"NewCAMdmRedirect", @"MobileOnboardingPhase1"]));
         [transitionExpectation fulfill];
     }
                                         callbackURL:[NSURL URLWithString:@"msauth://profile_download_complete"]
