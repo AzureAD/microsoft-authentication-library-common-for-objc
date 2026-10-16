@@ -33,4 +33,12 @@
                              externalSSOContext:(nullable MSIDExternalSSOContext *)externalSSOContext
                                         context:(nullable id<MSIDRequestContext>)context;
 
+/// serverTime must come from the same fresh, trusted challenge response, validated by MSIDPKeyAuthHandler.
+/// Pass nil to retain local-clock behavior. The time is used only for this assertion.
++ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
+                                  challengeData:(nullable NSDictionary *)challengeData
+                             externalSSOContext:(nullable MSIDExternalSSOContext *)externalSSOContext
+                                     serverTime:(nullable NSDate *)serverTime
+                                        context:(nullable id<MSIDRequestContext>)context;
+
 @end

@@ -38,6 +38,7 @@
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
+#import "MSIDFlightManager.h"
 
 @implementation MSIDPKeyAuthHandler
 
@@ -135,6 +136,21 @@
                             context:(id<MSIDRequestContext>)context
                   completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler
 {
+    [self handleWwwAuthenticateHeader:wwwAuthHeaderValue
+                           requestUrl:requestUrl
+                         httpResponse:nil
+                   externalSSOContext:externalSSOContext
+                              context:context
+                    completionHandler:completionHandler];
+}
+
++ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
+                         requestUrl:(NSURL *)requestUrl
+                       httpResponse:(NSHTTPURLResponse *)httpResponse
+                 externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
+                            context:(id<MSIDRequestContext>)context
+                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler
+{
     NSDictionary *authHeaderParams = [self parseAuthHeader:wwwAuthHeaderValue];
     
     if (!authHeaderParams)
@@ -142,15 +158,70 @@
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Unparseable wwwAuthHeader received %@", MSID_EUII_ONLY_LOG_MASKABLE(wwwAuthHeaderValue));
     }
     
+    NSDate *serverTime = nil;
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_PKEYAUTH_SERVER_TIME])
+    {
+        if (authHeaderParams && [wwwAuthHeaderValue isEqualToString:[httpResponse valueForHTTPHeaderField:kMSIDWwwAuthenticateHeader]])
+        {
+            serverTime = [self serverTimeFromResponse:httpResponse requestUrl:requestUrl context:context];
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"PKeyAuth server time unavailable: missing or mismatched challenge response. Using local clock.");
+        }
+    }
+
     NSError *error = nil;
     NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:requestUrl
                                                           challengeData:authHeaderParams
                                                      externalSSOContext:externalSSOContext
+                                                             serverTime:serverTime
                                                                 context:context];
     if (completionHandler)
     {
         completionHandler(authHeader, error);
     }
+}
+
++ (NSDate *)serverTimeFromResponse:(NSHTTPURLResponse *)response
+                        requestUrl:(NSURL *)requestUrl
+                           context:(id<MSIDRequestContext>)context
+{
+    NSURL *responseUrl = response.URL;
+    if ((response.statusCode != 400 && response.statusCode != 401)
+        || ![responseUrl isEqual:requestUrl]
+        || ![responseUrl.scheme.lowercaseString isEqualToString:@"https"]
+        || (responseUrl.port && responseUrl.port.integerValue != 443)
+        || ![MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:responseUrl.host.lowercaseString])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"PKeyAuth server time unavailable: response is not a matching HTTPS ESTS challenge. Using local clock.");
+        return nil;
+    }
+
+    NSString *age = [response valueForHTTPHeaderField:@"Age"];
+    if (age && ![age isEqualToString:@"0"])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"PKeyAuth server time unavailable: aged challenge response. Using local clock.");
+        return nil;
+    }
+
+    NSString *dateHeader = [response valueForHTTPHeaderField:@"Date"];
+    NSDateFormatter *formatter = [NSDateFormatter new];
+    formatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+    formatter.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    formatter.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+    formatter.dateFormat = @"EEE, dd MMM yyyy HH:mm:ss 'GMT'";
+    formatter.lenient = NO;
+    NSDate *serverTime = dateHeader ? [formatter dateFromString:dateHeader] : nil;
+    // Round-trip validation rejects partial parses, normalized invalid dates, and non-GMT values.
+    if (!serverTime || serverTime.timeIntervalSince1970 <= 0 || ![[formatter stringFromDate:serverTime] isEqualToString:dateHeader])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"PKeyAuth server time unavailable: missing or invalid HTTP Date. Using local clock.");
+        return nil;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth assertion uses server time from the current trusted ESTS challenge.");
+    return serverTime;
 }
 
 // Decodes the parameters that come in the Authorization header. We expect them in the following

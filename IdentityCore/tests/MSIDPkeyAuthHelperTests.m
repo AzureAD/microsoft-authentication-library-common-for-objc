@@ -36,9 +36,45 @@
 #import "MSIDKeyOperationUtil.h"
 #import "MSIDExternalSSOContextMock.h"
 #import "MSIDWPJKeyPairWithCert.h"
+#import "MSIDPKeyAuthHandler.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAADRequestErrorHandler.h"
+#import "MSIDHttpResponseSerializer.h"
+#import "MSIDConstants.h"
 
 static MSIDRegistrationInformation *s_registrationInformationToReturn;
 __unused static BOOL s_shouldGenerateEccKeyPair = NO;
+
+static NSString * const MSIDTestPkeyAuthChallenge = @"PKeyAuth Context=\"some context\", Version=\"1.0\", nonce=\"fresh-nonce\", CertAuthorities=\"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97\"";
+static NSString * const MSIDTestPkeyAuthDate = @"Wed, 21 Oct 2015 07:28:00 GMT";
+
+@interface MSIDPkeyAuthHttpTestRequest : NSObject <MSIDHttpRequestProtocol>
+
+@property (nonatomic) NSInteger retryCounter;
+@property (nonatomic) NSTimeInterval retryInterval;
+@property (nonatomic) NSURLRequest *urlRequest;
+@property (nonatomic) NSUInteger sendCount;
+
+@end
+
+@implementation MSIDPkeyAuthHttpTestRequest
+
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
+{
+    self.sendCount++;
+    completionBlock(self.urlRequest, nil);
+}
+
+- (void)cancel
+{
+}
+
+- (void)finishAndInvalidate
+{
+}
+
+@end
 
 @interface MSIDPkeyAuthHelperTests : XCTestCase
     @property (nonatomic) SecKeyRef eccPrivateKey;
@@ -47,12 +83,14 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     @property (nonatomic) SecKeyRef rsaPublicKey;
     @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
     @property (nonatomic) BOOL isEcKeyMethodSwizzled;
+    @property (nonatomic) id<MSIDFlightManagerInterface> originalFlightProvider;
 @end
 
 @implementation MSIDPkeyAuthHelperTests
 
 - (void)setUp
 {
+    self.originalFlightProvider = MSIDFlightManager.sharedInstance.flightProvider;
     [self swizzleMethod:@selector(getWPJKeysWithTenantId:context:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
              withMethod:@selector(swizzled_getWPJKeysWithTenantId:context:)
@@ -108,9 +146,190 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
         self.isEcKeyMethodSwizzled = NO;
     }
     [NSDate reset];
+    MSIDFlightManager.sharedInstance.flightProvider = self.originalFlightProvider;
 }
 
 #pragma mark - Tests
+
+- (void)testHandleWwwAuthenticateHeader_whenClockIsAheadBehindOrCorrect_shouldUseTrustedServerTime
+{
+    [self prepareServerTimeTest];
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token?slice=test"];
+    NSHTTPURLResponse *response = [self challengeResponseForUrl:url headers:@{@"Date": MSIDTestPkeyAuthDate} statusCode:401];
+
+    for (NSNumber *skew in @[@36000, @(-54000), @0])
+    {
+        [NSDate mockCurrentDate:[NSDate dateWithTimeIntervalSince1970:1445412480 + skew.doubleValue]];
+        NSDictionary *payload = [self payloadForChallengeResponse:response requestUrl:url];
+        XCTAssertEqualObjects(payload[@"iat"], @"1445412480");
+    }
+}
+
+- (void)testHandleWwwAuthenticateHeader_whenDateMissingOrInvalid_shouldUseLocalClock
+{
+    [self prepareServerTimeTest];
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"];
+    NSArray *headers = @[
+        @{},
+        @{@"Date": @""},
+        @{@"Date": @"not-a-date"},
+        @{@"Date": @"1445412480"},
+        @{@"Date": @"Wed, 31 Feb 2015 07:28:00 GMT"},
+        @{@"Date": @"Wed, 21 Oct 2015 07:28:00 PST"},
+        @{@"Date": @"Wed, 21 Oct 2015 07:28:00 GMT extra"},
+        @{@"Date": @"Thu, 21 Oct 2015 07:28:00 GMT"},
+        @{@"Date": @"Thu, 01 Jan 1970 00:00:00 GMT"}
+    ];
+    for (NSDictionary *headerFields in headers)
+    {
+        NSHTTPURLResponse *response = [self challengeResponseForUrl:url headers:headerFields statusCode:401];
+        XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"5");
+    }
+}
+
+- (void)testHandleWwwAuthenticateHeader_whenOriginIsUntrustedOrNotHttps_shouldUseLocalClock
+{
+    [self prepareServerTimeTest];
+    for (NSString *urlString in @[
+        @"http://login.microsoftonline.com/common/oauth2/token",
+        @"https://login.microsoftonline.com:444/common/oauth2/token",
+        @"https://login.microsoftonline.com.untrusted.example/common/oauth2/token",
+        @"https://adfs.contoso.com/adfs/oauth2/token",
+        @"https://unknown.example/common/oauth2/token"
+    ])
+    {
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSHTTPURLResponse *response = [self challengeResponseForUrl:url headers:@{@"Date": MSIDTestPkeyAuthDate} statusCode:401];
+        XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"5");
+    }
+}
+
+- (void)testHandleWwwAuthenticateHeader_whenResponseDoesNotMatchRequestOrChallenge_shouldUseLocalClock
+{
+    [self prepareServerTimeTest];
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"];
+    NSHTTPURLResponse *response = [self challengeResponseForUrl:[url URLByAppendingPathComponent:@"other"]
+                                                      headers:@{@"Date": MSIDTestPkeyAuthDate}
+                                                   statusCode:401];
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"5");
+
+    response = [self challengeResponseForUrl:url
+                                     headers:@{@"Date": MSIDTestPkeyAuthDate, @"WWW-Authenticate": @"PKeyAuth nonce=\"different-nonce\""}
+                                  statusCode:401];
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"5");
+
+    response = [self challengeResponseForUrl:url headers:@{@"Date": MSIDTestPkeyAuthDate} statusCode:200];
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"5");
+}
+
+- (void)testHandleWwwAuthenticateHeader_whenResponseHasAge_shouldRejectStaleOrMalformedAge
+{
+    [self prepareServerTimeTest];
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"];
+    for (NSString *age in @[@"1", @"3600", @"invalid", @"-1"])
+    {
+        NSHTTPURLResponse *response = [self challengeResponseForUrl:url headers:@{@"Date": MSIDTestPkeyAuthDate, @"Age": age} statusCode:401];
+        XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"5");
+    }
+    NSHTTPURLResponse *response = [self challengeResponseForUrl:url headers:@{@"Date": MSIDTestPkeyAuthDate, @"Age": @"0"} statusCode:401];
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"1445412480");
+}
+
+- (void)testHandleWwwAuthenticateHeader_whenFlightDisabledOrProviderMissing_shouldUseLocalClock
+{
+    [self prepareServerTimeTest];
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"];
+    NSHTTPURLResponse *response = [self challengeResponseForUrl:url headers:@{@"Date": MSIDTestPkeyAuthDate} statusCode:401];
+    MSIDFlightManagerMockProvider *provider = [MSIDFlightManagerMockProvider new];
+    provider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_PKEYAUTH_SERVER_TIME: @NO};
+    MSIDFlightManager.sharedInstance.flightProvider = provider;
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"5");
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"5");
+}
+
+- (void)testHandleWwwAuthenticateHeader_whenNextResponseHasNoDate_shouldNotReuseServerTime
+{
+    [self prepareServerTimeTest];
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"];
+    NSHTTPURLResponse *response = [self challengeResponseForUrl:url headers:@{@"Date": MSIDTestPkeyAuthDate} statusCode:401];
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"1445412480");
+    response = [self challengeResponseForUrl:url headers:@{@"Date": @"Wed, 21 Oct 2015 07:29:00 GMT"} statusCode:401];
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"1445412540");
+    response = [self challengeResponseForUrl:url headers:@{} statusCode:401];
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"5");
+}
+
+- (void)testHandleWwwAuthenticateHeader_whenKnownCloudAndLowercaseHeaders_shouldUseServerTime
+{
+    [self prepareServerTimeTest];
+    for (NSString *host in MSIDAADNetworkConfiguration.defaultConfiguration.trustedHosts)
+    {
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@:443/common/oauth2/token", host.uppercaseString]];
+        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url statusCode:400 HTTPVersion:nil
+                                                              headerFields:@{@"date": MSIDTestPkeyAuthDate, @"www-authenticate": MSIDTestPkeyAuthChallenge}];
+        XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"1445412480");
+    }
+}
+
+- (void)testHandleWwwAuthenticateHeader_whenServerTimeIsBeyond2038_shouldNotTruncateIssuedAt
+{
+    [self prepareServerTimeTest];
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"];
+    NSHTTPURLResponse *response = [self challengeResponseForUrl:url headers:@{@"Date": @"Sun, 01 Jan 2040 00:00:00 GMT"} statusCode:401];
+    XCTAssertEqualObjects([self payloadForChallengeResponse:response requestUrl:url][@"iat"], @"2208988800");
+}
+
+- (void)testLegacyChallengeEntryPoints_whenFlightEnabled_shouldKeepLocalClock
+{
+    [self prepareServerTimeTest];
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"];
+    __block NSUInteger completionCount = 0;
+    [MSIDPKeyAuthHandler handleWwwAuthenticateHeader:MSIDTestPkeyAuthChallenge requestUrl:url externalSSOContext:nil context:nil
+                                 completionHandler:^(NSString *authHeader, NSError *error)
+    {
+        completionCount++;
+        XCTAssertNil(error);
+        XCTAssertEqualObjects([self validatedPayloadForAuthHeader:authHeader audience:url.absoluteString][@"iat"], @"5");
+    }];
+    XCTAssertEqual(completionCount, 1);
+
+    NSString *urn = @"urn:http-auth:PKeyAuth?Context=some%20context&Version=1.0&nonce=fresh-nonce&SubmitUrl=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Ftoken";
+    completionCount = 0;
+    BOOL handled = [MSIDPKeyAuthHandler handleChallenge:urn context:nil customHeaders:nil externalSSOContext:nil
+                                   completionHandler:^(NSURLRequest *request, NSError *error)
+    {
+        completionCount++;
+        XCTAssertNil(error);
+        XCTAssertEqualObjects([self validatedPayloadForAuthHeader:[request valueForHTTPHeaderField:@"Authorization"] audience:url.absoluteString][@"iat"], @"5");
+    }];
+    XCTAssertTrue(handled);
+    XCTAssertEqual(completionCount, 1);
+}
+
+- (void)testHandleError_whenTrustedChallenge_shouldResendCorrectedAssertionOnce
+{
+    [self prepareServerTimeTest];
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url statusCode:401 HTTPVersion:nil
+                                                          headerFields:@{@"date": MSIDTestPkeyAuthDate, @"www-authenticate": MSIDTestPkeyAuthChallenge}];
+    MSIDPkeyAuthHttpTestRequest *request = [MSIDPkeyAuthHttpTestRequest new];
+    request.urlRequest = [NSURLRequest requestWithURL:url];
+    XCTestExpectation *completion = [self expectationWithDescription:@"Challenge resubmitted once"];
+    completion.assertForOverFulfill = YES;
+    [[MSIDAADRequestErrorHandler new] handleError:nil httpResponse:response data:nil httpRequest:request
+                              responseSerializer:[MSIDHttpResponseSerializer new] externalSSOContext:nil context:nil
+                                 completionBlock:^(NSURLRequest *resentRequest, NSError *error)
+    {
+        XCTAssertNil(error);
+        NSDictionary *payload = [self validatedPayloadForAuthHeader:[resentRequest valueForHTTPHeaderField:@"Authorization"] audience:url.absoluteString];
+        XCTAssertEqualObjects(payload[@"iat"], @"1445412480");
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+    XCTAssertEqual(request.sendCount, 1);
+    XCTAssertEqual(request.retryCounter, 0);
+}
 
 - (void)testCreateDeviceAuthResponse_whenDeviceIsWPJ_shouldCreateProperResponse
 {
@@ -393,6 +612,56 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
 }
 
 #pragma mark - Private
+
+- (void)prepareServerTimeTest
+{
+    MSIDFlightManagerMockProvider *provider = [MSIDFlightManagerMockProvider new];
+    provider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_PKEYAUTH_SERVER_TIME: @YES};
+    MSIDFlightManager.sharedInstance.flightProvider = provider;
+    MSIDRegistrationInformationMock *regInfo = [MSIDRegistrationInformationMock new];
+    regInfo.isWorkPlaceJoinedFlag = YES;
+    [regInfo setPrivateKey:self.rsaPrivateKey];
+    [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    s_registrationInformationToReturn = regInfo;
+}
+
+- (NSHTTPURLResponse *)challengeResponseForUrl:(NSURL *)url headers:(NSDictionary *)headers statusCode:(NSInteger)statusCode
+{
+    NSMutableDictionary *headerFields = [@{@"WWW-Authenticate": MSIDTestPkeyAuthChallenge} mutableCopy];
+    [headerFields addEntriesFromDictionary:headers];
+    return [[NSHTTPURLResponse alloc] initWithURL:url statusCode:statusCode HTTPVersion:nil headerFields:headerFields];
+}
+
+- (NSDictionary *)payloadForChallengeResponse:(NSHTTPURLResponse *)response requestUrl:(NSURL *)url
+{
+    __block NSString *result = nil;
+    __block NSUInteger completionCount = 0;
+    [MSIDPKeyAuthHandler handleWwwAuthenticateHeader:MSIDTestPkeyAuthChallenge requestUrl:url httpResponse:response externalSSOContext:nil context:nil
+                                 completionHandler:^(NSString *authHeader, NSError *error)
+    {
+        completionCount++;
+        result = authHeader;
+        XCTAssertNil(error);
+    }];
+    XCTAssertEqual(completionCount, 1);
+    NSURLComponents *audience = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    audience.query = nil;
+    return [self validatedPayloadForAuthHeader:result audience:audience.string];
+}
+
+- (NSDictionary *)validatedPayloadForAuthHeader:(NSString *)authHeader audience:(NSString *)audience
+{
+    NSDictionary *challenge = [MSIDPKeyAuthHandler parseAuthHeader:MSIDTestPkeyAuthChallenge];
+    [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challenge response:authHeader audience:audience publicKey:self.rsaPublicKey isRsa:YES];
+    NSString *jwt = [MSIDPKeyAuthHandler parseAuthHeader:authHeader][@"AuthToken"];
+    NSArray *parts = [jwt componentsSeparatedByString:@"."];
+    XCTAssertEqual(parts.count, 3);
+    if (parts.count != 3)
+    {
+        return nil;
+    }
+    return [[parts[1] msidBase64UrlDecode] msidJson];
+}
 
 - (void)populateRsaKeys
 {

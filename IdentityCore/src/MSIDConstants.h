@@ -317,6 +317,10 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS;
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_ENFORCE_BROKER_NONCE;
 
+/// Use the Date header from a fresh, trusted HTTPS ESTS PKeyAuth challenge for assertion iat.
+/// Default: OFF. Does not change the device clock or persist a clock offset.
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_PKEYAUTH_SERVER_TIME;
+
 /// Flight key for MDM profile install notification delay (seconds).
 /// Owner: swagup
 extern NSString * _Nonnull const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY;
