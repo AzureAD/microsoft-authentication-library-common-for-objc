@@ -582,8 +582,7 @@
         for (NSString *key in extraHeaders)
         {
             NSString *value = extraHeaders[key];
-            if (key.length > 0 && value != nil &&
-                [key caseInsensitiveCompare:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE] != NSOrderedSame)
+            if (key.length > 0 && value != nil)
             {
                 [request setValue:value forHTTPHeaderField:key];
             }
