@@ -34,12 +34,26 @@
 #import "MSIDADFSAuthority.h"
 #import "MSIDKeyOperationUtil.h"
 #import "MSIDExternalSSOContext.h"
+#import "NSDate+MSIDExtensions.h"
 
 @implementation MSIDPkeyAuthHelper
 
 + (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
                                   challengeData:(nullable NSDictionary *)challengeData
                              externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
+                                        context:(nullable id<MSIDRequestContext>)context
+{
+    return [self createDeviceAuthResponse:authorizationServer
+                            challengeData:challengeData
+                       externalSSOContext:externalSSOContext
+                               serverTime:nil
+                                  context:context];
+}
+
++ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
+                                  challengeData:(nullable NSDictionary *)challengeData
+                             externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
+                                     serverTime:(nullable NSDate *)serverTime
                                         context:(nullable id<MSIDRequestContext>)context
 {
     NSString *authToken = @"";
@@ -95,7 +109,11 @@
         authorizationServerComponents.query = nil; // Strip out query parameters.
         if (info)
         {
-            NSString *pkeyAuthToken = [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info serverSupportedAlgs:serverSupportedSignatureAlgs];
+            NSString *pkeyAuthToken = [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string
+                                                                           nonce:[challengeData valueForKey:@"nonce"]
+                                                                        identity:info
+                                                             serverSupportedAlgs:serverSupportedSignatureAlgs
+                                                                      serverTime:serverTime];
             authToken = pkeyAuthToken ? [NSString stringWithFormat:@"AuthToken=\"%@\",", pkeyAuthToken] : @"";
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
 #if !EXCLUDE_FROM_MSALCPP
@@ -152,6 +170,19 @@
                               identity:(MSIDWPJKeyPairWithCert *)identity
                    serverSupportedAlgs:(NSString *)serverSupportedAlgs
 {
+    return [self createDeviceAuthResponse:audience
+                                   nonce:nonce
+                                identity:identity
+                     serverSupportedAlgs:serverSupportedAlgs
+                              serverTime:nil];
+}
+
++ (NSString *)createDeviceAuthResponse:(NSString *)audience
+                                 nonce:(NSString *)nonce
+                              identity:(MSIDWPJKeyPairWithCert *)identity
+                   serverSupportedAlgs:(NSString *)serverSupportedAlgs
+                            serverTime:(NSDate *)serverTime
+{
     if (!audience || !nonce)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"audience or nonce is nil in device auth request!");
@@ -187,7 +218,7 @@
     NSDictionary *payload = @{
                               @"aud" : audience,
                               @"nonce" : nonce,
-                              @"iat" : [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]]
+                              @"iat" : serverTime ? serverTime.msidDateToTimestamp : [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]]
                               };
     
     return [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKeyRef]];

@@ -94,12 +94,13 @@
     // pkeyauth challenge
     if (httpResponse.statusCode == 400 || httpResponse.statusCode == 401)
     {
-        NSString *wwwAuthValue = [httpResponse.allHeaderFields valueForKey:kMSIDWwwAuthenticateHeader];
+        NSString *wwwAuthValue = [httpResponse valueForHTTPHeaderField:kMSIDWwwAuthenticateHeader];
         
         if (![NSString msidIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kMSIDPKeyAuthName])
         {
             [MSIDPKeyAuthHandler handleWwwAuthenticateHeader:wwwAuthValue
                                                   requestUrl:httpRequest.urlRequest.URL
+                                                httpResponse:httpResponse
                                           externalSSOContext:ssoContext
                                                      context:context
                                            completionHandler:^void (NSString *authHeader, NSError *completionError){

@@ -40,6 +40,15 @@
                             context:(id<MSIDRequestContext>)context
                   completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
 
+/// Supply the original, freshly received response from the authenticated network transport.
+/// Server time is used only when the flight, ESTS origin, URL, and challenge checks succeed.
++ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
+                         requestUrl:(NSURL *)requestUrl
+                       httpResponse:(NSHTTPURLResponse *)httpResponse
+                 externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
+                            context:(id<MSIDRequestContext>)context
+                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
+
 + (NSDictionary *)parseAuthHeader:(NSString *)authHeader;
 
 @end
