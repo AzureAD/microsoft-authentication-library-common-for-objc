@@ -422,7 +422,7 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
         return nil;
     }
 
-    if ([components.scheme caseInsensitiveCompare:@"browser"] != NSOrderedSame)
+    if (![components.scheme.lowercaseString isEqualToString:@"browser"])
     {
         return nil;
     }

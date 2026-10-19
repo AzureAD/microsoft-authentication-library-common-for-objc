@@ -611,11 +611,11 @@
         delegate.redirectExpectation = [self expectationWithDescription:host];
         controller.navigationDelegate = delegate;
         NSURL *redirectURL = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@?intuneRedirectUrl=https%%3A%%2F%%2Fportal.manage.microsoft.com%%2Fenroll", host]];
-        MSIDWKNavigationActionMock *action = [MSIDWKNavigationActionMock new];
-        action.request = [NSURLRequest requestWithURL:redirectURL];
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc]
+            initWithRequest:[NSURLRequest requestWithURL:redirectURL]];
         __block NSUInteger decisionCount = 0;
 
-        XCTAssertTrue([controller msidDecidePolicyForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy policy)
+        XCTAssertTrue([controller decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy policy)
         {
             decisionCount += 1;
             XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
@@ -648,11 +648,11 @@
         outer.scheme = @"msauth";
         outer.host = host;
         outer.queryItems = @[[NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL]];
-        MSIDWKNavigationActionMock *action = [MSIDWKNavigationActionMock new];
-        action.request = [NSURLRequest requestWithURL:outer.URL];
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc]
+            initWithRequest:[NSURLRequest requestWithURL:outer.URL]];
         __block NSUInteger decisionCount = 0;
 
-        XCTAssertTrue([controller msidDecidePolicyForNavigationAction:action decisionHandler:^(__unused WKNavigationActionPolicy policy)
+        XCTAssertTrue([controller decidePolicyAADForNavigationAction:action decisionHandler:^(__unused WKNavigationActionPolicy policy)
         {
             decisionCount += 1;
         }]);
@@ -672,11 +672,11 @@
         MSIDAADOAuthEmbeddedWebviewController *controller = [self onboardingControllerWithBuilder:nil context:nil];
         MSIDOnboardingNavigationDelegateSpy *delegate = [MSIDOnboardingNavigationDelegateSpy new];
         controller.navigationDelegate = delegate;
-        MSIDWKNavigationActionMock *action = [MSIDWKNavigationActionMock new];
-        action.request = [NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", host]]];
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc]
+            initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", host]]]];
         __block NSUInteger decisionCount = 0;
 
-        XCTAssertTrue([controller msidDecidePolicyForNavigationAction:action decisionHandler:^(__unused WKNavigationActionPolicy policy)
+        XCTAssertTrue([controller decidePolicyAADForNavigationAction:action decisionHandler:^(__unused WKNavigationActionPolicy policy)
         {
             decisionCount += 1;
         }]);
