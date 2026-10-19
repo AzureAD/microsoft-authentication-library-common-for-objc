@@ -408,11 +408,7 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     }
 }
 
-// Maps a terminal endURL that points at a well-known go.microsoft.com fwlink
-// (browser://go.microsoft.com/fwlink[/]?...LinkId=<id>...) to the onboarding
-// step that should be recorded against the current blob. The LinkId-to-step
-// map is the single extension point: new LinkIds (potentially mapping to a
-// different step) just add entries here.
+// Maps native-observed browser handoffs to CP download or enrollment steps.
 + (NSString *)onboardingStepForEndURL:(NSURL *)endURL
 {
     if (!endURL)
@@ -426,9 +422,15 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
         return nil;
     }
 
-    if ([components.scheme caseInsensitiveCompare:@"browser"] != NSOrderedSame)
+    if (![components.scheme.lowercaseString isEqualToString:@"browser"])
     {
         return nil;
+    }
+
+    if ([components.host.lowercaseString isEqualToString:@"itunes.apple.com"]
+        && [components.path.lastPathComponent isEqualToString:@"id719171358"])
+    {
+        return MSIDOnboardingBlobStepCPDownloadTriggered;
     }
 
     if ([components.host caseInsensitiveCompare:@"go.microsoft.com"] != NSOrderedSame)

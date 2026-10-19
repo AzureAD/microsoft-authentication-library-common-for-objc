@@ -33,6 +33,7 @@
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDOAuth2Constants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -201,7 +202,7 @@
             allQueryParams[key] = params[key];
         }
     }
-
+    
     // Re-attach intuneDeviceId from keychain if it was captured during a prior
     // profile download complete redirect and is not already present in the URL.
     if (!allQueryParams[MSID_INTUNE_DEVICE_ID_KEY])
@@ -236,7 +237,7 @@
     {
         [headers addEntriesFromDictionary:additionalHeaders];
     }
-
+    
     NSString *platformName = [MSIDVersion platformName];
     if (platformName.length > 0)
     {
@@ -252,7 +253,8 @@
     // Build the final request with all query params and headers.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
                                         extraHeaders:headers
-                                         extraParams:allQueryParams];
+                                         extraParams:allQueryParams
+                                             context:embeddedWebviewController.context];
 
     if (!request)
     {
@@ -461,11 +463,11 @@
             allQueryParams[key] = params[key];
         }
     }
-
     // Build the final request with all query params.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
-                                        extraHeaders:nil  // TODO: Add compliance-specific headers if needed.
-                                         extraParams:allQueryParams];
+                                        extraHeaders:nil
+                                         extraParams:allQueryParams
+                                             context:embeddedWebviewController.context];
 
     if (!request)
     {
@@ -529,6 +531,7 @@
 - (nullable NSURLRequest *)buildRequestForURL:(NSString *)URLString
                                  extraHeaders:(nullable NSDictionary<NSString *, NSString *> *)extraHeaders
                                   extraParams:(nullable NSDictionary<NSString *, NSString *> *)extraParams
+                                      context:(nullable id<MSIDRequestContext>)context
 {
     // Validate input URL string.
     if (URLString.length == 0)
@@ -544,23 +547,24 @@
         return nil;
     }
 
-    // Append additional query parameters while preserving any existing ones.
-    if (extraParams.count > 0)
+    NSMutableArray<NSURLQueryItem *> *queryItems = [components.queryItems mutableCopy] ?: [NSMutableArray new];
+    for (NSString *key in extraParams)
     {
-        NSMutableArray<NSURLQueryItem *> *queryItems =
-            [NSMutableArray arrayWithArray:components.queryItems ?: @[]];
-
-        for (NSString *key in extraParams)
+        NSString *value = extraParams[key];
+        if (key.length > 0 && value != nil)
         {
-            NSString *value = extraParams[key];
-            if (key.length > 0 && value != nil)
-            {
-                [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:value]];
-            }
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:value]];
         }
-
-        components.queryItems = queryItems;
     }
+
+    // The navigation controller gates this resolver on new mobile onboarding.
+    NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
+    {
+        return [queryItem.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
+    }];
+    [queryItems removeObjectsAtIndexes:existingInAppIndexes];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"true"]];
+    components.queryItems = queryItems;
 
     // Create the final URL from components.
     NSURL *finalURL = components.URL;
@@ -584,6 +588,8 @@
             }
         }
     }
+
+    [request setValue:context.correlationId.UUIDString forHTTPHeaderField:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
 
     return request;
 }

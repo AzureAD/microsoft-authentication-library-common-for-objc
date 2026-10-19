@@ -351,6 +351,9 @@
         return;
     }
 
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.onboardingBlobBuilder;
+    [onboardingBlobBuilder addUxFlowUsed:MSIDOnboardingUxFlowMobileOnboardingPhase1];
+
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                       @"[ProfileDownload] Detected MDM profile-download hand-off; scheduling profile-installed notification before system webview transition.");
 
@@ -367,7 +370,7 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                           @"[ProfileDownload] Scheduling MDM profile-installed notification with delay %.2f seconds.", delay);
         [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
-        [self.onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallNotificationScheduled timestamp:[NSDate date]];
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallNotificationScheduled timestamp:[NSDate date]];
     }
     else
     {

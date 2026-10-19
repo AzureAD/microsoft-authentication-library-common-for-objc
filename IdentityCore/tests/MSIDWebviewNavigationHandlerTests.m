@@ -40,6 +40,7 @@
 #import "MSIDConstants.h"
 #import "MSIDMockUXCallbackProvider.h"
 #import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobBuilder+MSIDTestUtil.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDKeychainUtil.h"
@@ -980,6 +981,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
     XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"MobileOnboardingPhase1"]));
     XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
                   @"A successful schedule must stamp ProfileInstallNotificationScheduled.");
 }
@@ -996,6 +998,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
     XCTAssertFalse(mockProvider.scheduleCalled);
+    XCTAssertEqual([builder msidUxFlowsUsed].count, 0U);
     XCTAssertFalse([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
                    @"No scheduling for a non profile-download purpose means no stamp.");
 }
@@ -1010,8 +1013,9 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 
     [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"MobileOnboardingPhase1"]));
     XCTAssertFalse([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
-                   @"The stamp is recorded only alongside an actual schedule, so a nil provider records nothing.");
+                   @"The notification step requires a provider, but the profile-download UX does not.");
 }
 
 #pragma mark - performASWebAuthenticationHandoff onboarding telemetry
@@ -1060,6 +1064,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 {
     MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
     self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE};
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
     MSIDViewController *parent = [MSIDViewController new];
@@ -1075,13 +1080,17 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowStarted]);
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
+    XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
 }
 
 - (void)testPerformASWebAuthHandoff_whenHandoffURLFailsValidation_shouldStampSessionStartFailedNotCompleted
 {
     MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
     self.handler.onboardingBlobBuilder = builder;
-    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://www.example.com/handoff"};
+    self.handler.lastResponseHeaders = @{
+        MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://www.example.com/handoff",
+        MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE
+    };
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
     MSIDViewController *parent = [MSIDViewController new];
@@ -1096,6 +1105,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 
     NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
+    XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
 }
 
 // Swizzles the ASWeb transition so it completes synchronously with the injected
@@ -1141,6 +1151,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
 
     MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    [builder addUxFlowUsed:MSIDOnboardingUxFlowNewCAMdmRedirect];
     self.handler.onboardingBlobBuilder = builder;
     self.handler.lastResponseHeaders = @{
         MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff",
@@ -1152,6 +1163,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     {
         XCTAssertTrue(mockProvider.scheduleCalled, @"The reminder must be scheduled before the system transition starts.");
         XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+        XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"NewCAMdmRedirect", @"MobileOnboardingPhase1"]));
         [transitionExpectation fulfill];
     }
                                         callbackURL:[NSURL URLWithString:@"msauth://profile_download_complete"]
@@ -1167,6 +1179,81 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 
     [self waitForExpectations:@[transitionExpectation, completionExpectation] timeout:1.0];
     XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenProfilePurposeAndNoNotificationProvider_shouldStampPhase1BeforeTransition
+{
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    MSIDOAuth2EmbeddedWebviewController *webVC = [[MSIDOAuth2EmbeddedWebviewController alloc]
+        initWithStartURL:[NSURL URLWithString:@"https://portal.manage.microsoft.com/enrollment"]
+        endURL:[NSURL URLWithString:@"msauth://end"]
+        webview:nil
+        customHeaders:nil
+        platfromParams:nil
+        context:self.context];
+    webVC.onboardingBlobBuilder = builder;
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc]
+        initWithURL:[NSURL URLWithString:@"https://portal.manage.microsoft.com/api/enrollment/AppleEnrollmentRedirect"]
+        statusCode:200
+        HTTPVersion:@"HTTP/1.1"
+        headerFields:@{
+            @"X-MS-ASWEBAUTH-HANDOFF-URL": @"https://portal.manage.microsoft.com/enrollment/webenrollment/downloadprofile",
+            @"X-MS-ASWEBAUTH-HANDOFF-PURPOSE": @"DoWnLoAd-PrOfIlE"
+        }];
+    XCTAssertTrue([self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response embeddedWebviewController:webVC]);
+    XCTAssertEqual([builder msidUxFlowsUsed].count, 0U);
+
+    [self swizzleTransitionWithInvocationBlock:^
+    {
+        XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"MobileOnboardingPhase1"]));
+    }
+                                        callbackURL:[NSURL URLWithString:@"msauth://profile_download_complete"]
+                                              error:nil];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    [self.handler performASWebAuthenticationHandoffWithParentController:[MSIDViewController new]
+                                                            completion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+    {
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"MobileOnboardingPhase1"]));
+    XCTAssertFalse([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenPurposeIsNotProfileDownload_shouldNotStampPhase1
+{
+    [self swizzleTransitionWithCallbackURL:[NSURL URLWithString:@"msauth://done"] error:nil];
+
+    for (id purpose in @[@"other", @"", @42, [NSNull null]])
+    {
+        MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+        self.handler.onboardingBlobBuilder = builder;
+        NSMutableDictionary *headers = [@{
+            MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"
+        } mutableCopy];
+        if (purpose != [NSNull null])
+        {
+            headers[MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY] = purpose;
+        }
+        self.handler.lastResponseHeaders = headers;
+
+        XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+        [self.handler performASWebAuthenticationHandoffWithParentController:[MSIDViewController new]
+                                                                completion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+        {
+            XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+            XCTAssertNil(error);
+            [expectation fulfill];
+        }];
+        [self waitForExpectations:@[expectation] timeout:1.0];
+
+        XCTAssertEqual([builder msidUxFlowsUsed].count, 0U, @"Unexpected UX tag for purpose %@", purpose);
+    }
 }
 
 - (void)testPerformASWebAuthHandoff_whenPurposeIsDownloadProfileAndFlightConfiguresDelay_shouldUseFlightDelayBeforeTransition
@@ -1204,7 +1291,10 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 {
     MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
     self.handler.onboardingBlobBuilder = builder;
-    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
+    self.handler.lastResponseHeaders = @{
+        MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff",
+        MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE
+    };
 
     NSError *cancelError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled", nil, nil, nil, nil, nil, NO);
     [self swizzleTransitionWithCallbackURL:nil error:cancelError];
@@ -1223,13 +1313,17 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowCancelled]);
     XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"MobileOnboardingPhase1"]));
 }
 
 - (void)testPerformASWebAuthHandoff_whenTransitionFailsWithNonCancelError_shouldStampFailedNotCancelled
 {
     MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
     self.handler.onboardingBlobBuilder = builder;
-    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
+    self.handler.lastResponseHeaders = @{
+        MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff",
+        MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE
+    };
 
     NSError *serverError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server error", nil, nil, nil, nil, nil, NO);
     [self swizzleTransitionWithCallbackURL:nil error:serverError];
@@ -1248,6 +1342,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
     XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowCancelled]);
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"MobileOnboardingPhase1"]));
 }
 
 - (void)testPerformASWebAuthHandoff_whenCancelCodeFromForeignDomain_shouldStampFailedNotCancelled
