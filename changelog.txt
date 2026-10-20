@@ -1,4 +1,5 @@
 TBD
+* Record the MDM enrollment-required blocking error on enrollment redirects and keep blocking errors unique and ordered by their latest occurrence.
 * Distinguish CA redirects from profile-download Phase 1 in onboarding telemetry and record native-observed Company Portal App Store handoffs as CPDownloadTriggered, preserving enrollment fwlink classification.
 * Normalize embedded Intune enrollment and compliance URLs to one `in-app=true` marker during the new mobile onboarding flow, preserving legacy enrollment defaults and caller-supplied values outside that flow.
 * Set `client-request-id` from the original request context on embedded Intune enrollment and compliance requests.

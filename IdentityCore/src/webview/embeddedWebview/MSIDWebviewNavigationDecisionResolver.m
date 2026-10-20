@@ -162,6 +162,7 @@
                                          callerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
+    [onboardingBlobBuilder addBlockingError:@"530003"];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
 
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];

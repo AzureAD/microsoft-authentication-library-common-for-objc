@@ -541,6 +541,42 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"MDM_FLOW");
 }
 
+- (void)testAddBlockingError_whenErrorRepeats_shouldMoveItToEnd
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder addBlockingError:@"ERROR_A"];
+    [builder addBlockingError:@"ERROR_B"];
+    [builder addBlockingError:@"ERROR_A"];
+    [builder addBlockingError:@"ERROR_A"];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+
+    XCTAssertEqualObjects(parsed[@"blocking_errors"], (@[@"ERROR_B", @"ERROR_A"]));
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"ERROR_A");
+    XCTAssertEqual([parsed[@"steps_list"] count], 0);
+}
+
+- (void)testAddBlockingError_whenSeedContainsDuplicates_shouldReplaceOnlyIncomingError
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"blocking_errors" : @[@"ERROR_A", @"ERROR_B", @"ERROR_A", @"ERROR_C"]
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    [builder addBlockingError:@"ERROR_A"];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+
+    XCTAssertEqualObjects(parsed[@"blocking_errors"], (@[@"ERROR_B", @"ERROR_C", @"ERROR_A"]));
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"ERROR_A");
+}
+
 #pragma mark - setLastLoadedDomain
 
 - (void)testSetLastLoadedDomain_whenSet_shouldAppearInBlob

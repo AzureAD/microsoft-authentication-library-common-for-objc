@@ -231,6 +231,8 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
 - (void)addBlockingError:(NSString *)errorCode
 {
+    // This keeps errors unique and ordered by their latest occurrence.
+    [self.blockingErrors removeObject:errorCode];
     [self.blockingErrors addObject:errorCode];
 }
 
