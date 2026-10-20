@@ -1332,6 +1332,9 @@
 
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMdmEnrollmentUrlMissing]);
+    NSData *data = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *blob = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    XCTAssertEqualObjects(blob[MSIDOnboardingBlobFieldBlockingErrors], @[@"530003"]);
 }
 
 - (void)testResolveEnroll_whenValidIntuneUrl_shouldStampMdmEnrollmentStarted
@@ -1347,6 +1350,44 @@
     NSArray<NSString *> *steps = [builder msidStampedStepIds];
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentStarted]);
     XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentRequired]);
+    NSData *data = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *blob = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    XCTAssertEqualObjects(blob[MSIDOnboardingBlobFieldBlockingErrors], @[@"530003"]);
+    XCTAssertEqualObjects(blob[MSIDOnboardingBlobFieldLastBlockingError], @"530003");
+}
+
+- (void)testResolveEnroll_whenHeadersAlsoContainMdmRequired_shouldRecordBlockingErrorOnce
+{
+    for (NSNumber *headersFirst in @[@YES, @NO])
+    {
+        MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+        [builder addBlockingError:@"65001"];
+        MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+        NSURL *url = [NSURL URLWithString:[self enrollishURLForHost:MSID_MDM_ENROLL_HOST targetURL:@"https://manage.microsoft.com/enroll"]];
+        NSDictionary *headers = @{MSID_OAUTH2_CLIENT_TELEMETRY : @"2,530003,0,,"};
+        NSURL *responseURL = [NSURL URLWithString:@"https://login.microsoftonline.com"];
+
+        if (headersFirst.boolValue)
+        {
+            [builder processResponseHeaders:headers responseURL:responseURL];
+        }
+
+        MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller
+                                                                             additionalHeaders:nil];
+
+        if (!headersFirst.boolValue)
+        {
+            [builder processResponseHeaders:headers responseURL:responseURL];
+        }
+
+        NSData *data = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *blob = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+        XCTAssertEqualObjects(blob[MSIDOnboardingBlobFieldBlockingErrors], (@[@"65001", @"530003"]));
+        XCTAssertEqualObjects(blob[MSIDOnboardingBlobFieldLastBlockingError], @"530003");
+        XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMdmEnrollmentRequired]);
+    }
 }
 
 - (void)testResolveProfileDownload_whenContinueUrlMissing_shouldStampProfileInstallUrlMissing
@@ -1361,6 +1402,9 @@
 
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepProfileInstallUrlMissing]);
+    NSData *data = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *blob = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    XCTAssertEqual([blob[MSIDOnboardingBlobFieldBlockingErrors] count], 0);
 }
 
 - (void)testResolveProfileDownload_whenContinueUrlMalformed_shouldStampProfileInstallUrlMalformed
@@ -1409,6 +1453,9 @@
     NSArray<NSString *> *steps = [builder msidStampedStepIds];
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect]);
     XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationRequestMalformed]);
+    NSData *data = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *blob = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    XCTAssertEqual([blob[MSIDOnboardingBlobFieldBlockingErrors] count], 0);
 }
 
 - (void)testResolveCompliance_whenIntuneUrlMissing_shouldStampComplianceRemediationUrlMissing
@@ -1439,6 +1486,9 @@
 
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepSSOExtensionUnavailable]);
+    NSData *data = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *blob = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    XCTAssertEqual([blob[MSIDOnboardingBlobFieldBlockingErrors] count], 0);
 }
 
 - (void)testResolveEnrollmentCompletion_whenSSOUnavailableWithErrorURL_shouldStampMdmEnrollmentCompletionRetryStarted
