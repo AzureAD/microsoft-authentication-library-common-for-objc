@@ -256,21 +256,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
 #pragma mark - HTTP Response Telemetry Processing
 
-// Error codes that are returned during normal sign-in flow and should not be
-// treated as blocking onboarding errors.
-//   50058  UserInformationNotProvided      - User not signed in / no valid SSO session found
-//   50097  DeviceAuthenticationRequired    - Device auth interrupt triggered by CA policy
-//   50126  InvalidUserNameOrPassword       - Wrong username or password
-+ (NSSet<NSString *> *)nonBlockingOnboardingErrorCodes
-{
-    static NSSet<NSString *> *codes = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        codes = [NSSet setWithObjects:@"50058", @"50097", @"50126", nil];
-    });
-    return codes;
-}
-
 - (void)processResponseHeaders:(NSDictionary *)headers responseURL:(NSURL *)responseURL
 {
     NSString *host = responseURL.host;
@@ -294,11 +279,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
     NSString *errorCode = [components[1] msidTrimmedString];
     if (errorCode.length == 0 || [errorCode isEqualToString:@"0"])
-    {
-        return;
-    }
-
-    if ([[self.class nonBlockingOnboardingErrorCodes] containsObject:errorCode])
     {
         return;
     }
@@ -343,7 +323,8 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
         [self addStep:MSIDOnboardingBlobStepBrokerInstallPrompted timestamp:now];
     }
 
-    // All other error codes (50076, 50078, 53005, 53003, etc.): blocking error only, no step.
+    // All other error codes, including 50058, 50097, and 50126, remain in blocking_errors
+    // for diagnostics even during normal sign-in; no remediation step is added.
 }
 
 - (NSString *)finalizeBlob

@@ -162,6 +162,10 @@
                                          callerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
+
+    // The non-brokered flow cannot read the intermediate 302 response headers.
+    // ESTS pairs msauth://enroll with error 530003 when MDM enrollment is required,
+    // so record the blocking error from the redirect instead.
     [onboardingBlobBuilder addBlockingError:@"530003"];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
 

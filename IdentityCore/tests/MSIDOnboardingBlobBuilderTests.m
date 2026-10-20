@@ -944,15 +944,36 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqual([parsed[@"steps_list"] count], 0);
 }
 
-- (void)testProcessResponseHeaders_whenNonBlockingErrorCode_shouldNotRecordBlockingErrorOrStep
+- (void)testProcessResponseHeaders_whenPreviouslyExcludedErrorCode_shouldRecordBlockingErrorOnly
+{
+    for (NSString *errorCode in @[@"50058", @"50097", @"50126"])
+    {
+        MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+        [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: [NSString stringWithFormat:@"2,%@,0,,", errorCode]}
+                            responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+        NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+        XCTAssertEqualObjects(parsed[@"blocking_errors"], (@[errorCode]));
+        XCTAssertEqualObjects(parsed[@"last_blocking_error"], errorCode);
+        XCTAssertEqual([parsed[@"steps_list"] count], 0);
+        XCTAssertFalse(builder.strongAuthSetupStarted);
+    }
+}
+
+- (void)testProcessResponseHeaders_whenPreviouslyExcludedErrorsRepeat_shouldMergeUniquelyInLatestOccurrenceOrder
 {
     MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
 
-    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,50126,0,,"}
-                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+    for (NSString *errorCode in @[@"50076", @"50058", @"50097", @"50126", @"50126", @"50097", @"50058"])
+    {
+        [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: [NSString stringWithFormat:@"2,%@,0,,", errorCode]}
+                            responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+    }
 
     NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
-    XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
+    XCTAssertEqualObjects(parsed[@"blocking_errors"], (@[@"50076", @"50126", @"50097", @"50058"]));
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"50058");
     XCTAssertEqual([parsed[@"steps_list"] count], 0);
 }
 
