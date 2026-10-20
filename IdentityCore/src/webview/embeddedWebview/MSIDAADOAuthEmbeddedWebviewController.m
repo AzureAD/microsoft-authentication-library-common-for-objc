@@ -339,7 +339,7 @@
             {
                 NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension,
                                                  @"Unable to hand off MFA activation from this extension.",
-                                                 nil, nil, nil, strongSelf.context.correlationId, nil, YES);
+                                                 nil, nil, nil, strongSelf.context.correlationId, nil, NO);
                 [strongSelf endWebAuthWithURL:nil error:error];
                 return;
             }
@@ -366,7 +366,7 @@
                     {
                         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
                                                          @"Unable to open the Authenticator MFA activation universal link.",
-                                                         nil, nil, nil, callbackSelf.context.correlationId, nil, YES);
+                                                         nil, nil, nil, callbackSelf.context.correlationId, nil, NO);
                         [callbackSelf endWebAuthWithURL:nil error:error];
                     }
                     // Opening the app is not activation or OAuth completion; keep authorization pending.
