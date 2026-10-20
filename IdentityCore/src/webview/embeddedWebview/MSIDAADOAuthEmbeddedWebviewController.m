@@ -324,6 +324,7 @@
         {
             decisionHandler(WKNavigationActionPolicyCancel);
         }
+        [self notifyFinishedNavigation:requestURL webView:self.webView];
         __weak typeof(self) weakSelf = self;
         [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
             __strong typeof(weakSelf) strongSelf = weakSelf;

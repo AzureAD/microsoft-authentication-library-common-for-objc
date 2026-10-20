@@ -190,6 +190,7 @@ static MSIDActivationOpenCapture *s_activationOpenCapture;
 @property (nonatomic) NSError *receivedError;
 @property (nonatomic) NSUInteger completionCount;
 @property (nonatomic) NSUInteger loadCount;
+@property (nonatomic) BOOL loadingIndicatorVisible;
 @end
 
 @implementation MSIDActivationControllerSpy
@@ -214,6 +215,16 @@ static MSIDActivationOpenCapture *s_activationOpenCapture;
 - (void)loadRequest:(__unused NSURLRequest *)request
 {
     self.loadCount += 1;
+}
+
+- (void)showLoadingIndicator
+{
+    self.loadingIndicatorVisible = YES;
+}
+
+- (void)dismissLoadingIndicator
+{
+    self.loadingIndicatorVisible = NO;
 }
 @end
 
@@ -620,6 +631,56 @@ static MSIDActivationOpenCapture *s_activationOpenCapture;
         }
         XCTAssertFalse(controller.complete);
         XCTAssertEqual(controller.completionCount, 0);
+    }
+}
+
+- (void)testActivationHandoff_whenProvisionalLoadIsCancelled_shouldFinishLoadingWithoutCompletingAuthorization
+{
+    [self configureActivationExtension];
+    for (NSNumber *spinnerAlreadyVisible in @[@NO, @YES])
+    {
+        MSIDActivationControllerSpy *controller = [self activationController];
+        WKWebView *webView = [WKWebView new];
+        controller.webView = webView;
+        [controller webView:webView didStartProvisionalNavigation:nil];
+        NSTimer *spinnerTimer = [controller valueForKey:@"spinnerTimer"];
+        XCTAssertTrue(controller.loading);
+        XCTAssertTrue(spinnerTimer.valid);
+        if (spinnerAlreadyVisible.boolValue)
+        {
+            [spinnerTimer fire];
+            XCTAssertTrue(controller.loadingIndicatorVisible);
+        }
+
+        MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                             navigationType:WKNavigationTypeOther];
+        NSUInteger previousOpenCount = s_activationOpenCapture.openCount;
+        __block NSUInteger decisionCount = 0;
+        [controller decidePolicyForNavigationAction:action webview:webView decisionHandler:^(WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+            XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+        }];
+        NSError *cancelledLoadError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+        [controller webView:webView didFailProvisionalNavigation:nil withError:cancelledLoadError];
+        XCTAssertEqual(s_activationOpenCapture.openCount, previousOpenCount + 1);
+        XCTAssertNotNil(s_activationOpenCapture.completion);
+        if (s_activationOpenCapture.completion)
+        {
+            s_activationOpenCapture.completion(YES);
+        }
+
+        XCTAssertEqual(decisionCount, 1);
+        XCTAssertFalse(controller.loading);
+        XCTAssertFalse(controller.loadingIndicatorVisible);
+        XCTAssertFalse(spinnerTimer.valid);
+        XCTAssertNil([controller valueForKey:@"spinnerTimer"]);
+        XCTAssertFalse(controller.activationHandoffInProgress);
+        XCTAssertFalse(controller.complete);
+        XCTAssertEqual(controller.completionCount, 0);
+        XCTAssertNil(controller.receivedError);
+        XCTAssertEqual(controller.loadCount, 0);
+        [controller webView:webView didFinishNavigation:nil];
     }
 }
 
