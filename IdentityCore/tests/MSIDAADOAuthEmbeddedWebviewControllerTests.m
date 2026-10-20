@@ -38,8 +38,28 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobBuilder+MSIDTestUtil.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDWebviewNavigationDecision.h"
 
 #if !MSID_EXCLUDE_WEBKIT
+
+@interface MSIDOnboardingNavigationDelegateSpy : NSObject <MSIDWebviewNavigationDelegate>
+@property (nonatomic) NSUInteger invocationCount;
+@property (nonatomic) XCTestExpectation *redirectExpectation;
+@end
+
+@implementation MSIDOnboardingNavigationDelegateSpy
+
+- (void)handleSpecialRedirectURL:(__unused NSURL *)URL
+       embeddedWebviewController:(__unused MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
+                      completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable, NSError * _Nullable))completion
+{
+    self.invocationCount += 1;
+    [self.redirectExpectation fulfill];
+    completion([MSIDWebviewNavigationDecision continueDefault], nil);
+}
+
+@end
 
 #if TARGET_OS_IPHONE
 /// Test-only subclass that captures the URL passed to `openOpenIdVcHandoffURL:`
@@ -552,18 +572,131 @@
     return webVC;
 }
 
-- (void)testDecidePolicyForNavigationAction_whenMsauthEnrollAndOnboardingEnabled_shouldStampPhase1UxFlowAndEnableFlow
+- (void)testDecidePolicyForNavigationAction_whenOnboardingRedirectEnabled_shouldStampCARedirectWithoutPhase1AndEnableFlow
+{
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @NO };
+
+    for (NSString *host in @[MSID_MDM_ENROLL_HOST, MSID_COMPLIANCE_HOST])
+    {
+        MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+        [builder addUxFlowUsed:@"PriorUxFlow"];
+        MSIDInteractiveTokenRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
+        MSIDAADOAuthEmbeddedWebviewController *webVC = [self onboardingControllerWithBuilder:builder context:params];
+
+        NSString *encoded = [@"https://manage.microsoft.com/enroll" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+        NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@", host, MSID_INTUNE_URL_KEY, encoded];
+        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:urlString]];
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+        XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+        [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy __unused decision) {
+            [expectation fulfill];
+        }];
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+        XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"PriorUxFlow", @"NewCAMdmRedirect"]));
+        XCTAssertTrue(params.isNewMobileOnboardingFlow);
+    }
+}
+
+- (void)testOnboardingRedirects_whenClientEnabled_delegateExactlyOnce
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @NO};
+    for (NSString *host in @[MSID_MDM_ENROLL_HOST, MSID_COMPLIANCE_HOST])
+    {
+        MSIDInteractiveTokenRequestParameters *context = [MSIDTestParametersProvider testInteractiveParameters];
+        context.isNewMobileOnboardingFlow = NO;
+        MSIDAADOAuthEmbeddedWebviewController *controller = [self onboardingControllerWithBuilder:nil context:context];
+        MSIDOnboardingNavigationDelegateSpy *delegate = [MSIDOnboardingNavigationDelegateSpy new];
+        delegate.redirectExpectation = [self expectationWithDescription:host];
+        controller.navigationDelegate = delegate;
+        NSURL *redirectURL = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@?intuneRedirectUrl=https%%3A%%2F%%2Fportal.manage.microsoft.com%%2Fenroll", host]];
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc]
+            initWithRequest:[NSURLRequest requestWithURL:redirectURL]];
+        __block NSUInteger decisionCount = 0;
+
+        XCTAssertTrue([controller decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+            XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+        }]);
+        [self waitForExpectations:@[delegate.redirectExpectation] timeout:1];
+        XCTAssertTrue(context.isNewMobileOnboardingFlow);
+        XCTAssertEqual(delegate.invocationCount, 1);
+        XCTAssertEqual(decisionCount, 1);
+    }
+}
+
+- (void)testOnboardingRedirects_whenClientDisabled_bypassDelegateAndPreserveLegacyQuery
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @YES};
+    NSString *targetURL = @"https://portal.manage.microsoft.com/enroll?in-app=false&In-App=legacy";
+    for (NSString *host in @[MSID_MDM_ENROLL_HOST, MSID_COMPLIANCE_HOST])
+    {
+        MSIDInteractiveTokenRequestParameters *context = [MSIDTestParametersProvider testInteractiveParameters];
+        context.isNewMobileOnboardingFlow = NO;
+        MSIDAADOAuthEmbeddedWebviewController *controller = [self onboardingControllerWithBuilder:nil context:context];
+        MSIDOnboardingNavigationDelegateSpy *delegate = [MSIDOnboardingNavigationDelegateSpy new];
+        controller.navigationDelegate = delegate;
+        __block NSURL *legacyURL = nil;
+        controller.externalDecidePolicyForBrowserAction = ^NSURLRequest *(__unused MSIDOAuth2EmbeddedWebviewController *webview, NSURL *URL)
+        {
+            legacyURL = URL;
+            return nil;
+        };
+        NSURLComponents *outer = [NSURLComponents new];
+        outer.scheme = @"msauth";
+        outer.host = host;
+        outer.queryItems = @[[NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL]];
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc]
+            initWithRequest:[NSURLRequest requestWithURL:outer.URL]];
+        __block NSUInteger decisionCount = 0;
+
+        XCTAssertTrue([controller decidePolicyAADForNavigationAction:action decisionHandler:^(__unused WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+        }]);
+        XCTAssertFalse(context.isNewMobileOnboardingFlow);
+        XCTAssertEqual(delegate.invocationCount, 0);
+        XCTAssertEqual(decisionCount, 1);
+        XCTAssertEqualObjects(legacyURL.scheme, MSID_SCHEME_BROWSER);
+        XCTAssertEqualObjects(legacyURL.query, [NSURL URLWithString:targetURL].query);
+    }
+}
+
+- (void)testOnboardingRedirects_whenContextIsNil_bypassDelegate
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @NO};
+    for (NSString *host in @[MSID_MDM_ENROLL_HOST, MSID_COMPLIANCE_HOST])
+    {
+        MSIDAADOAuthEmbeddedWebviewController *controller = [self onboardingControllerWithBuilder:nil context:nil];
+        MSIDOnboardingNavigationDelegateSpy *delegate = [MSIDOnboardingNavigationDelegateSpy new];
+        controller.navigationDelegate = delegate;
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc]
+            initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", host]]]];
+        __block NSUInteger decisionCount = 0;
+
+        XCTAssertTrue([controller decidePolicyAADForNavigationAction:action decisionHandler:^(__unused WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+        }]);
+        XCTAssertEqual(delegate.invocationCount, 0);
+        XCTAssertEqual(decisionCount, 1);
+    }
+}
+
+- (void)testDecidePolicyForNavigationAction_whenOnboardingAlreadyEnabled_shouldPreserveExistingUxFlows
 {
     self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @NO };
 
     MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    [builder addUxFlowUsed:MSIDOnboardingUxFlowNewCAMdmRedirect];
+    [builder addUxFlowUsed:MSIDOnboardingUxFlowMobileOnboardingPhase1];
     MSIDInteractiveTokenRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
+    params.isNewMobileOnboardingFlow = YES;
     MSIDAADOAuthEmbeddedWebviewController *webVC = [self onboardingControllerWithBuilder:builder context:params];
-
-    NSString *encoded = [@"https://manage.microsoft.com/enroll" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@", MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:urlString]];
-    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc]
+        initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"msauth://compliance"]]];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
     [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy __unused decision) {
@@ -571,7 +704,7 @@
     }];
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
-    XCTAssertTrue([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
+    XCTAssertEqualObjects([builder msidUxFlowsUsed], (@[@"NewCAMdmRedirect", @"MobileOnboardingPhase1"]));
     XCTAssertTrue(params.isNewMobileOnboardingFlow);
 }
 
@@ -596,6 +729,7 @@
 
     XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback]);
     XCTAssertFalse(params.isNewMobileOnboardingFlow);
+    XCTAssertEqual([builder msidUxFlowsUsed].count, 0U);
 }
 
 - (void)testDecidePolicyForNavigationAction_whenMsauthEnrollAndOnboardingDisabledWithMissingIntuneUrl_shouldNotStampFallback
@@ -618,6 +752,7 @@
 
     XCTAssertFalse([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback]);
     XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
+    XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowNewCAMdmRedirect]);
 }
 
 #pragma mark - openid-vc handler delegation

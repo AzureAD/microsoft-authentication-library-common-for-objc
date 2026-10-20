@@ -374,6 +374,21 @@
     XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentFinished]);
 }
 
+- (void)testEndWebAuth_whenCPStoreHandoffCompletesTwice_shouldRecordCPTerminalStepOnce
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    MSIDOnboardingBlobBuilder *builder = [self builderForFinalizeTest];
+    [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:[NSDate date]];
+    webVC.onboardingBlobBuilder = builder;
+    NSURL *url = [NSURL URLWithString:@"browser://itunes.apple.com/us/app/intune-company-portal/id719171358?mt=8"];
+
+    [webVC endWebAuthWithURL:url error:nil];
+    [webVC endWebAuthWithURL:url error:nil];
+
+    XCTAssertEqualObjects([self stampedStepIdsFromBuilder:builder], (@[@"MDMEnrollmentStarted", @"CPDownloadTriggered"]));
+    XCTAssertNil(webVC.onboardingBlobBuilder);
+}
+
 #pragma mark - customHeaderProvider host gating tests
 
 - (void)testDecidePolicyForNavigationAction_whenKnownAADHost_andProviderReturnsHeaders_shouldInjectHeadersAndReload

@@ -307,6 +307,9 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
 
+/// Kill switch for the app-hosted WebCP onboarding-readiness WebKit bridge. Default: OFF.
+extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS;
+
 /// Enforces broker_nonce validation on broker responses even when sourceApplication is available.
 /// sourceApplication establishes the origin of a response, not its freshness, so it is not a
 /// substitute for the nonce. Flighted so impact on brokers that do not echo the nonce back can be
