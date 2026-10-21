@@ -93,7 +93,7 @@
 
 #pragma mark - Navigation Action Decision
 
-                           - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
+- (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
                            decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
                            {
                                //AAD specific policy for handling navigation action
