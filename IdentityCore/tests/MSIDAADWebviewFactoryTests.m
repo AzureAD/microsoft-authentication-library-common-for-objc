@@ -46,8 +46,10 @@
 #import "MSIDClaimsRequest.h"
 #import "MSIDPkce.h"
 #import "MSIDWebAADAuthCodeResponse.h"
+#import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDBrokerConstants.h"
 #import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
 #import "MSIDOAuth2Constants.h"
 
@@ -60,6 +62,12 @@
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
+}
+
+- (void)tearDown
+{
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    [super tearDown];
 }
 
 - (void)testAuthorizationParametersFromParameters_withValidParams_shouldContainAADConfiguration
@@ -259,6 +267,56 @@
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
 }
+
+#if AD_BROKER
+- (void)testResponseWithURL_whenCBAFlightEnabledAndRedirectUriMismatch_shouldReturnNilAndError
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    NSString *requestState = @"expected-state";
+    NSString *responseUrl = [NSString stringWithFormat:@"msauth://code/attacker-redirect?code=authcode&state=%@",
+                             requestState.msidBase64UrlEncode];
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    NSError *error = nil;
+
+    MSIDWebviewResponse *response = [factory oAuthResponseWithURL:[NSURL URLWithString:responseUrl]
+                                                     requestState:requestState
+                                               ignoreInvalidState:NO
+                                                   endRedirectUri:@"msauth://code/expected-redirect"
+                                                          context:nil
+                                                            error:&error];
+
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+}
+
+- (void)testResponseWithURL_whenCBAFlightDisabledAndRedirectUriMismatch_shouldReturnLegacyCBAResponse
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @NO };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    NSString *requestState = @"expected-state";
+    NSString *responseUrl = [NSString stringWithFormat:@"msauth://code/legacy-redirect?code=authcode&state=%@",
+                             requestState.msidBase64UrlEncode];
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    NSError *error = nil;
+
+    MSIDWebviewResponse *response = [factory oAuthResponseWithURL:[NSURL URLWithString:responseUrl]
+                                                     requestState:requestState
+                                               ignoreInvalidState:NO
+                                                   endRedirectUri:@"msauth://code/expected-redirect"
+                                                          context:nil
+                                                            error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDCBAWebAADAuthResponse.class]);
+    XCTAssertNil(error);
+}
+#endif
 
 - (void)testResponseWithURL_whenURLSchemeMsauthAndHostUpgradeReg_shouldReturnUpgradeRegResponse
 {

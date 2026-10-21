@@ -188,13 +188,29 @@
 {
     // Try to create CBA response
 #if AD_BROKER
-    MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
-                                                                       expectedRedirectUri:endRedirectUri
-                                                                               requestState:requestState
-                                                                         ignoreInvalidState:ignoreInvalidState
-                                                                                    context:context
-                                                                                      error:nil];
-    if (cbaResponse) return cbaResponse;
+    BOOL isCBAResponse = [MSIDCBAWebAADAuthResponse isCBAWebAADAuthResponse:url];
+
+    if (isCBAResponse)
+    {
+        NSError *cbaError = nil;
+        MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                           expectedRedirectUri:endRedirectUri
+                                                                                   requestState:requestState
+                                                                             ignoreInvalidState:ignoreInvalidState
+                                                                                        context:context
+                                                                                          error:&cbaError];
+        if (cbaResponse) return cbaResponse;
+
+        if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION])
+        {
+            if (error)
+            {
+                *error = cbaError;
+            }
+
+            return nil;
+        }
+    }
     
     if ([url.absoluteString containsString:[NSString stringWithFormat:@"%@=", MSID_SSO_NONCE_QUERY_PARAM_KEY]])
     {
