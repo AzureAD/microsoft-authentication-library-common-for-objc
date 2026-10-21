@@ -295,6 +295,21 @@
 #endif
 
 #if TARGET_OS_IPHONE
+    if ([self tryHandleAuthenticatorActivationNavigationAction:navigationAction decisionHandler:decisionHandler])
+    {
+        return YES;
+    }
+#endif
+
+    return NO;
+}
+
+#if TARGET_OS_IPHONE
+- (BOOL)tryHandleAuthenticatorActivationNavigationAction:(WKNavigationAction *)navigationAction
+                                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    NSURL *requestURL = navigationAction.request.URL;
+
     // Loading this universal link in the extension's WKWebView redirects to the App Store.
     if (MSIDWebAuthNUtil.amIRunningInExtension
         && MSIDAppExtensionUtil.runningInCompliantExtension
@@ -376,10 +391,10 @@
         }];
         return YES;
     }
-#endif
     
     return NO;
 }
+#endif
 
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(WKWebView *)webView
