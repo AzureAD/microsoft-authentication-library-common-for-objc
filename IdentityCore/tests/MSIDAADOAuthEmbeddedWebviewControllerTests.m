@@ -569,6 +569,7 @@ static MSIDActivationOpenCapture *s_activationOpenCapture;
 #if TARGET_OS_IPHONE
 - (void)configureActivationExtension
 {
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF: @YES};
     MSIDAppExtensionUtil.runningInCompliantExtension = YES;
     MSIDWebAuthNUtil.amIRunningInExtension = YES;
     [MSIDTestBundle overrideBundleId:@"com.microsoft.azureauthenticator.ssoextension"];
@@ -597,6 +598,87 @@ static MSIDActivationOpenCapture *s_activationOpenCapture;
          navigationType:navigationType targetFrame:frame.frameInfo];
     action.sourceFrameValue = frame.frameInfo;
     return action;
+}
+
+- (void)testActivationHandoff_whenFlightIsDisabledOrAbsent_shouldPreserveLegacyNavigation
+{
+    [self configureActivationExtension];
+    for (NSNumber *configuration in @[@0, @1, @2])
+    {
+        self.flightProvider.boolForKeyContainer = configuration.integerValue == 0
+            ? @{MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF: @NO} : @{};
+        MSIDFlightManager.sharedInstance.flightProvider = configuration.integerValue == 2 ? nil : self.flightProvider;
+        XCTAssertFalse([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF]);
+        for (NSNumber *navigationType in @[@(WKNavigationTypeLinkActivated), @(WKNavigationTypeOther)])
+        {
+            for (NSNumber *provideHeaders in @[@NO, @YES])
+            {
+                MSIDActivationControllerSpy *controller = [self activationController];
+                WKWebView *webView = [WKWebView new];
+                controller.webView = webView;
+                [controller webView:webView didStartProvisionalNavigation:nil];
+                NSTimer *spinnerTimer = [controller valueForKey:@"spinnerTimer"];
+                if (provideHeaders.boolValue)
+                {
+                    [spinnerTimer fire];
+                }
+                MSIDActivationHeaderProviderSpy *headers = [MSIDActivationHeaderProviderSpy new];
+                if (provideHeaders.boolValue)
+                {
+                    controller.customHeaderProvider = headers;
+                }
+                MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                                     navigationType:navigationType.integerValue];
+                __block NSUInteger decisionCount = 0;
+                XCTAssertFalse([controller decidePolicyAADForNavigationAction:action decisionHandler:^(__unused WKNavigationActionPolicy policy)
+                {
+                    decisionCount += 1;
+                }]);
+                XCTAssertEqual(decisionCount, 0);
+                XCTAssertEqual(headers.callCount, 0);
+                XCTAssertEqual(controller.loadCount, 0);
+                [controller decidePolicyForNavigationAction:action webview:webView decisionHandler:^(WKNavigationActionPolicy policy)
+                {
+                    decisionCount += 1;
+                    XCTAssertEqual(policy, provideHeaders.boolValue ? WKNavigationActionPolicyCancel : WKNavigationActionPolicyAllow);
+                }];
+                XCTAssertEqual(decisionCount, 1);
+                XCTAssertEqual(headers.callCount, provideHeaders.boolValue ? 1 : 0);
+                XCTAssertEqual(controller.loadCount, provideHeaders.boolValue ? 1 : 0);
+                XCTAssertTrue(controller.loading);
+                XCTAssertEqual(controller.loadingIndicatorVisible, provideHeaders.boolValue);
+                if (provideHeaders.boolValue)
+                {
+                    XCTAssertNil([controller valueForKey:@"spinnerTimer"]);
+                }
+                else
+                {
+                    XCTAssertEqual([controller valueForKey:@"spinnerTimer"], spinnerTimer);
+                    XCTAssertTrue(spinnerTimer.valid);
+                }
+                XCTAssertFalse(controller.activationHandoffInProgress);
+                XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+                XCTAssertNil(s_activationOpenCapture.completion);
+                XCTAssertFalse(controller.complete);
+                XCTAssertEqual(controller.completionCount, 0);
+                [controller webView:webView didFinishNavigation:nil];
+            }
+        }
+
+        MSIDActivationControllerSpy *controller = [self activationController];
+        MSIDActivationNavigationMock *storeAction = [self activationActionWithURL:@"itms-apps://itunes.apple.com/app/synthetic"
+                                                                  navigationType:WKNavigationTypeOther];
+        __block NSUInteger decisionCount = 0;
+        [controller decidePolicyForNavigationAction:storeAction webview:nil decisionHandler:^(WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+            XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+        }];
+        XCTAssertEqual(decisionCount, 1);
+        XCTAssertEqual(controller.receivedError.code, MSIDErrorServerNonHttpsRedirect);
+        XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+        XCTAssertFalse(controller.activationHandoffInProgress);
+    }
 }
 
 - (void)testActivationInCompliantExtension_whenClickedOrHeaderReloaded_shouldHandoffBeforeLoadingWebsite
@@ -980,6 +1062,7 @@ static MSIDActivationOpenCapture *s_activationOpenCapture;
 - (void)testActivationInMainApp_whenDelegateDeclinesOrMissing_shouldPreserveExistingHandledPolicy
 {
     [self configureActivationExtension];
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF: @NO};
     [MSIDTestBundle overrideBundleId:@"com.microsoft.azureauthenticator"];
     MSIDActivationApplicationMock *application = [MSIDActivationApplicationMock new];
     s_activationOpenCapture.application = application;
@@ -1011,6 +1094,7 @@ static MSIDActivationOpenCapture *s_activationOpenCapture;
 - (void)testDecidePolicyForNavigationAction_whenActivationURL_shouldCancelActionAndInvokeContinueUserActivity
 {
     [self configureActivationExtension];
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF: @NO};
     [MSIDTestBundle overrideBundleId:@"com.microsoft.azureauthenticator"];
 
     MSIDMockAppDelegate *mockDelegate = [MSIDMockAppDelegate new];

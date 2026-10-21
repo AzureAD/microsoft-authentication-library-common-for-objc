@@ -308,6 +308,11 @@
 - (BOOL)tryHandleAuthenticatorActivationNavigationAction:(WKNavigationAction *)navigationAction
                                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
+    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF])
+    {
+        return NO;
+    }
+
     NSURL *requestURL = navigationAction.request.URL;
 
     // Loading this universal link in the extension's WKWebView redirects to the App Store.
