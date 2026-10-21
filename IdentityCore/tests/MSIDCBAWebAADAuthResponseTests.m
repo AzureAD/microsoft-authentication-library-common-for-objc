@@ -92,7 +92,7 @@
     XCTAssertEqualObjects(response.redirectUri, @"msauth://code/redirect");
 }
 
-#pragma mark - Fix #1: Strict URL Matching with Flight Flag
+#pragma mark - Strict URL Matching with Flight Flag
 
 - (void)testIsCBAWebAADAuthResponse_withStrictMatchingEnabled_whenRedirectUriMatches_shouldReturnYES
 {
@@ -133,7 +133,7 @@
     XCTAssertTrue(result);
 }
 
-#pragma mark - Fix #2: State Validation with Flight Flag
+#pragma mark - State Validation with Flight Flag
 
 - (void)testInitWithURLAndState_withStateValidationEnabled_whenStateMatches_shouldSucceed
 {
@@ -237,4 +237,3 @@
 }
 
 @end
-

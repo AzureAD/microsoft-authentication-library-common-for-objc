@@ -56,7 +56,6 @@
         return YES;
     }
     
-    // Fix #1: Strict URL matching - validate redirect URI pattern
     if ([NSString msidIsStringNilOrBlank:redirectUriPattern])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"CBA response validation: redirectUri pattern is nil");
@@ -129,7 +128,6 @@
         return nil;
     }
     
-    // Fix #2: State validation - if flight enabled, use state-checking initializer
     if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
     {
         self = [super initWithURL:url

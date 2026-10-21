@@ -36,7 +36,7 @@ from timeit import default_timer as timer
 script_start_time = timer()
 
 ios_sim_device = "iPhone 17"
-ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=26.2'"
+ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=26.1'"
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 vision_sim_device = "Apple Vision Pro"
