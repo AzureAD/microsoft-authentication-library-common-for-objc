@@ -95,22 +95,22 @@
 
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
                            decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
-                           {
-                               //AAD specific policy for handling navigation action
-                               NSURL *requestURL = navigationAction.request.URL;
+{
+    //AAD specific policy for handling navigation action
+    NSURL *requestURL = navigationAction.request.URL;
     
-                               // Fix #3: isMainFrame check with flight flag
-                               // Reject OAuth responses from iframes to prevent iframe injection attacks
-                               if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
-                               {
-                                   if (navigationAction.targetFrame && !navigationAction.targetFrame.isMainFrame)
-                                   {
-                                       MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
-                                                        @"Rejecting OAuth response from iframe with scheme: %@, host: %@",
-                                                        requestURL.scheme, requestURL.host);
-                                       return NO;
-                                   }
-                               }
+    // Fix #3: isMainFrame check with flight flag
+    // Reject OAuth responses from iframes to prevent iframe injection attacks
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
+    {
+        if (navigationAction.targetFrame && !navigationAction.targetFrame.isMainFrame)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                              @"Rejecting OAuth response from iframe with scheme: %@, host: %@",
+                              requestURL.scheme, requestURL.host);
+            return NO;
+        }
+    }
     
     // Stop at broker or browser
     BOOL isBrokerUrl  = [@"msauth"  caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
