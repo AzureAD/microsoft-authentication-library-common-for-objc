@@ -58,6 +58,8 @@ ephemeralWebBrowserSession:(BOOL)ephemeralWebBrowserSession
 - (void)setRedirectUriPrefix:(NSString *)prefix
                    forScheme:(NSString *)scheme;
 
+- (NSString *)effectiveRedirectUriForRedirectUri:(NSString *)redirectUri;
+
 - (void)resetState;
 
 #endif
