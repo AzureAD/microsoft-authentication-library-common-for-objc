@@ -99,7 +99,6 @@
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
     
-    // Fix #3: isMainFrame check with flight flag
     // Reject OAuth responses from iframes to prevent iframe injection attacks
     if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
     {
