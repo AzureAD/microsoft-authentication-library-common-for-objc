@@ -41,6 +41,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDCBAWebAADAuthResponse.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -99,15 +100,22 @@
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
     
-    // Reject OAuth responses from iframes to prevent iframe injection attacks
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION])
+    BOOL isCBAResponse = [MSIDCBAWebAADAuthResponse isCBAWebAADAuthResponse:requestURL];
+
+    if (isCBAResponse
+        && [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION])
     {
-        if (navigationAction.targetFrame && !navigationAction.targetFrame.isMainFrame)
+        BOOL isMainFrameNavigation = navigationAction.sourceFrame.isMainFrame
+            && navigationAction.targetFrame.isMainFrame;
+
+        if (!isMainFrameNavigation)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
-                              @"Rejecting OAuth response from iframe with scheme: %@, host: %@",
-                              requestURL.scheme, requestURL.host);
-            return NO;
+                              @"Rejecting CBA OAuth response outside the main frame. Source main frame: %d, target main frame: %d",
+                              navigationAction.sourceFrame.isMainFrame,
+                              navigationAction.targetFrame.isMainFrame);
+            decisionHandler(WKNavigationActionPolicyCancel);
+            return YES;
         }
     }
     
