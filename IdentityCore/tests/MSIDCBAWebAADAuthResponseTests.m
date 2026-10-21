@@ -97,7 +97,7 @@
 - (void)testInitWithURLAndState_withStrictMatchingEnabled_whenRedirectUriMatches_shouldSucceed
 {
     // When flight flag is enabled, redirect URIs must match exactly
-    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
     
     NSURL *url = [NSURL URLWithString:@"msauth://code/redirect?code=somecode"];
     NSError *error;
@@ -115,7 +115,7 @@
 - (void)testInitWithURLAndState_withStrictMatchingEnabled_whenRedirectUriMismatch_shouldFail
 {
     // When flight flag is enabled, mismatched redirect URIs should be rejected
-    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
     
     NSURL *url = [NSURL URLWithString:@"msauth://code/attacker-redirect?code=somecode"];
     NSError *error;
@@ -133,7 +133,7 @@
 - (void)testInitWithURLAndState_withStrictMatchingDisabled_shouldIgnoreRedirectUri
 {
     // When flight flag is disabled (legacy), redirect URIs are not validated
-    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @NO };
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @NO };
     
     NSURL *url = [NSURL URLWithString:@"msauth://code/attacker-redirect?code=somecode"];
     NSError *error;
@@ -153,7 +153,7 @@
 - (void)testInitWithURLAndState_withStateValidationEnabled_whenStateMatches_shouldSucceed
 {
     // When flight flag is enabled, state must be validated
-    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
     
     NSString *state = @"test-state";
     NSString *encodedState = [state msidBase64UrlEncode];
@@ -175,7 +175,7 @@
 - (void)testInitWithURLAndState_withStateValidationEnabled_whenStateMismatch_shouldFail
 {
     // When flight flag is enabled, mismatched state should be rejected
-    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
     
     NSString *expectedState = @"expected-state";
     NSString *responseState = @"different-state";
@@ -197,7 +197,7 @@
 - (void)testInitWithURLAndState_withStateValidationDisabled_shouldSkipStateCheck
 {
     // When flight flag is disabled (legacy), state validation is skipped
-    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @NO };
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @NO };
     
     NSString *expectedState = @"expected-state";
     NSString *responseState = @"different-state";
@@ -220,7 +220,7 @@
 - (void)testInitWithURLAndState_whenMissingStateButExpected_shouldFail
 {
     // When state was expected but response has no state, should fail
-    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
     
     NSString *expectedState = @"expected-state";
     NSURL *url = [NSURL URLWithString:@"msauth://code/redirect?code=somecode"];
@@ -240,7 +240,7 @@
 - (void)testInitWithURLAndState_whenNeitherStateExpectedNorProvided_shouldSucceed
 {
     // When no state was expected and response has no state, should succeed
-    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
     
     NSURL *url = [NSURL URLWithString:@"msauth://code/redirect?code=somecode"];
     

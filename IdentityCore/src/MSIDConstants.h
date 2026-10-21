@@ -236,6 +236,12 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA;
  (disabled) preserves the legacy cross-host fallback for controlled rollout.
  */
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX;
+/**
+ Enable strict validation for CBA OAuth responses, including expected redirect
+ URI matching, OAuth state validation, and main-frame enforcement. Default
+ (disabled) preserves legacy response handling for controlled rollout.
+ */
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME;
 

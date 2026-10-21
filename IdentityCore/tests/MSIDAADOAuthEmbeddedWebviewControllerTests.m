@@ -41,9 +41,8 @@
 
 #if !MSID_EXCLUDE_WEBKIT
 
-// Mock for WKFrameInfo to control isMainFrame
-@interface MSIDWKFrameInfoMock : WKFrameInfo
-@property (nonatomic, readonly) BOOL isMainFrameMock;
+@interface MSIDWKFrameInfoMock : NSObject
+@property (nonatomic, readonly) BOOL mainFrame;
 - (instancetype)initWithIsMainFrame:(BOOL)isMainFrame;
 @end
 
@@ -51,12 +50,13 @@
 - (instancetype)initWithIsMainFrame:(BOOL)isMainFrame
 {
     self = [super init];
-    _isMainFrameMock = isMainFrame;
+    _mainFrame = isMainFrame;
     return self;
 }
+
 - (BOOL)isMainFrame
 {
-    return self.isMainFrameMock;
+    return self.mainFrame;
 }
 @end
 
@@ -744,13 +744,13 @@
 }
 #endif
 
-#pragma mark - Fix #3: isMainFrame check for iframe rejection
+#pragma mark - Main-frame validation
 
 - (void)testDecidePolicyAADForNavigationAction_withCBAFlightEnabled_whenMsauthFromMainFrame_shouldAllowResponse
 {
     // When flight flag enabled and URL is from main frame (legitimate), should process
     MSIDFlightManagerMockProvider *flightProvider = [[MSIDFlightManagerMockProvider alloc] init];
-    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
     
     MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
@@ -765,7 +765,7 @@
     MSIDWKFrameInfoMock *mainFrame = [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:YES];
     MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
                                                                               navigationType:WKNavigationTypeOther
-                                                                                 targetFrame:mainFrame];
+                                                                                 targetFrame:(WKFrameInfo *)mainFrame];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
     
@@ -785,7 +785,7 @@
 {
     // When flight flag enabled and URL is from iframe (attack), should reject and return NO
     MSIDFlightManagerMockProvider *flightProvider = [[MSIDFlightManagerMockProvider alloc] init];
-    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
     
     MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
@@ -800,7 +800,7 @@
     MSIDWKFrameInfoMock *iframeFrame = [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:NO];
     MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
                                                                               navigationType:WKNavigationTypeOther
-                                                                                 targetFrame:iframeFrame];
+                                                                                 targetFrame:(WKFrameInfo *)iframeFrame];
     
     // When iframe is detected, decision handler should NOT be called, and result should be NO
     BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
@@ -816,7 +816,7 @@
 {
     // When flight flag disabled (legacy), iframe URLs should be allowed through
     MSIDFlightManagerMockProvider *flightProvider = [[MSIDFlightManagerMockProvider alloc] init];
-    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @NO };
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @NO };
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
     
     MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
@@ -831,7 +831,7 @@
     MSIDWKFrameInfoMock *iframeFrame = [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:NO];
     MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
                                                                               navigationType:WKNavigationTypeOther
-                                                                                 targetFrame:iframeFrame];
+                                                                                 targetFrame:(WKFrameInfo *)iframeFrame];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
     

@@ -100,7 +100,7 @@
     NSURL *requestURL = navigationAction.request.URL;
     
     // Reject OAuth responses from iframes to prevent iframe injection attacks
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION])
     {
         if (navigationAction.targetFrame && !navigationAction.targetFrame.isMainFrame)
         {

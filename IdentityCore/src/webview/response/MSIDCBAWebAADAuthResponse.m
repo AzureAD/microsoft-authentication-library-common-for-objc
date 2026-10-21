@@ -59,7 +59,7 @@
     }
     
     // If flight flag disabled, use legacy behavior (loose matching)
-    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
+    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION])
     {
         return YES;
     }
@@ -139,7 +139,7 @@
         return nil;
     }
     
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX])
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION])
     {
         self = [super initWithURL:url
                      requestState:requestState
