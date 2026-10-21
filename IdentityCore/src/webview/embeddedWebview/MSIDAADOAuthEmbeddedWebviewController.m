@@ -41,8 +41,15 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDDIContainer.h"
 
 #if !MSID_EXCLUDE_WEBKIT
+
+@interface MSIDAADOAuthEmbeddedWebviewController ()
+#if TARGET_OS_IPHONE
+@property (nonatomic) BOOL activationHandoffInProgress;
+#endif
+@end
 
 @implementation MSIDAADOAuthEmbeddedWebviewController
 
@@ -268,7 +275,10 @@
         decisionHandler(WKNavigationActionPolicyCancel);
         NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
         userActivity.webpageURL = requestURL;
-        UIApplication *app = [MSIDAppExtensionUtil sharedApplication];
+        Class appExtensionUtil = [MSIDDIContainer.sharedInstance
+            resolveImplClassForClass:MSIDAppExtensionUtil.class
+                           orDefault:^Class { return MSIDAppExtensionUtil.class; }];
+        UIApplication *app = [appExtensionUtil sharedApplication];
         id<UIApplicationDelegate> appDelegate = app.delegate;
         if ([appDelegate respondsToSelector:@selector(application:continueUserActivity:restorationHandler:)])
         {
@@ -283,9 +293,113 @@
         return YES;
     }
 #endif
+
+#if TARGET_OS_IPHONE
+    if ([self tryHandleAuthenticatorActivationNavigationAction:navigationAction decisionHandler:decisionHandler])
+    {
+        return YES;
+    }
+#endif
+
+    return NO;
+}
+
+#if TARGET_OS_IPHONE
+- (BOOL)tryHandleAuthenticatorActivationNavigationAction:(WKNavigationAction *)navigationAction
+                                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF])
+    {
+        return NO;
+    }
+
+    NSURL *requestURL = navigationAction.request.URL;
+
+    // Loading this universal link in the extension's WKWebView redirects to the App Store.
+    if (MSIDWebAuthNUtil.amIRunningInExtension
+        && MSIDAppExtensionUtil.runningInCompliantExtension
+        && ![MSID_BROKER_APP_BUNDLE_ID isEqualToString:NSBundle.mainBundle.bundleIdentifier]
+        && [requestURL.scheme.lowercaseString isEqualToString:@"https"]
+        && (!requestURL.port || requestURL.port.integerValue == 443)
+        && !requestURL.user && !requestURL.password
+        && [self isAuthenticatorAppActivationURL:requestURL]
+        && [[NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO].percentEncodedPath.lowercaseString
+            isEqualToString:@"/authenticatorapp/activateaccount"]
+        && navigationAction.sourceFrame.isMainFrame
+        && (!navigationAction.targetFrame || navigationAction.targetFrame.isMainFrame)
+        && (navigationAction.navigationType == WKNavigationTypeLinkActivated
+            || navigationAction.navigationType == WKNavigationTypeOther))
+    {
+        if (self.complete || self.activationHandoffInProgress)
+        {
+            if (decisionHandler)
+            {
+                decisionHandler(WKNavigationActionPolicyCancel);
+            }
+            return YES;
+        }
+
+        self.activationHandoffInProgress = YES;
+        if (decisionHandler)
+        {
+            decisionHandler(WKNavigationActionPolicyCancel);
+        }
+        [self notifyFinishedNavigation:requestURL webView:self.webView];
+        __weak typeof(self) weakSelf = self;
+        [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf || strongSelf.complete)
+            {
+                return;
+            }
+
+            Class appExtensionUtil = [MSIDDIContainer.sharedInstance
+                resolveImplClassForClass:MSIDAppExtensionUtil.class
+                               orDefault:^Class { return MSIDAppExtensionUtil.class; }];
+            if ([appExtensionUtil isExecutingInAppExtension] || ![appExtensionUtil sharedApplication])
+            {
+                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension,
+                                                 @"Unable to hand off MFA activation from this extension.",
+                                                 nil, nil, nil, strongSelf.context.correlationId, nil, NO);
+                [strongSelf endWebAuthWithURL:nil error:error];
+                return;
+            }
+
+            __block BOOL receivedOpenResult = NO;
+            [appExtensionUtil sharedApplicationOpenURL:requestURL
+                                               options:@{UIApplicationOpenURLOptionUniversalLinksOnly: @YES}
+                                     completionHandler:^(BOOL success)
+            {
+                [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+                    if (receivedOpenResult)
+                    {
+                        return;
+                    }
+                    receivedOpenResult = YES;
+                    __strong typeof(weakSelf) callbackSelf = weakSelf;
+                    if (!callbackSelf || callbackSelf.complete)
+                    {
+                        return;
+                    }
+                    callbackSelf.activationHandoffInProgress = NO;
+
+                    if (!success)
+                    {
+                        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                                         @"Unable to open the Authenticator MFA activation universal link.",
+                                                         nil, nil, nil, callbackSelf.context.correlationId, nil, NO);
+                        [callbackSelf endWebAuthWithURL:nil error:error];
+                    }
+                    // Opening the app is not activation or OAuth completion; keep authorization pending.
+                }];
+            }];
+        }];
+        return YES;
+    }
     
     return NO;
 }
+#endif
 
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(WKWebView *)webView
@@ -298,6 +412,14 @@
 
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
+
+#if TARGET_OS_IPHONE
+- (void)endWebAuthWithURL:(NSURL *)endURL error:(NSError *)error
+{
+    self.activationHandoffInProgress = NO;
+    [super endWebAuthWithURL:endURL error:error];
+}
+#endif
 
 #pragma mark - Private helpers
 

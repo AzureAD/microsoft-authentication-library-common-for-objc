@@ -40,6 +40,9 @@
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDWebviewNavigationDelegate.h"
 #import "MSIDWebviewNavigationDecision.h"
+#import "MSIDAppExtensionUtil.h"
+#import "MSIDDIContainer.h"
+#import "MSIDCustomHeaderProviding.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -115,10 +118,134 @@
 @end
 #endif
 
-#if AD_BROKER && TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
+@interface MSIDAADOAuthEmbeddedWebviewController (ActivationTesting)
+@property (nonatomic, readonly) BOOL activationHandoffInProgress;
+@end
+
+@interface MSIDActivationFrameMock : NSObject
+@property (nonatomic) BOOL mainFrameValue;
+- (WKFrameInfo *)frameInfo;
+@end
+
+@implementation MSIDActivationFrameMock
+- (BOOL)isMainFrame
+{
+    return self.mainFrameValue;
+}
+
+- (WKFrameInfo *)frameInfo
+{
+    // WKFrameInfo cannot be constructed independently of WebKit's native frame.
+    return (id)self;
+}
+@end
+
+@interface MSIDActivationNavigationMock : MSIDWKNavigationActionMock
+@property (nonatomic) WKFrameInfo *sourceFrameValue;
+@end
+
+@implementation MSIDActivationNavigationMock
+- (WKFrameInfo *)sourceFrame
+{
+    return self.sourceFrameValue;
+}
+@end
+
+@interface MSIDActivationOpenCapture : NSObject
+@property (nonatomic) NSURL *URL;
+@property (nonatomic) NSDictionary *options;
+@property (nonatomic) NSUInteger openCount;
+@property (nonatomic, copy) void (^completion)(BOOL);
+@property (nonatomic) BOOL applicationUnavailable;
+@property (nonatomic) id application;
+@end
+
+@implementation MSIDActivationOpenCapture
+@end
+
+static MSIDActivationOpenCapture *s_activationOpenCapture;
+
+@interface MSIDActivationAppExtensionUtilMock : MSIDAppExtensionUtil
+@end
+
+@implementation MSIDActivationAppExtensionUtilMock
++ (UIApplication *)sharedApplication
+{
+    return s_activationOpenCapture.applicationUnavailable ? nil : s_activationOpenCapture.application;
+}
+
++ (void)sharedApplicationOpenURL:(NSURL *)url
+                         options:(NSDictionary<UIApplicationOpenExternalURLOptionsKey, id> *)options
+               completionHandler:(void (^)(BOOL))completionHandler
+{
+    s_activationOpenCapture.URL = url;
+    s_activationOpenCapture.options = options;
+    s_activationOpenCapture.openCount += 1;
+    s_activationOpenCapture.completion = completionHandler;
+}
+@end
+
+@interface MSIDActivationControllerSpy : MSIDAADOAuthEmbeddedWebviewController
+@property (nonatomic) NSError *receivedError;
+@property (nonatomic) NSUInteger completionCount;
+@property (nonatomic) NSUInteger loadCount;
+@property (nonatomic) BOOL loadingIndicatorVisible;
+@end
+
+@implementation MSIDActivationControllerSpy
+- (void)endWebAuthWithURL:(NSURL *)endURL error:(NSError *)error
+{
+    if (!self.complete)
+    {
+        self.receivedError = error;
+        self.completionCount += 1;
+    }
+    [super endWebAuthWithURL:endURL error:error];
+}
+
+- (void)dismissWebview:(void (^)(void))completion
+{
+    if (completion)
+    {
+        completion();
+    }
+}
+
+- (void)loadRequest:(__unused NSURLRequest *)request
+{
+    self.loadCount += 1;
+}
+
+- (void)showLoadingIndicator
+{
+    self.loadingIndicatorVisible = YES;
+}
+
+- (void)dismissLoadingIndicator
+{
+    self.loadingIndicatorVisible = NO;
+}
+@end
+
+@interface MSIDActivationHeaderProviderSpy : NSObject <MSIDCustomHeaderProviding>
+@property (nonatomic) NSUInteger callCount;
+@end
+
+@implementation MSIDActivationHeaderProviderSpy
+- (void)getCustomHeaders:(__unused NSURLRequest *)request
+                 forHost:(__unused NSString *)host
+         completionBlock:(MSIDCustomHeaderBlock)completionBlock
+{
+    self.callCount += 1;
+    completionBlock(@{@"Test-Header": @"test-value"}, nil);
+}
+@end
+
 @interface MSIDMockAppDelegate : NSObject <UIApplicationDelegate>
-@property (nonatomic) XCTestExpectation *continueUserActivityExpectation;
 @property (nonatomic) NSURL *receivedURL;
+@property (nonatomic) BOOL handledResult;
+@property (nonatomic) NSUInteger invocationCount;
 @end
 
 @implementation MSIDMockAppDelegate
@@ -127,15 +254,24 @@
       restorationHandler:(__unused void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
     self.receivedURL = userActivity.webpageURL;
-    [self.continueUserActivityExpectation fulfill];
-    return YES;
+    self.invocationCount += 1;
+    return self.handledResult;
 }
+@end
+
+@interface MSIDActivationApplicationMock : NSObject
+@property (nonatomic) id<UIApplicationDelegate> delegate;
+@end
+
+@implementation MSIDActivationApplicationMock
 @end
 #endif
 
 @interface MSIDAADOAuthEmbeddedWebviewControllerTests : XCTestCase
 
 @property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
+@property (nonatomic) BOOL originalCompliantExtension;
+@property (nonatomic) BOOL originalWebAuthExtension;
 
 @end
 
@@ -144,6 +280,8 @@
 - (void)setUp
 {
     [super setUp];
+    self.originalCompliantExtension = MSIDAppExtensionUtil.runningInCompliantExtension;
+    self.originalWebAuthExtension = MSIDWebAuthNUtil.amIRunningInExtension;
     self.flightProvider = [MSIDFlightManagerMockProvider new];
     MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
 }
@@ -152,6 +290,13 @@
 {
     MSIDFlightManager.sharedInstance.flightProvider = nil;
     self.flightProvider = nil;
+    MSIDAppExtensionUtil.runningInCompliantExtension = self.originalCompliantExtension;
+    MSIDWebAuthNUtil.amIRunningInExtension = self.originalWebAuthExtension;
+    [MSIDTestBundle reset];
+    [MSIDDIContainer.sharedInstance reset];
+#if TARGET_OS_IPHONE
+    s_activationOpenCapture = nil;
+#endif
     [super tearDown];
 }
 
@@ -421,16 +566,542 @@
     XCTAssertFalse(result);
 }
 
-#if AD_BROKER && TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
+- (void)configureActivationExtension
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF: @YES};
+    MSIDAppExtensionUtil.runningInCompliantExtension = YES;
+    MSIDWebAuthNUtil.amIRunningInExtension = YES;
+    [MSIDTestBundle overrideBundleId:@"com.microsoft.azureauthenticator.ssoextension"];
+    s_activationOpenCapture = [MSIDActivationOpenCapture new];
+    s_activationOpenCapture.application = [MSIDActivationApplicationMock new];
+    [MSIDDIContainer.sharedInstance registerClass:MSIDAppExtensionUtil.class
+                                       lifetime:MSIDDIContainerLifetimeSingleton
+                                        factory:^id { return MSIDActivationAppExtensionUtilMock.class; }];
+}
+
+- (MSIDActivationControllerSpy *)activationController
+{
+    return [[MSIDActivationControllerSpy alloc]
+        initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                  endURL:[NSURL URLWithString:@"endurl://host"]
+                 webview:nil customHeaders:nil platfromParams:nil context:nil];
+}
+
+- (MSIDActivationNavigationMock *)activationActionWithURL:(NSString *)URLString
+                                           navigationType:(WKNavigationType)navigationType
+{
+    MSIDActivationFrameMock *frame = [MSIDActivationFrameMock new];
+    frame.mainFrameValue = YES;
+    MSIDActivationNavigationMock *action = [[MSIDActivationNavigationMock alloc]
+        initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:URLString]]
+         navigationType:navigationType targetFrame:frame.frameInfo];
+    action.sourceFrameValue = frame.frameInfo;
+    return action;
+}
+
+- (void)testActivationHandoff_whenFlightIsDisabledOrAbsent_shouldPreserveLegacyNavigation
+{
+    [self configureActivationExtension];
+    for (NSNumber *configuration in @[@0, @1, @2])
+    {
+        self.flightProvider.boolForKeyContainer = configuration.integerValue == 0
+            ? @{MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF: @NO} : @{};
+        MSIDFlightManager.sharedInstance.flightProvider = configuration.integerValue == 2 ? nil : self.flightProvider;
+        XCTAssertFalse([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF]);
+        for (NSNumber *navigationType in @[@(WKNavigationTypeLinkActivated), @(WKNavigationTypeOther)])
+        {
+            for (NSNumber *provideHeaders in @[@NO, @YES])
+            {
+                MSIDActivationControllerSpy *controller = [self activationController];
+                WKWebView *webView = [WKWebView new];
+                controller.webView = webView;
+                [controller webView:webView didStartProvisionalNavigation:nil];
+                NSTimer *spinnerTimer = [controller valueForKey:@"spinnerTimer"];
+                if (provideHeaders.boolValue)
+                {
+                    [spinnerTimer fire];
+                }
+                MSIDActivationHeaderProviderSpy *headers = [MSIDActivationHeaderProviderSpy new];
+                if (provideHeaders.boolValue)
+                {
+                    controller.customHeaderProvider = headers;
+                }
+                MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                                     navigationType:navigationType.integerValue];
+                __block NSUInteger decisionCount = 0;
+                XCTAssertFalse([controller decidePolicyAADForNavigationAction:action decisionHandler:^(__unused WKNavigationActionPolicy policy)
+                {
+                    decisionCount += 1;
+                }]);
+                XCTAssertEqual(decisionCount, 0);
+                XCTAssertEqual(headers.callCount, 0);
+                XCTAssertEqual(controller.loadCount, 0);
+                [controller decidePolicyForNavigationAction:action webview:webView decisionHandler:^(WKNavigationActionPolicy policy)
+                {
+                    decisionCount += 1;
+                    XCTAssertEqual(policy, provideHeaders.boolValue ? WKNavigationActionPolicyCancel : WKNavigationActionPolicyAllow);
+                }];
+                XCTAssertEqual(decisionCount, 1);
+                XCTAssertEqual(headers.callCount, provideHeaders.boolValue ? 1 : 0);
+                XCTAssertEqual(controller.loadCount, provideHeaders.boolValue ? 1 : 0);
+                XCTAssertTrue(controller.loading);
+                XCTAssertEqual(controller.loadingIndicatorVisible, provideHeaders.boolValue);
+                if (provideHeaders.boolValue)
+                {
+                    XCTAssertNil([controller valueForKey:@"spinnerTimer"]);
+                }
+                else
+                {
+                    XCTAssertEqual([controller valueForKey:@"spinnerTimer"], spinnerTimer);
+                    XCTAssertTrue(spinnerTimer.valid);
+                }
+                XCTAssertFalse(controller.activationHandoffInProgress);
+                XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+                XCTAssertNil(s_activationOpenCapture.completion);
+                XCTAssertFalse(controller.complete);
+                XCTAssertEqual(controller.completionCount, 0);
+                [controller webView:webView didFinishNavigation:nil];
+            }
+        }
+
+        MSIDActivationControllerSpy *controller = [self activationController];
+        MSIDActivationNavigationMock *storeAction = [self activationActionWithURL:@"itms-apps://itunes.apple.com/app/synthetic"
+                                                                  navigationType:WKNavigationTypeOther];
+        __block NSUInteger decisionCount = 0;
+        [controller decidePolicyForNavigationAction:storeAction webview:nil decisionHandler:^(WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+            XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+        }];
+        XCTAssertEqual(decisionCount, 1);
+        XCTAssertEqual(controller.receivedError.code, MSIDErrorServerNonHttpsRedirect);
+        XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+        XCTAssertFalse(controller.activationHandoffInProgress);
+    }
+}
+
+- (void)testActivationInCompliantExtension_whenClickedOrHeaderReloaded_shouldHandoffBeforeLoadingWebsite
+{
+    [self configureActivationExtension];
+    for (NSNumber *navigationType in @[@(WKNavigationTypeLinkActivated), @(WKNavigationTypeOther)])
+    {
+        MSIDActivationControllerSpy *controller = [self activationController];
+        MSIDActivationHeaderProviderSpy *headers = [MSIDActivationHeaderProviderSpy new];
+        controller.customHeaderProvider = headers;
+        MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount?test=synthetic"
+                                                             navigationType:navigationType.integerValue];
+        NSUInteger previousOpenCount = s_activationOpenCapture.openCount;
+        __block NSUInteger decisionCount = 0;
+        [controller decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision)
+        {
+            decisionCount += 1;
+            XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+            XCTAssertEqual(s_activationOpenCapture.openCount, previousOpenCount);
+        }];
+        XCTAssertEqual(decisionCount, 1);
+        XCTAssertEqual(headers.callCount, 0);
+        XCTAssertEqual(controller.loadCount, 0);
+        XCTAssertEqual(controller.completionCount, 0);
+        XCTAssertEqual(s_activationOpenCapture.openCount, previousOpenCount + 1);
+        XCTAssertEqualObjects(s_activationOpenCapture.URL, action.request.URL);
+        XCTAssertEqualObjects(s_activationOpenCapture.options, @{UIApplicationOpenURLOptionUniversalLinksOnly: @YES});
+        XCTAssertNotNil(s_activationOpenCapture.completion);
+        if (s_activationOpenCapture.completion)
+        {
+            s_activationOpenCapture.completion(YES);
+        }
+        XCTAssertFalse(controller.complete);
+        XCTAssertEqual(controller.completionCount, 0);
+    }
+}
+
+- (void)testActivationHandoff_whenProvisionalLoadIsCancelled_shouldFinishLoadingWithoutCompletingAuthorization
+{
+    [self configureActivationExtension];
+    for (NSNumber *spinnerAlreadyVisible in @[@NO, @YES])
+    {
+        MSIDActivationControllerSpy *controller = [self activationController];
+        WKWebView *webView = [WKWebView new];
+        controller.webView = webView;
+        [controller webView:webView didStartProvisionalNavigation:nil];
+        NSTimer *spinnerTimer = [controller valueForKey:@"spinnerTimer"];
+        XCTAssertTrue(controller.loading);
+        XCTAssertTrue(spinnerTimer.valid);
+        if (spinnerAlreadyVisible.boolValue)
+        {
+            [spinnerTimer fire];
+            XCTAssertTrue(controller.loadingIndicatorVisible);
+        }
+
+        MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                             navigationType:WKNavigationTypeOther];
+        NSUInteger previousOpenCount = s_activationOpenCapture.openCount;
+        __block NSUInteger decisionCount = 0;
+        [controller decidePolicyForNavigationAction:action webview:webView decisionHandler:^(WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+            XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+        }];
+        NSError *cancelledLoadError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+        [controller webView:webView didFailProvisionalNavigation:nil withError:cancelledLoadError];
+        XCTAssertEqual(s_activationOpenCapture.openCount, previousOpenCount + 1);
+        XCTAssertNotNil(s_activationOpenCapture.completion);
+        if (s_activationOpenCapture.completion)
+        {
+            s_activationOpenCapture.completion(YES);
+        }
+
+        XCTAssertEqual(decisionCount, 1);
+        XCTAssertFalse(controller.loading);
+        XCTAssertFalse(controller.loadingIndicatorVisible);
+        XCTAssertFalse(spinnerTimer.valid);
+        XCTAssertNil([controller valueForKey:@"spinnerTimer"]);
+        XCTAssertFalse(controller.activationHandoffInProgress);
+        XCTAssertFalse(controller.complete);
+        XCTAssertEqual(controller.completionCount, 0);
+        XCTAssertNil(controller.receivedError);
+        XCTAssertEqual(controller.loadCount, 0);
+        [controller webView:webView didFinishNavigation:nil];
+    }
+}
+
+- (void)testActivationInCompliantExtension_whenTrustedCloud_shouldPreserveOriginalUniversalLink
+{
+    [self configureActivationExtension];
+    for (NSString *host in @[@"login.microsoftonline.com", @"login.microsoftonline.us", @"login.chinacloudapi.cn",
+                            @"LOGIN.microsoftonline.com:443"])
+    {
+        NSString *URLString = [NSString stringWithFormat:@"https://%@/authenticatorApp/activateAccount?test=Synthetic%%2B%%2F%%3D", host];
+        MSIDActivationControllerSpy *controller = [self activationController];
+        MSIDActivationNavigationMock *action = [self activationActionWithURL:URLString navigationType:WKNavigationTypeLinkActivated];
+        __block NSUInteger decisionCount = 0;
+        XCTAssertTrue([controller decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+            XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+        }]);
+        XCTAssertEqual(decisionCount, 1);
+        XCTAssertEqualObjects(s_activationOpenCapture.URL.absoluteString, URLString);
+        XCTAssertNotNil(s_activationOpenCapture.completion);
+        if (s_activationOpenCapture.completion)
+        {
+            s_activationOpenCapture.completion(YES);
+        }
+        XCTAssertFalse(controller.complete);
+    }
+}
+
+- (void)testActivationInCompliantExtension_whenNewWindow_shouldUseUniversalLinkInsteadOfGenericOpen
+{
+    [self configureActivationExtension];
+    MSIDActivationControllerSpy *controller = [self activationController];
+    MSIDActivationNavigationMock *action = [[MSIDActivationNavigationMock alloc]
+        initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"]]
+         navigationType:WKNavigationTypeLinkActivated targetFrame:nil];
+    MSIDActivationFrameMock *sourceFrame = [MSIDActivationFrameMock new];
+    sourceFrame.mainFrameValue = YES;
+    action.sourceFrameValue = sourceFrame.frameInfo;
+    __block NSUInteger decisionCount = 0;
+    [controller decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy policy)
+    {
+        decisionCount += 1;
+        XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+    }];
+    XCTAssertEqual(decisionCount, 1);
+    XCTAssertEqual(s_activationOpenCapture.openCount, 1);
+    XCTAssertEqualObjects(s_activationOpenCapture.options, @{UIApplicationOpenURLOptionUniversalLinksOnly: @YES});
+    XCTAssertEqual(controller.loadCount, 0);
+    XCTAssertEqual(controller.completionCount, 0);
+}
+
+- (void)testActivationHandoff_whenURLIsNotTrustedHttpsActivation_shouldKeepOriginalPolicy
+{
+    [self configureActivationExtension];
+    NSArray<NSString *> *URLs = @[
+        @"http://login.microsoftonline.com/authenticatorApp/activateAccount",
+        @"https://untrusted.invalid/authenticatorApp/activateAccount",
+        @"https://login.microsoftonline.com.untrusted.invalid/authenticatorApp/activateAccount",
+        @"https://login.microsoftonline.com/authenticatorApp/activateAccount/extra",
+        @"https://login.microsoftonline.com/authenticatorApp/activateAccount/",
+        @"https://login.microsoftonline.com/authenticatorApp/%61ctivateAccount",
+        @"https://login.microsoftonline.com/other?path=/authenticatorApp/activateAccount",
+        @"https://login.microsoftonline.com/other#/authenticatorApp/activateAccount",
+        @"https://login.microsoftonline.com:444/authenticatorApp/activateAccount",
+        @"https://synthetic@login.microsoftonline.com/authenticatorApp/activateAccount",
+        @"https://@login.microsoftonline.com/authenticatorApp/activateAccount",
+        @"https://:synthetic@login.microsoftonline.com/authenticatorApp/activateAccount",
+        @"https://login.microsoftonline.com@untrusted.invalid/authenticatorApp/activateAccount",
+        @"microsoft-authenticator://activate",
+        @"itms-apps://itunes.apple.com/app/synthetic"
+    ];
+    for (NSString *URLString in URLs)
+    {
+        MSIDActivationControllerSpy *controller = [self activationController];
+        MSIDActivationNavigationMock *action = [self activationActionWithURL:URLString navigationType:WKNavigationTypeOther];
+        __block NSUInteger decisionCount = 0;
+        XCTAssertFalse([controller decidePolicyAADForNavigationAction:action decisionHandler:^(__unused WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+        }], @"URL case %@", URLString);
+        XCTAssertEqual(decisionCount, 0);
+        XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+        XCTAssertEqual(controller.completionCount, 0);
+    }
+}
+
+- (void)testActivationHandoff_whenEitherExtensionFlagIsFalse_shouldKeepOriginalPolicy
+{
+    [self configureActivationExtension];
+    for (NSArray<NSNumber *> *flags in @[@[@NO, @NO], @[@NO, @YES], @[@YES, @NO]])
+    {
+        MSIDWebAuthNUtil.amIRunningInExtension = flags[0].boolValue;
+        MSIDAppExtensionUtil.runningInCompliantExtension = flags[1].boolValue;
+        MSIDActivationControllerSpy *controller = [self activationController];
+        MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                             navigationType:WKNavigationTypeLinkActivated];
+        XCTAssertFalse([controller decidePolicyAADForNavigationAction:action decisionHandler:nil]);
+        XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+    }
+}
+
+- (void)testActivationHandoff_whenSubframeOrFormSubmission_shouldKeepOriginalPolicy
+{
+    [self configureActivationExtension];
+    for (NSNumber *subframeSource in @[@YES, @NO])
+    {
+        MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                             navigationType:WKNavigationTypeLinkActivated];
+        MSIDActivationFrameMock *subframe = [MSIDActivationFrameMock new];
+        if (subframeSource.boolValue)
+        {
+            action.sourceFrameValue = subframe.frameInfo;
+        }
+        else
+        {
+            WKFrameInfo *sourceFrame = action.sourceFrame;
+            action = [[MSIDActivationNavigationMock alloc] initWithRequest:action.request
+                                                           navigationType:WKNavigationTypeLinkActivated targetFrame:subframe.frameInfo];
+            action.sourceFrameValue = sourceFrame;
+        }
+        XCTAssertFalse([[self activationController] decidePolicyAADForNavigationAction:action decisionHandler:nil]);
+    }
+    MSIDActivationNavigationMock *formAction = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                             navigationType:WKNavigationTypeFormSubmitted];
+    XCTAssertFalse([[self activationController] decidePolicyAADForNavigationAction:formAction decisionHandler:nil]);
+    XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+}
+
+#if !AD_BROKER
+- (void)testActivationHandoff_whenMainAppInNonBrokerBuild_shouldKeepOriginalPolicy
+{
+    [self configureActivationExtension];
+    [MSIDTestBundle overrideBundleId:@"com.microsoft.azureauthenticator"];
+    MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                         navigationType:WKNavigationTypeLinkActivated];
+    XCTAssertFalse([[self activationController] decidePolicyAADForNavigationAction:action decisionHandler:nil]);
+    XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+}
+#endif
+
+- (void)testActivationHandoff_whenOpenFails_shouldEndOnceWithoutLoadingStoreAndAllowFreshSession
+{
+    [self configureActivationExtension];
+    MSIDActivationControllerSpy *controller = [self activationController];
+    MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                         navigationType:WKNavigationTypeLinkActivated];
+    __block NSUInteger decisionCount = 0;
+    [controller decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy policy)
+    {
+        decisionCount += 1;
+        XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+    }];
+    XCTAssertNotNil(s_activationOpenCapture.completion);
+    if (s_activationOpenCapture.completion)
+    {
+        s_activationOpenCapture.completion(NO);
+        s_activationOpenCapture.completion(NO);
+    }
+    XCTAssertEqual(decisionCount, 1);
+    XCTAssertTrue(controller.complete);
+    XCTAssertFalse(controller.activationHandoffInProgress);
+    XCTAssertEqual(controller.completionCount, 1);
+    XCTAssertEqual(controller.receivedError.code, MSIDErrorInternal);
+    XCTAssertEqual(controller.loadCount, 0);
+    [[self activationController] decidePolicyAADForNavigationAction:action decisionHandler:nil];
+    XCTAssertEqual(s_activationOpenCapture.openCount, 2);
+}
+
+- (void)testActivationHandoff_whenAppUnavailable_shouldFailExplicitlyWithoutOpening
+{
+    [self configureActivationExtension];
+    s_activationOpenCapture.applicationUnavailable = YES;
+    MSIDActivationControllerSpy *controller = [self activationController];
+    MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                         navigationType:WKNavigationTypeLinkActivated];
+    XCTAssertTrue([controller decidePolicyAADForNavigationAction:action decisionHandler:nil]);
+    XCTAssertTrue(controller.complete);
+    XCTAssertEqual(controller.completionCount, 1);
+    XCTAssertEqual(controller.receivedError.code, MSIDErrorAttemptToOpenURLFromExtension);
+    XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+}
+
+- (void)testActivationHandoff_whenPendingDuplicateAndLaterIntentionalRetry_shouldOpenOncePerAttempt
+{
+    [self configureActivationExtension];
+    MSIDActivationControllerSpy *controller = [self activationController];
+    MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                         navigationType:WKNavigationTypeLinkActivated];
+    __block NSUInteger decisionCount = 0;
+    void (^decisionHandler)(WKNavigationActionPolicy) = ^(WKNavigationActionPolicy policy)
+    {
+        decisionCount += 1;
+        XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+    };
+    [controller decidePolicyAADForNavigationAction:action decisionHandler:decisionHandler];
+    [controller decidePolicyAADForNavigationAction:action decisionHandler:decisionHandler];
+    XCTAssertEqual(s_activationOpenCapture.openCount, 1);
+    XCTAssertEqual(decisionCount, 2);
+    void (^firstResult)(BOOL) = s_activationOpenCapture.completion;
+    XCTAssertNotNil(firstResult);
+    firstResult(YES);
+    XCTAssertFalse(controller.activationHandoffInProgress);
+    [controller decidePolicyAADForNavigationAction:action decisionHandler:decisionHandler];
+    XCTAssertEqual(s_activationOpenCapture.openCount, 2);
+    XCTAssertTrue(controller.activationHandoffInProgress);
+    firstResult(NO);
+    [controller decidePolicyAADForNavigationAction:action decisionHandler:decisionHandler];
+    XCTAssertEqual(s_activationOpenCapture.openCount, 2);
+    XCTAssertFalse(controller.complete);
+    XCTAssertEqual(controller.completionCount, 0);
+}
+
+- (void)testActivationHandoff_whenCancelledBeforeOpenResult_shouldIgnoreLateCallbackAndAllowFreshSession
+{
+    [self configureActivationExtension];
+    MSIDActivationControllerSpy *controller = [self activationController];
+    MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                         navigationType:WKNavigationTypeLinkActivated];
+    [controller decidePolicyAADForNavigationAction:action decisionHandler:nil];
+    void (^result)(BOOL) = s_activationOpenCapture.completion;
+    NSError *cancelError = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorUserCancel userInfo:nil];
+    [controller endWebAuthWithURL:nil error:cancelError];
+    XCTAssertFalse(controller.activationHandoffInProgress);
+    XCTAssertNotNil(result);
+    result(NO);
+    result(YES);
+    XCTAssertEqual(controller.completionCount, 1);
+    XCTAssertEqualObjects(controller.receivedError, cancelError);
+    XCTAssertTrue(controller.complete);
+    [controller decidePolicyAADForNavigationAction:action decisionHandler:nil];
+    XCTAssertEqual(s_activationOpenCapture.openCount, 1);
+    [[self activationController] decidePolicyAADForNavigationAction:action decisionHandler:nil];
+    XCTAssertEqual(s_activationOpenCapture.openCount, 2);
+}
+
+- (void)testActivationHandoff_whenAsyncResultArrivesAfterCompletion_shouldNotCompleteAgain
+{
+    [self configureActivationExtension];
+    MSIDActivationControllerSpy *controller = [self activationController];
+    MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                         navigationType:WKNavigationTypeLinkActivated];
+    [controller decidePolicyAADForNavigationAction:action decisionHandler:nil];
+    void (^result)(BOOL) = s_activationOpenCapture.completion;
+    XCTAssertNotNil(result);
+    [controller endWebAuthWithURL:nil error:nil];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"late open result drained"];
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+        result(NO);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            XCTAssertTrue(NSThread.isMainThread);
+            XCTAssertTrue(controller.complete);
+            XCTAssertFalse(controller.activationHandoffInProgress);
+            XCTAssertEqual(controller.completionCount, 1);
+            XCTAssertNil(controller.receivedError);
+            [expectation fulfill];
+        });
+    });
+    [self waitForExpectations:@[expectation] timeout:2.0];
+}
+
+- (void)testActivationHandoff_whenControllerReleasedBeforeResult_shouldNotKeepItAlive
+{
+    [self configureActivationExtension];
+    __weak MSIDActivationControllerSpy *weakController;
+    @autoreleasepool
+    {
+        MSIDActivationControllerSpy *controller = [self activationController];
+        weakController = controller;
+        MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                             navigationType:WKNavigationTypeLinkActivated];
+        [controller decidePolicyAADForNavigationAction:action decisionHandler:nil];
+    }
+    XCTAssertNil(weakController);
+    XCTAssertNotNil(s_activationOpenCapture.completion);
+    s_activationOpenCapture.completion(NO);
+}
+
+- (void)testActivationHandoff_shouldStillRejectItmsAppsOtherNavigation
+{
+    [self configureActivationExtension];
+    MSIDActivationControllerSpy *controller = [self activationController];
+    MSIDActivationNavigationMock *action = [self activationActionWithURL:@"itms-apps://itunes.apple.com/app/synthetic"
+                                                         navigationType:WKNavigationTypeOther];
+    __block NSUInteger decisionCount = 0;
+    [controller decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy policy)
+    {
+        decisionCount += 1;
+        XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+    }];
+    XCTAssertEqual(decisionCount, 1);
+    XCTAssertEqual(controller.receivedError.code, MSIDErrorServerNonHttpsRedirect);
+    XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+}
+
+#if AD_BROKER
+- (void)testActivationInMainApp_whenDelegateDeclinesOrMissing_shouldPreserveExistingHandledPolicy
+{
+    [self configureActivationExtension];
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF: @NO};
+    [MSIDTestBundle overrideBundleId:@"com.microsoft.azureauthenticator"];
+    MSIDActivationApplicationMock *application = [MSIDActivationApplicationMock new];
+    s_activationOpenCapture.application = application;
+    for (NSNumber *delegatePresent in @[@YES, @NO])
+    {
+        MSIDMockAppDelegate *delegate = delegatePresent.boolValue ? [MSIDMockAppDelegate new] : nil;
+        delegate.handledResult = NO;
+        application.delegate = delegate;
+        MSIDActivationControllerSpy *controller = [self activationController];
+        MSIDActivationNavigationMock *action = [self activationActionWithURL:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"
+                                                             navigationType:WKNavigationTypeLinkActivated];
+        __block NSUInteger decisionCount = 0;
+        XCTAssertTrue([controller decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy policy)
+        {
+            decisionCount += 1;
+            XCTAssertEqual(policy, WKNavigationActionPolicyCancel);
+        }]);
+        XCTAssertEqual(decisionCount, 1);
+        XCTAssertEqual(controller.completionCount, 0);
+        XCTAssertEqual(s_activationOpenCapture.openCount, 0);
+        if (delegatePresent.boolValue)
+        {
+            XCTAssertEqualObjects(delegate.receivedURL, action.request.URL);
+            XCTAssertEqual(delegate.invocationCount, 1);
+        }
+    }
+}
+
 - (void)testDecidePolicyForNavigationAction_whenActivationURL_shouldCancelActionAndInvokeContinueUserActivity
 {
+    [self configureActivationExtension];
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF: @NO};
     [MSIDTestBundle overrideBundleId:@"com.microsoft.azureauthenticator"];
 
     MSIDMockAppDelegate *mockDelegate = [MSIDMockAppDelegate new];
-    mockDelegate.continueUserActivityExpectation = [self expectationWithDescription:@"continueUserActivity invoked"];
-
-    id<UIApplicationDelegate> originalDelegate = [UIApplication sharedApplication].delegate;
-    [UIApplication sharedApplication].delegate = mockDelegate;
+    mockDelegate.handledResult = YES;
+    MSIDActivationApplicationMock *application = [MSIDActivationApplicationMock new];
+    application.delegate = mockDelegate;
+    s_activationOpenCapture.application = application;
 
     MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
             initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
@@ -444,21 +1115,19 @@
     NSURLRequest *request = [[NSURLRequest alloc] initWithURL:activationURL];
     MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
 
-    XCTestExpectation *decisionExpectation = [self expectationWithDescription:@"decision handler"];
-
+    __block NSUInteger decisionCount = 0;
     BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
         XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
-        [decisionExpectation fulfill];
+        decisionCount += 1;
     }];
 
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
-
     XCTAssertTrue(result);
+    XCTAssertEqual(decisionCount, 1);
+    XCTAssertEqual(mockDelegate.invocationCount, 1);
     XCTAssertEqualObjects(mockDelegate.receivedURL, activationURL);
-
-    [UIApplication sharedApplication].delegate = originalDelegate;
-    [MSIDTestBundle reset];
+    XCTAssertEqual(s_activationOpenCapture.openCount, 0);
 }
+#endif
 #endif
 
 #pragma mark - openid-vc handoff URL mutation
