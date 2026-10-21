@@ -35,11 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isCBAWebAADAuthResponse:(NSURL *)url;
 
-+ (BOOL)isCBAWebAADAuthResponse:(NSURL *)url
-                  redirectUriPattern:(NSString *)redirectUriPattern
-                            context:(nullable id<MSIDRequestContext>)context;
-
 - (nullable instancetype)initWithURL:(NSURL *)url
+                 expectedRedirectUri:(NSString *)expectedRedirectUri
                          requestState:(nullable NSString *)requestState
                    ignoreInvalidState:(BOOL)ignoreInvalidState
                               context:(nullable id<MSIDRequestContext>)context

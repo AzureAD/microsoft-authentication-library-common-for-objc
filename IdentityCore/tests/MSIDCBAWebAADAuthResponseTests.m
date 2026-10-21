@@ -94,43 +94,58 @@
 
 #pragma mark - Strict URL Matching with Flight Flag
 
-- (void)testIsCBAWebAADAuthResponse_withStrictMatchingEnabled_whenRedirectUriMatches_shouldReturnYES
+- (void)testInitWithURLAndState_withStrictMatchingEnabled_whenRedirectUriMatches_shouldSucceed
 {
     // When flight flag is enabled, redirect URIs must match exactly
     self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
     
     NSURL *url = [NSURL URLWithString:@"msauth://code/redirect?code=somecode"];
-    BOOL result = [MSIDCBAWebAADAuthResponse isCBAWebAADAuthResponse:url
-                                                  redirectUriPattern:@"msauth://code/redirect"
-                                                            context:nil];
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
+                                                                           requestState:nil
+                                                                     ignoreInvalidState:NO
+                                                                                context:nil
+                                                                                  error:&error];
     
-    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    XCTAssertNotNil(response);
 }
 
-- (void)testIsCBAWebAADAuthResponse_withStrictMatchingEnabled_whenRedirectUriMismatch_shouldReturnNO
+- (void)testInitWithURLAndState_withStrictMatchingEnabled_whenRedirectUriMismatch_shouldFail
 {
     // When flight flag is enabled, mismatched redirect URIs should be rejected
     self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES };
     
     NSURL *url = [NSURL URLWithString:@"msauth://code/attacker-redirect?code=somecode"];
-    BOOL result = [MSIDCBAWebAADAuthResponse isCBAWebAADAuthResponse:url
-                                                  redirectUriPattern:@"msauth://code/legitimate-redirect"
-                                                            context:nil];
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/legitimate-redirect"
+                                                                           requestState:nil
+                                                                     ignoreInvalidState:NO
+                                                                                context:nil
+                                                                                  error:&error];
     
-    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertNil(response);
 }
 
-- (void)testIsCBAWebAADAuthResponse_withStrictMatchingDisabled_shouldIgnoreRedirectUri
+- (void)testInitWithURLAndState_withStrictMatchingDisabled_shouldIgnoreRedirectUri
 {
     // When flight flag is disabled (legacy), redirect URIs are not validated
     self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @NO };
     
     NSURL *url = [NSURL URLWithString:@"msauth://code/attacker-redirect?code=somecode"];
-    BOOL result = [MSIDCBAWebAADAuthResponse isCBAWebAADAuthResponse:url
-                                                  redirectUriPattern:@"msauth://code/legitimate-redirect"
-                                                            context:nil];
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/legitimate-redirect"
+                                                                           requestState:nil
+                                                                     ignoreInvalidState:NO
+                                                                                context:nil
+                                                                                  error:&error];
     
-    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    XCTAssertNotNil(response);
 }
 
 #pragma mark - State Validation with Flight Flag
@@ -146,6 +161,7 @@
     
     NSError *error;
     MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
                                                                             requestState:state
                                                                       ignoreInvalidState:NO
                                                                                  context:nil
@@ -168,6 +184,7 @@
     
     NSError *error;
     MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
                                                                             requestState:expectedState
                                                                       ignoreInvalidState:NO
                                                                                  context:nil
@@ -189,6 +206,7 @@
     
     NSError *error;
     MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
                                                                             requestState:expectedState
                                                                       ignoreInvalidState:NO
                                                                                  context:nil
@@ -209,6 +227,7 @@
     
     NSError *error;
     MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
                                                                             requestState:expectedState
                                                                       ignoreInvalidState:NO
                                                                                  context:nil
@@ -227,6 +246,7 @@
     
     NSError *error;
     MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
                                                                             requestState:nil
                                                                       ignoreInvalidState:NO
                                                                                  context:nil

@@ -189,6 +189,7 @@
     // Try to create CBA response
 #if AD_BROKER
     MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                       expectedRedirectUri:endRedirectUri
                                                                                requestState:requestState
                                                                          ignoreInvalidState:ignoreInvalidState
                                                                                     context:context

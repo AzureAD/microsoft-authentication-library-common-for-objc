@@ -30,6 +30,14 @@
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDFlightManager.h"
 
+@interface MSIDCBAWebAADAuthResponse ()
+
++ (BOOL)isCBAWebAADAuthResponse:(NSURL *)url
+            expectedRedirectUri:(NSString *)expectedRedirectUri
+                         context:(nullable id<MSIDRequestContext>)context;
+
+@end
+
 @implementation MSIDCBAWebAADAuthResponse
 
 + (BOOL)isCBAWebAADAuthResponse:(NSURL *)url
@@ -39,8 +47,8 @@
 }
 
 + (BOOL)isCBAWebAADAuthResponse:(NSURL *)url
-                  redirectUriPattern:(NSString *)redirectUriPattern
-                            context:(nullable id<MSIDRequestContext>)context
+            expectedRedirectUri:(NSString *)expectedRedirectUri
+                         context:(nullable id<MSIDRequestContext>)context
 {
     if (!url) return NO;
     
@@ -56,9 +64,9 @@
         return YES;
     }
     
-    if ([NSString msidIsStringNilOrBlank:redirectUriPattern])
+    if ([NSString msidIsStringNilOrBlank:expectedRedirectUri])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"CBA response validation: redirectUri pattern is nil");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"CBA response validation: expected redirect URI is nil");
         return NO;
     }
     
@@ -67,13 +75,13 @@
     responseComponents.fragment = nil;
     NSString *responseRedirectUri = responseComponents.URL.absoluteString;
     
-    BOOL urisMatch = [responseRedirectUri isEqualToString:redirectUriPattern];
+    BOOL urisMatch = [responseRedirectUri isEqualToString:expectedRedirectUri];
     
     if (!urisMatch)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context,
                          @"CBA response validation failed: redirect URI mismatch. Expected: %@, Received: %@",
-                         redirectUriPattern, responseRedirectUri);
+                         expectedRedirectUri, responseRedirectUri);
     }
     
     return urisMatch;
@@ -110,19 +118,22 @@
 }
 
 - (instancetype)initWithURL:(NSURL *)url
+        expectedRedirectUri:(NSString *)expectedRedirectUri
                 requestState:(nullable NSString *)requestState
           ignoreInvalidState:(BOOL)ignoreInvalidState
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error
 {
     // Check for CBA response
-    if (![self.class isCBAWebAADAuthResponse:url])
+    if (![self.class isCBAWebAADAuthResponse:url
+                         expectedRedirectUri:expectedRedirectUri
+                                      context:context])
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
-                                     @"MSAuth CBA response should have msauth as a scheme and code as a host",
+                                     @"MSAuth CBA response should match the expected redirect URI",
                                      nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
