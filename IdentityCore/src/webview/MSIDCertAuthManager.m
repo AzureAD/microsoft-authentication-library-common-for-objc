@@ -59,6 +59,22 @@
     self.redirectScheme = scheme;
 }
 
+- (NSString *)effectiveRedirectUriForRedirectUri:(NSString *)redirectUri
+{
+    if (self.useAuthSession || !self.redirectScheme || !self.redirectPrefix)
+    {
+        return redirectUri;
+    }
+
+    NSString *redirectSchemePrefix = [NSString stringWithFormat:@"%@://", self.redirectScheme];
+    if ([redirectUri.lowercaseString hasPrefix:redirectSchemePrefix.lowercaseString])
+    {
+        return redirectUri;
+    }
+
+    return [self.redirectPrefix stringByAppendingString:redirectUri.msidURLEncode];
+}
+
 - (void)resetState
 {
     self.isCertAuthInProgress = NO;
@@ -93,12 +109,12 @@
         
         for (NSURLQueryItem *item in queryItems)
         {
-            if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI] && !self.useAuthSession && self.redirectScheme != nil)
+            if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI] && item.value)
             {
-                NSString *redirectSchemePrefix = [NSString stringWithFormat:@"%@://", self.redirectScheme];
-                if (![item.value.lowercaseString hasPrefix:redirectSchemePrefix.lowercaseString])
+                NSString *effectiveRedirectUri = [self effectiveRedirectUriForRedirectUri:item.value];
+                if (![effectiveRedirectUri isEqualToString:item.value])
                 {
-                    newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [self.redirectPrefix stringByAppendingString:item.value.msidURLEncode];
+                    newQueryItems[MSID_OAUTH2_REDIRECT_URI] = effectiveRedirectUri;
                     continue;
                 }
             }

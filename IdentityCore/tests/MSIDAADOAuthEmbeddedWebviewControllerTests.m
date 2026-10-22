@@ -46,6 +46,26 @@
 
 #if !MSID_EXCLUDE_WEBKIT
 
+@interface MSIDWKFrameInfoMock : NSObject
+@property (nonatomic, readonly) BOOL mainFrame;
+- (instancetype)initWithIsMainFrame:(BOOL)isMainFrame;
+@end
+
+@implementation MSIDWKFrameInfoMock
+- (instancetype)initWithIsMainFrame:(BOOL)isMainFrame
+{
+    self = [super init];
+    _mainFrame = isMainFrame;
+    return self;
+}
+
+- (BOOL)isMainFrame
+{
+    return self.mainFrame;
+}
+
+@end
+
 @interface MSIDOnboardingNavigationDelegateSpy : NSObject <MSIDWebviewNavigationDelegate>
 @property (nonatomic) NSUInteger invocationCount;
 @property (nonatomic) XCTestExpectation *redirectExpectation;
@@ -1528,6 +1548,122 @@ static MSIDActivationOpenCapture *s_activationOpenCapture;
     XCTAssertFalse(webVC.complete);
 }
 #endif
+
+#pragma mark - Main-frame validation
+
+- (void)assertCBAResponseWithFlightEnabled:(BOOL)flightEnabled
+                         sourceIsMainFrame:(BOOL)sourceIsMainFrame
+                         targetIsMainFrame:(nullable NSNumber *)targetIsMainFrame
+                          completesWebAuth:(BOOL)completesWebAuth
+{
+    self.flightProvider.boolForKeyContainer = @{
+        MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @(flightEnabled)
+    };
+
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                       endURL:[NSURL URLWithString:@"msauth://code/redirect"]
+                      webview:nil
+                customHeaders:nil
+               platfromParams:nil
+                      context:nil];
+    
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"msauth://code/redirect?code=somecode"]];
+    MSIDWKFrameInfoMock *sourceFrame = [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:sourceIsMainFrame];
+    MSIDWKFrameInfoMock *targetFrame = targetIsMainFrame
+        ? [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:targetIsMainFrame.boolValue]
+        : nil;
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                              navigationType:WKNavigationTypeOther
+                                                                                 sourceFrame:(WKFrameInfo *)sourceFrame
+                                                                                 targetFrame:(WKFrameInfo *)targetFrame];
+
+    __block BOOL decisionHandlerCalled = NO;
+    [webVC decidePolicyForNavigationAction:action
+                                  webview:nil
+                          decisionHandler:^(WKNavigationActionPolicy decision)
+    {
+        decisionHandlerCalled = YES;
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+    }];
+
+    XCTAssertTrue(decisionHandlerCalled);
+    XCTAssertEqual(webVC.complete, completesWebAuth);
+}
+
+- (void)testDecidePolicyForNavigationAction_withCBAFlightEnabled_whenSourceAndTargetAreMainFrame_shouldComplete
+{
+    [self assertCBAResponseWithFlightEnabled:YES
+                          sourceIsMainFrame:YES
+                          targetIsMainFrame:@YES
+                           completesWebAuth:YES];
+}
+
+- (void)testDecidePolicyForNavigationAction_withCBAFlightEnabled_whenIframeSourceTargetsMainFrame_shouldCancelWithoutCompleting
+{
+    [self assertCBAResponseWithFlightEnabled:YES
+                          sourceIsMainFrame:NO
+                          targetIsMainFrame:@YES
+                           completesWebAuth:NO];
+}
+
+- (void)testDecidePolicyForNavigationAction_withCBAFlightEnabled_whenIframeSourceTargetsNewWindow_shouldCancelWithoutCompleting
+{
+    [self assertCBAResponseWithFlightEnabled:YES
+                          sourceIsMainFrame:NO
+                          targetIsMainFrame:nil
+                           completesWebAuth:NO];
+}
+
+- (void)testDecidePolicyForNavigationAction_withCBAFlightEnabled_whenMainFrameSourceTargetsIframe_shouldCancelWithoutCompleting
+{
+    [self assertCBAResponseWithFlightEnabled:YES
+                          sourceIsMainFrame:YES
+                          targetIsMainFrame:@NO
+                           completesWebAuth:NO];
+}
+
+- (void)testDecidePolicyForNavigationAction_withCBAFlightDisabled_whenIframeSourceTargetsMainFrame_shouldPreserveLegacyBehavior
+{
+    [self assertCBAResponseWithFlightEnabled:NO
+                          sourceIsMainFrame:NO
+                          targetIsMainFrame:@YES
+                           completesWebAuth:YES];
+}
+
+- (void)testDecidePolicyForNavigationAction_withCBAFlightEnabled_whenNonCBAResponseComesFromIframe_shouldPreserveExistingHandling
+{
+    self.flightProvider.boolForKeyContainer = @{
+        MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES
+    };
+
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                       endURL:[NSURL URLWithString:@"msauth://wpj"]
+                      webview:nil
+                customHeaders:nil
+               platfromParams:nil
+                      context:nil];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]];
+    MSIDWKFrameInfoMock *sourceFrame = [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:NO];
+    MSIDWKFrameInfoMock *targetFrame = [[MSIDWKFrameInfoMock alloc] initWithIsMainFrame:YES];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                              navigationType:WKNavigationTypeOther
+                                                                                 sourceFrame:(WKFrameInfo *)sourceFrame
+                                                                                 targetFrame:(WKFrameInfo *)targetFrame];
+
+    __block BOOL decisionHandlerCalled = NO;
+    [webVC decidePolicyForNavigationAction:action
+                                  webview:nil
+                          decisionHandler:^(WKNavigationActionPolicy decision)
+    {
+        decisionHandlerCalled = YES;
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+    }];
+
+    XCTAssertTrue(decisionHandlerCalled);
+    XCTAssertTrue(webVC.complete);
+}
 
 @end
 
