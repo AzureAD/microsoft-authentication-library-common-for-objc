@@ -31,6 +31,7 @@ NSString * const MSIDOnboardingBlobIPCKey = @"onboardingBlob";
 NSString * const MSIDOnboardingModeBrokered = @"brokered";
 
 // UX flow tags (appended to the `ux_flow_used` array).
+NSString * const MSIDOnboardingUxFlowNewCAMdmRedirect = @"NewCAMdmRedirect";
 NSString * const MSIDOnboardingUxFlowMobileOnboardingPhase1 = @"MobileOnboardingPhase1";
 
 // Field keys for populated blob
@@ -57,12 +58,16 @@ NSString * const MSIDOnboardingBlobStepJITLinkingCompleted = @"JITLinkingComplet
 NSString * const MSIDOnboardingBlobStepJITRemediationStarted = @"JITRemediationStarted";
 NSString * const MSIDOnboardingBlobStepJITRemediationCompleted = @"JITRemediationCompleted";
 NSString * const MSIDOnboardingBlobStepJITComplianceBitSetStarted = @"JITComplianceBitSetStarted";
+NSString * const MSIDOnboardingBlobStepJITTroubleshootingFlowStarted = @"JITTroubleshootingFlowStarted";
 NSString * const MSIDOnboardingBlobStepJITComplianceBitSetCompleted = @"JITComplianceBitSetCompleted";
 NSString * const MSIDOnboardingBlobStepTokenIssued = @"TokenIssued";
 
 // New mobile-onboarding funnel steps
+NSString * const MSIDOnboardingBlobStepCPDownloadTriggered = @"CPDownloadTriggered";
 NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted = @"ProfileDownloadCompleted";
 NSString * const MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect = @"ComplianceRemediationMSAuthRedirect";
+NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirect = @"ComplianceRemediationDefenderRedirect";
+NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirectFailed = @"ComplianceRemediationDefenderRedirectFailed";
 NSString * const MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback = @"MobileOnboardingClientFlightDisabledLegacyFallback";
 NSString * const MSIDOnboardingBlobStepProfileInstallNotificationScheduled = @"ProfileInstallNotificationScheduled";
 NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable = @"SSOExtensionUnavailable";

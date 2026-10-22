@@ -152,6 +152,8 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
             XCTAssertEqual((error as NSError).code, MSIDErrorCode.serverInvalidResponse.rawValue)
             XCTAssertEqual((error as NSError).domain, MSIDOAuthErrorDomain)
             XCTAssertEqual((error as NSError).userInfo["MSIDErrorDescriptionKey"] as? String, "action_uri is nil.")
+            // Sub-error keeps this distinguishable from the other parse failures in telemetry.
+            XCTAssertEqual((error as NSError).userInfo[MSIDOAuthSubErrorKey] as? String, MSID_SWITCH_BROWSER_SUB_ERROR_MISSING_ACTION_URI)
         }
     }
     
@@ -163,8 +165,61 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
             XCTAssertEqual((error as NSError).code, MSIDErrorCode.serverInvalidResponse.rawValue)
             XCTAssertEqual((error as NSError).domain, MSIDOAuthErrorDomain)
             XCTAssertEqual((error as NSError).userInfo["MSIDErrorDescriptionKey"] as? String, "code is nil.")
+            XCTAssertEqual((error as NSError).userInfo[MSIDOAuthSubErrorKey] as? String, MSID_SWITCH_BROWSER_SUB_ERROR_MISSING_CODE)
         }
     }
+
+    // MARK: - State validation sub-errors
+    //
+    // A state mismatch is security-relevant: it means the response did not correspond to the request
+    // this client made. Before these sub-errors it was indistinguishable from an ordinary invalid-state
+    // failure in telemetry, so it could not be alerted on separately.
+    //
+    // validateStateParameter:expectedState:error: returns BOOL with a trailing NSError**, so Swift
+    // imports it as a throwing function - success is "does not throw".
+
+    func testValidateStateParameter_whenStateMismatches_shouldReturnMismatchSubError()
+    {
+        // base64url("some_other_state") decoded != "state"
+        XCTAssertThrowsError(try MSIDSwitchBrowserResponse.validateStateParameter("c29tZV9vdGhlcl9zdGF0ZQ",
+                                                                                 expectedState: "state")) { error in
+            let e = error as NSError
+            XCTAssertEqual(e.domain, MSIDOAuthErrorDomain)
+            XCTAssertEqual(e.code, MSIDErrorCode.serverInvalidState.rawValue)
+            XCTAssertEqual(e.userInfo[MSIDOAuthSubErrorKey] as? String, MSID_SWITCH_BROWSER_SUB_ERROR_STATE_MISMATCH)
+        }
+    }
+
+    func testValidateStateParameter_whenReceivedStateMissing_shouldReturnMissingSubError()
+    {
+        XCTAssertThrowsError(try MSIDSwitchBrowserResponse.validateStateParameter(nil,
+                                                                                 expectedState: "state")) { error in
+            let e = error as NSError
+            XCTAssertEqual(e.code, MSIDErrorCode.serverInvalidState.rawValue)
+            // "missing" is a different operational problem from "mismatch" - one is a server/protocol
+            // gap, the other is a potential response-substitution signal.
+            XCTAssertEqual(e.userInfo[MSIDOAuthSubErrorKey] as? String, MSID_SWITCH_BROWSER_SUB_ERROR_STATE_MISSING)
+        }
+    }
+
+    func testValidateStateParameter_whenExpectedStateMissing_shouldReturnMissingSubError()
+    {
+        XCTAssertThrowsError(try MSIDSwitchBrowserResponse.validateStateParameter("c3RhdGU",
+                                                                                 expectedState: nil)) { error in
+            let e = error as NSError
+            XCTAssertEqual(e.userInfo[MSIDOAuthSubErrorKey] as? String, MSID_SWITCH_BROWSER_SUB_ERROR_STATE_MISSING)
+        }
+    }
+
+    func testValidateStateParameter_whenBothStatesAbsent_shouldNotThrow()
+    {
+        // Pre-existing contract: no state on either side is a valid, non-erroring configuration.
+        XCTAssertNoThrow(try MSIDSwitchBrowserResponse.validateStateParameter(nil, expectedState: nil))
+    }
+
+    func testValidateStateParameter_whenStateMatches_shouldNotThrow()
+    {
+        // base64url("state") == "state"
+        XCTAssertNoThrow(try MSIDSwitchBrowserResponse.validateStateParameter("c3RhdGU", expectedState: "state"))
+    }
 }
-
-

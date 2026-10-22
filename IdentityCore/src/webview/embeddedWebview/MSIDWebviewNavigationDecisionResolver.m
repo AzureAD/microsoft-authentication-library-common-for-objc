@@ -33,6 +33,7 @@
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDOAuth2Constants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -161,6 +162,11 @@
                                          callerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
+
+    // The non-brokered flow cannot read the intermediate 302 response headers.
+    // ESTS pairs msauth://enroll with error 530003 when MDM enrollment is required,
+    // so record the blocking error from the redirect instead.
+    [onboardingBlobBuilder addBlockingError:@"530003"];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
 
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
@@ -201,7 +207,7 @@
             allQueryParams[key] = params[key];
         }
     }
-
+    
     // Re-attach intuneDeviceId from keychain if it was captured during a prior
     // profile download complete redirect and is not already present in the URL.
     if (!allQueryParams[MSID_INTUNE_DEVICE_ID_KEY])
@@ -236,7 +242,7 @@
     {
         [headers addEntriesFromDictionary:additionalHeaders];
     }
-
+    
     NSString *platformName = [MSIDVersion platformName];
     if (platformName.length > 0)
     {
@@ -252,7 +258,8 @@
     // Build the final request with all query params and headers.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
                                         extraHeaders:headers
-                                         extraParams:allQueryParams];
+                                         extraParams:allQueryParams
+                                             context:embeddedWebviewController.context];
 
     if (!request)
     {
@@ -263,6 +270,15 @@
                                          @"Failed to construct enrollment request URL.",
                                          nil, nil, nil, nil, nil, YES);
         return [MSIDWebviewNavigationDecision failWithError:error];
+    }
+
+    NSURLRequest *updatedRequest = [self externallyOverriddenRequestForRequest:request
+                                                    embeddedWebviewController:embeddedWebviewController
+                                                                    flowName:@"Enroll"];
+    if (updatedRequest)
+    {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepJITTroubleshootingFlowStarted timestamp:[NSDate date]];
+        return [MSIDWebviewNavigationDecision loadRequest:updatedRequest];
     }
 
     [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:[NSDate date]];
@@ -452,11 +468,11 @@
             allQueryParams[key] = params[key];
         }
     }
-
     // Build the final request with all query params.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
-                                        extraHeaders:nil  // TODO: Add compliance-specific headers if needed.
-                                         extraParams:allQueryParams];
+                                        extraHeaders:nil
+                                         extraParams:allQueryParams
+                                             context:embeddedWebviewController.context];
 
     if (!request)
     {
@@ -469,32 +485,12 @@
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
 
-    // For legacy flows we rewrite the request URL's `https` scheme to `browser`
-    // and let the external navigation block decide whether to override the request.
-    if (embeddedWebviewController && embeddedWebviewController.externalDecidePolicyForBrowserAction &&
-        [request.URL.scheme.lowercaseString isEqualToString:@"https"])
+    NSURLRequest *updatedRequest = [self externallyOverriddenRequestForRequest:request
+                                                    embeddedWebviewController:embeddedWebviewController
+                                                                    flowName:@"Compliance"];
+    if (updatedRequest)
     {
-        NSURLComponents *legacyComponents = [NSURLComponents componentsWithURL:request.URL
-                                                       resolvingAgainstBaseURL:NO];
-        legacyComponents.scheme = @"browser";
-        NSURL *legacyFlowUrl = legacyComponents.URL;
-
-        if (legacyFlowUrl)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Invoking external navigation block with 'browser' scheme (host: '%@').", legacyFlowUrl.host);
-
-            // The block is responsible for type checking and casting the controller.
-            NSURLRequest *updatedRequest = embeddedWebviewController.externalDecidePolicyForBrowserAction(embeddedWebviewController, legacyFlowUrl);
-            if (updatedRequest)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] External navigation block returned overridden request (host: '%@').", updatedRequest.URL.host);
-                return [MSIDWebviewNavigationDecision loadRequest:updatedRequest];
-            }
-        }
-        else
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Compliance] Failed to build legacy 'browser' scheme URL; skipping external navigation.");
-        }
+        return [MSIDWebviewNavigationDecision loadRequest:updatedRequest];
     }
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Built compliance request for host '%@'.", request.URL.host);
@@ -503,9 +499,44 @@
 
 #pragma mark - Helper Methods
 
+- (NSURLRequest * _Nullable)externallyOverriddenRequestForRequest:(NSURLRequest *)request
+                                       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                                       flowName:(NSString *)flowName
+{
+    if (!embeddedWebviewController ||
+        !embeddedWebviewController.externalDecidePolicyForBrowserAction ||
+        ![request.URL.scheme.lowercaseString isEqualToString:@"https"])
+    {
+        return nil;
+    }
+
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:request.URL
+                                                    resolvingAgainstBaseURL:NO];
+    urlComponents.scheme = MSID_SCHEME_BROWSER;
+    NSURL *browserURL = urlComponents.URL;
+
+    if (!browserURL)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[%@] Failed to build 'browser' scheme URL; skipping external navigation.", flowName);
+        return nil;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[%@] Invoking external navigation block with 'browser' scheme (host: '%@').", flowName, browserURL.host);
+    NSURLRequest *updatedRequest =
+        embeddedWebviewController.externalDecidePolicyForBrowserAction(embeddedWebviewController, browserURL);
+
+    if (updatedRequest)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[%@] External navigation block returned overridden request (host: '%@').", flowName, updatedRequest.URL.host);
+    }
+
+    return updatedRequest;
+}
+
 - (nullable NSURLRequest *)buildRequestForURL:(NSString *)URLString
                                  extraHeaders:(nullable NSDictionary<NSString *, NSString *> *)extraHeaders
                                   extraParams:(nullable NSDictionary<NSString *, NSString *> *)extraParams
+                                      context:(nullable id<MSIDRequestContext>)context
 {
     // Validate input URL string.
     if (URLString.length == 0)
@@ -521,23 +552,24 @@
         return nil;
     }
 
-    // Append additional query parameters while preserving any existing ones.
-    if (extraParams.count > 0)
+    NSMutableArray<NSURLQueryItem *> *queryItems = [components.queryItems mutableCopy] ?: [NSMutableArray new];
+    for (NSString *key in extraParams)
     {
-        NSMutableArray<NSURLQueryItem *> *queryItems =
-            [NSMutableArray arrayWithArray:components.queryItems ?: @[]];
-
-        for (NSString *key in extraParams)
+        NSString *value = extraParams[key];
+        if (key.length > 0 && value != nil)
         {
-            NSString *value = extraParams[key];
-            if (key.length > 0 && value != nil)
-            {
-                [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:value]];
-            }
+            [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:value]];
         }
-
-        components.queryItems = queryItems;
     }
+
+    // The navigation controller gates this resolver on new mobile onboarding.
+    NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
+    {
+        return [queryItem.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
+    }];
+    [queryItems removeObjectsAtIndexes:existingInAppIndexes];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"true"]];
+    components.queryItems = queryItems;
 
     // Create the final URL from components.
     NSURL *finalURL = components.URL;
@@ -561,6 +593,8 @@
             }
         }
     }
+
+    [request setValue:context.correlationId.UUIDString forHTTPHeaderField:MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
 
     return request;
 }

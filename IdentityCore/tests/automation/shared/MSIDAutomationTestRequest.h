@@ -98,7 +98,7 @@ typedef NS_ENUM(NSInteger, MSIDAutomationWPJSSOExtensionSecureStorage)
 @property (nonatomic) BOOL shouldExpirePRT;
 @property (nonatomic) BOOL isSsoSeedingCompleted;
 @property (nonatomic) BOOL shouldOnlyDeleteSeedingPrt;
-
+@property (nonatomic) BOOL requestBoundAppRefreshToken;
 - (BOOL)usesEmbeddedWebView;
 
 @end

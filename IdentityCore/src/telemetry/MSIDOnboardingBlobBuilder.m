@@ -231,6 +231,8 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
 - (void)addBlockingError:(NSString *)errorCode
 {
+    // This keeps errors unique and ordered by their latest occurrence.
+    [self.blockingErrors removeObject:errorCode];
     [self.blockingErrors addObject:errorCode];
 }
 
@@ -246,28 +248,13 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
 - (void)ensureBrokeredOnboardingMode
 {
-    if (![self.onboardingMode isEqualToString:MSIDOnboardingModeBrokered])
+    if ([NSString msidIsStringNilOrBlank:self.onboardingMode])
     {
         self.onboardingMode = MSIDOnboardingModeBrokered;
     }
 }
 
 #pragma mark - HTTP Response Telemetry Processing
-
-// Error codes that are returned during normal sign-in flow and should not be
-// treated as blocking onboarding errors.
-//   50058  UserInformationNotProvided      - User not signed in / no valid SSO session found
-//   50097  DeviceAuthenticationRequired    - Device auth interrupt triggered by CA policy
-//   50126  InvalidUserNameOrPassword       - Wrong username or password
-+ (NSSet<NSString *> *)nonBlockingOnboardingErrorCodes
-{
-    static NSSet<NSString *> *codes = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        codes = [NSSet setWithObjects:@"50058", @"50097", @"50126", nil];
-    });
-    return codes;
-}
 
 - (void)processResponseHeaders:(NSDictionary *)headers responseURL:(NSURL *)responseURL
 {
@@ -292,11 +279,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
     NSString *errorCode = [components[1] msidTrimmedString];
     if (errorCode.length == 0 || [errorCode isEqualToString:@"0"])
-    {
-        return;
-    }
-
-    if ([[self.class nonBlockingOnboardingErrorCodes] containsObject:errorCode])
     {
         return;
     }
@@ -341,7 +323,8 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
         [self addStep:MSIDOnboardingBlobStepBrokerInstallPrompted timestamp:now];
     }
 
-    // All other error codes (50076, 50078, 53005, 53003, etc.): blocking error only, no step.
+    // All other error codes, including 50058, 50097, and 50126, remain in blocking_errors
+    // for diagnostics even during normal sign-in; no remediation step is added.
 }
 
 - (NSString *)finalizeBlob
@@ -408,11 +391,7 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     }
 }
 
-// Maps a terminal endURL that points at a well-known go.microsoft.com fwlink
-// (browser://go.microsoft.com/fwlink[/]?...LinkId=<id>...) to the onboarding
-// step that should be recorded against the current blob. The LinkId-to-step
-// map is the single extension point: new LinkIds (potentially mapping to a
-// different step) just add entries here.
+// Maps native-observed browser handoffs to CP download or enrollment steps.
 + (NSString *)onboardingStepForEndURL:(NSURL *)endURL
 {
     if (!endURL)
@@ -426,9 +405,15 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
         return nil;
     }
 
-    if ([components.scheme caseInsensitiveCompare:@"browser"] != NSOrderedSame)
+    if (![components.scheme.lowercaseString isEqualToString:@"browser"])
     {
         return nil;
+    }
+
+    if ([components.host.lowercaseString isEqualToString:@"itunes.apple.com"]
+        && [components.path.lastPathComponent isEqualToString:@"id719171358"])
+    {
+        return MSIDOnboardingBlobStepCPDownloadTriggered;
     }
 
     if ([components.host caseInsensitiveCompare:@"go.microsoft.com"] != NSOrderedSame)

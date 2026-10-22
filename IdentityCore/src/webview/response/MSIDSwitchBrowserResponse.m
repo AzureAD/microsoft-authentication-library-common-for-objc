@@ -31,6 +31,11 @@
 
 @implementation MSIDSwitchBrowserResponse
 
+NSString * const MSID_SWITCH_BROWSER_SUB_ERROR_STATE_MISMATCH     = @"switch_browser_state_mismatch";
+NSString * const MSID_SWITCH_BROWSER_SUB_ERROR_STATE_MISSING      = @"switch_browser_state_missing";
+NSString * const MSID_SWITCH_BROWSER_SUB_ERROR_MISSING_ACTION_URI = @"switch_browser_missing_action_uri";
+NSString * const MSID_SWITCH_BROWSER_SUB_ERROR_MISSING_CODE       = @"switch_browser_missing_code";
+
 + (NSString *)operation
 {
     return MSID_BROWSER_RESPONSE_SWITCH_BROWSER;
@@ -83,14 +88,14 @@
         
         if ([NSString msidIsStringNilOrBlank:_actionUri])
         {
-            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"action_uri is nil.", nil, nil, nil, context.correlationId, nil, YES);
+            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"action_uri is nil.", nil, MSID_SWITCH_BROWSER_SUB_ERROR_MISSING_ACTION_URI, nil, context.correlationId, nil, YES);
             return nil;
         }
         
         _switchBrowserSessionToken = self.parameters[MSID_OAUTH2_CODE];
         if ([NSString msidIsStringNilOrBlank:_switchBrowserSessionToken])
         {
-            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"code is nil.", nil, nil, nil, context.correlationId, nil, YES);
+            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"code is nil.", nil, MSID_SWITCH_BROWSER_SUB_ERROR_MISSING_CODE, nil, context.correlationId, nil, YES);
             return nil;
         }
     }
@@ -140,7 +145,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidState,
                                      [NSString stringWithFormat:@"Missing or invalid state returned state: %@", receivedState],
-                                     nil, nil, nil, nil, nil, YES);
+                                     nil, MSID_SWITCH_BROWSER_SUB_ERROR_STATE_MISSING, nil, nil, nil, YES);
         }
         return NO;
     }
@@ -155,7 +160,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidState,
                                      [NSString stringWithFormat:@"State parameter mismatch. Expected: %@, Received: %@", expectedState, receivedState],
-                                     nil, nil, nil, nil, nil, YES);
+                                     nil, MSID_SWITCH_BROWSER_SUB_ERROR_STATE_MISMATCH, nil, nil, nil, YES);
         }
         return NO;
     }
