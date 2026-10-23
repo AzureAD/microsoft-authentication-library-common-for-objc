@@ -236,6 +236,12 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA;
  (disabled) preserves the legacy cross-host fallback for controlled rollout.
  */
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX;
+/**
+ Enable strict validation for CBA OAuth responses, including expected redirect
+ URI matching, OAuth state validation, and main-frame enforcement. Default
+ (disabled) preserves legacy response handling for controlled rollout.
+ */
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME;
 
@@ -306,6 +312,13 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 /// When ON, prevents mobile onboarding even if server signals enrollment.
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
+
+/// Kill switch for the app-hosted WebCP onboarding-readiness WebKit bridge. Default: OFF.
+extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS;
+
+/// Enables the compliant iOS extension's MFA activation universal-link handoff.
+/// Default: OFF until ECS enables it.
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF;
 
 /// Enforces broker_nonce validation on broker responses even when sourceApplication is available.
 /// sourceApplication establishes the origin of a response, not its freshness, so it is not a

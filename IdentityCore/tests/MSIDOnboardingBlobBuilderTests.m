@@ -541,6 +541,42 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"MDM_FLOW");
 }
 
+- (void)testAddBlockingError_whenErrorRepeats_shouldMoveItToEnd
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder addBlockingError:@"ERROR_A"];
+    [builder addBlockingError:@"ERROR_B"];
+    [builder addBlockingError:@"ERROR_A"];
+    [builder addBlockingError:@"ERROR_A"];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+
+    XCTAssertEqualObjects(parsed[@"blocking_errors"], (@[@"ERROR_B", @"ERROR_A"]));
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"ERROR_A");
+    XCTAssertEqual([parsed[@"steps_list"] count], 0);
+}
+
+- (void)testAddBlockingError_whenSeedContainsDuplicates_shouldReplaceOnlyIncomingError
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"blocking_errors" : @[@"ERROR_A", @"ERROR_B", @"ERROR_A", @"ERROR_C"]
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    [builder addBlockingError:@"ERROR_A"];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+
+    XCTAssertEqualObjects(parsed[@"blocking_errors"], (@[@"ERROR_B", @"ERROR_C", @"ERROR_A"]));
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"ERROR_A");
+}
+
 #pragma mark - setLastLoadedDomain
 
 - (void)testSetLastLoadedDomain_whenSet_shouldAppearInBlob
@@ -594,6 +630,82 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
+    XCTAssertNil(parsed[@"ux_flow_used"]);
+}
+
+#pragma mark - CP download terminal URLs
+
+- (void)testOnboardingStepForEndURL_whenCompanyPortalStoreHandoff_shouldReturnCPDownloadTriggered
+{
+    NSArray<NSString *> *urls = @[
+        @"browser://itunes.apple.com/us/app/intune-company-portal/id719171358?mt=8",
+        @"BROWSER://ITUNES.APPLE.COM/gb/app/intune-company-portal/id719171358",
+        @"browser://itunes.apple.com/app/id719171358?mt=8&source=enrollment"
+    ];
+
+    for (NSString *url in urls)
+    {
+        XCTAssertEqualObjects([MSIDOnboardingBlobBuilder onboardingStepForEndURL:[NSURL URLWithString:url]],
+                              @"CPDownloadTriggered", @"Unexpected step for %@", url);
+    }
+}
+
+- (void)testOnboardingStepForEndURL_whenNotCompanyPortalStoreHandoff_shouldNotClassifyAsCPDownload
+{
+    NSArray<NSString *> *urls = @[
+        @"https://itunes.apple.com/us/app/intune-company-portal/id719171358?mt=8",
+        @"//itunes.apple.com/us/app/intune-company-portal/id719171358",
+        @"browser:/app/id719171358",
+        @"companyportal://enrollment",
+        @"browser://itunes.apple.com/us/app/other/id123456789",
+        @"browser://itunes.apple.com/us/app/intune-company-portal/id7191713580",
+        @"browser://itunes.apple.com/us/app/intune-company-portal/id719171358-suffix",
+        @"browser://itunes.apple.com/us/app/intune-company-portal/id719171358/other",
+        @"browser://itunes.apple.com/?app=id719171358",
+        @"browser://itunes.apple.com.attacker.example/app/id719171358",
+        @"browser://itunes.apple.com@attacker.example/app/id719171358",
+        @"browser://other.itunes.apple.com/app/id719171358",
+        @"browser://example.com/app/id719171358"
+    ];
+
+    for (NSString *url in urls)
+    {
+        XCTAssertNil([MSIDOnboardingBlobBuilder onboardingStepForEndURL:[NSURL URLWithString:url]],
+                     @"Unexpected classification for %@", url);
+    }
+}
+
+- (void)testFinalizeForEndURL_whenCPDownloadTriggered_shouldPreserveJourneyAndSerializeTerminalStep
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+    [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:[NSDate date]];
+    [builder addUxFlowUsed:MSIDOnboardingUxFlowNewCAMdmRedirect];
+    NSDictionary *before = [self parsedJsonFromBlob:[builder finalizeBlob]];
+
+    [builder finalizeForEndURL:[NSURL URLWithString:@"browser://itunes.apple.com/us/app/intune-company-portal/id719171358?mt=8"]
+                        error:nil];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    NSArray *steps = parsed[@"steps_list"];
+    XCTAssertEqual(steps.count, 2U);
+    XCTAssertEqualObjects(steps.firstObject, [before[@"steps_list"] firstObject]);
+    XCTAssertEqualObjects(steps.lastObject[@"step_id"], @"CPDownloadTriggered");
+    XCTAssertNotNil([self dateFromISO8601String:steps.lastObject[@"ts"]]);
+    XCTAssertEqualObjects(parsed[@"last_completed_step"], @"CPDownloadTriggered");
+    XCTAssertEqualObjects(parsed[@"ux_flow_used"], before[@"ux_flow_used"]);
+    XCTAssertEqualObjects(parsed[@"session_correlation_id"], before[@"session_correlation_id"]);
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], before[@"onboarding_mode"]);
+}
+
+- (void)testFinalizeForEndURL_whenEnrollmentFwlink_shouldPreserveEnrollmentStepWithoutCPMarker
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+    [builder finalizeForEndURL:[NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?LinkId=396941"]
+                        error:nil];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([parsed[@"steps_list"] count], 1U);
+    XCTAssertEqualObjects(parsed[@"last_completed_step"], @"MDMEnrollmentStarted");
     XCTAssertNil(parsed[@"ux_flow_used"]);
 }
 
@@ -679,7 +791,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
 #pragma mark - ensureBrokeredOnboardingMode
 
-- (void)testEnsureBrokeredOnboardingMode_whenSeedModeNonBrokered_shouldSetToBrokered
+- (void)testEnsureBrokeredOnboardingMode_whenSeedModeNonBrokered_shouldPreserveMode
 {
     NSString *seed = [self seedJsonWithVersion:@"1.0.0" correlationId:@"abc-123" mode:@"non-brokered"];
     MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed
@@ -692,7 +804,25 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     [builder ensureBrokeredOnboardingMode];
 
     parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
-    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"brokered");
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"non-brokered");
+
+    [builder ensureBrokeredOnboardingMode];
+
+    parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"non-brokered");
+}
+
+- (void)testEnsureBrokeredOnboardingMode_whenSeedModeUnknown_shouldPreserveMode
+{
+    NSString *seed = [self seedJsonWithVersion:@"1.0.0" correlationId:@"abc-123" mode:@"future-mode"];
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed
+                                                                                    clientId:@"client"
+                                                                                      target:@"target"];
+
+    [builder ensureBrokeredOnboardingMode];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"future-mode");
 }
 
 - (void)testEnsureBrokeredOnboardingMode_whenSeedModeEmpty_shouldSetToBrokered
@@ -708,6 +838,32 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     [builder ensureBrokeredOnboardingMode];
 
     parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"brokered");
+}
+
+- (void)testEnsureBrokeredOnboardingMode_whenSeedModeBlank_shouldSetToBrokered
+{
+    NSString *seed = [self seedJsonWithVersion:@"1.0.0" correlationId:@"abc-123" mode:@"  "];
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed
+                                                                                    clientId:@"client"
+                                                                                      target:@"target"];
+
+    [builder ensureBrokeredOnboardingMode];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"brokered");
+}
+
+- (void)testEnsureBrokeredOnboardingMode_whenSeedModeIsNotString_shouldSetToBrokered
+{
+    NSString *seed = @"{\"schema_version\":\"1.0.0\",\"onboarding_mode\":42}";
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed
+                                                                                    clientId:@"client"
+                                                                                      target:@"target"];
+
+    [builder ensureBrokeredOnboardingMode];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
     XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"brokered");
 }
 
@@ -788,15 +944,36 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqual([parsed[@"steps_list"] count], 0);
 }
 
-- (void)testProcessResponseHeaders_whenNonBlockingErrorCode_shouldNotRecordBlockingErrorOrStep
+- (void)testProcessResponseHeaders_whenPreviouslyExcludedErrorCode_shouldRecordBlockingErrorOnly
+{
+    for (NSString *errorCode in @[@"50058", @"50097", @"50126"])
+    {
+        MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+        [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: [NSString stringWithFormat:@"2,%@,0,,", errorCode]}
+                            responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+        NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+        XCTAssertEqualObjects(parsed[@"blocking_errors"], (@[errorCode]));
+        XCTAssertEqualObjects(parsed[@"last_blocking_error"], errorCode);
+        XCTAssertEqual([parsed[@"steps_list"] count], 0);
+        XCTAssertFalse(builder.strongAuthSetupStarted);
+    }
+}
+
+- (void)testProcessResponseHeaders_whenPreviouslyExcludedErrorsRepeat_shouldMergeUniquelyInLatestOccurrenceOrder
 {
     MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
 
-    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,50126,0,,"}
-                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+    for (NSString *errorCode in @[@"50076", @"50058", @"50097", @"50126", @"50126", @"50097", @"50058"])
+    {
+        [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: [NSString stringWithFormat:@"2,%@,0,,", errorCode]}
+                            responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+    }
 
     NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
-    XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
+    XCTAssertEqualObjects(parsed[@"blocking_errors"], (@[@"50076", @"50126", @"50097", @"50058"]));
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"50058");
     XCTAssertEqual([parsed[@"steps_list"] count], 0);
 }
 

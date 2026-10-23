@@ -200,7 +200,7 @@
 - (void)testHandleURLResponseForSystemWebviewController_whenCurrentSessionIsSafari_shouldHandleURL
 {
     MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
-    testWebviewController.successAfterInterval = 0.5;
+    testWebviewController.successAfterInterval = 0.1;
     testWebviewController.actAsSafariViewController = YES;
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
@@ -221,7 +221,7 @@
 - (void)testHandleURLResponseForSystemWebviewController_whenCurrentSessionIsAuthenticationSession_shouldHandleURL
 {
     MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
-    testWebviewController.successAfterInterval = 0.5;
+    testWebviewController.successAfterInterval = 0.1;
     testWebviewController.actAsAuthenticationSession = YES;
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
@@ -242,7 +242,7 @@
 - (void)testHandleURLResponseForSystemWebviewController_whenCurrentSessionIsNotSafari_shouldHandleURL
 {
     MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
-    testWebviewController.successAfterInterval = 0.5;
+    testWebviewController.successAfterInterval = 0.1;
     testWebviewController.actAsSafariViewController = NO;
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController

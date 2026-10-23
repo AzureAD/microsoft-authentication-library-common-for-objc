@@ -35,6 +35,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isCBAWebAADAuthResponse:(NSURL *)url;
 
+- (nullable instancetype)initWithURL:(NSURL *)url
+                 expectedRedirectUri:(NSString *)expectedRedirectUri
+                         requestState:(nullable NSString *)requestState
+                   ignoreInvalidState:(BOOL)ignoreInvalidState
+                              context:(nullable id<MSIDRequestContext>)context
+                                error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
