@@ -25,6 +25,8 @@
 #import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDConfiguration.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDConstants.h"
 
 @interface MSIDBrokerOperationTokenRequestTests : XCTestCase
 
@@ -35,6 +37,22 @@
 - (void)testIsSubclassOfOperationRequest_shouldReturnTrue
 {
     XCTAssertTrue([MSIDBrokerOperationTokenRequest.class isSubclassOfClass:MSIDBrokerOperationTokenRequest.class]);
+}
+
+- (void)testFillRequest_shouldCopyBoundAppRefreshTokenRequested
+{
+    MSIDRequestParameters *parameters = [MSIDRequestParameters new];
+    parameters.isBoundAppRefreshTokenRequested = YES;
+    MSIDBrokerOperationTokenRequest *request = [MSIDBrokerOperationTokenRequest new];
+
+    [MSIDBrokerOperationTokenRequest fillRequest:request
+                                 withParameters:parameters
+                                   providerType:MSIDProviderTypeAADV2
+                                  enrollmentIds:nil
+                                   mamResources:nil
+                                requestSentDate:[NSDate date]];
+
+    XCTAssertTrue(request.isBoundAppRefreshTokenRequested);
 }
 
 - (void)testJsonDictionary_whenNoConfiguration_shouldReturnNilJson
@@ -112,11 +130,12 @@
     request.clientSku = @"MSAL.iOS";
     request.skipValidateResultAccount = YES;
     request.forceRefresh = YES;
+    request.isBoundAppRefreshTokenRequested = YES;
     
     NSDictionary *json = [request jsonDictionary];
     
     XCTAssertNotNil(json);
-    XCTAssertEqual(11, json.allKeys.count);
+    XCTAssertEqual(12, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"client_id"], @"client id");
@@ -129,6 +148,46 @@
     XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
     XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"1");
     XCTAssertEqualObjects(json[@"force_refresh"], @"1");
+    XCTAssertEqualObjects(json[MSID_BOUND_RT_REDEEM], @"1");
+}
+
+- (void)testJsonDictionary_whenBoundAppRefreshTokenNotRequested_shouldSerializeFalse
+{
+    MSIDBrokerOperationTokenRequest *request = [MSIDBrokerOperationTokenRequest new];
+    request.brokerKey = @"broker_key_value";
+    request.protocolVersion = 99;
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+    MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl rawTenant:nil context:nil error:nil];
+    request.configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                             redirectUri:@"redirect uri"
+                                                                clientId:@"client id"
+                                                                  target:nil];
+
+    XCTAssertEqualObjects([request jsonDictionary][MSID_BOUND_RT_REDEEM], @"0");
+}
+
+- (void)testInitWithJSONDictionary_shouldReadBoundAppRefreshTokenRequested
+{
+    NSDictionary *json = @{@"broker_key": @"broker_key_value",
+                           @"msg_protocol_ver": @"99",
+                           @"provider_type": @"provider_aad_v1",
+                           @"authority": @"https://login.microsoftonline.com/common",
+                           @"redirect_uri": @"redirect uri",
+                           @"client_id": @"client id",
+                           MSID_BOUND_RT_REDEEM: @"1"};
+
+    NSError *error = nil;
+    MSIDBrokerOperationTokenRequest *request = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertTrue(request.isBoundAppRefreshTokenRequested);
+
+    NSMutableDictionary *jsonWithoutFlag = [json mutableCopy];
+    [jsonWithoutFlag removeObjectForKey:MSID_BOUND_RT_REDEEM];
+    request = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:jsonWithoutFlag error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertFalse(request.isBoundAppRefreshTokenRequested);
 }
 
 - (void)testInitWithJSONDictionary_whenNoProviderType_shouldReturnError

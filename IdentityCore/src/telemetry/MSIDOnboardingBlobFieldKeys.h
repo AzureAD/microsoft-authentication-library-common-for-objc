@@ -37,6 +37,7 @@ extern NSString * const MSIDOnboardingBlobIPCKey;
 extern NSString * const MSIDOnboardingModeBrokered;
 
 // UX flow tags (appended to the `ux_flow_used` array). Records which onboarding UX a session went through.
+extern NSString * const MSIDOnboardingUxFlowNewCAMdmRedirect;
 extern NSString * const MSIDOnboardingUxFlowMobileOnboardingPhase1;
 
 // Field keys for populated blob
@@ -68,8 +69,11 @@ extern NSString * const MSIDOnboardingBlobStepJITTroubleshootingFlowStarted;
 extern NSString * const MSIDOnboardingBlobStepTokenIssued;
 
 // New mobile-onboarding funnel steps (free-form passthrough; not C++-aggregated).
+extern NSString * const MSIDOnboardingBlobStepCPDownloadTriggered;
 extern NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted;
 extern NSString * const MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect;
+extern NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirect;
+extern NSString * const MSIDOnboardingBlobStepComplianceRemediationDefenderRedirectFailed;
 extern NSString * const MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback;
 extern NSString * const MSIDOnboardingBlobStepProfileInstallNotificationScheduled;
 extern NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable;

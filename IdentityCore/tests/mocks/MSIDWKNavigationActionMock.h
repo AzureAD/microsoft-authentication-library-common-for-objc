@@ -32,6 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithRequest:(NSURLRequest *)request
                  navigationType:(WKNavigationType)navigationType
                     targetFrame:(nullable WKFrameInfo *)targetFrame;
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                 navigationType:(WKNavigationType)navigationType
+                    sourceFrame:(nullable WKFrameInfo *)sourceFrame
+                    targetFrame:(nullable WKFrameInfo *)targetFrame;
 
 @end
 
