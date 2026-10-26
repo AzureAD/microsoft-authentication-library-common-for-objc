@@ -405,6 +405,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 }
 
 - (BOOL)dismissKeyboardIfVerifyEmailPagePresentInApp:(XCUIApplication *)application
+                           allowUndetectedKeyboard:(BOOL)allowUndetectedKeyboard
 {
     // The MSA "Verify your email" interstitial (shown during B2C / MSA login
     // flows when the account needs proof-of-control) auto-focuses the email
@@ -434,9 +435,8 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     }
 
     XCUIElement *keyboard = application.keyboards.firstMatch;
-    if (!keyboard.exists)
+    if (!keyboard.exists && !allowUndetectedKeyboard)
     {
-        // Page is showing but no keyboard up — nothing to dismiss.
         return NO;
     }
 
@@ -454,6 +454,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
                               passwordSelected:(BOOL *)passwordSelected
+                     keyboardDismissalAttempted:(BOOL *)keyboardDismissalAttempted
 {
     NSArray<NSString *> *passwordButtonTitles = @[
         @"Use my password",
@@ -486,7 +487,12 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
         // Only inspect the Verify-email heading while a selection option exists.
         // After selecting a password, the polling loop must leave the departing
         // page alone, even if XCUI still exposes its heading.
-        if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application])
+        // Some iOS versions omit an overlapping keyboard from the XCUI tree.
+        // Preserve one pre-selection header tap even when keyboard.exists is NO.
+        BOOL allowUndetectedKeyboard = !*keyboardDismissalAttempted;
+        *keyboardDismissalAttempted = YES;
+        if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application
+                                      allowUndetectedKeyboard:allowUndetectedKeyboard])
         {
             return YES;
         }
@@ -509,6 +515,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     XCUIElement *passwordSecureTextField = application.secureTextFields.firstMatch;
     NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MSIDPasswordEntryPollingTimeout];
     BOOL passwordSelected = NO;
+    BOOL keyboardDismissalAttempted = NO;
 
     while (deadline.timeIntervalSinceNow > 0)
     {
@@ -529,7 +536,9 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
         if (!passwordSelected)
         {
-            [self tapPasswordSelectionButtonIfPresentInApp:application passwordSelected:&passwordSelected];
+            [self tapPasswordSelectionButtonIfPresentInApp:application
+                                         passwordSelected:&passwordSelected
+                                keyboardDismissalAttempted:&keyboardDismissalAttempted];
         }
 
         [NSThread sleepForTimeInterval:MSIDPasswordEntryPollingInterval];

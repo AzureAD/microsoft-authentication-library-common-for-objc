@@ -105,6 +105,7 @@ static const NSTimeInterval MSIDPasswordEntryPollingInterval = 1;
 @property BOOL otherWaysSelected;
 @property BOOL initiallyReady;
 @property BOOL neverReady;
+@property BOOL keyboardBlocking;
 @property BOOL setupCalled;
 @property NSInteger selectionTick;
 @property NSInteger headerReads;
@@ -147,6 +148,7 @@ static const NSTimeInterval MSIDPasswordEntryPollingInterval = 1;
     if (self == self.app.header)
     {
         self.app.keyboard.present = NO;
+        self.app.keyboardBlocking = NO;
     }
     else if ([self.title isEqualToString:@"Other ways to sign in"])
     {
@@ -156,6 +158,10 @@ static const NSTimeInterval MSIDPasswordEntryPollingInterval = 1;
     }
     else
     {
+        if (self.app.keyboardBlocking)
+        {
+            return;
+        }
         self.app.selected = YES;
         self.app.selectionTick = MSIDTick;
         // Intentionally leave the selected control and old header in the tree.
@@ -215,7 +221,8 @@ static MSIDTestElement *MSIDElement(MSIDTestApp *app, NSString *title)
     return element;
 }
 
-static void MSIDRun(NSString *title, BOOL staticText, BOOL ready, BOOL timeout, BOOL keyboard)
+static void MSIDRun(NSString *title, BOOL staticText, BOOL ready, BOOL timeout,
+                   BOOL keyboard, BOOL hiddenKeyboard)
 {
     MSIDTick = 0;
     MSIDTestApp *app = [MSIDTestApp new];
@@ -234,6 +241,7 @@ static void MSIDRun(NSString *title, BOOL staticText, BOOL ready, BOOL timeout, 
     app.webViews.staticTexts.elements[app.header.title] = app.header;
     app.keyboard = MSIDElement(app, @"keyboard");
     app.keyboard.present = keyboard;
+    app.keyboardBlocking = keyboard || hiddenKeyboard;
     app.keyboards.firstMatch = app.keyboard;
     app.initiallyReady = ready;
     app.neverReady = timeout;
@@ -269,13 +277,14 @@ static void MSIDRun(NSString *title, BOOL staticText, BOOL ready, BOOL timeout, 
     }
     NSCAssert(option.taps == (ready ? 0 : 1), @"Repeated or eager selection");
     NSCAssert(autofill.taps == 0, @"Selected a native AutoFill control");
-    NSCAssert(app.header.taps == (!ready && keyboard ? 1 : 0), @"Wrong keyboard dismissal");
+    NSCAssert(app.header.taps == (ready ? 0 : 1), @"Wrong one-shot keyboard dismissal");
     if (ready)
     {
         NSCAssert(app.headerReads == 0, @"Inspected stale heading despite ready field");
     }
-    printf("PASS %s%s%s%s\n", title.UTF8String, staticText ? " static" : "",
-           ready ? " already-ready" : "", timeout ? " timeout" : "");
+    printf("PASS %s%s%s%s%s\n", title.UTF8String, staticText ? " static" : "",
+           ready ? " already-ready" : "", timeout ? " timeout" : "",
+           hiddenKeyboard ? " hidden-overlapping-keyboard" : "");
 }
 
 int main(void)
@@ -285,12 +294,14 @@ int main(void)
         for (NSString *title in @[@"Use my password", @"Use your password",
                                   @"Use your password instead", @"Other ways to sign in"])
         {
-            MSIDRun(title, NO, NO, NO, YES);
+            MSIDRun(title, NO, NO, NO, YES, NO);
         }
-        MSIDRun(@"Use your password", YES, NO, NO, YES);
-        MSIDRun(@"Use your password", NO, YES, NO, YES);
-        MSIDRun(@"Use your password", NO, NO, YES, YES);
-        MSIDRun(@"Use your password", NO, NO, NO, NO);
+        MSIDRun(@"Use your password", YES, NO, NO, YES, NO);
+        MSIDRun(@"Use your password", NO, YES, NO, YES, NO);
+        MSIDRun(@"Use your password", NO, NO, YES, YES, NO);
+        MSIDRun(@"Use your password", NO, NO, NO, NO, YES);
+        MSIDRun(@"Use your password", YES, NO, NO, NO, YES);
+        MSIDRun(@"Use your password", NO, NO, NO, NO, NO);
     }
     return 0;
 }
