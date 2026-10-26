@@ -362,19 +362,6 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)aadEnterPassword:(XCUIApplication *)application
 {
-    if (![self tapPasswordSelectionButtonIfPresentInApp:application])
-    {
-        // Same rationale as tapPasswordSelectionButtonIfPresentInApp: stay
-        // inside the web view so an identically-labeled QuickType / AutoFill
-        // suggestion never wins the first-match query. The polling loop in
-        // enterPassword: handles the "not present yet" case.
-        XCUIElement *useYourPasswordElement = application.webViews.staticTexts[@"Use your password"];
-        if ([self waitForElementsAndContinueIfNotAppear:useYourPasswordElement timeout:1.0f] == XCTWaiterResultCompleted)
-        {
-            [useYourPasswordElement msidTap];
-        }
-    }
-
     [self enterPassword:self.primaryAccount.password app:application];
     // New Password reset API requires to force providing a new password after logging in with original password.
     [self setupPassword:self.primaryAccount.password app:application];
@@ -466,17 +453,8 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 }
 
 - (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
+                              passwordSelected:(BOOL *)passwordSelected
 {
-    // If we're on the MSA "Verify your email" interstitial with the keyboard
-    // up, the "Use your password" link is covered by the keyboard. Dismiss
-    // the keyboard first so the link is hittable on the next loop iteration.
-    if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application])
-    {
-        // Keyboard dismissal is an intentional state transition; avoid attempting
-        // other password-selection taps until the next polling iteration.
-        return YES;
-    }
-
     NSArray<NSString *> *passwordButtonTitles = @[
         @"Use my password",
         @"Use your password",
@@ -495,12 +473,31 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     for (NSString *buttonTitle in passwordButtonTitles)
     {
         XCUIElement *button = application.webViews.buttons[buttonTitle];
-        if (!button.exists || !button.isHittable)
+        if (!button.exists && [buttonTitle isEqualToString:@"Use your password"])
+        {
+            button = application.webViews.staticTexts[buttonTitle];
+        }
+
+        if (!button.exists)
+        {
+            continue;
+        }
+
+        // Only inspect the Verify-email heading while a selection option exists.
+        // After selecting a password, the polling loop must leave the departing
+        // page alone, even if XCUI still exposes its heading.
+        if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application])
+        {
+            return YES;
+        }
+
+        if (!button.isEnabled || !button.isHittable)
         {
             continue;
         }
 
         [button msidTap];
+        *passwordSelected = ![buttonTitle isEqualToString:@"Other ways to sign in"];
         return YES;
     }
 
@@ -511,6 +508,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 {
     XCUIElement *passwordSecureTextField = application.secureTextFields.firstMatch;
     NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MSIDPasswordEntryPollingTimeout];
+    BOOL passwordSelected = NO;
 
     while (deadline.timeIntervalSinceNow > 0)
     {
@@ -529,7 +527,10 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
             return;
         }
 
-        [self tapPasswordSelectionButtonIfPresentInApp:application];
+        if (!passwordSelected)
+        {
+            [self tapPasswordSelectionButtonIfPresentInApp:application passwordSelected:&passwordSelected];
+        }
 
         [NSThread sleepForTimeInterval:MSIDPasswordEntryPollingInterval];
     }
