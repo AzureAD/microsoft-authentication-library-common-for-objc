@@ -362,19 +362,6 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)aadEnterPassword:(XCUIApplication *)application
 {
-    if (![self tapPasswordSelectionButtonIfPresentInApp:application])
-    {
-        // Same rationale as tapPasswordSelectionButtonIfPresentInApp: stay
-        // inside the web view so an identically-labeled QuickType / AutoFill
-        // suggestion never wins the first-match query. The polling loop in
-        // enterPassword: handles the "not present yet" case.
-        XCUIElement *useYourPasswordElement = application.webViews.staticTexts[@"Use your password"];
-        if ([self waitForElementsAndContinueIfNotAppear:useYourPasswordElement timeout:1.0f] == XCTWaiterResultCompleted)
-        {
-            [useYourPasswordElement msidTap];
-        }
-    }
-
     [self enterPassword:self.primaryAccount.password app:application];
     // New Password reset API requires to force providing a new password after logging in with original password.
     [self setupPassword:self.primaryAccount.password app:application];
@@ -418,6 +405,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 }
 
 - (BOOL)dismissKeyboardIfVerifyEmailPagePresentInApp:(XCUIApplication *)application
+                           allowUndetectedKeyboard:(BOOL)allowUndetectedKeyboard
 {
     // The MSA "Verify your email" interstitial (shown during B2C / MSA login
     // flows when the account needs proof-of-control) auto-focuses the email
@@ -447,9 +435,8 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     }
 
     XCUIElement *keyboard = application.keyboards.firstMatch;
-    if (!keyboard.exists)
+    if (!keyboard.exists && !allowUndetectedKeyboard)
     {
-        // Page is showing but no keyboard up — nothing to dismiss.
         return NO;
     }
 
@@ -466,17 +453,9 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 }
 
 - (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
+                              passwordSelected:(BOOL *)passwordSelected
+                     keyboardDismissalAttempted:(BOOL *)keyboardDismissalAttempted
 {
-    // If we're on the MSA "Verify your email" interstitial with the keyboard
-    // up, the "Use your password" link is covered by the keyboard. Dismiss
-    // the keyboard first so the link is hittable on the next loop iteration.
-    if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application])
-    {
-        // Keyboard dismissal is an intentional state transition; avoid attempting
-        // other password-selection taps until the next polling iteration.
-        return YES;
-    }
-
     NSArray<NSString *> *passwordButtonTitles = @[
         @"Use my password",
         @"Use your password",
@@ -495,12 +474,36 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     for (NSString *buttonTitle in passwordButtonTitles)
     {
         XCUIElement *button = application.webViews.buttons[buttonTitle];
-        if (!button.exists || !button.isHittable)
+        if (!button.exists && [buttonTitle isEqualToString:@"Use your password"])
+        {
+            button = application.webViews.staticTexts[buttonTitle];
+        }
+
+        if (!button.exists)
+        {
+            continue;
+        }
+
+        // Only inspect the Verify-email heading while a selection option exists.
+        // After selecting a password, the polling loop must leave the departing
+        // page alone, even if XCUI still exposes its heading.
+        // Some iOS versions omit an overlapping keyboard from the XCUI tree.
+        // Preserve one pre-selection header tap even when keyboard.exists is NO.
+        BOOL allowUndetectedKeyboard = !*keyboardDismissalAttempted;
+        if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application
+                                      allowUndetectedKeyboard:allowUndetectedKeyboard])
+        {
+            *keyboardDismissalAttempted = YES;
+            return YES;
+        }
+
+        if (!button.isEnabled || !button.isHittable)
         {
             continue;
         }
 
         [button msidTap];
+        *passwordSelected = ![buttonTitle isEqualToString:@"Other ways to sign in"];
         return YES;
     }
 
@@ -511,6 +514,8 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 {
     XCUIElement *passwordSecureTextField = application.secureTextFields.firstMatch;
     NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MSIDPasswordEntryPollingTimeout];
+    BOOL passwordSelected = NO;
+    BOOL keyboardDismissalAttempted = NO;
 
     while (deadline.timeIntervalSinceNow > 0)
     {
@@ -529,7 +534,12 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
             return;
         }
 
-        [self tapPasswordSelectionButtonIfPresentInApp:application];
+        if (!passwordSelected)
+        {
+            [self tapPasswordSelectionButtonIfPresentInApp:application
+                                         passwordSelected:&passwordSelected
+                                keyboardDismissalAttempted:&keyboardDismissalAttempted];
+        }
 
         [NSThread sleepForTimeInterval:MSIDPasswordEntryPollingInterval];
     }
