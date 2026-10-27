@@ -490,10 +490,10 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
         // Some iOS versions omit an overlapping keyboard from the XCUI tree.
         // Preserve one pre-selection header tap even when keyboard.exists is NO.
         BOOL allowUndetectedKeyboard = !*keyboardDismissalAttempted;
-        *keyboardDismissalAttempted = YES;
         if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application
                                       allowUndetectedKeyboard:allowUndetectedKeyboard])
         {
+            *keyboardDismissalAttempted = YES;
             return YES;
         }
 

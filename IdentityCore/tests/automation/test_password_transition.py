@@ -79,6 +79,7 @@ static const NSTimeInterval MSIDPasswordEntryPollingInterval = 1;
 @property BOOL enabled;
 @property BOOL hittable;
 @property BOOL staleHeader;
+@property NSInteger hittableTick;
 @property NSInteger taps;
 @property (copy) NSString *title;
 @property (weak) MSIDTestApp *app;
@@ -136,7 +137,7 @@ static const NSTimeInterval MSIDPasswordEntryPollingInterval = 1;
             [NSException raise:@"StaleHeading" format:@"Queried departing Verify-email heading"];
         }
     }
-    return self.hittable;
+    return self.hittable && MSIDTick >= self.hittableTick;
 }
 - (MSIDTestElement *)objectForKeyedSubscript:(NSString *)key
 {
@@ -222,7 +223,7 @@ static MSIDTestElement *MSIDElement(MSIDTestApp *app, NSString *title)
 }
 
 static void MSIDRun(NSString *title, BOOL staticText, BOOL ready, BOOL timeout,
-                   BOOL keyboard, BOOL hiddenKeyboard)
+                   BOOL keyboard, BOOL hiddenKeyboard, BOOL delayedHittability)
 {
     MSIDTick = 0;
     MSIDTestApp *app = [MSIDTestApp new];
@@ -246,6 +247,11 @@ static void MSIDRun(NSString *title, BOOL staticText, BOOL ready, BOOL timeout,
     app.initiallyReady = ready;
     app.neverReady = timeout;
     MSIDTestElement *option = MSIDElement(app, title);
+    if (delayedHittability)
+    {
+        app.header.hittableTick = 2;
+        option.hittableTick = 2;
+    }
     (staticText ? app.webViews.staticTexts : app.webViews.buttons).elements[title] = option;
     MSIDTestElement *autofill = MSIDElement(app, @"Use your password");
     app.buttons.elements[autofill.title] = autofill;
@@ -282,9 +288,10 @@ static void MSIDRun(NSString *title, BOOL staticText, BOOL ready, BOOL timeout,
     {
         NSCAssert(app.headerReads == 0, @"Inspected stale heading despite ready field");
     }
-    printf("PASS %s%s%s%s%s\n", title.UTF8String, staticText ? " static" : "",
+    printf("PASS %s%s%s%s%s%s\n", title.UTF8String, staticText ? " static" : "",
            ready ? " already-ready" : "", timeout ? " timeout" : "",
-           hiddenKeyboard ? " hidden-overlapping-keyboard" : "");
+           hiddenKeyboard ? " hidden-overlapping-keyboard" : "",
+           delayedHittability ? " delayed-hittability" : "");
 }
 
 int main(void)
@@ -294,14 +301,16 @@ int main(void)
         for (NSString *title in @[@"Use my password", @"Use your password",
                                   @"Use your password instead", @"Other ways to sign in"])
         {
-            MSIDRun(title, NO, NO, NO, YES, NO);
+            MSIDRun(title, NO, NO, NO, YES, NO, NO);
         }
-        MSIDRun(@"Use your password", YES, NO, NO, YES, NO);
-        MSIDRun(@"Use your password", NO, YES, NO, YES, NO);
-        MSIDRun(@"Use your password", NO, NO, YES, YES, NO);
-        MSIDRun(@"Use your password", NO, NO, NO, NO, YES);
-        MSIDRun(@"Use your password", YES, NO, NO, NO, YES);
-        MSIDRun(@"Use your password", NO, NO, NO, NO, NO);
+        MSIDRun(@"Use your password", YES, NO, NO, YES, NO, NO);
+        MSIDRun(@"Use your password", NO, YES, NO, YES, NO, NO);
+        MSIDRun(@"Use your password", NO, NO, YES, YES, NO, NO);
+        MSIDRun(@"Use your password", NO, NO, NO, NO, YES, NO);
+        MSIDRun(@"Use your password", YES, NO, NO, NO, YES, NO);
+        MSIDRun(@"Use your password", NO, NO, NO, NO, NO, NO);
+        MSIDRun(@"Use your password", NO, NO, NO, NO, YES, YES);
+        MSIDRun(@"Use your password", YES, NO, NO, NO, YES, YES);
     }
     return 0;
 }
