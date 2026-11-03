@@ -150,6 +150,7 @@ class BuildTarget:
             command += " -workspace " + self.workspace
         
         command += " -scheme \"" + self.scheme + "\" -configuration " + default_config
+        
         # The shallow analyzer is buggy. Stupidly buggy, causing random failures that didn't fail the build on things like
         # headers not being found. If Apple can't make this reliable then we should short circuit it out of our build
         if (operation == "build") :
