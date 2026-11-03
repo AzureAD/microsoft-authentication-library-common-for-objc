@@ -12,10 +12,6 @@ We encourage users of ADAL and MSAL to file issues against the library that they
 
 ## Contributing
 
-Run `./build.py --targets mac_broker_library` to build IdentityCore and its cache
-regression tests with `AD_BROKER=1`. PR validation runs this target in addition to
-the standard non-Broker `ios_library` and `mac_library` targets.
-
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
