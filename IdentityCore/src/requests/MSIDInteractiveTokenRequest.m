@@ -38,8 +38,6 @@
 #import "MSIDConfiguration.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAccountCredentialCache.h"
-#import "MSIDAADAuthority.h"
-#import "MSIDAADTenant.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -154,20 +152,9 @@
         if (credentialCache)
         {
             NSError *error = nil;
-            NSString *tenantId = self.requestParameters.accountIdentifier.utid;
-            if (tenantId.length == 0
-                && [self.requestParameters.authority isKindOfClass:MSIDAADAuthority.class])
-            {
-                MSIDAADAuthority *authority = (MSIDAADAuthority *)self.requestParameters.authority;
-                if (authority.tenant.type == MSIDAADTenantTypeIdentifier)
-                {
-                    tenantId = authority.tenant.rawTenant;
-                }
-            }
-
-            MSIDIsFRTEnabledStatus frtEnabledStatus = [credentialCache checkFRTEnabledForTenantId:tenantId
-                                                                                           context:self.requestParameters
-                                                                                             error:&error];
+            // This non-Broker path uses the shared FRT flight provider; tenant-scoped lookup is Broker-only.
+            MSIDIsFRTEnabledStatus frtEnabledStatus = [credentialCache checkFRTEnabled:self.requestParameters
+                                                                                  error:&error];
             enableFRT = (frtEnabledStatus == MSIDIsFRTEnabledStatusEnabled);
             
             if (error)
