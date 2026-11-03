@@ -3318,7 +3318,7 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
 }
 
 #if AD_BROKER
-- (void)testAccountsWithAuthority_whenHomeTenantFlightIsOnAndResourceTenantFlightIsOff_shouldReturnBothRefreshTokenFormats
+- (void)testAccountsWithAuthority_whenTenantFlightsDifferFromPersistedStatus_shouldUsePersistedStatus
 {
     [MSIDAccountCredentialCache setDisableFRT:NO];
     NSString *homeTenantId = NSUUID.UUID.UUIDString.lowercaseString;
@@ -3370,6 +3370,13 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
     NSString *resourceAccountId = [NSString stringWithFormat:@"%@.%@", resourceTenantId, resourceTenantId];
     XCTAssertEqualObjects([NSSet setWithArray:[refreshTokens valueForKey:@"homeAccountId"]], [NSSet setWithObject:resourceAccountId]);
 
+    MSIDIsFRTEnabledStatus persistedStatus = [accessor.accountCredentialCache checkFRTEnabled:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(persistedStatus, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+
+    [self flightManagerForTenantId:homeTenantId].flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
+    [self flightManagerForTenantId:resourceTenantId].flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_ENABLED];
+
     NSArray<MSIDAccount *> *accounts = [accessor accountsWithAuthority:configuration.authority
                                                             clientId:configuration.clientId
                                                             familyId:@"1"
@@ -3379,8 +3386,12 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
                                                              context:nil
                                                                error:&error];
     XCTAssertNil(error);
-    NSSet<NSString *> *expectedIds = [NSSet setWithArray:@[homeAccountId, resourceAccountId]];
+    NSSet<NSString *> *expectedIds = [NSSet setWithObject:resourceAccountId];
     XCTAssertEqualObjects([NSSet setWithArray:[accounts valueForKeyPath:@"accountIdentifier.homeAccountId"]], expectedIds);
+
+    persistedStatus = [accessor.accountCredentialCache checkFRTEnabled:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(persistedStatus, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
 }
 
 - (void)testCheckFRTEnabledForTenantId_whenTenantFlightIsOnAndGlobalFlightIsOff_shouldEnableFRT

@@ -1375,10 +1375,8 @@
                                                   context:(id<MSIDRequestContext>)context
                                                     error:(NSError *__autoreleasing*)error
 {
-#if AD_BROKER
-    // Home tenants can use different formats regardless of the authority tenant's flight.
-    BOOL frtEnabled = YES;
-#else
+    // Account enumeration has no home tenant to evaluate, so use the persisted device-wide SFRT status;
+    // the authority tenant's flight may not reflect an account's home tenant.
     NSError *frtError = nil;
     BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
@@ -1386,7 +1384,6 @@
         if (error) *error = frtError;
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
     }
-#endif
     
     MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
     NSSet<NSString *> *firstSet = [self homeAccountIdsFromRTsWithAuthority:authority
