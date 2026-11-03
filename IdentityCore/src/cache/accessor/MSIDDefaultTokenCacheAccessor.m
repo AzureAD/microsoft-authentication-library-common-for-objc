@@ -40,6 +40,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
 #import "MSIDAuthority.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAADTenant.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
@@ -52,6 +54,22 @@
 #import "MSIDBoundRefreshToken.h"
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDWPJKeyPairWithCert.h"
+
+static NSString *MSIDConcreteTenantIdFromAuthority(MSIDAuthority *authority)
+{
+    if (![authority isKindOfClass:MSIDAADAuthority.class])
+    {
+        return nil;
+    }
+
+    MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)authority;
+    if (aadAuthority.tenant.type != MSIDAADTenantTypeIdentifier)
+    {
+        return nil;
+    }
+
+    return aadAuthority.tenant.rawTenant;
+}
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -149,7 +167,9 @@
         }
     }
     NSError *frtError = nil;
-    MSIDIsFRTEnabledStatus frtStatus = [_accountCredentialCache checkFRTEnabled:context error:&frtError];
+    MSIDIsFRTEnabledStatus frtStatus = [_accountCredentialCache checkFRTEnabledForTenantId:accountIdentifier.utid
+                                                                                   context:context
+                                                                                     error:&frtError];
     BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
     {
@@ -870,7 +890,9 @@
                                 error:(NSError *__autoreleasing*)error
 {
     NSError *frtError = nil;
-    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabledForTenantId:token.accountIdentifier.utid
+                                                                  context:context
+                                                                    error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
     {
         if (error) *error = frtError;
@@ -1084,7 +1106,9 @@
         NSError *frtError = nil;
         // Check if FRT is enabled, this will update the configuration object, and then use it to decide if
         // we should save the token as FRT or legacy RT (with familyId, if it contains that value).
-        BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
+        BOOL frtEnabled = [_accountCredentialCache checkFRTEnabledForTenantId:refreshToken.accountIdentifier.utid
+                                                                      context:context
+                                                                        error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
         if (frtError)
         {
             if (error) *error = frtError;
@@ -1370,7 +1394,9 @@
                                                     error:(NSError *__autoreleasing*)error
 {
     NSError *frtError = nil;
-    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabledForTenantId:MSIDConcreteTenantIdFromAuthority(authority)
+                                                                  context:context
+                                                                    error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
     {
         if (error) *error = frtError;

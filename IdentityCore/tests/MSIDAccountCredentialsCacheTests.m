@@ -43,10 +43,60 @@
 #import "MSIDConstants.h"
 #import "MSIDFlightManager.h"
 #import "MSIDTestSwizzle.h"
+#import "MSIDBrokerFlightProvider.h"
+#import "NSData+MSIDExtensions.h"
+
+static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-000000000001";
+
+@interface MSIDAccountCredentialsCacheTestFlightProvider : NSObject <MSIDFlightManagerInterface>
+
+@property (nonatomic, copy, nullable) NSString *sfrtStatus;
+
+@end
+
+@implementation MSIDAccountCredentialsCacheTestFlightProvider
+
+- (BOOL)boolForKey:(__unused NSString *)flightKey
+{
+    return NO;
+}
+
+- (nullable NSString *)stringForKey:(NSString *)flightKey
+{
+    return [flightKey isEqualToString:MSID_FLIGHT_CLIENT_SFRT_STATUS] ? self.sfrtStatus : nil;
+}
+
+@end
+
+@interface MSIDAccountCredentialsCacheErrorDataSource : MSIDTestCacheDataSource
+
+@property (nonatomic) NSError *errorToReturn;
+
+@end
+
+@implementation MSIDAccountCredentialsCacheErrorDataSource
+
+- (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(__unused MSIDCacheKey *)key
+                                       serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
+                                          context:(__unused id<MSIDRequestContext>)context
+                                            error:(NSError *__autoreleasing *)error
+{
+    if (error)
+    {
+        *error = self.errorToReturn;
+    }
+
+    return nil;
+}
+
+@end
 
 @interface MSIDAccountCredentialsCacheTests : XCTestCase
 
 @property (nonatomic) MSIDAccountCredentialCache *cache;
+@property (nonatomic) id<MSIDFlightManagerInterface> originalFlightProvider;
+@property (nonatomic) id<MSIDFlightManagerQueryKeyDelegate> originalQueryKeyFlightProvider;
+@property (nonatomic) NSMutableDictionary<NSString *, id> *originalTenantFlightProviders;
 
 @end
 
@@ -67,11 +117,27 @@
 
     self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
     [super setUp];
+
+    MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
+    self.originalFlightProvider = flightManager.flightProvider;
+    self.originalQueryKeyFlightProvider = flightManager.queryKeyFlightProvider;
+    self.originalTenantFlightProviders = [NSMutableDictionary new];
+    flightManager.queryKeyFlightProvider = nil;
 }
 
 - (void)tearDown
 {
     [MSIDTestSwizzle reset];
+    MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
+    for (NSString *tenantId in self.originalTenantFlightProviders)
+    {
+        MSIDFlightManager *tenantFlightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId
+                                                                                     keyType:MSIDFlightManagerQueryKeyTypeTenantId];
+        id originalProvider = self.originalTenantFlightProviders[tenantId];
+        tenantFlightManager.flightProvider = originalProvider == NSNull.null ? nil : originalProvider;
+    }
+    flightManager.flightProvider = self.originalFlightProvider;
+    flightManager.queryKeyFlightProvider = self.originalQueryKeyFlightProvider;
     [self cleanCache];
     [super tearDown];
 }
@@ -3030,7 +3096,7 @@
     [MSIDAccountCredentialCache setDisableFRT:YES];
     
     NSError *error = nil;
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByClientApp);
 }
@@ -3043,7 +3109,7 @@
     [MSIDAccountCredentialCache setDisableFRT:NO];
     
     NSError *error = nil;
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusNotEnabled);
 }
@@ -3056,7 +3122,7 @@
     [MSIDAccountCredentialCache setDisableFRT:NO];
     
     NSError *error = nil;
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
 }
@@ -3076,7 +3142,7 @@
                                   context:nil
                                     error:&error];
     
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByDeserializationError);
 }
@@ -3098,7 +3164,7 @@
                                   context:nil
                                     error:&error];
     
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
 }
@@ -3120,7 +3186,7 @@
                                   context:nil
                                     error:&error];
     
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
 }
@@ -3142,7 +3208,7 @@
                                   context:nil
                                     error:&error];
     
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
 }
@@ -3164,7 +3230,7 @@
                                   context:nil
                                     error:&error];
     
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
 }
@@ -3186,7 +3252,7 @@
                                   context:nil
                                     error:&error];
     
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
 }
@@ -3208,7 +3274,7 @@
                                   context:nil
                                     error:&error];
     
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
 }
@@ -3230,12 +3296,224 @@
                                   context:nil
                                     error:&error];
     
-    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self checkFRTEnabledForTestTenantWithContext:context error:&error];
     
     XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
 }
 
+#if AD_BROKER
+- (void)testCheckFRTEnabledForTenantId_whenTenantFlightIsOnAndGlobalFlightIsOff_shouldEnableFRT
+{
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    NSString *tenantId = NSUUID.UUID.UUIDString;
+    MSIDAccountCredentialCache *cache = [self cacheWithFRTEnabled:NO];
+
+    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
+    sharedFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
+
+    MSIDFlightManager *tenantFlightManager = [self flightManagerForTenantId:tenantId];
+    tenantFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_ENABLED];
+
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [cache checkFRTEnabledForTenantId:tenantId context:nil error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
+}
+
+- (void)testCheckFRTEnabledForTenantId_whenTenantFlightIsOffAndGlobalFlightIsOn_shouldDisableFRT
+{
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    NSString *tenantId = NSUUID.UUID.UUIDString;
+    MSIDAccountCredentialCache *cache = [self cacheWithFRTEnabled:YES];
+
+    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
+    sharedFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_ENABLED];
+
+    MSIDFlightManager *tenantFlightManager = [self flightManagerForTenantId:tenantId];
+    tenantFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
+
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [cache checkFRTEnabledForTenantId:tenantId context:nil error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+}
+
+- (void)testCheckFRTEnabledForTenantId_whenTenantFlightIsMissing_shouldPreserveCachedState
+{
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    NSString *tenantId = NSUUID.UUID.UUIDString;
+    MSIDAccountCredentialCache *cache = [self cacheWithFRTEnabled:YES];
+
+    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
+    sharedFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
+
+    MSIDFlightManager *tenantFlightManager = [self flightManagerForTenantId:tenantId];
+    tenantFlightManager.flightProvider = [self flightProviderWithFRTStatus:nil];
+
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [cache checkFRTEnabledForTenantId:tenantId context:nil error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
+}
+
+- (void)testCheckFRTEnabledForTenantId_whenTenantIdIsUnavailable_shouldPreserveCachedState
+{
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    MSIDAccountCredentialCache *cache = [self cacheWithFRTEnabled:YES];
+
+    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
+    sharedFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
+
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [cache checkFRTEnabledForTenantId:nil context:nil error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
+}
+
+- (void)testCheckFRTEnabledForTenantId_whenTenantIdIsAlias_shouldPreserveCachedState
+{
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    NSArray<NSString *> *tenantAliases = @[@"common", @"organizations", @"consumers"];
+
+    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
+    sharedFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_ENABLED];
+
+    for (NSString *tenantAlias in tenantAliases)
+    {
+        MSIDAccountCredentialCache *cache = [self cacheWithFRTEnabled:YES];
+        MSIDFlightManager *tenantFlightManager = [self flightManagerForTenantId:tenantAlias];
+        tenantFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
+
+        NSError *error = nil;
+        MSIDIsFRTEnabledStatus result = [cache checkFRTEnabledForTenantId:tenantAlias context:nil error:&error];
+
+        XCTAssertNil(error);
+        XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
+    }
+}
+
+- (void)testCheckFRTEnabled_whenTenantIdIsUnavailable_shouldPreserveCachedState
+{
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    MSIDAccountCredentialCache *cache = [self cacheWithFRTEnabled:YES];
+
+    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
+    sharedFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
+
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [cache checkFRTEnabled:nil error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
+}
+
+- (void)testCheckFRTEnabled_whenCacheReadFails_shouldReturnErrorAndPreserveStatus
+{
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+
+    NSError *readError = [NSError errorWithDomain:@"MSIDAccountCredentialsCacheTests"
+                                             code:1
+                                         userInfo:nil];
+    MSIDAccountCredentialsCacheErrorDataSource *dataSource = [MSIDAccountCredentialsCacheErrorDataSource new];
+    dataSource.errorToReturn = readError;
+    MSIDAccountCredentialCache *cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+
+    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
+    sharedFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
+
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [cache checkFRTEnabled:nil error:&error];
+
+    XCTAssertEqualObjects(error, readError);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainError);
+}
+#else
+- (void)testCheckFRTEnabled_whenBrokerFlightProviderIsDictionaryBacked_shouldUseSharedProvider
+{
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+
+    NSError *error = nil;
+    NSDictionary *flightDictionary = @{MSID_FLIGHT_CLIENT_SFRT_STATUS: MSID_FRT_STATUS_DISABLED};
+    NSData *flightData = [NSJSONSerialization dataWithJSONObject:flightDictionary options:0 error:&error];
+    XCTAssertNil(error);
+    if (!flightData)
+    {
+        return;
+    }
+
+    NSString *flightPayload = [flightData msidBase64UrlEncodedString];
+    MSIDBrokerFlightProvider *brokerFlightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:flightPayload];
+    XCTAssertNotNil(brokerFlightProvider);
+    if (!brokerFlightProvider)
+    {
+        return;
+    }
+
+    MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
+    sharedFlightManager.flightProvider = brokerFlightProvider;
+    MSIDAccountCredentialCache *cache = [self cacheWithFRTEnabled:YES];
+
+    NSError *checkError = nil;
+    MSIDIsFRTEnabledStatus result = [cache checkFRTEnabled:nil error:&checkError];
+
+    XCTAssertNil(checkError);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+    XCTAssertEqual(sharedFlightManager.flightProvider, brokerFlightProvider);
+}
+#endif
+
 #pragma mark - Helpers
+
+- (MSIDIsFRTEnabledStatus)checkFRTEnabledForTestTenantWithContext:(id<MSIDRequestContext>)context
+                                                            error:(NSError **)error
+{
+    return [self.cache checkFRTEnabledForTenantId:kMSIDTestTenantId
+                                          context:context
+                                            error:error];
+}
+
+- (MSIDAccountCredentialCache *)cacheWithFRTEnabled:(BOOL)enabled
+{
+    MSIDTestCacheDataSource *dataSource = [MSIDTestCacheDataSource new];
+    MSIDAccountCredentialCache *cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    NSDictionary *json = @{MSID_USE_SINGLE_FRT_KEY: enabled ? @"1" : @"0"};
+    NSError *error = nil;
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:&error];
+    XCTAssertNil(error);
+
+    BOOL result = [dataSource saveJsonObject:jsonObject
+                                  serializer:[MSIDCacheItemJsonSerializer new]
+                                         key:[self checkFRTCacheKey]
+                                     context:nil
+                                       error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    return cache;
+}
+
+- (MSIDAccountCredentialsCacheTestFlightProvider *)flightProviderWithFRTStatus:(nullable NSString *)status
+{
+    MSIDAccountCredentialsCacheTestFlightProvider *flightProvider = [MSIDAccountCredentialsCacheTestFlightProvider new];
+    flightProvider.sfrtStatus = status;
+    return flightProvider;
+}
+
+- (MSIDFlightManager *)flightManagerForTenantId:(NSString *)tenantId
+{
+    MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId
+                                                                           keyType:MSIDFlightManagerQueryKeyTypeTenantId];
+    if (!self.originalTenantFlightProviders[tenantId])
+    {
+        self.originalTenantFlightProviders[tenantId] = flightManager.flightProvider ?: NSNull.null;
+    }
+
+    return flightManager;
+}
 
 - (void)saveItem:(MSIDCredentialCacheItem *)item
 {

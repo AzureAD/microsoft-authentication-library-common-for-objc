@@ -38,6 +38,8 @@
 #import "MSIDConfiguration.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAccountCredentialCache.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAADTenant.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -152,7 +154,20 @@
         if (credentialCache)
         {
             NSError *error = nil;
-            MSIDIsFRTEnabledStatus frtEnabledStatus = [credentialCache checkFRTEnabled:self.requestParameters error:&error];
+            NSString *tenantId = self.requestParameters.accountIdentifier.utid;
+            if (tenantId.length == 0
+                && [self.requestParameters.authority isKindOfClass:MSIDAADAuthority.class])
+            {
+                MSIDAADAuthority *authority = (MSIDAADAuthority *)self.requestParameters.authority;
+                if (authority.tenant.type == MSIDAADTenantTypeIdentifier)
+                {
+                    tenantId = authority.tenant.rawTenant;
+                }
+            }
+
+            MSIDIsFRTEnabledStatus frtEnabledStatus = [credentialCache checkFRTEnabledForTenantId:tenantId
+                                                                                           context:self.requestParameters
+                                                                                             error:&error];
             enableFRT = (frtEnabledStatus == MSIDIsFRTEnabledStatusEnabled);
             
             if (error)
