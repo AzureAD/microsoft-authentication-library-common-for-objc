@@ -3469,7 +3469,7 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
 #pragma mark - Helpers
 
 - (MSIDIsFRTEnabledStatus)checkFRTEnabledForTestTenantWithContext:(id<MSIDRequestContext>)context
-                                                            error:(NSError **)error
+                                                            error:(NSError *__autoreleasing *)error
 {
     return [self.cache checkFRTEnabledForTenantId:kMSIDTestTenantId
                                           context:context
