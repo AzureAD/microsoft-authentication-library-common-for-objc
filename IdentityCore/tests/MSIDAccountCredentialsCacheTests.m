@@ -3380,7 +3380,7 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
     NSArray<NSString *> *tenantAliases = @[@"common", @"organizations", @"consumers"];
 
     MSIDFlightManager *sharedFlightManager = [MSIDFlightManager sharedInstance];
-    sharedFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_ENABLED];
+    sharedFlightManager.flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
 
     for (NSString *tenantAlias in tenantAliases)
     {
