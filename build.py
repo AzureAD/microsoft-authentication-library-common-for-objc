@@ -75,6 +75,15 @@ target_specifiers = [
         "platform" : "Mac"
     },
     {
+        "name" : "Mac Broker Library",
+        "target" : "mac_broker_library",
+        "scheme" : "IdentityCore Mac",
+        "operations" : [ "build", "test" ],
+        "platform" : "Mac",
+        "xcodebuild_flags" : " 'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) AD_BROKER=1'",
+        "only_testing" : "IdentityCoreTests Mac/MSIDAccountCredentialsCacheTests"
+    },
+    {
         # visionOS validation is build-only. The visionOS unit tests cannot be
         # executed reliably in CI: xcodebuild hangs indefinitely launching the
         # test host into the visionOS simulator (see the consolidated
@@ -117,6 +126,8 @@ class BuildTarget:
         self.device_guid = None
         self.operations = target["operations"]
         self.platform = target["platform"]
+        self.xcodebuild_flags = target.get("xcodebuild_flags", "")
+        self.only_testing = target.get("only_testing")
         self.build_settings = None
         self.min_codecov = target.get("min_codecov")
         self.min_warn_codecov = target.get("min_warn_codecov")
@@ -150,6 +161,9 @@ class BuildTarget:
             command += " -workspace " + self.workspace
         
         command += " -scheme \"" + self.scheme + "\" -configuration " + default_config
+        command += self.xcodebuild_flags
+        if (operation == "test" and self.only_testing) :
+            command += " -only-testing:\"" + self.only_testing + "\""
         
         # The shallow analyzer is buggy. Stupidly buggy, causing random failures that didn't fail the build on things like
         # headers not being found. If Apple can't make this reliable then we should short circuit it out of our build

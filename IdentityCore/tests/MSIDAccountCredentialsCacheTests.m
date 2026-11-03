@@ -45,6 +45,15 @@
 #import "MSIDTestSwizzle.h"
 #import "MSIDBrokerFlightProvider.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDAccount.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDTestConfiguration.h"
+#import "MSIDTestTokenResponse.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDAADV2TokenResponse.h"
 
 static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-000000000001";
 
@@ -3309,6 +3318,71 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
 }
 
 #if AD_BROKER
+- (void)testAccountsWithAuthority_whenHomeTenantFlightIsOnAndResourceTenantFlightIsOff_shouldReturnBothRefreshTokenFormats
+{
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    NSString *homeTenantId = NSUUID.UUID.UUIDString.lowercaseString;
+    NSString *resourceTenantId = NSUUID.UUID.UUIDString.lowercaseString;
+    [self flightManagerForTenantId:homeTenantId].flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_ENABLED];
+    [self flightManagerForTenantId:resourceTenantId].flightProvider = [self flightProviderWithFRTStatus:MSID_FRT_STATUS_DISABLED];
+
+    MSIDTestCacheDataSource *dataSource = [MSIDTestCacheDataSource new];
+    self.cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
+    MSIDDefaultTokenCacheAccessor *accessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    NSError *error = nil;
+    configuration.authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://login.microsoftonline.com/%@", resourceTenantId]]
+                                                        context:nil
+                                                          error:&error];
+    XCTAssertNotNil(configuration.authority);
+    XCTAssertNil(error);
+
+    for (NSString *tenantId in @[homeTenantId, resourceTenantId])
+    {
+        NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Name" upn:@"user@contoso.com" oid:tenantId tenantId:resourceTenantId];
+        MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2TokenResponseWithAT:@"at"
+                                                                                 RT:@"rt"
+                                                                             scopes:configuration.scopes
+                                                                            idToken:idToken
+                                                                                uid:tenantId
+                                                                               utid:tenantId
+                                                                           familyId:@"1"];
+        BOOL saved = [accessor saveSSOStateWithConfiguration:configuration
+                                                   response:response
+                                                    factory:[MSIDAADV2Oauth2Factory new]
+                                                    context:nil
+                                                      error:&error];
+        XCTAssertTrue(saved);
+        XCTAssertNil(error);
+    }
+
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDFamilyRefreshTokenType;
+    NSArray<MSIDCredentialCacheItem *> *familyTokens = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(familyTokens.count, 1);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", homeTenantId, homeTenantId];
+    XCTAssertEqualObjects(familyTokens.firstObject.homeAccountId, homeAccountId);
+    query.credentialType = MSIDRefreshTokenType;
+    NSArray<MSIDCredentialCacheItem *> *refreshTokens = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(refreshTokens.count, 2);
+    NSString *resourceAccountId = [NSString stringWithFormat:@"%@.%@", resourceTenantId, resourceTenantId];
+    XCTAssertEqualObjects([NSSet setWithArray:[refreshTokens valueForKey:@"homeAccountId"]], [NSSet setWithObject:resourceAccountId]);
+
+    NSArray<MSIDAccount *> *accounts = [accessor accountsWithAuthority:configuration.authority
+                                                            clientId:configuration.clientId
+                                                            familyId:@"1"
+                                                   accountIdentifier:nil
+                                                accountMetadataCache:nil
+                                                signedInAccountsOnly:YES
+                                                             context:nil
+                                                               error:&error];
+    XCTAssertNil(error);
+    NSSet<NSString *> *expectedIds = [NSSet setWithArray:@[homeAccountId, resourceAccountId]];
+    XCTAssertEqualObjects([NSSet setWithArray:[accounts valueForKeyPath:@"accountIdentifier.homeAccountId"]], expectedIds);
+}
+
 - (void)testCheckFRTEnabledForTenantId_whenTenantFlightIsOnAndGlobalFlightIsOff_shouldEnableFRT
 {
     [MSIDAccountCredentialCache setDisableFRT:NO];
@@ -3516,7 +3590,8 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
                                                                            keyType:MSIDFlightManagerQueryKeyTypeTenantId];
     if (!self.originalTenantFlightProviders[tenantId])
     {
-        self.originalTenantFlightProviders[tenantId] = flightManager.flightProvider ?: NSNull.null;
+        id originalProvider = flightManager.flightProvider;
+        self.originalTenantFlightProviders[tenantId] = originalProvider ?: NSNull.null;
     }
 
     return flightManager;

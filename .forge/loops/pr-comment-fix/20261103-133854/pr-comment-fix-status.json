@@ -1,0 +1,90 @@
+{
+  "iteration": 1,
+  "stepsTotal": 5,
+  "stepsCompleted": [
+    "fetch-comments",
+    "stash-save",
+    "fix-comments",
+    "test-fix"
+  ],
+  "stepsFailed": [],
+  "stepsSkipped": [],
+  "stepsRunning": [
+    "commit-push"
+  ],
+  "stepsWaiting": [],
+  "findingsCount": 3,
+  "elapsedSeconds": 527.2771965,
+  "lastCompletedStep": "test-fix",
+  "lastUpdate": "2026-11-03T13:47:42.02552Z",
+  "findings": [
+    {
+      "id": "pr-comment-4450971470",
+      "severity": "\uD83D\uDFE1",
+      "file": "IdentityCore/tests/MSIDAccountCredentialsCacheTests.m",
+      "action": "fix",
+      "details": "Upstream PR review comment: add Broker-enabled validation compiling library and tests with AD_BROKER=1 while retaining non-Broker runs.",
+      "stepId": "fix-comments",
+      "iteration": 1
+    },
+    {
+      "id": "pr-comment-4450971445",
+      "severity": "\uD83D\uDD34",
+      "file": "IdentityCore/src/cache/accessor/MSIDDefaultTokenCacheAccessor.m",
+      "action": "fix",
+      "details": "Upstream PR review comment: account enumeration must include both credential formats across differing home/resource tenant flights, with regression coverage.",
+      "stepId": "fix-comments",
+      "iteration": 1
+    },
+    {
+      "id": "pr-comments-mcp-tool-missing",
+      "severity": "\uD83D\uDD34",
+      "action": "info",
+      "details": "source-code MCP does not expose pull-request thread listing for this host. Configure a compatible MCP server before running pr-comment-fix.",
+      "stepId": "fetch-comments",
+      "iteration": 1
+    }
+  ],
+  "fileChanges": [
+    {
+      "path": "IdentityCore/IdentityCore.xcodeproj/project.pbxproj",
+      "added": 2,
+      "removed": 0
+    },
+    {
+      "path": "IdentityCore/src/cache/accessor/MSIDDefaultTokenCacheAccessor.m",
+      "added": 6,
+      "removed": 21
+    },
+    {
+      "path": "IdentityCore/tests/MSIDAccountCredentialsCacheTests.m",
+      "added": 76,
+      "removed": 1
+    },
+    {
+      "path": "IdentityCore/tests/util/MSIDTestCacheDataSource.m",
+      "added": 3,
+      "removed": 0
+    },
+    {
+      "path": "README.md",
+      "added": 4,
+      "removed": 0
+    },
+    {
+      "path": "azure_pipelines/pr-validation.yml",
+      "added": 27,
+      "removed": 0
+    },
+    {
+      "path": "build.py",
+      "added": 14,
+      "removed": 0
+    },
+    {
+      "path": "changelog.txt",
+      "added": 1,
+      "removed": 1
+    }
+  ]
+}

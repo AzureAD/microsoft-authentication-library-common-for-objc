@@ -40,8 +40,6 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
 #import "MSIDAuthority.h"
-#import "MSIDAADAuthority.h"
-#import "MSIDAADTenant.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
@@ -54,22 +52,6 @@
 #import "MSIDBoundRefreshToken.h"
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDWPJKeyPairWithCert.h"
-
-static NSString *MSIDConcreteTenantIdFromAuthority(MSIDAuthority *authority)
-{
-    if (![authority isKindOfClass:MSIDAADAuthority.class])
-    {
-        return nil;
-    }
-
-    MSIDAADAuthority *aadAuthority = (MSIDAADAuthority *)authority;
-    if (aadAuthority.tenant.type != MSIDAADTenantTypeIdentifier)
-    {
-        return nil;
-    }
-
-    return aadAuthority.tenant.rawTenant;
-}
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -1393,15 +1375,18 @@ static NSString *MSIDConcreteTenantIdFromAuthority(MSIDAuthority *authority)
                                                   context:(id<MSIDRequestContext>)context
                                                     error:(NSError *__autoreleasing*)error
 {
+#if AD_BROKER
+    // Home tenants can use different formats regardless of the authority tenant's flight.
+    BOOL frtEnabled = YES;
+#else
     NSError *frtError = nil;
-    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabledForTenantId:MSIDConcreteTenantIdFromAuthority(authority)
-                                                                  context:context
-                                                                    error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
     {
         if (error) *error = frtError;
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
     }
+#endif
     
     MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
     NSSet<NSString *> *firstSet = [self homeAccountIdsFromRTsWithAuthority:authority

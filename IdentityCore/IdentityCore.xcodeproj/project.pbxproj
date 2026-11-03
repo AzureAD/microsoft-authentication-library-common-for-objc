@@ -1852,6 +1852,7 @@
 		B2DD4B4020A934170047A66E /* MSIDCredentialTypeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B932047564C0084313F /* MSIDCredentialTypeTests.m */; };
 		B2DD4B4220A934BC0047A66E /* MSIDTokenFilteringHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BE420521D790000BC95 /* MSIDTokenFilteringHelperTests.m */; };
 		B2DD4B4420A936FE0047A66E /* MSIDAccountCredentialsCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD4B4320A936FE0047A66E /* MSIDAccountCredentialsCacheTests.m */; };
+		F19860010000000000000001 /* MSIDAccountCredentialsCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD4B4320A936FE0047A66E /* MSIDAccountCredentialsCacheTests.m */; };
 		B2DD5B7820461F510084313F /* MSIDCredentialCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B7620461F510084313F /* MSIDCredentialCacheItemTests.m */; };
 		B2DD5B7B20461F5E0084313F /* MSIDAccountCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B7920461F5E0084313F /* MSIDAccountCacheItemTests.m */; };
 		B2DD5B952047564C0084313F /* MSIDCredentialTypeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DD5B932047564C0084313F /* MSIDCredentialTypeTests.m */; };
@@ -8475,6 +8476,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F19860010000000000000001 /* MSIDAccountCredentialsCacheTests.m in Sources */,
 				FAC10001000000000000001B /* MSIDAuthenticationAvailabilityProviderTests.m in Sources */,
 				FAC10001000000000000001C /* MSIDWebCPOnboardingReadinessContractTests.m in Sources */,
 				6E4F659424D48B6D0070CA36 /* MSIDSymmetricKeyTests.m in Sources */,
