@@ -134,7 +134,14 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
         MSIDFlightManager *tenantFlightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId
                                                                                      keyType:MSIDFlightManagerQueryKeyTypeTenantId];
         id originalProvider = self.originalTenantFlightProviders[tenantId];
-        tenantFlightManager.flightProvider = originalProvider == NSNull.null ? nil : originalProvider;
+        if (originalProvider == NSNull.null)
+        {
+            tenantFlightManager.flightProvider = nil;
+        }
+        else
+        {
+            tenantFlightManager.flightProvider = originalProvider;
+        }
     }
     flightManager.flightProvider = self.originalFlightProvider;
     flightManager.queryKeyFlightProvider = self.originalQueryKeyFlightProvider;
