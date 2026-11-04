@@ -1,5 +1,6 @@
 Version 2.17.1
-* Resolve Broker SFRT enablement with tenant-scoped ECS flights so tenant-targeted settings are not overridden by tenantless flights, and enumerate both refresh token formats across home tenants.
+* Resolve Broker SFRT enablement with tenant-scoped ECS flights so tenant-targeted settings are not overridden by tenantless flights, and use the persisted device-wide SFRT status during account enumeration without evaluating tenant flights.
+Version 2.17.0
 * Behind the `enable_mfa_activation_handoff` flight (default OFF until ECS enables it), hand off trusted HTTPS Authenticator MFA activation links from the compliant iOS SSO extension using universal links only, instead of loading the website's App Store fallback. Finish the intercepted navigation's loading indicator while keeping authorization pending after the app opens, and surface handoff failures without relaxing non-HTTPS navigation policy.
 * Include previously excluded errors 50058, 50097, and 50126 in onboarding blocking-error telemetry for diagnostics.
 * Record the MDM enrollment-required blocking error on enrollment redirects and keep blocking errors unique and ordered by their latest occurrence.
