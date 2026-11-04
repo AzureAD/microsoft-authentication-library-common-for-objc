@@ -53,6 +53,8 @@
 #import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAADTenant.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -443,7 +445,20 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     }
     
     NSError *frtError = nil;
-    MSIDIsFRTEnabledStatus frtStatus = [accountCredentialCache checkFRTEnabled:self.requestParameters error:&frtError];
+    NSString *tenantId = self.requestParameters.accountIdentifier.utid;
+    if (tenantId.length == 0
+        && [self.requestParameters.authority isKindOfClass:MSIDAADAuthority.class])
+    {
+        MSIDAADAuthority *authority = (MSIDAADAuthority *)self.requestParameters.authority;
+        if (authority.tenant.type == MSIDAADTenantTypeIdentifier)
+        {
+            tenantId = authority.tenant.rawTenant;
+        }
+    }
+
+    MSIDIsFRTEnabledStatus frtStatus = [accountCredentialCache checkFRTEnabledForTenantId:tenantId
+                                                                                   context:self.requestParameters
+                                                                                     error:&frtError];
     BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
     {

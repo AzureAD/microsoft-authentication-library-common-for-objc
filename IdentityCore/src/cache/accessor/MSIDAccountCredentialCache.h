@@ -201,6 +201,14 @@
 - (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+/*
+ Check FRT enablement for a specific tenant. Broker builds preserve the cached
+ state when the tenant is unavailable or is an authority alias.
+ */
+- (MSIDIsFRTEnabledStatus)checkFRTEnabledForTenantId:(nullable NSString *)tenantId
+                                             context:(nullable id<MSIDRequestContext>)context
+                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
 + (void)setDisableFRT:(BOOL)disableFRT;
 
 @end
