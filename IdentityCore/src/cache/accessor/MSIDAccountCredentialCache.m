@@ -40,6 +40,7 @@
 #import "MSIDConstants.h"
 #import "MSIDJsonObject.h"
 #import "MSIDFlightManager.h"
+#import "MSIDAADTenant.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -49,6 +50,22 @@
 @end
 
 static BOOL s_disableFRT = NO;
+
+#if AD_BROKER
+static BOOL MSIDIsConcreteTenantId(NSString * _Nullable tenantId)
+{
+    if (tenantId.length == 0)
+    {
+        return NO;
+    }
+
+    NSString *normalizedTenantId = [[tenantId stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] lowercaseString];
+    return normalizedTenantId.length > 0
+        && ![normalizedTenantId isEqualToString:MSIDAADTenantTypeCommonRawValue]
+        && ![normalizedTenantId isEqualToString:MSIDAADTenantTypeOrganizationsRawValue]
+        && ![normalizedTenantId isEqualToString:MSIDAADTenantTypeConsumersRawValue];
+}
+#endif
 
 @implementation MSIDAccountCredentialCache
 
@@ -565,16 +582,40 @@ static BOOL s_disableFRT = NO;
 - (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
+    return [self checkFRTEnabledForTenantId:nil context:context error:error];
+}
+
+- (MSIDIsFRTEnabledStatus)checkFRTEnabledForTenantId:(nullable NSString *)tenantId
+                                             context:(nullable id<MSIDRequestContext>)context
+                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error
+{
+#if AD_BROKER
+    MSIDFlightManager *flightManager = nil;
+    if (MSIDIsConcreteTenantId(tenantId))
+    {
+        flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId
+                                                            keyType:MSIDFlightManagerQueryKeyTypeTenantId];
+    }
+#else
+    MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
+#endif
+
     // This block will be used to check feature flags and update FRT settings if needed, depending on the current status
     // of the keychain item, avoiding an unnecessary read or update if status is the same
     MSIDIsFRTEnabledStatus (^checkFeatureFlagsAndReturn)(MSIDIsFRTEnabledStatus) = ^MSIDIsFRTEnabledStatus(MSIDIsFRTEnabledStatus status)
     {
-        
+#if AD_BROKER
+        if (!flightManager)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT tenant unavailable; keeping current status: %ld", (long)status);
+            return status;
+        }
+#endif
+
         // Check if FRT is enabled by feature flight, possible values:
         // - MSID_FRT_STATUS_ENABLED => "on": FRT will be enabled
         // - MSID_FRT_STATUS_DISABLED => "off": FRT will be disabled
         // - nil, empty or any other value: no change to FRT
-        MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
         NSString *flagEnableFRT = [flightManager stringForKey:MSID_FLIGHT_CLIENT_SFRT_STATUS];
         BOOL shouldEnableFRT = [MSID_FRT_STATUS_ENABLED isEqualToString:flagEnableFRT];
         BOOL shouldDisableFRT = [MSID_FRT_STATUS_DISABLED isEqualToString:flagEnableFRT];
