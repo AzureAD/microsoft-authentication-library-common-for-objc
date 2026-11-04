@@ -152,7 +152,9 @@
         if (credentialCache)
         {
             NSError *error = nil;
-            MSIDIsFRTEnabledStatus frtEnabledStatus = [credentialCache checkFRTEnabled:self.requestParameters error:&error];
+            // This non-Broker path uses the shared FRT flight provider; tenant-scoped lookup is Broker-only.
+            MSIDIsFRTEnabledStatus frtEnabledStatus = [credentialCache checkFRTEnabled:self.requestParameters
+                                                                                  error:&error];
             enableFRT = (frtEnabledStatus == MSIDIsFRTEnabledStatusEnabled);
             
             if (error)

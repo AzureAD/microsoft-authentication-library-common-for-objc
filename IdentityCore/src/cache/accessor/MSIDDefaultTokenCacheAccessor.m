@@ -149,7 +149,9 @@
         }
     }
     NSError *frtError = nil;
-    MSIDIsFRTEnabledStatus frtStatus = [_accountCredentialCache checkFRTEnabled:context error:&frtError];
+    MSIDIsFRTEnabledStatus frtStatus = [_accountCredentialCache checkFRTEnabledForTenantId:accountIdentifier.utid
+                                                                                   context:context
+                                                                                     error:&frtError];
     BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
     {
@@ -870,7 +872,9 @@
                                 error:(NSError *__autoreleasing*)error
 {
     NSError *frtError = nil;
-    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabledForTenantId:token.accountIdentifier.utid
+                                                                  context:context
+                                                                    error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
     {
         if (error) *error = frtError;
@@ -1084,7 +1088,9 @@
         NSError *frtError = nil;
         // Check if FRT is enabled, this will update the configuration object, and then use it to decide if
         // we should save the token as FRT or legacy RT (with familyId, if it contains that value).
-        BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
+        BOOL frtEnabled = [_accountCredentialCache checkFRTEnabledForTenantId:refreshToken.accountIdentifier.utid
+                                                                      context:context
+                                                                        error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
         if (frtError)
         {
             if (error) *error = frtError;
@@ -1369,6 +1375,8 @@
                                                   context:(id<MSIDRequestContext>)context
                                                     error:(NSError *__autoreleasing*)error
 {
+    // Account enumeration has no home tenant to evaluate, so use the persisted device-wide SFRT status;
+    // the authority tenant's flight may not reflect an account's home tenant.
     NSError *frtError = nil;
     BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:&frtError] == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
