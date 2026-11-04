@@ -28,6 +28,11 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDPkce.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDCBAWebAADAuthResponse.h"
+
+#if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
+#import "MSIDCertAuthManager.h"
+#endif
 
 @implementation MSIDAuthorizeWebRequestConfiguration
 
@@ -57,10 +62,19 @@
                                        context:(id<MSIDRequestContext>)context
                                          error:(NSError *__autoreleasing*)error
 {
+    NSString *expectedRedirectUri = self.endRedirectUrl;
+
+#if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
+    if ([MSIDCBAWebAADAuthResponse isCBAWebAADAuthResponse:url])
+    {
+        expectedRedirectUri = [MSIDCertAuthManager.sharedInstance effectiveRedirectUriForRedirectUri:self.endRedirectUrl];
+    }
+#endif
+
     return [factory oAuthResponseWithURL:url
                             requestState:self.state
                       ignoreInvalidState:self.ignoreInvalidState
-                          endRedirectUri:self.endRedirectUrl
+                          endRedirectUri:expectedRedirectUri
                                  context:context
                                    error:error];
 }

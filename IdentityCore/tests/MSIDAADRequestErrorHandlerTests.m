@@ -33,6 +33,7 @@
 
 @property (nonatomic) int sendWithBlockCounter;
 @property (nonatomic, copy) MSIDHttpRequestDidCompleteBlock passedBlock;
+@property (nonatomic) XCTestExpectation *resendExpectation;
 
 @property (nonatomic) NSInteger retryCounter;
 @property (nonatomic) NSTimeInterval retryInterval;
@@ -66,6 +67,7 @@
 {
     self.passedBlock = completionBlock;
     self.sendWithBlockCounter++;
+    [self.resendExpectation fulfill];
 }
 
 @end
@@ -105,7 +107,9 @@
         isBlockInvoked = YES;
     };
 
-    [self keyValueObservingExpectationForObject:httpRequest keyPath:@"sendWithBlockCounter" expectedValue:@1];
+    httpRequest.retryInterval = 0;
+    httpRequest.resendExpectation = [self expectationWithDescription:@"Request resent"];
+    httpRequest.resendExpectation.assertForOverFulfill = YES;
 
     [self.errorHandler handleError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNetworkConnectionLost userInfo:nil]
                       httpResponse:httpResponse
@@ -116,7 +120,7 @@
                            context:context
                    completionBlock:block];
 
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 
     XCTAssertEqualObjects(block, httpRequest.passedBlock);
     XCTAssertEqual(1, httpRequest.sendWithBlockCounter);
@@ -363,7 +367,9 @@
         isBlockInvoked = YES;
     };
 
-    [self keyValueObservingExpectationForObject:httpRequest keyPath:@"sendWithBlockCounter" expectedValue:@1];
+    httpRequest.retryInterval = 0;
+    httpRequest.resendExpectation = [self expectationWithDescription:@"Request resent"];
+    httpRequest.resendExpectation.assertForOverFulfill = YES;
 
     [self.errorHandler handleError:networkError
                       httpResponse:nil
@@ -374,7 +380,7 @@
                            context:context
                    completionBlock:block];
 
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 
     XCTAssertEqualObjects(block, httpRequest.passedBlock);
     XCTAssertEqual(1, httpRequest.sendWithBlockCounter);

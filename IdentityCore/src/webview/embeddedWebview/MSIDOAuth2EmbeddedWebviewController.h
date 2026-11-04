@@ -56,6 +56,7 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
 - (void)loadRequest:(NSURLRequest *)request;
 - (void)completeWebAuthWithURL:(NSURL *)endURL;
 - (void)endWebAuthWithURL:(NSURL *)endURL error:(NSError *)error;
+- (void)notifyFinishedNavigation:(NSURL *)url webView:(WKWebView *)webView;
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;

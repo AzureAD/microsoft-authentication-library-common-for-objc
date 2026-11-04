@@ -23,23 +23,34 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDCBAWebAADAuthResponse.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
 #import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDCBAWebAADAuthResponseTests : XCTestCase
+
+@property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
 
 @end
 
 @implementation MSIDCBAWebAADAuthResponseTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    self.flightProvider = [[MSIDFlightManagerMockProvider alloc] init];
+    MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+- (void)tearDown
+{
+    self.flightProvider = nil;
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
     [super tearDown];
 }
+
+#pragma mark - Legacy Tests (Loose URL Matching)
 
 - (void)testIsCBAWebAADAuthResponse_whenSchemeIncorrect_shouldReturnNO
 {
@@ -79,6 +90,170 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(response.authorizationCode, @"somecode");
     XCTAssertEqualObjects(response.redirectUri, @"msauth://code/redirect");
+}
+
+#pragma mark - Strict URL Matching with Flight Flag
+
+- (void)testInitWithURLAndState_withStrictMatchingEnabled_whenRedirectUriMatches_shouldSucceed
+{
+    // When flight flag is enabled, redirect URIs must match exactly
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
+    
+    NSURL *url = [NSURL URLWithString:@"msauth://code/redirect?code=somecode"];
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
+                                                                           requestState:nil
+                                                                     ignoreInvalidState:NO
+                                                                                context:nil
+                                                                                  error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(response);
+}
+
+- (void)testInitWithURLAndState_withStrictMatchingEnabled_whenRedirectUriMismatch_shouldFail
+{
+    // When flight flag is enabled, mismatched redirect URIs should be rejected
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
+    
+    NSURL *url = [NSURL URLWithString:@"msauth://code/attacker-redirect?code=somecode"];
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/legitimate-redirect"
+                                                                           requestState:nil
+                                                                     ignoreInvalidState:NO
+                                                                                context:nil
+                                                                                  error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertNil(response);
+}
+
+- (void)testInitWithURLAndState_withStrictMatchingDisabled_shouldIgnoreRedirectUri
+{
+    // When flight flag is disabled (legacy), redirect URIs are not validated
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @NO };
+    
+    NSURL *url = [NSURL URLWithString:@"msauth://code/attacker-redirect?code=somecode"];
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/legitimate-redirect"
+                                                                           requestState:nil
+                                                                     ignoreInvalidState:NO
+                                                                                context:nil
+                                                                                  error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(response);
+}
+
+#pragma mark - State Validation with Flight Flag
+
+- (void)testInitWithURLAndState_withStateValidationEnabled_whenStateMatches_shouldSucceed
+{
+    // When flight flag is enabled, state must be validated
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
+    
+    NSString *state = @"test-state";
+    NSString *encodedState = [state msidBase64UrlEncode];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://code/redirect?code=somecode&state=%@", encodedState]];
+    
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
+                                                                            requestState:state
+                                                                      ignoreInvalidState:NO
+                                                                                 context:nil
+                                                                                   error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(response);
+    XCTAssertEqualObjects(response.authorizationCode, @"somecode");
+}
+
+- (void)testInitWithURLAndState_withStateValidationEnabled_whenStateMismatch_shouldFail
+{
+    // When flight flag is enabled, mismatched state should be rejected
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
+    
+    NSString *expectedState = @"expected-state";
+    NSString *responseState = @"different-state";
+    NSString *encodedState = [responseState msidBase64UrlEncode];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://code/redirect?code=somecode&state=%@", encodedState]];
+    
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
+                                                                            requestState:expectedState
+                                                                      ignoreInvalidState:NO
+                                                                                 context:nil
+                                                                                   error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertNil(response);
+}
+
+- (void)testInitWithURLAndState_withStateValidationDisabled_shouldSkipStateCheck
+{
+    // When flight flag is disabled (legacy), state validation is skipped
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @NO };
+    
+    NSString *expectedState = @"expected-state";
+    NSString *responseState = @"different-state";
+    NSString *encodedState = [responseState msidBase64UrlEncode];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://code/redirect?code=somecode&state=%@", encodedState]];
+    
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
+                                                                            requestState:expectedState
+                                                                      ignoreInvalidState:NO
+                                                                                 context:nil
+                                                                                   error:&error];
+    
+    // With flight flag OFF, should succeed even with state mismatch (legacy behavior)
+    XCTAssertNil(error);
+    XCTAssertNotNil(response);
+}
+
+- (void)testInitWithURLAndState_whenMissingStateButExpected_shouldFail
+{
+    // When state was expected but response has no state, should fail
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
+    
+    NSString *expectedState = @"expected-state";
+    NSURL *url = [NSURL URLWithString:@"msauth://code/redirect?code=somecode"];
+    
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
+                                                                            requestState:expectedState
+                                                                      ignoreInvalidState:NO
+                                                                                 context:nil
+                                                                                   error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertNil(response);
+}
+
+- (void)testInitWithURLAndState_whenNeitherStateExpectedNorProvided_shouldSucceed
+{
+    // When no state was expected and response has no state, should succeed
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_CBA_OAUTH_RESPONSE_VALIDATION: @YES };
+    
+    NSURL *url = [NSURL URLWithString:@"msauth://code/redirect?code=somecode"];
+    
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url
+                                                                    expectedRedirectUri:@"msauth://code/redirect"
+                                                                            requestState:nil
+                                                                      ignoreInvalidState:NO
+                                                                                 context:nil
+                                                                                   error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(response);
 }
 
 @end
