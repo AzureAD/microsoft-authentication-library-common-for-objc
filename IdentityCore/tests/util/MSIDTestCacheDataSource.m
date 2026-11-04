@@ -711,7 +711,10 @@
 - (void)reset
 {
     @synchronized (self)  {
+        _tokenKeys = [NSMutableDictionary dictionary];
+        _accountKeys = [NSMutableDictionary dictionary];
         _tokenContents = [NSMutableDictionary dictionary];
+        _accountContents = [NSMutableDictionary dictionary];
         _wipeInfo = nil;
     }
 }
