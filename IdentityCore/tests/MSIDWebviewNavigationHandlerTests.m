@@ -45,6 +45,7 @@
 #import "MSIDTestSwizzle.h"
 #import "MSIDKeychainUtil.h"
 #import "NSBundle+MSIDExtensions.h"
+#import "MSIDInteractiveRequestParameters.h"
 #if !MSID_EXCLUDE_SYSTEMWV
 #import "MSIDSystemWebviewTransitionManager.h"
 #endif
@@ -103,6 +104,128 @@
     MSIDFlightManager.sharedInstance.flightProvider = nil;
     self.flightProvider = nil;
     [super tearDown];
+}
+
+#pragma mark - Onboarding redirect integration tests
+
+- (void)assertRedirectJourneyForBrokeredFlow:(BOOL)brokered
+{
+    MSIDInteractiveRequestParameters *context = [MSIDInteractiveRequestParameters new];
+    context.correlationId = [[NSUUID alloc] initWithUUIDString:@"a7c08f6d-b239-49fb-a494-85f70f1a2fcb"];
+    context.isNewMobileOnboardingFlow = YES;
+    MSIDWebviewNavigationHandler *handler = [[MSIDWebviewNavigationHandler alloc] initWithContext:context];
+    NSString *mode = brokered ? @"brokered" : @"non-brokered";
+    NSDictionary *seed = @{@"schema_version": @"1.0.0",
+                           @"session_correlation_id": context.correlationId.UUIDString,
+                           @"onboarding_mode": mode};
+    NSData *seedData = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc]
+        initWithSeedJson:[[NSString alloc] initWithData:seedData encoding:NSUTF8StringEncoding]
+        clientId:@"clientA" target:@"resource1"];
+    MSIDOAuth2EmbeddedWebviewController *controller = [[MSIDOAuth2EmbeddedWebviewController alloc]
+        initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/authorize"]
+        endURL:[NSURL URLWithString:@"msauth://end"]
+        webview:nil customHeaders:nil platfromParams:nil context:context];
+    controller.onboardingBlobBuilder = builder;
+
+    __block NSUInteger completions = 0;
+    for (NSString *host in @[@"enroll", @"compliance"])
+    {
+        NSURLComponents *destination = [NSURLComponents componentsWithString:
+            @"https://portal.manage.microsoft.com/enrollment/webenrollment/ios?In-App=false"];
+        NSURLComponents *redirect = [NSURLComponents componentsWithString:
+            [NSString stringWithFormat:@"msauth://%@", host]];
+        redirect.queryItems = @[
+            [NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:destination.string],
+            [NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"false"],
+            [NSURLQueryItem queryItemWithName:MSID_INTUNE_DEVICE_ID_KEY value:@"test-device"]
+        ];
+        __block NSURLRequest *request;
+        void (^completion)(MSIDWebviewNavigationDecision *, NSError *) =
+            ^(MSIDWebviewNavigationDecision *decision, NSError *error)
+        {
+            completions++;
+            XCTAssertNil(error);
+            XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+            request = decision.request;
+        };
+        if (brokered)
+        {
+            [handler handleSpecialRedirectURL:redirect.URL embeddedWebviewController:controller
+                additionalHeaders:@{@"x-client-brkrver": @"3.24.0", @"client-request-id": @"conflicting-id"}
+                completion:completion];
+        }
+        else
+        {
+            [handler handleSpecialRedirectURL:redirect.URL embeddedWebviewController:controller
+                completion:completion];
+        }
+        XCTAssertNotNil(request);
+        XCTAssertEqualObjects([request valueForHTTPHeaderField:@"client-request-id"], context.correlationId.UUIDString);
+        XCTAssertEqualObjects(request.URL.host, destination.host);
+        NSArray<NSURLQueryItem *> *queryItems = [NSURLComponents componentsWithURL:request.URL
+            resolvingAgainstBaseURL:NO].queryItems;
+        NSPredicate *inAppPredicate = [NSPredicate predicateWithBlock:
+            ^BOOL(NSURLQueryItem *item, NSDictionary * __unused bindings)
+        {
+            return [item.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
+        }];
+        NSArray<NSURLQueryItem *> *inAppItems = [queryItems filteredArrayUsingPredicate:inAppPredicate];
+        XCTAssertEqual(inAppItems.count, 1u);
+        XCTAssertEqualObjects(inAppItems.firstObject.name, MSID_IN_APP_KEY);
+        XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
+        if ([host isEqualToString:@"enroll"])
+        {
+            XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-client-brkrver"],
+                                  brokered ? @"3.24.0" : nil);
+        }
+        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:request.URL
+            statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:@{@"x-ms-clitelem": @"1,50097,0,,"}];
+        XCTAssertFalse([handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+            embeddedWebviewController:controller]);
+    }
+    XCTAssertEqual(completions, 2u);
+    NSData *blobData = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *blob = [NSJSONSerialization JSONObjectWithData:blobData options:0 error:nil];
+    XCTAssertEqualObjects(blob[@"onboarding_mode"], mode);
+    XCTAssertEqualObjects(blob[@"session_correlation_id"], context.correlationId.UUIDString);
+    XCTAssertEqualObjects(blob[@"last_loaded_domain"], @"portal.manage.microsoft.com");
+    XCTAssertEqualObjects(blob[@"blocking_errors"], (@[@"530003", @"50097"]));
+    XCTAssertEqualObjects([builder msidStampedStepIds],
+                          (@[MSIDOnboardingBlobStepMdmEnrollmentStarted,
+                             MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect]));
+}
+
+- (void)testRedirectJourney_whenBrokered_shouldPreserveCorrelationAndTelemetry
+{
+    [self assertRedirectJourneyForBrokeredFlow:YES];
+}
+
+- (void)testRedirectJourney_whenNonBrokered_shouldPreserveCorrelationAndTelemetry
+{
+    [self assertRedirectJourneyForBrokeredFlow:NO];
+}
+
+- (void)testRedirectJourney_whenEnrollmentURLMissing_shouldCompleteOnceWithFailureTelemetry
+{
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [[MSIDOAuth2EmbeddedWebviewController alloc]
+        initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/authorize"]
+        endURL:[NSURL URLWithString:@"msauth://end"]
+        webview:nil customHeaders:nil platfromParams:nil context:self.context];
+    controller.onboardingBlobBuilder = builder;
+    __block NSUInteger completions = 0;
+    [self.handler handleSpecialRedirectURL:[NSURL URLWithString:@"msauth://enroll"]
+        embeddedWebviewController:controller
+        completion:^(MSIDWebviewNavigationDecision *decision, NSError * __unused error)
+    {
+        completions++;
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+        XCTAssertEqual(decision.error.code, MSIDErrorInvalidInternalParameter);
+        XCTAssertNil(decision.request);
+    }];
+    XCTAssertEqual(completions, 1u);
+    XCTAssertEqualObjects([builder msidStampedStepIds], (@[MSIDOnboardingBlobStepMdmEnrollmentUrlMissing]));
 }
 
 #pragma mark - isValidHandoffURL tests

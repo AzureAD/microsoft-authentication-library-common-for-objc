@@ -74,12 +74,13 @@ contentController:(WKUserContentController *)contentController
 }
 @end
 
-@interface MSIDWebCPScriptMessageHandlerTests : XCTestCase
+@interface MSIDWebCPScriptMessageHandlerTests : XCTestCase <WKNavigationDelegate>
 @property (nonatomic) WKWebView *webView;
 @property (nonatomic) MSIDReadinessTestProvider *provider;
 @property (nonatomic) MSIDTrackingReadinessContract *contract;
 @property (nonatomic) MSIDWebCPScriptMessageHandler *handler;
 @property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
+@property (nonatomic) XCTestExpectation *navigationExpectation;
 @end
 
 @implementation MSIDWebCPScriptMessageHandlerTests
@@ -102,6 +103,9 @@ contentController:(WKUserContentController *)contentController
 
 - (void)tearDown
 {
+    [self.webView stopLoading];
+    self.webView.navigationDelegate = nil;
+    self.navigationExpectation = nil;
     [self.handler detachFromWebView:self.webView];
     MSIDFlightManager.sharedInstance.flightProvider = nil;
     [super tearDown];
@@ -113,6 +117,95 @@ contentController:(WKUserContentController *)contentController
              @"action_name": @"get_broker_status",
              @"action_component": @"native",
              @"params": @{}};
+}
+
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation * __unused)navigation
+{
+    XCTAssertEqual(webView, self.webView);
+    [self.navigationExpectation fulfill];
+}
+
+- (void)webView:(WKWebView * __unused)webView
+    didFailProvisionalNavigation:(WKNavigation * __unused)navigation
+    withError:(NSError *)error
+{
+    XCTFail(@"Readiness test document failed to load: %@", error);
+    [self.navigationExpectation fulfill];
+}
+
+- (NSDictionary *)readinessReplyFromJavaScriptAtURL:(NSURL *)URL
+{
+    self.navigationExpectation = [self expectationWithDescription:@"Readiness document loaded"];
+    self.webView.navigationDelegate = self;
+    [self.webView loadHTMLString:@"<!doctype html><html><body>Readiness test</body></html>" baseURL:URL];
+    [self waitForExpectations:@[self.navigationExpectation] timeout:15.0];
+    self.navigationExpectation = nil;
+
+    XCTestExpectation *replyExpectation = [self expectationWithDescription:@"JavaScript readiness promise settled"];
+    __block NSDictionary *reply;
+    [self.webView callAsyncJavaScript:
+        @"try { return {response: await window.msidWebCP.postMessage(request)}; }"
+         "catch (error) { return {error: String(error)}; }"
+        arguments:@{@"request": [self request]}
+        inFrame:nil inContentWorld:WKContentWorld.pageWorld
+        completionHandler:^(id result, NSError *error)
+    {
+        XCTAssertNil(error);
+        XCTAssertTrue([result isKindOfClass:NSDictionary.class]);
+        reply = result;
+        [replyExpectation fulfill];
+    }];
+    [self waitForExpectations:@[replyExpectation] timeout:15.0];
+    return reply;
+}
+
+- (void)testJavaScriptReadiness_whenBrokerAvailable_shouldReturnNativeAvailability
+{
+    self.provider.availabilityResult = [[MSIDAuthenticationAvailabilityStatus alloc]
+        initWithBrokerAppAvailable:YES ssoExtensionAvailable:NO];
+    NSDictionary *reply = [self readinessReplyFromJavaScriptAtURL:[NSURL URLWithString:
+        @"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]];
+    XCTAssertNil(reply[@"error"]);
+    XCTAssertEqualObjects(reply[@"response"][@"status"], @"Success");
+    XCTAssertEqualObjects(reply[@"response"][@"correlationID"], [self request][@"correlationID"]);
+    XCTAssertEqualObjects(reply[@"response"][@"result"],
+                          (@{@"brokerAppAvailable": @YES, @"ssoExtensionAvailable": @NO}));
+    XCTAssertEqual(self.provider.invocationCount, 1u);
+    XCTAssertEqual(self.contract.validationCount, 1u);
+}
+
+- (void)testJavaScriptReadiness_whenBrokerUnavailable_shouldReturnIndependentSSOAvailability
+{
+    NSDictionary *reply = [self readinessReplyFromJavaScriptAtURL:[NSURL URLWithString:
+        @"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]];
+    XCTAssertNil(reply[@"error"]);
+    XCTAssertEqualObjects(reply[@"response"][@"status"], @"Success");
+    XCTAssertEqualObjects(reply[@"response"][@"correlationID"], [self request][@"correlationID"]);
+    XCTAssertEqualObjects(reply[@"response"][@"result"],
+                          (@{@"brokerAppAvailable": @NO, @"ssoExtensionAvailable": @YES}));
+    XCTAssertEqual(self.provider.invocationCount, 1u);
+}
+
+- (void)testJavaScriptReadiness_whenDisabledByFlight_shouldReturnNotSupportedWithoutProbing
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS: @YES};
+    NSDictionary *reply = [self readinessReplyFromJavaScriptAtURL:[NSURL URLWithString:
+        @"https://portal.manage.microsoft.com/enrollment/webenrollment/waitForDeviceCheckin"]];
+    XCTAssertNil(reply[@"error"]);
+    XCTAssertEqualObjects(reply[@"response"][@"status"], @"NotSupported");
+    XCTAssertEqualObjects(reply[@"response"][@"correlationID"], [self request][@"correlationID"]);
+    XCTAssertEqualObjects(reply[@"response"][@"result"], @{});
+    XCTAssertEqual(self.provider.invocationCount, 0u);
+}
+
+- (void)testJavaScriptReadiness_whenOriginUnauthorized_shouldRejectPromiseWithoutProbing
+{
+    NSDictionary *reply = [self readinessReplyFromJavaScriptAtURL:[NSURL URLWithString:
+        @"https://example.com/enrollment/webenrollment/waitForDeviceCheckin"]];
+    XCTAssertNil(reply[@"response"]);
+    XCTAssertNotNil(reply[@"error"]);
+    XCTAssertEqual(self.provider.invocationCount, 0u);
+    XCTAssertEqual(self.contract.validationCount, 0u);
 }
 
 - (void)sendBody:(id)body
