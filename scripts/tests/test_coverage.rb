@@ -531,4 +531,27 @@ class CoverageTests < Minitest::Test
     manifest = JSON.parse(File.read(File.join(REPO, '.config/dotnet-tools.json')))
     assert_equal '5.4.18', manifest.dig('tools', 'dotnet-reportgenerator-globaltool', 'version')
   end
+
+  def test_warning_only_baselines_are_independent_and_after_all_report_publication
+    steps = publication.fetch('steps')
+    baselines = steps.select { |step| step.dig('inputs', 'script').to_s.include?('check_coverage_baseline.py') }
+    assert_equal 2, baselines.length
+    last_upload = steps.rindex { |step| ['PublishPipelineArtifact@1', 'PublishCodeCoverageResults@2'].include?(step['task']) }
+    [['iOS', 'IdentityCore_iOS', 'IdentityCore iOS', 71],
+     ['macOS', 'IdentityCore_Mac', 'IdentityCore Mac', 63]].each do |platform, name, suite, minimum|
+      task = baselines.find { |step| step['displayName'] == "Check #{platform} coverage baseline (warning only)" }
+      assert steps.index(task) > last_upload
+      assert_equal 'succeededOrFailed()', task['condition']
+      refute task.key?('continueOnError')
+      script = task.fetch('inputs').fetch('script')
+      assert_includes script, '--report "build/coverage/publication-reports/' + name + '.cobertura.xml"'
+      assert_includes script, "--suite \"#{suite}\" --minimum #{minimum}"
+      assert_includes script, '--revision "$(Build.SourceVersion)"'
+      refute_match(/build.py|xcodebuild/, script)
+    end
+    text = File.read(File.join(REPO, 'azure_pipelines/pr-validation.yml'))
+    assert_includes text, 'floor(run1717201 measured percent) - 2 points'
+    assert_includes text, '25322/34315'
+    assert_includes text, '23186/35657'
+  end
 end

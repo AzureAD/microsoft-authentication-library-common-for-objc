@@ -289,3 +289,25 @@ jobs:
         inputs:
           targetPath: '$(Build.SourcesDirectory)/build/coverage/html/macOS'
           artifact: 'Common Core macOS coverage HTML - $(System.JobAttempt)'
+      # Warning-only floors: floor(run1717201 measured percent) - 2 points.
+      # iOS 25322/34315 => 71%; macOS 23186/35657 => 63%; use same-run XML counts.
+      - task: Bash@3
+        condition: succeededOrFailed()
+        displayName: Check iOS coverage baseline (warning only)
+        inputs:
+          targetType: inline
+          script: |
+            python3 scripts/check_coverage_baseline.py \
+              --report "build/coverage/publication-reports/IdentityCore_iOS.cobertura.xml" \
+              --suite "IdentityCore iOS" --minimum 71 \
+              --revision "$(Build.SourceVersion)"
+      - task: Bash@3
+        condition: succeededOrFailed()
+        displayName: Check macOS coverage baseline (warning only)
+        inputs:
+          targetType: inline
+          script: |
+            python3 scripts/check_coverage_baseline.py \
+              --report "build/coverage/publication-reports/IdentityCore_Mac.cobertura.xml" \
+              --suite "IdentityCore Mac" --minimum 63 \
+              --revision "$(Build.SourceVersion)"
