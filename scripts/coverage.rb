@@ -235,6 +235,56 @@ module CommonCoreCoverage
     end
     raise errors.join("\n") unless errors.empty?
   end
+
+  def self.prepare_publication(root, output, checkout: '.')
+    root = File.expand_path(root)
+    root = File.realpath(root) if File.exist?(root)
+    output = File.expand_path(output)
+    FileUtils.mkdir_p(output)
+    output = File.realpath(output)
+    if root == output || root.start_with?("#{output}/") || output.start_with?("#{root}/")
+      raise 'Publication copies must be separate from retained reports'
+    end
+    names = EXPECTED_SCHEMES.values.flatten.map { |scheme| "#{report_name(scheme)}.cobertura.xml" }
+    # This separate staging directory must never retain inputs from a prior attempt.
+    Dir[File.join(output, '*.cobertura.xml')].each { |path| FileUtils.rm_f(path) }
+    checkout = File.realpath(checkout)
+    tracked = run('git', '-C', checkout, 'ls-files', '-z', '--', 'IdentityCore/src')
+              .split("\0").to_h { |path| [path, true] }
+
+    errors = []
+    names.each do |name|
+      begin
+        reports = Dir[File.join(root, '**', name)]
+        raise "Expected one retained report, found #{reports.length}" unless reports.length == 1
+        validate_report(reports.first)
+        document = REXML::Document.new(File.read(reports.first))
+        sources = REXML::XPath.match(document, '/coverage/sources/source')
+        raise 'Expected one source root' unless sources.length == 1
+        REXML::XPath.match(document, '//class').each do |node|
+          path = node.attributes['filename'].to_s
+          parts = path.split('/', -1)
+          unless tracked.key?(path) && !path.include?('\\') &&
+                 parts.none? { |part| ['', '.', '..'].include?(part) }
+            raise "Unowned or noncanonical source path: #{path.inspect}"
+          end
+          source = File.join(checkout, path)
+          unless File.file?(source) && File.realpath(source) == source
+            raise "Missing or redirected source path: #{path.inspect}"
+          end
+        end
+        # Native publication distrusts build-agent roots on a different pool.
+        # Rebase only a copy's source root after validating every owned filename.
+        sources.first.text = checkout
+        File.write(File.join(output, name), document.to_s)
+        puts "Prepared #{name} for publication from #{checkout}"
+      rescue StandardError => error
+        FileUtils.rm_f(File.join(output, name))
+        errors << "#{name}: #{error.message}"
+      end
+    end
+    raise errors.join("\n") unless errors.empty?
+  end
 end
 
 if $PROGRAM_NAME == __FILE__
@@ -249,8 +299,11 @@ if $PROGRAM_NAME == __FILE__
     when 'verify-publication'
       raise 'Usage: coverage.rb verify-publication REPORT_ROOT' unless ARGV.length == 1
       CommonCoreCoverage.verify_publication(ARGV.first)
+    when 'prepare-publication'
+      raise 'Usage: coverage.rb prepare-publication REPORT_ROOT OUTPUT_ROOT' unless ARGV.length == 2
+      CommonCoreCoverage.prepare_publication(*ARGV)
     else
-      raise 'Usage: coverage.rb export|verify|verify-publication ...'
+      raise 'Usage: coverage.rb export|verify|verify-publication|prepare-publication ...'
     end
   rescue StandardError, LoadError => error
     warn "##vso[task.logissue type=error]Coverage collection failed: #{error.message}"

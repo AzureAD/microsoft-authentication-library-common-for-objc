@@ -32,7 +32,8 @@ require_relative '../coverage'
 
 class CoverageTests < Minitest::Test
   REPO = File.expand_path('../..', __dir__)
-  REPORT = '<coverage lines-valid="1" lines-covered="0"><packages><package><classes>' \
+  REPORT = '<coverage lines-valid="1" lines-covered="0"><sources><source>/build-agent/checkout</source></sources>' \
+           '<packages><package><classes>' \
            '<class filename="IdentityCore/src/owned.m"><lines><line number="1" hits="0"/></lines></class>' \
            '</classes></package></packages></coverage>'
 
@@ -296,6 +297,143 @@ class CoverageTests < Minitest::Test
     end
   end
 
+  def publication_inputs
+    CommonCoreCoverage::EXPECTED_SCHEMES.values.flatten.each { |scheme| write_complete(scheme) }
+    source = File.join(@directory, 'IdentityCore/src/owned.m')
+    FileUtils.mkdir_p(File.dirname(source))
+    File.write(source, 'owned source')
+  end
+
+  def prepare_publication
+    command = lambda do |*args|
+      assert_equal ['git', '-C', File.realpath(@directory), 'ls-files', '-z', '--', 'IdentityCore/src'], args
+      "IdentityCore/src/owned.m\0"
+    end
+    with_method(CommonCoreCoverage, :run, command) do
+      CommonCoreCoverage.prepare_publication(File.join(@root, 'reports'),
+                                             File.join(@directory, 'publication'),
+                                             checkout: @directory)
+    end
+  end
+
+  def test_publication_rebases_only_source_root_and_preserves_originals_and_zero_hits
+    publication_inputs
+    originals = Dir[File.join(@root, 'reports/**/*.xml')].to_h { |path| [path, File.read(path)] }
+    prepare_publication
+    originals.each do |path, xml|
+      assert_equal xml, File.read(path)
+      expected = REXML::Document.new(xml)
+      REXML::XPath.first(expected, '/coverage/sources/source').text = File.realpath(@directory)
+      normalized = File.read(File.join(@directory, 'publication', File.basename(path)))
+      assert_equal expected.to_s, normalized
+      document = REXML::Document.new(normalized)
+      assert_equal '0', document.root.attributes['lines-covered']
+      assert_equal 'IdentityCore/src/owned.m', REXML::XPath.first(document, '//class').attributes['filename']
+      assert_equal '0', REXML::XPath.first(document, '//line').attributes['hits']
+    end
+    CommonCoreCoverage.verify_publication(File.join(@directory, 'publication'))
+  end
+
+  def test_publication_rejects_traversal_absolute_windows_and_unowned_sources_independently
+    publication_inputs
+    ['../owned.m', 'IdentityCore/src/../src/owned.m', '/IdentityCore/src/owned.m',
+     'C:\\checkout\\IdentityCore\\src\\owned.m', 'IdentityCore//src/owned.m',
+     'IdentityCore/tests/helper.m', 'IdentityCore/src/untracked.m'].each do |path|
+      File.write(report, REPORT.sub('IdentityCore/src/owned.m', path))
+      error = assert_raises(RuntimeError) { prepare_publication }
+      assert_match 'Unowned or noncanonical source path', error.message
+      refute File.exist?(File.join(@directory, 'publication', File.basename(report)))
+      assert File.file?(File.join(@directory, 'publication', File.basename(report('IdentityCore iOS'))))
+    end
+  end
+
+  def test_publication_rejects_missing_sources_and_symlinks_outside_checkout
+    publication_inputs
+    source = File.join(@directory, 'IdentityCore/src/owned.m')
+    File.delete(source)
+    error = assert_raises(RuntimeError) { prepare_publication }
+    assert_match 'Missing or redirected source path', error.message
+    Dir.mktmpdir('external-source') do |outside|
+      external = File.join(outside, 'owned.m')
+      File.write(external, 'not owned by checkout')
+      File.symlink(external, source)
+      error = assert_raises(RuntimeError) { prepare_publication }
+      assert_match 'Missing or redirected source path', error.message
+    end
+  end
+
+  def test_publication_clears_stale_copies_and_preserves_valid_peer_on_missing_or_duplicate_input
+    publication_inputs
+    prepare_publication
+    File.delete(report)
+    error = assert_raises(RuntimeError) { prepare_publication }
+    assert_match 'found 0', error.message
+    refute File.exist?(File.join(@directory, 'publication', File.basename(report)))
+    assert File.file?(File.join(@directory, 'publication', File.basename(report('IdentityCore iOS'))))
+    write_complete('IdentityCore Mac')
+    duplicate = File.join(@root, 'reports/duplicate')
+    FileUtils.mkdir_p(duplicate)
+    File.write(File.join(duplicate, File.basename(report)), REPORT)
+    error = assert_raises(RuntimeError) { prepare_publication }
+    assert_match 'found 2', error.message
+    refute File.exist?(File.join(@directory, 'publication', File.basename(report)))
+  end
+
+  def test_publication_requires_one_source_root_and_valid_xml
+    publication_inputs
+    [REPORT.sub('<source>/build-agent/checkout</source>', ''),
+     REPORT.sub('</sources>', '<source>/other/root</source></sources>'),
+     '<broken'].each do |xml|
+      File.write(report, xml)
+      assert_raises(RuntimeError) { prepare_publication }
+      refute File.exist?(File.join(@directory, 'publication', File.basename(report)))
+      assert File.file?(File.join(@directory, 'publication', File.basename(report('IdentityCore iOS'))))
+    end
+  end
+
+  def test_publication_output_must_not_overlap_retained_inputs
+    publication_inputs
+    root = File.join(@root, 'reports')
+    [root, File.join(root, 'normalized'), @root].each do |output|
+      assert_raises(RuntimeError) do
+        CommonCoreCoverage.prepare_publication(root, output, checkout: @directory)
+      end
+      assert_equal REPORT, File.read(report)
+    end
+    alias_path = File.join(@directory, 'retained-alias')
+    File.symlink(root, alias_path)
+    assert_raises(RuntimeError) do
+      CommonCoreCoverage.prepare_publication(root, alias_path, checkout: @directory)
+    end
+    assert_equal REPORT, File.read(report)
+  end
+
+  def test_publication_removes_staged_xml_before_a_checkout_validation_failure
+    publication_inputs
+    prepare_publication
+    output = File.join(@directory, 'publication')
+    File.write(File.join(output, 'stale.cobertura.xml'), REPORT)
+    command = ->(*) { raise 'git ownership validation failed' }
+    with_method(CommonCoreCoverage, :run, command) do
+      assert_raises(RuntimeError) do
+        CommonCoreCoverage.prepare_publication(File.join(@root, 'reports'), output,
+                                               checkout: @directory)
+      end
+    end
+    assert_empty Dir[File.join(output, '*.cobertura.xml')]
+    assert_equal REPORT, File.read(report)
+  end
+
+  def test_publication_rejects_tracked_symlink_to_unowned_source_inside_checkout
+    publication_inputs
+    source = File.join(@directory, 'IdentityCore/src/owned.m')
+    File.delete(source)
+    File.symlink(@mock, source)
+    error = assert_raises(RuntimeError) { prepare_publication }
+    assert_match 'Missing or redirected source path', error.message
+    assert_empty Dir[File.join(@directory, 'publication/*.cobertura.xml')]
+  end
+
   def pipeline
     YAML.load_file(File.join(REPO, 'azure_pipelines/pr-validation.yml'))
   end
@@ -319,7 +457,11 @@ class CoverageTests < Minitest::Test
     assert_equal true, publishers.first.fetch('inputs')['failIfCoverageEmpty']
     assert_equal 'succeededOrFailed()', publishers.first['condition']
     refute_match(/build.py|xcodebuild/, steps.to_s)
-    assert steps.any? { |step| step.dig('inputs', 'script').to_s.include?('verify-publication') }
+    prepare = steps.find { |step| step.dig('inputs', 'script').to_s.include?('prepare-publication') }
+    assert_equal 'succeededOrFailed()', prepare['condition']
+    assert steps.index(prepare) < steps.index(publishers.first)
+    assert_includes prepare['inputs']['script'], 'build/coverage/reports build/coverage/publication-reports'
+    assert_includes publishers.first['inputs']['summaryFileLocation'], '/publication-reports/*.cobertura.xml'
     refute collection_steps.any? { |step| step['task'] == 'PublishCodeCoverageResults@2' }
     jobs = pipeline.fetch('jobs').filter_map { |job| job['parameters'] }.reject { |job| job['jobName'] == 'Publish_coverage' }
     assert_equal 2, jobs.length
@@ -378,7 +520,7 @@ class CoverageTests < Minitest::Test
       generate = steps.find { |step| step['displayName'] == "Generate #{platform} coverage HTML" }
       assert steps.index(generate) > native_index
       assert_equal 'succeededOrFailed()', generate['condition']
-      assert_includes generate['inputs']['script'], "**/#{name}.cobertura.xml"
+      assert_includes generate['inputs']['script'], "publication-reports/#{name}.cobertura.xml"
       assert_includes generate['inputs']['script'], "-targetdir:build/coverage/html/#{platform}"
       upload = steps.find { |step| step['displayName'] == "Publish #{platform} coverage HTML" }
       assert_equal 'succeededOrFailed()', upload['condition']
