@@ -34,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, nullable) NSArray *values;
 
+/** Additional claim properties to transmit to the authorization server. */
+@property (nonatomic, copy, nullable) NSArray *additionalProperties;
+
 @end
 
 NS_ASSUME_NONNULL_END
