@@ -216,6 +216,10 @@
 - (NSDictionary *)defaultResumeDictionaryContents
 {
     NSMutableDictionary *resumeDictionary = [NSMutableDictionary new];
+    if (self.requestParameters.ageAssuranceTargetIdentifiers.count > 0)
+    {
+        resumeDictionary[@"age_assurance_targets"] = self.requestParameters.ageAssuranceTargetIdentifiers.allObjects;
+    }
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.clientId forKey:@"client_id"];
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.redirectUri forKey:@"redirect_uri"];

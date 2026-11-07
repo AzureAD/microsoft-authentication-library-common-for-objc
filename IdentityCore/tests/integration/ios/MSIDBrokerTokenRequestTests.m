@@ -46,6 +46,22 @@
 
 @implementation MSIDBrokerTokenRequestTests
 
+- (void)testAgeAssuranceBrokerResumeStateCapturesOriginalTargets
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    MSIDClaimsRequest *claims = [[MSIDClaimsRequest alloc] initWithJSONDictionary:
+                                @{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[@"target-MC", @"target-mc"]}}} error:nil];
+    parameters.claimsRequest = claims;
+    [claims removeClaimRequestWithName:@"xms_agvs" target:MSIDClaimsRequestTargetIdToken error:nil];
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey"
+                                                                      brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(request.resumeDictionary[@"age_assurance_targets"], @[@"mc"]);
+    XCTAssertEqualObjects(parameters.claimsRequest.jsonDictionary[@"id_token"][@"xms_agvs"][@"additionalProperties"], @[@"target-MC", @"target-mc"]);
+}
+
 - (void)setUp
 {
     [self setBoundAppRefreshTokenFlight];

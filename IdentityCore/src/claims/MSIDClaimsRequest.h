@@ -61,6 +61,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (readonly) BOOL hasClaims;
 
+/** Immutable, case-normalized explicit ID-token age-assurance target identities. */
+- (NSSet<NSString *> *)ageAssuranceTargetIdentifiers;
+
+/**
+ Validates only the ID-token payload receipt for explicit requested targets.
+ An empty expected set leaves existing token handling unchanged.
+ This is request binding, not signature validation or resource authorization.
+ */
++ (BOOL)validateAgeAssuranceIdToken:(nullable NSString *)idToken
+                   expectedTargets:(nullable NSSet<NSString *> *)expectedTargets
+                     correlationId:(nullable NSUUID *)correlationId
+                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
 /*!
  Adds a request for a specific claim to be included in the target via the claims request parameter.
  If claim request alredy exists, provided claim request takes its place.

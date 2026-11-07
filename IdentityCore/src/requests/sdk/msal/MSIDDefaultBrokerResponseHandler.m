@@ -39,6 +39,8 @@
 #import "MSIDAuthScheme.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDTokenResponse.h"
 
 @implementation MSIDDefaultBrokerResponseHandler
 {
@@ -93,6 +95,17 @@
         return nil;
     }
 
+    // Validate the primary successful response before saving even its auxiliary tokens.
+    if ([NSString msidIsStringNilOrBlank:decryptedResponse[@"broker_error_domain"]]
+        && [decryptedResponse[@"success"] boolValue]
+        && ![MSIDClaimsRequest validateAgeAssuranceIdToken:decryptedResponse[MSID_OAUTH2_ID_TOKEN]
+                                         expectedTargets:self.ageAssuranceTargetIdentifiers
+                                           correlationId:correlationID
+                                                   error:error])
+    {
+        return nil;
+    }
+
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
     if (decryptedResponse[@"additional_tokens"])
@@ -104,7 +117,11 @@
         {
             MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:additionalTokensDict error:&additionalTokensError];
             
-            if (!additionalTokensError)
+            if (brokerResponse
+                && [MSIDClaimsRequest validateAgeAssuranceIdToken:brokerResponse.tokenResponse.idToken
+                                                 expectedTargets:self.ageAssuranceTargetIdentifiers
+                                                   correlationId:correlationID
+                                                           error:&additionalTokensError])
             {
                 //If Broker responds with different auth scheme, switch auth scheme to default Bearer.
                 NSString *tokenType = [brokerResponse.tokenResponse.tokenType lowercaseString];
