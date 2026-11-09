@@ -24,7 +24,11 @@
 
 #import "MSIDBartFeatureUtil.h"
 
-static NSString *const k_bartUserDefaultsKey = @"com.microsoft.msid.bart_feature_enabled";
+@interface MSIDBartFeatureUtil ()
+
+@property (atomic, assign) BOOL bartEnabled;
+
+@end
 
 @implementation MSIDBartFeatureUtil
 
@@ -41,8 +45,7 @@ static NSString *const k_bartUserDefaultsKey = @"com.microsoft.msid.bart_feature
 - (BOOL)isBartFeatureEnabled
 {
 #if TARGET_OS_IPHONE
-    // Enable feature if it is enabled by app setting
-    return [[NSUserDefaults standardUserDefaults] boolForKey:k_bartUserDefaultsKey];
+    return self.bartEnabled;
 #else
     return NO;
 #endif
@@ -51,7 +54,7 @@ static NSString *const k_bartUserDefaultsKey = @"com.microsoft.msid.bart_feature
 - (void)setBartSupportInAppCache:(BOOL)isEnabled
 {
 #if TARGET_OS_IPHONE
-    [[NSUserDefaults standardUserDefaults] setBool:isEnabled forKey:k_bartUserDefaultsKey];
+    self.bartEnabled = isEnabled;
 #endif
 }
 @end
