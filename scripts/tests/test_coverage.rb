@@ -24,6 +24,7 @@
 #
 # Fixtures cover input provenance, production scope and CI handoff without Xcode.
 require 'minitest/autorun'
+require 'minitest/mock'
 require 'tmpdir'
 require 'pathname'
 require 'slather'
@@ -285,16 +286,50 @@ class CoverageTests < Minitest::Test
     assert_raises(RuntimeError) { CommonCoreCoverage.verify('mac_library', root: @root) }
   end
 
-  def test_empty_or_malformed_xml_and_input_mismatch_fail
+  def test_empty_or_malformed_xml_fails
     path = File.join(@directory, 'report.xml')
     ['', '<coverage/>', '<coverage lines-valid="0"/>', '<broken'].each do |xml|
       File.write(path, xml)
       assert_raises(StandardError) { CommonCoreCoverage.validate_report(path) }
     end
-    assert_raises(RuntimeError) { CommonCoreCoverage.run('ruby', '-e', 'exit 9') }
-    assert_raises(RuntimeError) do
-      CommonCoreCoverage.run('ruby', '-e', 'warn "profile data may be out of date - object is newer"')
+  end
+
+  def test_run_forwards_arguments_and_reports_command_failure
+    command = ['xcrun', 'llvm-cov', 'export', 'binary with spaces']
+    status = Minitest::Mock.new
+    status.expect(:success?, false)
+    status.expect(:exitstatus, 9)
+    capture = lambda do |*args|
+      assert_equal command, args
+      ['partial output', 'export failed', status]
     end
+    with_method(Open3, :capture3, capture) do
+      _, stderr = capture_io do
+        error = assert_raises(RuntimeError) { CommonCoreCoverage.run(*command) }
+        assert_equal 'xcrun failed (9): export failed', error.message
+      end
+      assert_equal "export failed\n", stderr
+    end
+    status.verify
+  end
+
+  def test_run_rejects_mismatched_inputs_even_when_command_succeeds
+    command = ['xcrun', 'llvm-cov', 'export', 'binary with spaces']
+    warning = 'profile data may be out of date - object is newer'
+    status = Minitest::Mock.new
+    status.expect(:success?, true)
+    capture = lambda do |*args|
+      assert_equal command, args
+      ['coverage output', warning, status]
+    end
+    with_method(Open3, :capture3, capture) do
+      _, stderr = capture_io do
+        error = assert_raises(RuntimeError) { CommonCoreCoverage.run(*command) }
+        assert_equal "Coverage inputs do not match: #{warning}", error.message
+      end
+      assert_equal "#{warning}\n", stderr
+    end
+    status.verify
   end
 
   def publication_inputs
@@ -443,9 +478,7 @@ class CoverageTests < Minitest::Test
   end
 
   def publication
-    pipeline.fetch('jobs').filter_map { |job| job['parameters'] }.find do |job|
-      job['jobName'] == 'Publish_coverage'
-    end
+    pipeline.fetch('jobs').find { |job| job['job'] == 'Publish_coverage' }
   end
 
   def test_publication_is_dependent_only_and_runs_native_publisher_once
@@ -480,12 +513,33 @@ class CoverageTests < Minitest::Test
     assert_equal "and(succeededOrFailed(), eq(variables['coverageCollectionFailed'], 'true'))", diagnostics['condition']
     verifier = collection_steps.find { |step| step['displayName'] == 'Verify all expected coverage reports' }
     assert_equal 'succeededOrFailed()', verifier['condition']
+    assert_equal 'coverageReports', verifier['name']
+    assert_equal '$(coverageReports.artifactName)', retained.fetch('inputs')['artifact']
     [0, 1].each do |status|
       script = verifier.fetch('inputs')['script'].gsub('${{ parameters.target }}', 'ios_library')
+                       .gsub('$(System.JobAttempt)', '2')
       runner = "ruby() { return #{status}; }\n#{script}"
       stdout, _, result = Open3.capture3('bash', '-c', runner)
       assert_equal status, result.exitstatus
       assert_includes stdout, "variable=coverageCollectionFailed]#{status == 0 ? 'false' : 'true'}"
+      assert_includes stdout, 'variable=artifactName;isOutput=true]ios_library coverage reports - 2'
+    end
+  end
+
+  def test_publication_downloads_only_each_producers_current_artifact
+    downloads = publication.fetch('steps').select { |step| step['task'] == 'DownloadPipelineArtifact@2' }
+    assert_equal 2, downloads.length
+    [['ios', 'iOS', 'ios_library'], ['mac', 'macOS', 'mac_library']].each do |prefix, platform, target|
+      variable = "#{prefix}CoverageArtifact"
+      assert_equal "$[ dependencies.Validate_Pull_Request_#{platform}.outputs['coverageReports.artifactName'] ]",
+                   publication.fetch('variables').fetch(variable)
+      download = downloads.find { |step| step.dig('inputs', 'artifactName') == "$(#{variable})" }
+      refute_nil download
+      assert_equal "and(succeededOrFailed(), ne(variables['#{variable}'], ''))", download['condition']
+      assert_equal 'current', download.fetch('inputs')['buildType']
+      assert_equal '**/*.cobertura.xml', download.fetch('inputs')['itemPattern']
+      assert_equal "$(Build.SourcesDirectory)/build/coverage/reports/#{target}",
+                   download.fetch('inputs')['targetPath']
     end
   end
 

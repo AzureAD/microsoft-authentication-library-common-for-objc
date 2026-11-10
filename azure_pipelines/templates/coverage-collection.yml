@@ -29,11 +29,13 @@ parameters:
 
 steps:
   - task: Bash@3
+    name: coverageReports
     condition: succeededOrFailed()
     displayName: Verify all expected coverage reports
     inputs:
       targetType: inline
       script: |
+        echo "##vso[task.setvariable variable=artifactName;isOutput=true]${{ parameters.target }} coverage reports - $(System.JobAttempt)"
         if ruby scripts/coverage.rb verify ${{ parameters.target }}; then
           echo "##vso[task.setvariable variable=coverageCollectionFailed]false"
         else
@@ -46,7 +48,7 @@ steps:
     displayName: Retain scheme coverage reports
     inputs:
       targetPath: '$(Build.SourcesDirectory)/build/coverage/reports'
-      artifact: '${{ parameters.target }} coverage reports - $(System.JobAttempt)'
+      artifact: '$(coverageReports.artifactName)'
 
   - task: PublishPipelineArtifact@1
     condition: and(succeededOrFailed(), eq(variables['coverageCollectionFailed'], 'true'))
