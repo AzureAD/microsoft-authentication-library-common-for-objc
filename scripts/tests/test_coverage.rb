@@ -515,14 +515,14 @@ class CoverageTests < Minitest::Test
     assert_equal 'succeededOrFailed()', verifier['condition']
     assert_equal 'coverageReports', verifier['name']
     assert_equal '$(coverageReports.artifactName)', retained.fetch('inputs')['artifact']
-    [0, 1].each do |status|
-      script = verifier.fetch('inputs')['script'].gsub('${{ parameters.target }}', 'ios_library')
-                       .gsub('$(System.JobAttempt)', '2')
+    %w[ios_library mac_library].product([1, 2], [0, 1]).each do |target, attempt, status|
+      script = verifier.fetch('inputs')['script'].gsub('${{ parameters.target }}', target)
+                       .gsub('$(System.JobAttempt)', attempt.to_s)
       runner = "ruby() { return #{status}; }\n#{script}"
       stdout, _, result = Open3.capture3('bash', '-c', runner)
       assert_equal status, result.exitstatus
       assert_includes stdout, "variable=coverageCollectionFailed]#{status == 0 ? 'false' : 'true'}"
-      assert_includes stdout, 'variable=artifactName;isOutput=true]ios_library coverage reports - 2'
+      assert_includes stdout, "variable=artifactName;isOutput=true]#{target} coverage reports - #{attempt}"
     end
   end
 
