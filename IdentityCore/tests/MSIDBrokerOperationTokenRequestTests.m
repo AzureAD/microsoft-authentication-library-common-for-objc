@@ -27,12 +27,36 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDConstants.h"
+#import "MSIDClaimsRequest.h"
 
 @interface MSIDBrokerOperationTokenRequestTests : XCTestCase
 
 @end
 
 @implementation MSIDBrokerOperationTokenRequestTests
+
+- (void)testAdditionalPropertiesSurviveBrokerReconstruction
+{
+    NSDictionary *json = @{
+        @"broker_key": @"broker_key_value",
+        @"msg_protocol_ver": @"99",
+        @"provider_type": @"provider_aad_v2",
+        @"authority": @"https://login.microsoftonline.com/common",
+        @"redirect_uri": @"redirect uri",
+        @"client_id": @"client id",
+        @"claims": @"{\"id_token\":{\"custom_claim\":{\"essential\":true,\"value\":0,\"additionalProperties\":[\"property-one\"]}}}"
+    };
+    NSError *error = nil;
+    MSIDBrokerOperationTokenRequest *request = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    NSDictionary *expectedClaims = @{@"id_token": @{@"custom_claim": @{@"essential": @YES, @"value": @0, @"additionalProperties": @[@"property-one"]}}};
+    XCTAssertEqualObjects(request.claimsRequest.jsonDictionary, expectedClaims);
+    MSIDBrokerOperationTokenRequest *reparsed = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:request.jsonDictionary error:&error];
+    XCTAssertNotNil(reparsed);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(reparsed.claimsRequest.jsonDictionary, expectedClaims);
+}
 
 - (void)testIsSubclassOfOperationRequest_shouldReturnTrue
 {
