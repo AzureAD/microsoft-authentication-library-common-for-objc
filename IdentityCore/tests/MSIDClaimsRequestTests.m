@@ -36,13 +36,13 @@
 - (void)testAdditionalPropertiesRoundTripAndCopy
 {
     for (NSDictionary *info in @[
-        @{@"additionalProperties": @[@"target-mc"]},
-        @{@"essential": @YES, @"value": @0, @"values": @[@1, @2], @"additionalProperties": @[@"target-mc", @"target-all"]},
+        @{@"additionalProperties": @[@"property-one"]},
+        @{@"essential": @YES, @"value": @0, @"values": @[@1, @2], @"additionalProperties": @[@"property-one", @"property-three"]},
         @{@"additionalProperties": @[]},
         @{@"essential": @NO, @"value": @0, @"values": @[]}
     ])
     {
-        NSDictionary *json = @{@"id_token": @{@"xms_agvs": info}};
+        NSDictionary *json = @{@"id_token": @{@"custom_claim": info}};
         NSError *error = nil;
         MSIDClaimsRequest *request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:json error:&error];
         XCTAssertNotNil(request);
@@ -62,13 +62,13 @@
 - (void)testAdditionalPropertiesRejectsNonArrayAndCopiesArray
 {
     NSError *error = nil;
-    XCTAssertNil([[MSIDIndividualClaimRequestAdditionalInfo alloc] initWithJSONDictionary:@{@"additionalProperties": @"target-mc"} error:&error]);
+    XCTAssertNil([[MSIDIndividualClaimRequestAdditionalInfo alloc] initWithJSONDictionary:@{@"additionalProperties": @"property-one"} error:&error]);
     XCTAssertNotNil(error);
-    NSMutableArray *properties = [NSMutableArray arrayWithObject:@"target-mc"];
+    NSMutableArray *properties = [NSMutableArray arrayWithObject:@"property-one"];
     MSIDIndividualClaimRequestAdditionalInfo *info = [MSIDIndividualClaimRequestAdditionalInfo new];
     info.additionalProperties = properties;
     [properties removeAllObjects];
-    XCTAssertEqualObjects(info.additionalProperties, @[@"target-mc"]);
+    XCTAssertEqualObjects(info.additionalProperties, @[@"property-one"]);
     info.additionalProperties = nil;
     XCTAssertNil(info.jsonDictionary[@"additionalProperties"]);
 }
