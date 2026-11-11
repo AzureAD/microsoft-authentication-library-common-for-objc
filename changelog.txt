@@ -1,4 +1,5 @@
-Unreleased
+## [TBD]
+* (iOS) Avoid a potential authentication hang by keeping BART enablement in process-local memory instead of writing application preferences; applications must configure enablement on each launch.
 * Preserve additionalProperties arrays in typed claims requests, including broker reconstruction.
 
 Version 2.17.1
