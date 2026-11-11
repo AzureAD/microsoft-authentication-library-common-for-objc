@@ -52,7 +52,10 @@ static NSString *const kAdditionalPropertiesJsonParam = @"additionalProperties";
         if (![json msidAssertTypeIsOneOf:@[NSArray.class] ofKey:kValuesJsonParam required:NO context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
         _values = json[kValuesJsonParam];
 
-        if (![json msidAssertTypeIsOneOf:@[NSArray.class] ofKey:kAdditionalPropertiesJsonParam required:NO context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
+        if (![json msidAssertTypeIsOneOf:@[NSArray.class] ofKey:kAdditionalPropertiesJsonParam required:NO context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error])
+        {
+            return nil;
+        }
         _additionalProperties = [json[kAdditionalPropertiesJsonParam] copy];
 
         BOOL isJsonValid = _essential != nil || _value != nil || _values != nil || _additionalProperties != nil;
