@@ -1,5 +1,7 @@
 ## [TBD]
+* Bind explicit id_token.xms_agvs target requests to the signed xms_agvt receipt identity set before accepting network, cache, or app-side broker results. Missing or invalid receipts fail even when xms_agvs is zero; access-token authorization is unchanged.
 * (iOS) Avoid a potential authentication hang by keeping BART enablement in process-local memory instead of writing application preferences; applications must configure enablement on each launch.
+* Preserve additionalProperties arrays in typed claims requests, including broker reconstruction.
 
 Version 2.17.1
 * Fix Broker SFRT tenant-flight handling and preserve cached SFRT status during account enumeration.

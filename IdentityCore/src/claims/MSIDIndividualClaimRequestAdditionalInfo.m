@@ -27,6 +27,7 @@
 static NSString *const kEssentialJsonParam = @"essential";
 static NSString *const kValueJsonParam = @"value";
 static NSString *const kValuesJsonParam = @"values";
+static NSString *const kAdditionalPropertiesJsonParam = @"additionalProperties";
 
 @implementation MSIDIndividualClaimRequestAdditionalInfo
 
@@ -51,7 +52,13 @@ static NSString *const kValuesJsonParam = @"values";
         if (![json msidAssertTypeIsOneOf:@[NSArray.class] ofKey:kValuesJsonParam required:NO context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
         _values = json[kValuesJsonParam];
 
-        BOOL isJsonValid = _essential != nil || _value != nil || _values != nil;
+        if (![json msidAssertTypeIsOneOf:@[NSArray.class] ofKey:kAdditionalPropertiesJsonParam required:NO context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error])
+        {
+            return nil;
+        }
+        _additionalProperties = [json[kAdditionalPropertiesJsonParam] copy];
+
+        BOOL isJsonValid = _essential != nil || _value != nil || _values != nil || _additionalProperties != nil;
         
         if (!isJsonValid)
         {
@@ -75,6 +82,7 @@ static NSString *const kValuesJsonParam = @"values";
     dictionary[kEssentialJsonParam] = essential;
     dictionary[kValueJsonParam] = self.value;
     dictionary[kValuesJsonParam] = self.values;
+    dictionary[kAdditionalPropertiesJsonParam] = self.additionalProperties;
     
     return dictionary;
 }

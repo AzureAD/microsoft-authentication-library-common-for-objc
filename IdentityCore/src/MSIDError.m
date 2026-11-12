@@ -234,6 +234,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
               MSIDOAuthErrorDomain : @[// Server Errors
                       @(MSIDErrorServerOauth),
                       @(MSIDErrorServerInvalidResponse),
+                      @(MSIDErrorAgeAssuranceTargetMismatch),
                       @(MSIDErrorServerRefreshTokenRejected),
                       @(MSIDErrorServerInvalidRequest),
                       @(MSIDErrorServerInvalidClient),
@@ -301,6 +302,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorServerOauth";
         case MSIDErrorServerInvalidResponse:
             return @"MSIDErrorServerInvalidResponse";
+        case MSIDErrorAgeAssuranceTargetMismatch:
+            return @"MSIDErrorAgeAssuranceTargetMismatch";
         case MSIDErrorServerRefreshTokenRejected:
             return @"MSIDErrorServerRefreshTokenRejected";
         case MSIDErrorServerInvalidRequest:

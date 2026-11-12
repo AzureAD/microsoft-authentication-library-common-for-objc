@@ -32,12 +32,82 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDIndividualClaimRequest.h"
+#import "MSIDIndividualClaimRequestAdditionalInfo.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDRequestParametersTests : XCTestCase
 
 @end
 
 @implementation MSIDRequestParametersTests
+
+- (void)testAgeAssuranceExpectationsAreOperationBoundSnapshots
+{
+    MSIDClaimsRequest *claims = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[@"target-mc"]}}} error:nil];
+    MSIDRequestParameters *first = [MSIDRequestParameters new];
+    first.claimsRequest = claims;
+    MSIDRequestParameters *copy = [first copy];
+    [claims claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo.additionalProperties = @[@"target-vg"];
+    MSIDRequestParameters *second = [MSIDRequestParameters new];
+    second.claimsRequest = claims;
+    NSString *token = [NSString stringWithFormat:@"%@.%@.", [@{} msidBase64UrlJson], [@{@"xms_agvt": @"-mc"} msidBase64UrlJson]];
+    XCTAssertTrue([first validateAgeAssuranceIdToken:token error:nil]);
+    XCTAssertTrue([copy validateAgeAssuranceIdToken:token error:nil]);
+    NSError *error = nil;
+    XCTAssertFalse([second validateAgeAssuranceIdToken:token error:&error]);
+    XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+    XCTAssertEqualObjects(first.ageAssuranceTargetIdentifiers, [NSSet setWithObject:@"mc"]);
+    XCTAssertEqualObjects(second.ageAssuranceTargetIdentifiers, [NSSet setWithObject:@"vg"]);
+    XCTAssertEqualObjects([first.claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo.additionalProperties, @[@"target-mc"]);
+    XCTAssertEqualObjects([copy.claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo.additionalProperties, @[@"target-mc"]);
+}
+
+- (void)testAgeAssuranceSnapshotsMutableTargetStrings
+{
+    NSMutableString *target = [@"target-mc" mutableCopy];
+    MSIDClaimsRequest *claims = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[target]}}} error:nil];
+    MSIDRequestParameters *parameters = [MSIDRequestParameters new];
+    parameters.claimsRequest = claims;
+    [target setString:@"target-vg"];
+    [claims removeClaimRequestWithName:@"xms_agvs" target:MSIDClaimsRequestTargetIdToken error:nil];
+    XCTAssertEqualObjects(parameters.ageAssuranceTargetIdentifiers, [NSSet setWithObject:@"mc"]);
+    XCTAssertEqualObjects([parameters.claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo.additionalProperties, @[@"target-mc"]);
+}
+
+- (void)testAgeAssuranceLaterTargetsDoNotChangeAnUntargetedOperation
+{
+    MSIDClaimsRequest *claims = [MSIDClaimsRequest new];
+    MSIDRequestParameters *parameters = [MSIDRequestParameters new];
+    parameters.claimsRequest = claims;
+    MSIDIndividualClaimRequest *target = [[MSIDIndividualClaimRequest alloc] initWithName:@"xms_agvs"];
+    target.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    target.additionalInfo.additionalProperties = @[@"target-mc"];
+    [claims requestClaim:target forTarget:MSIDClaimsRequestTargetIdToken error:nil];
+    XCTAssertFalse(parameters.claimsRequest.hasClaims);
+    XCTAssertEqual(parameters.ageAssuranceTargetIdentifiers.count, 0);
+    XCTAssertTrue([parameters validateAgeAssuranceIdToken:nil error:nil]);
+}
+
+- (void)testAgeAssuranceConcurrentRequestsDoNotShareTargets
+{
+    NSArray *targets = @[@"mc", @"vg"];
+    NSMutableArray<MSIDRequestParameters *> *requests = [NSMutableArray new];
+    for (NSString *target in targets)
+    {
+        MSIDRequestParameters *parameters = [MSIDRequestParameters new];
+        parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:
+                                    @{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[[@"target-" stringByAppendingString:target]]}}} error:nil];
+        [requests addObject:parameters];
+    }
+    dispatch_apply(targets.count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(size_t index) {
+        NSString *matching = [NSString stringWithFormat:@"%@.%@.", [@{} msidBase64UrlJson], [@{@"xms_agvt": [@"-" stringByAppendingString:targets[index]]} msidBase64UrlJson]];
+        NSString *other = [NSString stringWithFormat:@"%@.%@.", [@{} msidBase64UrlJson], [@{@"xms_agvt": [@"+" stringByAppendingString:targets[1 - index]]} msidBase64UrlJson]];
+        XCTAssertTrue([requests[index] validateAgeAssuranceIdToken:matching error:nil]);
+        XCTAssertFalse([requests[index] validateAgeAssuranceIdToken:other error:nil]);
+    });
+}
 
 
 - (void )testInitParameters_withValidParameters_shouldInitReturnNonNil

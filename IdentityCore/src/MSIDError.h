@@ -161,6 +161,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // State verification has failed
     MSIDErrorServerInvalidState         = -51420,
 
+    // An explicit ID-token age-assurance target request was not satisfied.
+    MSIDErrorAgeAssuranceTargetMismatch = -51421,
+
     // Intune Protection Policies Required
     MSIDErrorServerProtectionPoliciesRequired = -51430,
 

@@ -39,6 +39,22 @@
 
 @implementation MSIDRequestParameters
 
+@synthesize claimsRequest = _claimsRequest;
+
+- (void)setClaimsRequest:(MSIDClaimsRequest *)claimsRequest
+{
+    _claimsRequest = [claimsRequest copy];
+    _ageAssuranceTargetIdentifiers = [_claimsRequest ageAssuranceTargetIdentifiers];
+}
+
+- (BOOL)validateAgeAssuranceIdToken:(NSString *)idToken error:(NSError *__autoreleasing *)error
+{
+    return [MSIDClaimsRequest validateAgeAssuranceIdToken:idToken
+                                        expectedTargets:self.ageAssuranceTargetIdentifiers
+                                          correlationId:self.correlationId
+                                                  error:error];
+}
+
 #pragma mark - Init
 
 - (instancetype)init
@@ -405,6 +421,7 @@
     parameters->_appRequestMetadata = [_appRequestMetadata copyWithZone:zone];
     parameters->_telemetryApiId = [_telemetryApiId copyWithZone:zone];
     parameters->_claimsRequest = [_claimsRequest copyWithZone:zone];
+    parameters->_ageAssuranceTargetIdentifiers = [_ageAssuranceTargetIdentifiers copyWithZone:zone];
     parameters->_clientCapabilities = [_clientCapabilities copyWithZone:zone];
     parameters->_msidConfiguration = [_msidConfiguration copyWithZone:zone];
     parameters->_keychainAccessGroup = [_keychainAccessGroup copyWithZone:zone];
