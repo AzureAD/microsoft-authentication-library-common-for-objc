@@ -117,7 +117,10 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
         NSString *claimsStr= [json msidStringObjectForKey:MSID_BROKER_CLAIMS_KEY];
         if (claimsStr)
         {
-            _claimsRequest = (MSIDClaimsRequest *)[[MSIDJsonSerializer new] fromJsonString:claimsStr ofType:MSIDClaimsRequest.class context:nil error:nil];
+            MSIDJsonSerializer *claimsSerializer = [MSIDJsonSerializer new];
+            // Preserve opaque claims contents, including null values.
+            claimsSerializer.normalizeJSON = NO;
+            _claimsRequest = (MSIDClaimsRequest *)[claimsSerializer fromJsonString:claimsStr ofType:MSIDClaimsRequest.class context:nil error:nil];
         }
         
         _requestSentDate = [NSDate msidDateFromTimeStamp:json[MSID_BROKER_REQUEST_SENT_TIMESTAMP]];

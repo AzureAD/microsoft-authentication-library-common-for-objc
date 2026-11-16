@@ -44,13 +44,13 @@
         @"authority": @"https://login.microsoftonline.com/common",
         @"redirect_uri": @"redirect uri",
         @"client_id": @"client id",
-        @"claims": @"{\"id_token\":{\"custom_claim\":{\"essential\":true,\"value\":0,\"additionalProperties\":[\"property-one\"]}}}"
+        @"claims": @"{\"id_token\":{\"custom_claim\":{\"essential\":true,\"value\":0,\"additionalProperties\":[null,\"property-one\",{\"property-two\":null}]}}}"
     };
     NSError *error = nil;
     MSIDBrokerOperationTokenRequest *request = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:json error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
-    NSDictionary *expectedClaims = @{@"id_token": @{@"custom_claim": @{@"essential": @YES, @"value": @0, @"additionalProperties": @[@"property-one"]}}};
+    NSDictionary *expectedClaims = @{@"id_token": @{@"custom_claim": @{@"essential": @YES, @"value": @0, @"additionalProperties": @[NSNull.null, @"property-one", @{@"property-two": NSNull.null}]}}};
     XCTAssertEqualObjects(request.claimsRequest.jsonDictionary, expectedClaims);
     MSIDBrokerOperationTokenRequest *reparsed = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:request.jsonDictionary error:&error];
     XCTAssertNotNil(reparsed);
