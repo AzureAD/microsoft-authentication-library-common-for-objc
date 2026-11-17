@@ -33,4 +33,7 @@ typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
 
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
 
+@optional
+- (void)cancel;
+
 @end

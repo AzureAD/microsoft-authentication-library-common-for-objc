@@ -44,6 +44,13 @@ static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
 static NSTimeInterval s_requestTimeoutInterval = 300;
 
+@interface MSIDHttpRequest ()
+
+@property (atomic, weak, nullable) NSURLSessionTask *currentTask;
+@property (atomic) BOOL isCancelled;
+
+@end
+
 @implementation MSIDHttpRequest
 
 - (instancetype)init
@@ -122,6 +129,16 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
 - (void)sendRequestWithCompletionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
+    if (self.isCancelled)
+    {
+        if (completionBlock)
+        {
+            NSError *cancelError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+            completionBlock(nil, cancelError);
+        }
+        return;
+    }
+
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
     {
@@ -155,7 +172,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
 
-    [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error)
+    NSURLSessionTask *task = [self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error)
       {
         MSIDExecutionFlowInsertTag([self toString:MSIDReceiveNetworkResponseTag],
                                        nil,
@@ -249,7 +266,21 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
               }
           }
 
-      }] resume];
+      }];
+
+    self.currentTask = task;
+    if (self.isCancelled)
+    {
+        [task cancel];
+    }
+    [task resume];
+}
+
+- (void)cancel
+{
+    self.isCancelled = YES;
+    self.retryCounter = 0;
+    [self.currentTask cancel];
 }
 
 + (NSInteger)retryCountSetting { return s_retryCount; }

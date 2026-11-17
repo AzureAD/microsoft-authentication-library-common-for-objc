@@ -31,8 +31,11 @@
 #import "MSIDAADAuthorityMetadataResponse.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
 
 static dispatch_queue_t s_aadValidationQueue;
+static NSMutableDictionary<NSString *, NSMutableArray<MSIDAuthorityInfoBlock> *> *s_pendingCompletionsByEnvironment;
+static NSMutableDictionary<NSString *, MSIDAADAuthorityMetadataRequest *> *s_pendingRequestsByEnvironment;
 
 @implementation MSIDAadAuthorityResolver
 
@@ -46,6 +49,8 @@ static dispatch_queue_t s_aadValidationQueue;
         // authority validation network call multiple times we throw the requests in this validation
         // queue.
         s_aadValidationQueue = dispatch_queue_create("msid.aadvalidation.queue", DISPATCH_QUEUE_SERIAL);
+        s_pendingCompletionsByEnvironment = [NSMutableDictionary new];
+        s_pendingRequestsByEnvironment = [NSMutableDictionary new];
     }
 }
 
@@ -75,7 +80,16 @@ static dispatch_queue_t s_aadValidationQueue;
         [self handleRecord:record authority:authority completionBlock:completionBlock];
         return;
     }
-    
+
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_SILENT_REQUEST_AUTHORITY_AND_BG_TASK_IMPROVEMENTS])
+    {
+        [self resolveAuthorityCoalesced:authority
+                               validate:validate
+                                context:context
+                        completionBlock:completionBlock];
+        return;
+    }
+
     dispatch_async(s_aadValidationQueue, ^{
         
         // If we didn't have anything in the cache then we need to hold onto the queue until we
@@ -106,7 +120,146 @@ static dispatch_queue_t s_aadValidationQueue;
     });
 }
 
++ (void)cancelPendingRequestsWithError:(nullable NSError *)error
+{
+    NSError *cancelError = error ?: [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+    dispatch_async(s_aadValidationQueue, ^{
+        NSDictionary<NSString *, NSArray<MSIDAuthorityInfoBlock> *> *pendingCompletions = [s_pendingCompletionsByEnvironment copy];
+        NSArray<MSIDAADAuthorityMetadataRequest *> *pendingRequests = [s_pendingRequestsByEnvironment allValues];
+        [s_pendingCompletionsByEnvironment removeAllObjects];
+        [s_pendingRequestsByEnvironment removeAllObjects];
+
+        for (MSIDAADAuthorityMetadataRequest *request in pendingRequests)
+        {
+            [request cancel];
+        }
+
+        for (NSString *envKey in pendingCompletions)
+        {
+            for (MSIDAuthorityInfoBlock block in pendingCompletions[envKey])
+            {
+                block(nil, NO, cancelError);
+            }
+        }
+    });
+}
+
 #pragma mark - Private
+
+- (void)resolveAuthorityCoalesced:(MSIDAADAuthority *)authority
+                         validate:(BOOL)validate
+                          context:(id<MSIDRequestContext>)context
+                  completionBlock:(MSIDAuthorityInfoBlock)completionBlock
+{
+    NSString *environmentKey = authority.environment ?: @"";
+    MSIDAuthorityInfoBlock waiterBlock = [ ^(__unused NSURL *leaderOpenIdEndpoint, BOOL validated, NSError *error)
+    {
+        if (error)
+        {
+            if ([error.domain isEqualToString:NSURLErrorDomain] && error.code == NSURLErrorCancelled)
+            {
+                completionBlock(nil, NO, error);
+                return;
+            }
+
+            NSURL *openIdEndpoint = validate ? nil : [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
+            NSError *resolvedError = validate ? error : nil;
+            completionBlock(openIdEndpoint, NO, resolvedError);
+            return;
+        }
+
+        NSURL *openIdEndpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
+        completionBlock(openIdEndpoint, validated, nil);
+    } copy];
+
+    dispatch_async(s_aadValidationQueue, ^{
+        MSIDAadAuthorityCacheRecord *record = [self.aadCache objectForKey:authority.environment];
+        if (record)
+        {
+            [self handleRecord:record authority:authority completionBlock:completionBlock];
+            return;
+        }
+
+        NSMutableArray<MSIDAuthorityInfoBlock> *waiters = s_pendingCompletionsByEnvironment[environmentKey];
+        if (waiters)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Coalescing authority validation request on queue");
+            [waiters addObject:waiterBlock];
+            return;
+        }
+
+        waiters = [NSMutableArray arrayWithObject:waiterBlock];
+        s_pendingCompletionsByEnvironment[environmentKey] = waiters;
+
+        __auto_type trustedHost = MSIDTrustedAuthorityWorldWide;
+        if ([authority isKnown])
+        {
+            trustedHost = authority.environment;
+        }
+
+        __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider aadAuthorityDiscoveryEndpointWithHost:trustedHost];
+        __auto_type *request = [[MSIDAADAuthorityMetadataRequest alloc] initWithEndpoint:endpoint authority:authority.url context:context];
+        s_pendingRequestsByEnvironment[environmentKey] = request;
+
+        [request sendWithBlock:^(MSIDAADAuthorityMetadataResponse *response, NSError *networkError)
+         {
+             if (networkError)
+             {
+                 if ([networkError.msidOauthError isEqualToString:@"invalid_instance"])
+                 {
+                     [self.aadCache addInvalidRecord:authority oauthError:networkError context:context];
+                 }
+
+                 dispatch_async(s_aadValidationQueue, ^{
+                     if (s_pendingRequestsByEnvironment[environmentKey] != request)
+                     {
+                         return;
+                     }
+
+                     NSArray<MSIDAuthorityInfoBlock> *blocksToInvoke = [s_pendingCompletionsByEnvironment[environmentKey] copy];
+                     [s_pendingCompletionsByEnvironment removeObjectForKey:environmentKey];
+                     [s_pendingRequestsByEnvironment removeObjectForKey:environmentKey];
+
+                     for (MSIDAuthorityInfoBlock block in blocksToInvoke)
+                     {
+                         block(nil, NO, networkError);
+                     }
+                 });
+                 return;
+             }
+
+             [self.aadCache processMetadata:response.metadata
+                       openIdConfigEndpoint:response.openIdConfigurationEndpoint
+                                  authority:authority
+                                    context:context
+                                 completion:^(BOOL result, NSError *processError)
+              {
+                  dispatch_async(s_aadValidationQueue, ^{
+                      if (s_pendingRequestsByEnvironment[environmentKey] != request)
+                      {
+                          return;
+                      }
+
+                      NSArray<MSIDAuthorityInfoBlock> *blocksToInvoke = [s_pendingCompletionsByEnvironment[environmentKey] copy];
+                      [s_pendingCompletionsByEnvironment removeObjectForKey:environmentKey];
+                      [s_pendingRequestsByEnvironment removeObjectForKey:environmentKey];
+
+                      for (MSIDAuthorityInfoBlock block in blocksToInvoke)
+                      {
+                          if (result)
+                          {
+                              block(nil, YES, nil);
+                          }
+                          else
+                          {
+                              block(nil, NO, processError);
+                          }
+                      }
+                  });
+              }];
+         }];
+    });
+}
 
 - (void)sendDiscoverRequestWithAuthority:(MSIDAADAuthority *)authority
                                 validate:(BOOL)validate

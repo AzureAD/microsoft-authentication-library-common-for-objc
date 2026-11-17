@@ -149,4 +149,6 @@ NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_pro
 
 NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 75.0;
 
+NSString *const MSID_FLIGHT_ENABLE_SILENT_REQUEST_AUTHORITY_AND_BG_TASK_IMPROVEMENTS = @"enable_silent_req_auth_bg_improvements";
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

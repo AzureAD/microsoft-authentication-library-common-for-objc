@@ -50,6 +50,48 @@
     [self.manager stopOperationWithType:self.taskType];
 }
 
+- (void)testStartOperationWithExpirationHandler_whenExpired_shouldInvokeHandlerAndClearTask
+{
+    __block BOOL handlerCalled = NO;
+    NSUUID *token = [self.manager startOperationWithType:self.taskType expirationHandler:^{
+        handlerCalled = YES;
+    }];
+    XCTAssertNotNil(token);
+    XCTAssertNotNil([self.taskCache objectForKey:@(self.taskType)]);
+
+    [self.manager expireOperationWithType:self.taskType];
+
+    XCTAssertTrue(handlerCalled);
+    XCTAssertNil([self.taskCache objectForKey:@(self.taskType)]);
+}
+
+- (void)testStopOperationWithToken_whenStoppedBeforeExpiration_shouldNotInvokeHandlerOnExpire
+{
+    __block BOOL handler1Called = NO;
+    __block BOOL handler2Called = NO;
+    NSUUID *token1 = [self.manager startOperationWithType:self.taskType expirationHandler:^{
+        handler1Called = YES;
+    }];
+    NSUUID *token2 = [self.manager startOperationWithType:self.taskType expirationHandler:^{
+        handler2Called = YES;
+    }];
+    XCTAssertNotNil(token1);
+    XCTAssertNotNil(token2);
+
+    [self.manager stopOperationWithType:self.taskType token:token1];
+    // Duplicate stop with same token should be a no-op
+    [self.manager stopOperationWithType:self.taskType token:token1];
+
+    MSIDBackgroundTaskData *bgTask = [self.taskCache objectForKey:@(self.taskType)];
+    XCTAssertEqual(bgTask.callerReferenceCount, 1);
+
+    [self.manager expireOperationWithType:self.taskType];
+
+    XCTAssertFalse(handler1Called);
+    XCTAssertTrue(handler2Called);
+    XCTAssertNil([self.taskCache objectForKey:@(self.taskType)]);
+}
+
 - (void)testStartOperationWhenNoneAlreadyExistsForAType
 {
     [self.manager startOperationWithType:self.taskType];

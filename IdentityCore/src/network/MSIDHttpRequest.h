@@ -95,4 +95,6 @@
 
 @property (nonatomic, nonnull) NSURLCache *cache;
 
+- (void)cancel;
+
 @end

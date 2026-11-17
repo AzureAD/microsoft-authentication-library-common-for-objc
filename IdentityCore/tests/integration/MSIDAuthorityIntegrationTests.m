@@ -37,6 +37,11 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDWorkplaceJoinConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDAadAuthorityResolver.h"
+#import "MSIDURLSessionManager.h"
+#import "MSIDConstants.h"
 
 @interface MSIDAuthorityIntegrationTests : XCTestCase
 
@@ -55,9 +60,11 @@
 {
     [super tearDown];
 
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
     [MSIDAuthority.openIdConfigurationCache removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [MSIDAdfsAuthorityResolver.cache removeAllObjects];
+    [MSIDFlightManager sharedInstance].flightProvider = nil;
 
     [MSIDTestURLSession clearResponses];
 }
@@ -877,6 +884,104 @@
      }];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testDiscoverAuthority_whenFlightEnabledAndConcurrentRequests_shouldCoalesceSingleNetworkRequest
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{
+        MSID_FLIGHT_ENABLE_SILENT_REQUEST_AUTHORITY_AND_BG_TASK_IMPROVEMENTS : @YES
+    };
+    [MSIDFlightManager sharedInstance].flightProvider = flightProvider;
+
+    __auto_type authority1 = [@"https://login.microsoftonline.com/common" aadAuthority];
+    __auto_type authority2 = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fauthorize" msidUrl];
+
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    headers[kMSIDPKeyAuthHeader] = @"1.0";
+    response->_requestHeaders = headers;
+    __auto_type responseJson = @{
+        @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
+        @"metadata" : @[
+            @{
+                @"preferred_network" : @"login.microsoftonline.com",
+                @"preferred_cache" : @"login.windows.net",
+                @"aliases" : @[@"login.microsoftonline.com", @"login.windows.net"]
+            }
+        ]
+    };
+    [response setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:response];
+
+    XCTestExpectation *exp1 = [self expectationWithDescription:@"Authority 1 resolved"];
+    XCTestExpectation *exp2 = [self expectationWithDescription:@"Authority 2 resolved"];
+
+    [authority1 resolveAndValidate:YES userPrincipalName:nil context:nil completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error) {
+        XCTAssertEqualObjects(openIdConfigurationEndpoint.absoluteString, @"https://login.microsoftonline.com/common/.well-known/openid-configuration");
+        XCTAssertTrue(validated);
+        XCTAssertNil(error);
+        [exp1 fulfill];
+    }];
+
+    [authority2 resolveAndValidate:YES userPrincipalName:nil context:nil completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error) {
+        XCTAssertEqualObjects(openIdConfigurationEndpoint.absoluteString, @"https://login.microsoftonline.com/contoso.com/.well-known/openid-configuration");
+        XCTAssertTrue(validated);
+        XCTAssertNil(error);
+        [exp2 fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
+}
+
+- (void)testDiscoverAuthority_whenFlightEnabledAndCancelled_shouldCompletePendingWaitersWithCancelledError
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{
+        MSID_FLIGHT_ENABLE_SILENT_REQUEST_AUTHORITY_AND_BG_TASK_IMPROVEMENTS : @YES
+    };
+    [MSIDFlightManager sharedInstance].flightProvider = flightProvider;
+
+    __auto_type authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fauthorize" msidUrl];
+
+    dispatch_semaphore_t allowResponseSem = dispatch_semaphore_create(0);
+
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
+                                                         reponse:httpResponse];
+    NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
+    headers[@"Accept"] = @"application/json";
+    headers[kMSIDPKeyAuthHeader] = @"1.0";
+    response->_requestHeaders = headers;
+    [response setResponseJSON:@{@"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration", @"metadata" : @[]}];
+    [response setWaitSemaphore:allowResponseSem];
+    [MSIDTestURLSession addResponse:response];
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+
+    XCTestExpectation *exp = [self expectationWithDescription:@"Authority cancelled"];
+    [authority resolveAndValidate:NO userPrincipalName:nil context:nil completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error) {
+        XCTAssertNil(openIdConfigurationEndpoint);
+        XCTAssertFalse(validated);
+        XCTAssertEqualObjects(error.domain, NSURLErrorDomain);
+        XCTAssertEqual(error.code, NSURLErrorCancelled);
+        [exp fulfill];
+    }];
+
+    [MSIDAadAuthorityResolver cancelPendingRequestsWithError:nil];
+    dispatch_semaphore_signal(allowResponseSem);
+
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+    // Drain the session delegate queue so the mock response finishes before tearDown clearsNSURLCache
+    NSOperationQueue *delegateQueue = [MSIDURLSessionManager defaultManager].session.delegateQueue;
+    [delegateQueue waitUntilAllOperationsAreFinished];
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    [MSIDTestURLSession clearResponses];
 }
 
 #pragma mark - Private

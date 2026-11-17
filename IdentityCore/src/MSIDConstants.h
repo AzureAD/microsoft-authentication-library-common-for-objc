@@ -334,4 +334,14 @@ extern NSString * _Nonnull const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_
 /// Default delay (in seconds) before the MDM profile install notification fires.
 extern NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay;
 
+/**
+ * Flight to enable silent token request authority resolution and background task improvements:
+ * 1. Check cached access token before network authority discovery when applicable.
+ * 2. Coalesce concurrent AAD authority discovery requests without blocking a GCD thread on a semaphore.
+ * 3. Propagate iOS background task expiration to cancel in-flight silent requests and unblock waiting callers.
+ * Owner: josephpab
+ * Default: OFF
+ */
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SILENT_REQUEST_AUTHORITY_AND_BG_TASK_IMPROVEMENTS;
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

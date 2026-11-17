@@ -30,4 +30,6 @@
 
 @property (nonatomic, nonnull) MSIDAadAuthorityCache *aadCache;
 
++ (void)cancelPendingRequestsWithError:(nullable NSError *)error;
+
 @end

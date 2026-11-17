@@ -34,6 +34,7 @@
     {
         _backgroundTaskId = backgroundTaskId;
         _callerReferenceCount = 1;
+        _expirationHandlers = [NSMutableDictionary new];
     }
     return self;
 }
