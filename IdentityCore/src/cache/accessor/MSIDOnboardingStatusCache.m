@@ -89,6 +89,20 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
     return self;
 }
 
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource
+{
+    self = [super init];
+
+    if (self)
+    {
+        _dataSource = dataSource;
+        _serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+        _accessQueue = dispatch_queue_create("com.microsoft.identity.onboardingStatusCache", DISPATCH_QUEUE_SERIAL);
+    }
+
+    return self;
+}
+
 #pragma mark - Cache Key
 
 - (MSIDCacheKey *)cacheKey
