@@ -120,7 +120,15 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
             MSIDJsonSerializer *claimsSerializer = [MSIDJsonSerializer new];
             // Preserve opaque claims contents, including null values.
             claimsSerializer.normalizeJSON = NO;
-            _claimsRequest = (MSIDClaimsRequest *)[claimsSerializer fromJsonString:claimsStr ofType:MSIDClaimsRequest.class context:nil error:nil];
+            id claimsJson = [claimsSerializer deserializeFromJSONString:claimsStr error:nil];
+            if ([claimsJson isKindOfClass:NSDictionary.class])
+            {
+                _claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJson error:nil];
+            }
+            else
+            {
+                MSID_LOG_WITH_CORR(MSIDLogLevelWarning, self.correlationId, @"Ignoring broker claims: expected a JSON dictionary.");
+            }
         }
         
         _requestSentDate = [NSDate msidDateFromTimeStamp:json[MSID_BROKER_REQUEST_SENT_TIMESTAMP]];

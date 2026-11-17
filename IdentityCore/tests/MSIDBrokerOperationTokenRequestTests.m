@@ -58,6 +58,25 @@
     XCTAssertEqualObjects(reparsed.claimsRequest.jsonDictionary, expectedClaims);
 }
 
+- (void)testInitWithJSONDictionary_whenClaimsRootIsArray_shouldIgnoreClaims
+{
+    NSDictionary *json = @{
+        @"broker_key": @"broker_key_value",
+        @"msg_protocol_ver": @"99",
+        @"provider_type": @"provider_aad_v2",
+        @"authority": @"https://login.microsoftonline.com/common",
+        @"redirect_uri": @"redirect uri",
+        @"client_id": @"client id",
+        @"claims": @"[]"
+    };
+    NSError *error = nil;
+    MSIDBrokerOperationTokenRequest *request = nil;
+    XCTAssertNoThrow(request = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:json error:&error]);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertNil(request.claimsRequest);
+}
+
 - (void)testIsSubclassOfOperationRequest_shouldReturnTrue
 {
     XCTAssertTrue([MSIDBrokerOperationTokenRequest.class isSubclassOfClass:MSIDBrokerOperationTokenRequest.class]);
