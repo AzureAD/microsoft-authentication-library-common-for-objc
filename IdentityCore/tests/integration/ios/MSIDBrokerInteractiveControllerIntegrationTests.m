@@ -245,9 +245,10 @@
     __weak typeof(self) weakSelf = self;
     [self.controller acquireToken:^(MSIDTokenResult *result, NSError *acquireTokenError)
     {
-        weakSelf.completionCount++;
-        weakSelf.result = result;
-        weakSelf.error = acquireTokenError;
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        strongSelf.completionCount++;
+        strongSelf.result = result;
+        strongSelf.error = acquireTokenError;
     }];
     [self waitForExpectationsWithTimeout:2.0 handler:nil];
     self.application.onOpenURL = nil;
