@@ -72,6 +72,7 @@
 + (MSIDBrokerInteractiveController *)currentBrokerController;
 + (void)setCurrentBrokerRequest:(MSIDBrokerTokenRequest *)currentBrokerRequest;
 + (MSIDBrokerTokenRequest *)currentBrokerRequest;
+- (void)saveToPasteBoard:(NSURL *)url;
 @property (nonatomic, readwrite) BOOL isReplayRequest;
 @end
 
@@ -1427,6 +1428,166 @@ static NSInteger gFakeThrottlingCallCount = 0;
 }
 
 #if !AD_BROKER
+- (void)testAcquireToken_whenBrokerInstalledAfterInstallPrompt_shouldReplayToBroker
+{
+    NSArray *originalSchemes = [MSIDApplicationTestUtil canOpenURLSchemes];
+    [MSIDApplicationTestUtil setCanOpenURLSchemes:@[]];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.brokerInvocationOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                           protocolType:MSIDBrokerProtocolTypeCustomScheme
+                                                                                      aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+
+    NSURL *installURL = [NSURL URLWithString:@"itms-apps://itunes.apple.com/app/test-broker"];
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"msauthv2://broker?client_id=my_client_id"];
+    NSURL *replayURL = [brokerRequestURL msidURLWithQueryParameters:@{MSID_IGNORE_BROKER_REQUEST: @"1"}];
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                                             tokenRequestProvider:provider
+                                                                                                                brokerInstallLink:installURL
+                                                                                                                            error:&error];
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+    XCTAssertFalse([MSIDBrokerInteractiveController canPerformRequest:parameters]);
+
+    __block NSUInteger pasteboardWriteCount = 0;
+    [MSIDTestSwizzle instanceMethod:@selector(saveToPasteBoard:)
+                              class:MSIDBrokerInteractiveController.class
+                              block:^(MSIDBrokerInteractiveController *controller, NSURL *url)
+    {
+        XCTAssertEqualObjects(controller, brokerController);
+        XCTAssertEqualObjects(url, brokerRequestURL);
+        pasteboardWriteCount++;
+    }];
+
+    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+    __block NSUInteger openURLCallCount = 0;
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *, id> *options)
+    {
+        openURLCallCount++;
+
+        if (openURLCallCount == 1)
+        {
+            XCTAssertEqualObjects(url, installURL);
+            [MSIDApplicationTestUtil setCanOpenURLSchemes:@[@"msauthv2", @"msauthv3"]];
+            [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+        }
+        else
+        {
+            XCTAssertEqual(openURLCallCount, 2u);
+            XCTAssertEqualObjects(url, replayURL);
+            XCTAssertTrue(brokerController.isReplayRequest);
+            XCTAssertEqual(pasteboardWriteCount, 1u);
+
+            MSIDTestBrokerResponseHandler *responseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+            [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                                sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                            brokerResponseHandler:responseHandler];
+        }
+
+        return YES;
+    }];
+
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"]];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Broker responds after installation"];
+    __block NSUInteger completionCount = 0;
+    [brokerController acquireToken:^(MSIDTokenResult *result, NSError *acquireTokenError)
+    {
+        completionCount++;
+        XCTAssertEqualObjects(result, testResult);
+        XCTAssertNil(acquireTokenError);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:2.0 handler:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+    XCTAssertEqual(openURLCallCount, 2u);
+    XCTAssertEqual(pasteboardWriteCount, 1u);
+    XCTAssertEqual(completionCount, 1u);
+    XCTAssertNil([MSIDBrokerInteractiveController currentBrokerController]);
+    XCTAssertNil([MSIDBrokerInteractiveController currentBrokerRequest]);
+    [MSIDApplicationTestUtil setCanOpenURLSchemes:originalSchemes];
+}
+
+- (void)testAcquireToken_whenBrokerLaunchFailsAfterInstallPrompt_shouldReturnError
+{
+    NSArray *originalSchemes = [MSIDApplicationTestUtil canOpenURLSchemes];
+    [MSIDApplicationTestUtil setCanOpenURLSchemes:@[]];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.brokerInvocationOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                           protocolType:MSIDBrokerProtocolTypeCustomScheme
+                                                                                      aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+
+    NSURL *installURL = [NSURL URLWithString:@"itms-apps://itunes.apple.com/app/test-broker"];
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"msauthv2://broker?client_id=my_client_id"];
+    NSURL *replayURL = [brokerRequestURL msidURLWithQueryParameters:@{MSID_IGNORE_BROKER_REQUEST: @"1"}];
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                                             tokenRequestProvider:provider
+                                                                                                                brokerInstallLink:installURL
+                                                                                                                            error:&error];
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+
+    __block NSUInteger pasteboardWriteCount = 0;
+    [MSIDTestSwizzle instanceMethod:@selector(saveToPasteBoard:)
+                              class:MSIDBrokerInteractiveController.class
+                              block:^(__unused MSIDBrokerInteractiveController *controller, NSURL *url)
+    {
+        XCTAssertEqualObjects(url, brokerRequestURL);
+        pasteboardWriteCount++;
+    }];
+
+    __block NSUInteger openURLCallCount = 0;
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *, id> *options)
+    {
+        openURLCallCount++;
+
+        if (openURLCallCount == 1)
+        {
+            XCTAssertEqualObjects(url, installURL);
+            [MSIDApplicationTestUtil setCanOpenURLSchemes:@[@"msauthv2", @"msauthv3"]];
+            [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+            return YES;
+        }
+
+        XCTAssertEqual(openURLCallCount, 2u);
+        XCTAssertEqualObjects(url, replayURL);
+        return NO;
+    }];
+
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"]];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Failed post-install broker launch completes"];
+    __block NSUInteger completionCount = 0;
+    [brokerController acquireToken:^(MSIDTokenResult *result, NSError *acquireTokenError)
+    {
+        completionCount++;
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqualObjects(acquireTokenError.domain, MSIDErrorDomain);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:2.0 handler:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+    XCTAssertEqual(openURLCallCount, 2u);
+    XCTAssertEqual(pasteboardWriteCount, 1u);
+    XCTAssertEqual(completionCount, 1u);
+    XCTAssertNil([MSIDBrokerInteractiveController currentBrokerController]);
+    XCTAssertNil([MSIDBrokerInteractiveController currentBrokerRequest]);
+    XCTAssertEqual([MSIDOnboardingStatusCache.sharedInstance getOnboardingStatus].phase, MSIDOnboardingPhaseNone);
+    [MSIDApplicationTestUtil setCanOpenURLSchemes:originalSchemes];
+}
+
 - (void)testAcquireToken_whenBrokerResponseNotReceived_andOnboardingStatusMatches_shouldReplayRequest
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];

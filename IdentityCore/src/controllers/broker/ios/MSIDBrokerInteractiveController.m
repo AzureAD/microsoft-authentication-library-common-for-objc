@@ -281,8 +281,8 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     }
 #endif
 
-    NSURL *launchURL = _brokerInstallLink ? _brokerInstallLink : brokerRequestURL;
-    BOOL firstTimeInstall = _brokerInstallLink != nil;
+    BOOL firstTimeInstall = _brokerInstallLink != nil && !self.isReplayRequest;
+    NSURL *launchURL = firstTimeInstall ? _brokerInstallLink : brokerRequestURL;
 
     if (firstTimeInstall)
     {
