@@ -1,5 +1,6 @@
 ## [TBD]
 * (iOS) Avoid a potential authentication hang by keeping BART enablement in process-local memory instead of writing application preferences; applications must configure enablement on each launch.
+* Behind the `enable_silent_req_auth_bg_improvements` flight (default OFF until ECS enables it), check cached access tokens before network AAD authority discovery when eligible, coalesce concurrent AAD authority discovery requests without blocking on a semaphore, and cancel pending silent token requests when iOS background execution expires.
 
 Version 2.18.1
 * Fix shared password-entry UI test readiness by prioritizing a ready secure field and avoiding queries against the departing Verify-email page after password selection, while preserving alternate sign-in paths and hidden-keyboard dismissal. (#1984)

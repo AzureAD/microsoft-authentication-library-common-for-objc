@@ -30,6 +30,8 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDAADRequestErrorHandler.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
 #endif
@@ -80,24 +82,74 @@
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+    BOOL enableImprovements = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_SILENT_REQUEST_AUTHORITY_AND_BG_TASK_IMPROVEMENTS];
+    __auto_type request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
+                                                                         forceRefresh:self.forceRefresh];
+    request.skipLocalRt = self.skipLocalRt;
+
+    __block BOOL isCompleted = NO;
+    NSObject *completionLock = [NSObject new];
 #if TARGET_OS_IPHONE
-    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeSilentRequest];
+    __block NSUUID *bgTaskToken = nil;
+    if (enableImprovements)
+    {
+        __weak typeof(self) weakSelf = self;
+        bgTaskToken = [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeSilentRequest
+                                                                       expirationHandler:^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            [request cancel];
+            BOOL shouldInvokeCompletion = NO;
+            @synchronized (completionLock)
+            {
+                if (!isCompleted)
+                {
+                    isCompleted = YES;
+                    shouldInvokeCompletion = YES;
+                }
+            }
+            if (shouldInvokeCompletion)
+            {
+                NSError *cancelError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.requestParameters, @"Silent flow cancelled on background task expiration. Error: %ld error domain: %@", (long)cancelError.code, cancelError.domain);
+                strongSelf.currentRequest = nil;
+                completionBlock(nil, cancelError);
+            }
+        }];
+    }
+    else
+    {
+        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeSilentRequest];
+    }
 #endif
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent flow.");
     
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
+        if (enableImprovements)
+        {
+            @synchronized (completionLock)
+            {
+                if (isCompleted)
+                {
+                    return;
+                }
+                isCompleted = YES;
+            }
 #if TARGET_OS_IPHONE
-        [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeSilentRequest];
+            [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeSilentRequest token:bgTaskToken];
 #endif
+        }
+        else
+        {
+#if TARGET_OS_IPHONE
+            [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeSilentRequest];
+#endif
+        }
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         completionBlock(result, error);
     };
     
-    __auto_type request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
-                                                                         forceRefresh:self.forceRefresh];
-    request.skipLocalRt = self.skipLocalRt;
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 

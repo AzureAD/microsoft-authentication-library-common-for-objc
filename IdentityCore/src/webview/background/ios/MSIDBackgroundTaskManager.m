@@ -71,6 +71,13 @@
 
 - (void)startOperationWithType:(MSIDBackgroundTaskType)type
 {
+    [self startOperationWithType:type expirationHandler:nil];
+}
+
+- (nullable NSUUID *)startOperationWithType:(MSIDBackgroundTaskType)type
+                          expirationHandler:(nullable dispatch_block_t)expirationHandler
+{
+    NSUUID *token = expirationHandler ? [NSUUID UUID] : nil;
     @synchronized (self.taskCache)
     {
         MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
@@ -78,7 +85,11 @@
         {
             // A background task was already started for this type, updating count
             backgroundTaskData.callerReferenceCount++;
-            return;
+            if (token && expirationHandler)
+            {
+                backgroundTaskData.expirationHandlers[token] = [expirationHandler copy];
+            }
+            return token;
         }
         UIBackgroundTaskIdentifier backgroundTaskId = [[MSIDAppExtensionUtil sharedApplication] beginBackgroundTaskWithName:@"Interactive login"
                                                                                                           expirationHandler:^{
@@ -87,17 +98,41 @@
                                                                         [self expireOperationWithType:type];
                                                                     }];
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Start background app task with type %ld & taskId : %lu", (long)type, (unsigned long)backgroundTaskId);
-        [self setBackgroundTask:[[MSIDBackgroundTaskData alloc] initWithTaskId:backgroundTaskId] forType:type];
+        MSIDBackgroundTaskData *newTaskData = [[MSIDBackgroundTaskData alloc] initWithTaskId:backgroundTaskId];
+        if (token && expirationHandler)
+        {
+            newTaskData.expirationHandlers[token] = [expirationHandler copy];
+        }
+        [self setBackgroundTask:newTaskData forType:type];
     }
+    return token;
 }
 
 - (void)stopOperationWithType:(MSIDBackgroundTaskType)type
 {
+    [self stopOperationWithType:type token:nil];
+}
+
+- (void)stopOperationWithType:(MSIDBackgroundTaskType)type
+                        token:(nullable NSUUID *)token
+{
     @synchronized (self.taskCache)
     {
         MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
+        if (!backgroundTaskData)
+        {
+            return;
+        }
+        if (token)
+        {
+            if (!backgroundTaskData.expirationHandlers[token])
+            {
+                return;
+            }
+            [backgroundTaskData.expirationHandlers removeObjectForKey:token];
+        }
         backgroundTaskData.callerReferenceCount--;
-        if (!backgroundTaskData || backgroundTaskData.callerReferenceCount > 0)
+        if (backgroundTaskData.callerReferenceCount > 0)
         {
             // No background task found in task cache for specified type or there are still other tasks relying on background protection.
             return;
@@ -110,9 +145,24 @@
 
 - (void)expireOperationWithType:(MSIDBackgroundTaskType)type
 {
-    MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
-    backgroundTaskData.callerReferenceCount = 1;
-    [self stopOperationWithType:type];
+    NSArray<dispatch_block_t> *handlersToInvoke = nil;
+    @synchronized (self.taskCache)
+    {
+        MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
+        if (!backgroundTaskData)
+        {
+            return;
+        }
+        handlersToInvoke = [backgroundTaskData.expirationHandlers allValues];
+        [backgroundTaskData.expirationHandlers removeAllObjects];
+        backgroundTaskData.callerReferenceCount = 1;
+        [self stopOperationWithType:type token:nil];
+    }
+
+    for (dispatch_block_t handler in handlersToInvoke)
+    {
+        handler();
+    }
 }
 
 #pragma mark - Task dictionary

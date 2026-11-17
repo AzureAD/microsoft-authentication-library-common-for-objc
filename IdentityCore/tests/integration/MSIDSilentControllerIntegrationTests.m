@@ -39,6 +39,33 @@
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDAADRequestErrorHandler.h"
 #import "MSIDTestBoundAppRefreshTokenRequest.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
+#if TARGET_OS_IPHONE
+#import "MSIDBackgroundTaskManager.h"
+#endif
+
+@interface MSIDDelayedTestSilentTokenRequest : MSIDTestSilentTokenRequest
+
+@property (nonatomic, copy) MSIDRequestCompletionBlock pendingCompletionBlock;
+@property (nonatomic) BOOL cancelCalled;
+
+@end
+
+@implementation MSIDDelayedTestSilentTokenRequest
+
+- (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
+{
+    self.pendingCompletionBlock = completionBlock;
+}
+
+- (void)cancel
+{
+    self.cancelCalled = YES;
+}
+
+@end
 
 @interface MSIDSilentControllerIntegrationTests : XCTestCase
 
@@ -596,5 +623,52 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
     
 }
+
+#if TARGET_OS_IPHONE
+- (void)testAcquireToken_whenFlightEnabledAndBackgroundTaskExpires_shouldCancelRequestAndCompleteOnce
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{
+        MSID_FLIGHT_ENABLE_SILENT_REQUEST_AUTHORITY_AND_BG_TASK_IMPROVEMENTS : @YES
+    };
+    [MSIDFlightManager sharedInstance].flightProvider = flightProvider;
+
+    MSIDRequestParameters *parameters = [self requestParameters];
+    MSIDDelayedTestSilentTokenRequest *delayedRequest = [[MSIDDelayedTestSilentTokenRequest alloc] initWithTestResponse:nil testError:nil];
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil];
+    provider.silentRequest = delayedRequest;
+
+    NSError *error = nil;
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:provider error:&error];
+    XCTAssertNotNil(silentController);
+    XCTAssertNil(error);
+
+    __block NSInteger completionCount = 0;
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Cancelled on bg task expiration"];
+
+    [silentController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        completionCount++;
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqualObjects(acquireTokenError.domain, NSURLErrorDomain);
+        XCTAssertEqual(acquireTokenError.code, NSURLErrorCancelled);
+        [expectation fulfill];
+    }];
+
+    [[MSIDBackgroundTaskManager sharedInstance] expireOperationWithType:MSIDBackgroundTaskTypeSilentRequest];
+
+    // Simulate a late callback from the underlying request after background expiration
+    if (delayedRequest.pendingCompletionBlock)
+    {
+        delayedRequest.pendingCompletionBlock([self resultWithParameters:parameters], nil);
+    }
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    XCTAssertTrue(delayedRequest.cancelCalled);
+    XCTAssertEqual(completionCount, 1);
+
+    [MSIDFlightManager sharedInstance].flightProvider = nil;
+}
+#endif
 
 @end

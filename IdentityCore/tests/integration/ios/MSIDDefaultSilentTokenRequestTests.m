@@ -57,6 +57,7 @@
 #import "MSIDOAuth2Constants.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 #import "MSIDBartFeatureUtil.h"
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDExecutionFlowLogger.h"
@@ -129,6 +130,7 @@
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
+    [MSIDFlightManager sharedInstance].flightProvider = nil;
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
@@ -2911,6 +2913,42 @@
         
         return @"";
      }];
+}
+
+- (void)testAcquireTokenSilent_whenFlightEnabledAndValidAccessTokenInCache_shouldSkipNetworkAuthorityDiscovery
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{
+        MSID_FLIGHT_ENABLE_SILENT_REQUEST_AUTHORITY_AND_BG_TASK_IMPROVEMENTS : @YES
+    };
+    [MSIDFlightManager sharedInstance].flightProvider = flightProvider;
+
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    // Clear authority cache and do NOT register any MSIDTestURLResponse for discovery.
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                       accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request without discovery"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(result.accessToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 @end
