@@ -1,4 +1,5 @@
 ## [TBD]
+* Add macOS silent-token cache, refresh-error, and XPC provider-cache failover regression tests; production behavior is unchanged.
 * (iOS) Avoid a potential authentication hang by keeping BART enablement in process-local memory instead of writing application preferences; applications must configure enablement on each launch.
 
 Version 2.18.1
