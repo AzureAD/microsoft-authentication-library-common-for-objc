@@ -33,6 +33,46 @@
 
 @implementation MSIDClaimsRequestTests
 
+- (void)testAdditionalPropertiesRoundTripAndCopy
+{
+    for (NSDictionary *info in @[
+        @{@"additionalProperties": @[@"property-one"]},
+        @{@"essential": @YES, @"value": @0, @"values": @[@1, @2], @"additionalProperties": @[@"property-one", @"property-three"]},
+        @{@"additionalProperties": @[]},
+        @{@"essential": @NO, @"value": @0, @"values": @[]}
+    ])
+    {
+        NSDictionary *json = @{@"id_token": @{@"custom_claim": info}};
+        NSError *error = nil;
+        MSIDClaimsRequest *request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:json error:&error];
+        XCTAssertNotNil(request);
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(request.jsonDictionary, json);
+        MSIDClaimsRequest *copy = [request copy];
+        XCTAssertEqualObjects(copy.jsonDictionary, json);
+        MSIDClaimsRequest *reparsed = [[MSIDClaimsRequest alloc] initWithJSONDictionary:copy.jsonDictionary error:&error];
+        XCTAssertEqualObjects(reparsed.jsonDictionary, json);
+        MSIDIndividualClaimRequest *originalClaim = [request claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject;
+        MSIDIndividualClaimRequest *reparsedClaim = [reparsed claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject;
+        XCTAssertEqualObjects(originalClaim, reparsedClaim);
+        XCTAssertEqual(originalClaim.hash, reparsedClaim.hash);
+    }
+}
+
+- (void)testAdditionalPropertiesRejectsNonArrayAndCopiesArray
+{
+    NSError *error = nil;
+    XCTAssertNil([[MSIDIndividualClaimRequestAdditionalInfo alloc] initWithJSONDictionary:@{@"additionalProperties": @"property-one"} error:&error]);
+    XCTAssertNotNil(error);
+    NSMutableArray *properties = [NSMutableArray arrayWithObject:@"property-one"];
+    MSIDIndividualClaimRequestAdditionalInfo *info = [MSIDIndividualClaimRequestAdditionalInfo new];
+    info.additionalProperties = properties;
+    [properties removeAllObjects];
+    XCTAssertEqualObjects(info.additionalProperties, @[@"property-one"]);
+    info.additionalProperties = nil;
+    XCTAssertNil(info.jsonDictionary[@"additionalProperties"]);
+}
+
 - (void)setUp
 {
 }
