@@ -224,7 +224,7 @@
 
 - (void)testAgeAssuranceSSOBrokerRejectsBeforePrimaryAndAdditionalCacheWrites
 {
-    MSIDBrokerOperationTokenResponse *operation = [MSIDBrokerOperationTokenResponse new];
+    MSIDBrokerOperationTokenResponse *operation = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
     operation.tokenResponse = [self ageAssuranceResponseWithReceipt:@"+other"];
     operation.additionalTokenResponse = [self ageAssuranceResponseWithReceipt:@"+mc"];
     __block BOOL completed = NO;
@@ -251,7 +251,7 @@
 
 - (void)testAgeAssuranceSSOBrokerAcceptsMatchingReceipt
 {
-    MSIDBrokerOperationTokenResponse *operation = [MSIDBrokerOperationTokenResponse new];
+    MSIDBrokerOperationTokenResponse *operation = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
     operation.tokenResponse = [self ageAssuranceResponseWithReceipt:@"-MC"];
     __block BOOL completed = NO;
     [[MSIDSSOTokenResponseHandler new] handleOperationResponse:operation

@@ -45,10 +45,15 @@
 
         for (id property in claim.additionalInfo.additionalProperties)
         {
-            if ([property isKindOfClass:NSString.class] && [[property lowercaseString] hasPrefix:@"target-"])
+            if (![property isKindOfClass:NSString.class])
+            {
+                continue;
+            }
+            NSString *targetProperty = property;
+            if ([targetProperty.lowercaseString hasPrefix:@"target-"])
             {
                 // Preserve malformed explicit targets so they fail closed, rather than disabling validation.
-                [targets addObject:[[[property substringFromIndex:7] lowercaseString] copy]];
+                [targets addObject:[[[targetProperty substringFromIndex:7] lowercaseString] copy]];
             }
         }
     }
@@ -89,8 +94,9 @@
         }
     }
 
-    id receipt = payload[@"xms_agvt"];
-    BOOL valid = [receipt isKindOfClass:NSString.class] && [receipt length] > 0;
+    id receiptValue = payload[@"xms_agvt"];
+    NSString *receipt = [receiptValue isKindOfClass:NSString.class] ? receiptValue : nil;
+    BOOL valid = receipt.length > 0;
     NSMutableSet<NSString *> *actualTargets = [NSMutableSet new];
     if (valid)
     {
