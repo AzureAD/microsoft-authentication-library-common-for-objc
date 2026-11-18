@@ -44,18 +44,71 @@
         @"authority": @"https://login.microsoftonline.com/common",
         @"redirect_uri": @"redirect uri",
         @"client_id": @"client id",
-        @"claims": @"{\"id_token\":{\"custom_claim\":{\"essential\":true,\"value\":0,\"additionalProperties\":[\"property-one\"]}}}"
+        @"claims": @"{\"id_token\":{\"custom_claim\":{\"essential\":true,\"value\":0,\"additionalProperties\":[null,\"property-one\",{\"property-two\":null}]}}}"
     };
     NSError *error = nil;
     MSIDBrokerOperationTokenRequest *request = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:json error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
-    NSDictionary *expectedClaims = @{@"id_token": @{@"custom_claim": @{@"essential": @YES, @"value": @0, @"additionalProperties": @[@"property-one"]}}};
+    NSDictionary *expectedClaims = @{@"id_token": @{@"custom_claim": @{@"essential": @YES, @"value": @0, @"additionalProperties": @[NSNull.null, @"property-one", @{@"property-two": NSNull.null}]}}};
     XCTAssertEqualObjects(request.claimsRequest.jsonDictionary, expectedClaims);
     MSIDBrokerOperationTokenRequest *reparsed = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:request.jsonDictionary error:&error];
     XCTAssertNotNil(reparsed);
     XCTAssertNil(error);
     XCTAssertEqualObjects(reparsed.claimsRequest.jsonDictionary, expectedClaims);
+}
+
+- (void)testInitWithJSONDictionary_whenClaimsRootIsArray_shouldIgnoreClaims
+{
+    [self assertBrokerRequestHasNoClaimsForClaimsString:@"[]"];
+}
+
+- (void)testInitWithJSONDictionary_whenClaimsRootIsNonEmptyArray_shouldIgnoreClaims
+{
+    [self assertBrokerRequestHasNoClaimsForClaimsString:@"[{}]"];
+}
+
+- (void)testInitWithJSONDictionary_whenClaimsAreMissing_shouldHaveNoClaims
+{
+    [self assertBrokerRequestHasNoClaimsForClaimsString:nil];
+}
+
+- (void)testInitWithJSONDictionary_whenClaimsStringIsEmpty_shouldIgnoreClaims
+{
+    [self assertBrokerRequestHasNoClaimsForClaimsString:@""];
+}
+
+- (void)testInitWithJSONDictionary_whenClaimsJsonIsMalformed_shouldIgnoreClaims
+{
+    [self assertBrokerRequestHasNoClaimsForClaimsString:@"{"];
+}
+
+- (void)testInitWithJSONDictionary_whenClaimsRootIsNull_shouldIgnoreClaims
+{
+    [self assertBrokerRequestHasNoClaimsForClaimsString:@"null"];
+}
+
+- (void)assertBrokerRequestHasNoClaimsForClaimsString:(NSString *)claimsString
+{
+    NSMutableDictionary *json = [@{
+        @"broker_key": @"broker_key_value",
+        @"msg_protocol_ver": @"99",
+        @"provider_type": @"provider_aad_v2",
+        @"authority": @"https://login.microsoftonline.com/common",
+        @"redirect_uri": @"redirect uri",
+        @"client_id": @"client id"
+    } mutableCopy];
+    if (claimsString)
+    {
+        json[@"claims"] = claimsString;
+    }
+
+    NSError *error = nil;
+    MSIDBrokerOperationTokenRequest *request = nil;
+    XCTAssertNoThrow(request = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:json error:&error]);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertNil(request.claimsRequest);
 }
 
 - (void)testIsSubclassOfOperationRequest_shouldReturnTrue
