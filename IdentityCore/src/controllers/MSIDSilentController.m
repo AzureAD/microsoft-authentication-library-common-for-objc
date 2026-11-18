@@ -142,7 +142,9 @@
         return;
     }
     
-    if (result || !self.fallbackController)
+    BOOL ageAssuranceMismatch = [error.domain isEqualToString:MSIDOAuthErrorDomain]
+        && error.code == MSIDErrorAgeAssuranceTargetMismatch;
+    if (result || !self.fallbackController || ageAssuranceMismatch)
     {
 #if !EXCLUDE_FROM_MSALCPP
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];

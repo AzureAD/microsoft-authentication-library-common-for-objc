@@ -59,7 +59,7 @@
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     XCTAssertEqualObjects(request.resumeDictionary[@"age_assurance_targets"], @[@"mc"]);
-    XCTAssertEqualObjects(parameters.claimsRequest.jsonDictionary[@"id_token"][@"xms_agvs"][@"additionalProperties"], @[@"target-MC", @"target-mc"]);
+    XCTAssertEqualObjects(parameters.claimsRequest.jsonDictionary[@"id_token"][@"xms_agvs"][@"additionalProperties"], (@[@"target-MC", @"target-mc"]));
 }
 
 - (void)setUp

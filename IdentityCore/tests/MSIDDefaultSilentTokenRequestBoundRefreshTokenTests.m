@@ -41,6 +41,36 @@
 
 - (MSIDRefreshToken *)familyRefreshTokenWithError:(NSError *__autoreleasing *)error;
 - (MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError *__autoreleasing *)error;
+- (void)tryRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+              tokenType:(NSInteger)tokenType
+        completionBlock:(MSIDRequestCompletionBlock)completionBlock;
+
+@end
+
+@interface MSIDReceiptMismatchSilentTokenRequest : MSIDDefaultSilentTokenRequest
+
+@property (nonatomic) NSError *receiptError;
+@property (nonatomic) NSUInteger redemptionCount;
+@property (nonatomic) NSUInteger familyTokenLookupCount;
+
+@end
+
+@implementation MSIDReceiptMismatchSilentTokenRequest
+
+- (MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError *__autoreleasing *)error
+{
+    self.familyTokenLookupCount++;
+    MSIDRefreshToken *token = [MSIDRefreshToken new];
+    token.refreshToken = @"family-token";
+    return token;
+}
+
+- (void)redeemAccessTokenWith:(__unused MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+              completionBlock:(MSIDRequestCompletionBlock)completionBlock
+{
+    self.redemptionCount++;
+    completionBlock(nil, self.receiptError);
+}
 
 @end
 
@@ -70,6 +100,32 @@
 @end
 
 @implementation MSIDDefaultSilentTokenRequestBoundRefreshTokenTests
+
+- (void)testReceiptMismatchDoesNotRetryOrBecomeInteractionOrBartError
+{
+    MSIDRefreshToken *regular = [MSIDRefreshToken new];
+    regular.refreshToken = @"app-token";
+    MSIDBoundRefreshToken *bound = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:regular boundDeviceId:@"device-id"];
+    for (MSIDRefreshToken *token in @[regular, bound])
+    {
+        MSIDReceiptMismatchSilentTokenRequest *request = [MSIDReceiptMismatchSilentTokenRequest new];
+        request.receiptError = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorAgeAssuranceTargetMismatch,
+                                               @"Receipt mismatch.", @"age_assurance_target_mismatch",
+                                               nil, nil, nil, nil, NO);
+        __block BOOL completed = NO;
+        // App refresh-token path: a generic OAuth error would otherwise try FRT or become interaction-required.
+        [request tryRefreshToken:token tokenType:0 completionBlock:^(MSIDTokenResult *result, NSError *error)
+         {
+            completed = YES;
+            XCTAssertNil(result);
+            XCTAssertEqualObjects(error, request.receiptError);
+         }];
+        XCTAssertTrue(completed);
+        XCTAssertEqual(request.redemptionCount, 1u);
+        XCTAssertEqual(request.familyTokenLookupCount, 0u);
+        XCTAssertFalse(request.shouldSkipBoundAppRefreshTokenUsage);
+    }
+}
 
 - (MSIDBoundRefreshTokenCacheAccessorMock *)tokenCacheWithRefreshToken:(MSIDRefreshToken *)refreshToken
 {

@@ -383,6 +383,13 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             completionBlock(result, nil);
             return;
         }
+
+        if ([error.domain isEqualToString:MSIDOAuthErrorDomain]
+            && error.code == MSIDErrorAgeAssuranceTargetMismatch)
+        {
+            completionBlock(nil, error);
+            return;
+        }
         
         if ([self isErrorRecoverableByUserInteraction:error])
         {

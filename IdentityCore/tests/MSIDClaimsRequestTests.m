@@ -88,7 +88,7 @@
 {
     MSIDClaimsRequest *request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:
                                  @{@"id_token": @{@"xms_agvs": @{@"value": @0, @"additionalProperties": @[@"TARGET-MC", @"target-mc", @"target-future.target/v2", @"other", @7]}}} error:nil];
-    XCTAssertEqualObjects(request.ageAssuranceTargetIdentifiers, [NSSet setWithArray:@[@"mc", @"future.target/v2"]]);
+    XCTAssertEqualObjects(request.ageAssuranceTargetIdentifiers, ([NSSet setWithArray:@[@"mc", @"future.target/v2"]]));
     for (NSDictionary *json in @[
         @{},
         @{@"id_token": @{@"xms_agvs": @{@"values": @[@1, @2]}}},
@@ -156,6 +156,43 @@
 
 - (void)tearDown
 {
+}
+
+- (void)testClearingPropertyOnlyClaimRestoresDefaultClaim
+{
+    NSError *error = nil;
+    MSIDClaimsRequest *request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:
+                                 @{@"id_token": @{@"custom_claim": @{@"additionalProperties": @[@"property-one"]}}}
+                                                                          error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    [request claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo.additionalProperties = nil;
+    XCTAssertEqualObjects(request.jsonDictionary, (@{@"id_token": @{@"custom_claim": NSNull.null}}));
+    MSIDClaimsRequest *reparsed = [[MSIDClaimsRequest alloc] initWithJSONDictionary:request.jsonDictionary error:&error];
+    XCTAssertNotNil(reparsed);
+    XCTAssertNil(error);
+    XCTAssertEqual([reparsed claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].count, 1);
+    XCTAssertNil([reparsed claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo);
+}
+
+- (void)testCapabilitiesPreserveAdditionalInfoWithoutMutatingCaller
+{
+    NSDictionary *json = @{@"access_token": @{@"xms_cc": @{@"essential": @YES, @"value": @"opaque-value",
+                                                         @"values": @[@"original-capability"],
+                                                         @"additionalProperties": @[NSNull.null, @{@"property-one": NSNull.null}]}}};
+    MSIDClaimsRequest *request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:json error:nil];
+    MSIDClaimsRequest *merged = [MSIDClaimsRequest claimsRequestFromCapabilities:@[@"new-capability"] claimsRequest:request];
+    MSIDIndividualClaimRequestAdditionalInfo *info = [merged claimsRequestsForTarget:MSIDClaimsRequestTargetAccessToken].firstObject.additionalInfo;
+    XCTAssertEqualObjects(info.values, @[@"new-capability"]);
+    XCTAssertEqualObjects(info.essential, @YES);
+    XCTAssertEqualObjects(info.value, @"opaque-value");
+    XCTAssertEqualObjects(info.additionalProperties, (@[NSNull.null, @{@"property-one": NSNull.null}]));
+    NSError *error = nil;
+    MSIDClaimsRequest *reparsed = [[MSIDClaimsRequest alloc] initWithJSONDictionary:merged.jsonDictionary error:&error];
+    XCTAssertNotNil(reparsed);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(reparsed.jsonDictionary, merged.jsonDictionary);
+    XCTAssertEqualObjects(request.jsonDictionary, json);
 }
 
 #pragma mark - requestCapabilities
