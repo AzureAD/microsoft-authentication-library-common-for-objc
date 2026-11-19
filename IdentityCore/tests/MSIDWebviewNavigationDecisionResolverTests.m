@@ -44,6 +44,8 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDTestSwizzle.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 
 @interface MSIDWebviewNavigationDecisionResolverTests : XCTestCase
 
@@ -51,6 +53,7 @@
 @property (nonatomic) MSIDTestCacheDataSource *dataSource;
 @property (nonatomic) MSIDIntuneDeviceIdCache *deviceIdCache;
 @property (nonatomic) BOOL ssoExtensionAvailable;
+@property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
 
 @end
 
@@ -61,6 +64,8 @@
     [super setUp];
     self.resolver = [MSIDWebviewNavigationDecisionResolver new];
     self.ssoExtensionAvailable = NO;
+    self.flightProvider = [MSIDFlightManagerMockProvider new];
+    MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
     __weak typeof(self) weakSelf = self;
     [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
                           class:MSIDSSOExtensionInteractiveTokenRequestController.class
@@ -79,6 +84,8 @@
 
 - (void)tearDown
 {
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    self.flightProvider = nil;
     [MSIDTestSwizzle reset];
     [self.dataSource reset];
     MSIDUXCallbackProvider.uxCallbackProvider = nil;
@@ -822,7 +829,7 @@
     XCTAssertEqualObjects(decision.request.URL.host, @"compliance.microsoft.com");
 }
 
-- (void)testComplianceURL_whenContextIsNil_addsInAppForOnboardingRedirect
+- (void)testComplianceURL_whenContextIsNil_doesNotAddInApp
 {
     NSString *targetURL = @"https://portal.manage.microsoft.com/check";
     NSURLComponents *outerComponents = [NSURLComponents new];
@@ -833,6 +840,44 @@
     MSIDWebviewNavigationDecision *decision =
         [self.resolver resolveDecisionForURL:outerComponents.URL
                    embeddedWebviewController:nil
+                                   additionalHeaders:nil];
+
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 0);
+}
+
+- (void)testComplianceURL_whenStandaloneCompliance_doesNotAddInApp
+{
+    NSString *targetURL = @"https://portal.manage.microsoft.com/check";
+    NSURLComponents *outerComponents = [NSURLComponents new];
+    outerComponents.scheme = MSID_SCHEME_MSAUTH;
+    outerComponents.host = MSID_COMPLIANCE_HOST;
+    outerComponents.queryItems = @[[NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL]];
+
+    MSIDWebviewNavigationDecision *decision =
+        [self.resolver resolveDecisionForURL:outerComponents.URL
+                   embeddedWebviewController:[self createWebviewControllerForNewMobileOnboarding:NO]
+                                   additionalHeaders:nil];
+
+    NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
+    XCTAssertEqual(inAppItems.count, 0);
+}
+
+- (void)testComplianceURL_whenEnrollOnlyOnboardingKillSwitchEnabled_addsInAppEvenWithoutOnboardingFlow
+{
+    self.flightProvider.boolForKeyContainer = @{
+        MSID_FLIGHT_DISABLE_ENROLL_ONLY_MOBILE_ONBOARDING: @YES
+    };
+
+    NSString *targetURL = @"https://portal.manage.microsoft.com/check";
+    NSURLComponents *outerComponents = [NSURLComponents new];
+    outerComponents.scheme = MSID_SCHEME_MSAUTH;
+    outerComponents.host = MSID_COMPLIANCE_HOST;
+    outerComponents.queryItems = @[[NSURLQueryItem queryItemWithName:MSID_INTUNE_URL_KEY value:targetURL]];
+
+    MSIDWebviewNavigationDecision *decision =
+        [self.resolver resolveDecisionForURL:outerComponents.URL
+                   embeddedWebviewController:[self createWebviewControllerForNewMobileOnboarding:NO]
                                    additionalHeaders:nil];
 
     NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
