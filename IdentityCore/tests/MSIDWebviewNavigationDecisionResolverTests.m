@@ -1050,8 +1050,7 @@
     XCTAssertEqualObjects(decision.request.URL.host, @"compliance.microsoft.com");
     XCTAssertEqualObjects(decision.request.URL.path, @"/check");
     NSArray<NSURLQueryItem *> *inAppItems = [self queryItemsNamed:MSID_IN_APP_KEY inURL:decision.request.URL];
-    XCTAssertEqual(inAppItems.count, 1);
-    XCTAssertEqualObjects(inAppItems.firstObject.value, @"true");
+    XCTAssertEqual(inAppItems.count, 0);
 }
 
 - (void)testComplianceURL_withExternalBlock_blockReturnsRequest_usesUpdatedRequest

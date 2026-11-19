@@ -471,9 +471,10 @@
         }
     }
 
+    id contextObject = embeddedWebviewController.context;
     MSIDInteractiveRequestParameters *interactiveRequestParameters =
-        [embeddedWebviewController.context isKindOfClass:[MSIDInteractiveRequestParameters class]]
-            ? (MSIDInteractiveRequestParameters *)embeddedWebviewController.context : nil;
+        [contextObject isKindOfClass:[MSIDInteractiveRequestParameters class]]
+            ? (MSIDInteractiveRequestParameters *)contextObject : nil;
     BOOL allowComplianceInAppAlways =
         [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_ENROLL_ONLY_MOBILE_ONBOARDING];
     if (interactiveRequestParameters.isNewMobileOnboardingFlow || allowComplianceInAppAlways)
