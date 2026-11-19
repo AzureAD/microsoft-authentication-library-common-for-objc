@@ -58,10 +58,48 @@
 static MSIDBrokerInteractiveController *s_currentExecutingController;
 static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
+@interface MSIDBrokerSystemApplication : NSObject <MSIDBrokerApplication>
+@property (nonatomic) Class controllerClass;
+@end
+
+@implementation MSIDBrokerSystemApplication
+
+- (BOOL)canPerformRequest:(MSIDInteractiveTokenRequestParameters *)parameters
+{
+    return [self.controllerClass canPerformRequest:parameters];
+}
+
+- (UIApplicationState)applicationState
+{
+    return [MSIDAppExtensionUtil sharedApplication].applicationState;
+}
+
+- (void)openURL:(NSURL *)url options:(NSDictionary *)options completionHandler:(void (^)(BOOL))completionHandler
+{
+    [MSIDAppExtensionUtil sharedApplicationOpenURL:url options:options completionHandler:completionHandler];
+}
+
+@end
+
+@interface MSIDBrokerSystemPasteboard : NSObject <MSIDBrokerPasteboard>
+@end
+
+@implementation MSIDBrokerSystemPasteboard
+
+- (void)setURL:(NSURL *)url
+{
+    [[UIPasteboard pasteboardWithName:@"WPJ" create:YES] setURL:url];
+}
+
+@end
+
 @interface MSIDBrokerInteractiveController()
 
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveParameters;
-@property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
+@property (nonatomic) id<MSIDBrokerKeyProviding> brokerKeyProvider;
+@property (nonatomic) MSIDOnboardingStatusCache *onboardingStatusCache;
+@property (nonatomic) id<MSIDBrokerApplication> application;
+@property (nonatomic) id<MSIDBrokerPasteboard> pasteboard;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (atomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic, readwrite) BOOL isReplayRequest;
@@ -81,12 +119,16 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
                        tokenRequestProvider:tokenRequestProvider
                          fallbackController:fallbackController
                                       error:error];
-
     if (self)
     {
         _interactiveParameters = parameters;
         NSString *accessGroup = parameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
         _brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
+        _onboardingStatusCache = MSIDOnboardingStatusCache.sharedInstance;
+        MSIDBrokerSystemApplication *application = [MSIDBrokerSystemApplication new];
+        application.controllerClass = self.class;
+        _application = application;
+        _pasteboard = [MSIDBrokerSystemPasteboard new];
     }
 
     return self;
@@ -105,6 +147,33 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     if (self)
     {
         _brokerInstallLink = brokerInstallLink;
+    }
+
+    return self;
+}
+
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
+                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                           fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                            brokerInstallLink:(nullable NSURL *)brokerInstallLink
+                                            brokerKeyProvider:(nonnull id<MSIDBrokerKeyProviding>)brokerKeyProvider
+                                        onboardingStatusCache:(nonnull MSIDOnboardingStatusCache *)onboardingStatusCache
+                                                  application:(nonnull id<MSIDBrokerApplication>)application
+                                                   pasteboard:(nonnull id<MSIDBrokerPasteboard>)pasteboard
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error
+{
+    self = [super initWithRequestParameters:parameters
+                       tokenRequestProvider:tokenRequestProvider
+                         fallbackController:fallbackController
+                                      error:error];
+    if (self)
+    {
+        _interactiveParameters = parameters;
+        _brokerInstallLink = brokerInstallLink;
+        _brokerKeyProvider = brokerKeyProvider;
+        _onboardingStatusCache = onboardingStatusCache;
+        _application = application;
+        _pasteboard = pasteboard;
     }
 
     return self;
@@ -252,7 +321,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
                                                                            ownerBundleId:MSID_BROKER_APP_BUNDLE_ID
                                                                            correlationId:self.requestParameters.correlationId];
     
-    BOOL didPersistOnboardingStatus = [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:onboardingStatus];
+    BOOL didPersistOnboardingStatus = [self.onboardingStatusCache setWithStatus:onboardingStatus];
     if (!didPersistOnboardingStatus)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Failed to persist onboarding status for broker interactive request replay.");
@@ -281,8 +350,8 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     }
 #endif
 
-    NSURL *launchURL = _brokerInstallLink ? _brokerInstallLink : brokerRequestURL;
-    BOOL firstTimeInstall = _brokerInstallLink != nil;
+    BOOL firstTimeInstall = _brokerInstallLink != nil && !self.isReplayRequest;
+    NSURL *launchURL = firstTimeInstall ? _brokerInstallLink : brokerRequestURL;
 
     if (firstTimeInstall)
     {
@@ -307,9 +376,9 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         options = @{UIApplicationOpenURLOptionUniversalLinksOnly : @YES};
     }
     
-    [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL
-                                           options:options
-                                 completionHandler:^(BOOL success) {
+    [self.application openURL:requestURL
+                     options:options
+           completionHandler:^(BOOL success) {
         
                                      if (!success)
                                      {
@@ -322,10 +391,8 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
 - (void)saveToPasteBoard:(NSURL *)url
 {
-    UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
-                                                            create:YES];
     NSURL *pasteBoardURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
-    [appPasteBoard setURL:pasteBoardURL];
+    [self.pasteboard setURL:pasteBoardURL];
 }
 
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
@@ -428,7 +495,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         // Go back to broker
         BOOL returnToBroker = NO;
         // First read from Keychain to see if we have a request in progress from this app
-        MSIDOnboardingStatus *onboardingStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        MSIDOnboardingStatus *onboardingStatus = [brokerController.onboardingStatusCache getOnboardingStatus];
         NSString *originatingBundleId = onboardingStatus.originatingBundleId;
         NSString *currentBundleId = [NSBundle.mainBundle bundleIdentifier];
         if (onboardingStatus.phase == MSIDOnboardingPhaseBrokerInteractiveInProgress &&
@@ -441,7 +508,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         
         if (returnToBroker)
         {
-            if ([self canPerformRequest:brokerController.interactiveParameters])
+            if ([brokerController.application canPerformRequest:brokerController.interactiveParameters])
             {
                 MSIDBrokerTokenRequest *brokerRequest = [self currentBrokerRequest];
                 if (brokerRequest)
@@ -512,11 +579,11 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
     if (error)
     {
-        MSIDOnboardingStatus *status = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        MSIDOnboardingStatus *status = [self.onboardingStatusCache getOnboardingStatus];
         if (status && status.phase != MSIDOnboardingPhaseNone)
         {
             status.phase = MSIDOnboardingPhaseFailed;
-            [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:status];
+            [self.onboardingStatusCache setWithStatus:status];
         }
     }
     else
@@ -524,13 +591,13 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
         if (!bundleId)
         {
-            MSIDOnboardingStatus *status = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+            MSIDOnboardingStatus *status = [self.onboardingStatusCache getOnboardingStatus];
             bundleId = status.originatingBundleId ?: status.ownerBundleId;
         }
         
         if (bundleId)
         {
-            [MSIDOnboardingStatusCache.sharedInstance clear:bundleId];
+            [self.onboardingStatusCache clear:bundleId];
         }
     }
     
@@ -595,7 +662,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
     if (![NSString msidIsStringNilOrBlank:bundleId])
     {
-        [[MSIDOnboardingStatusCache sharedInstance] clear:bundleId];
+        [self.onboardingStatusCache clear:bundleId];
     }
     
     MSIDRequestCompletionBlock completionBlock = [self copyAndClearCompletionBlock];
@@ -604,7 +671,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     {
         NSString *applicationState = @"";
         MSIDErrorCode openBrokerErrorCode = MSIDErrorInternal;
-        switch ([MSIDAppExtensionUtil sharedApplication].applicationState)
+        switch (self.application.applicationState)
         {
             case UIApplicationStateActive:
                 applicationState = @"active";

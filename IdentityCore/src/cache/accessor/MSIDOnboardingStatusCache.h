@@ -25,6 +25,7 @@
 
 @class MSIDOnboardingStatus;
 @protocol MSIDRequestContext;
+@protocol MSIDExtendedTokenCacheDataSource;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,6 +37,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
+
+/**
+ Initializes an independent cache backed by the supplied storage instead of the default keychain.
+ */
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource;
 
 /**
  Shared instance of MSIDOnboardingStatusCache using the default keychain group.
