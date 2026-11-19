@@ -27,7 +27,10 @@
 @interface MSIDBartFeatureUtil : NSObject
 
 + (instancetype)sharedInstance;
+
+// The shared instance holds application-wide, process-local configuration, disabled until configured.
+// Callers must supply the current flight value, including NO on reinitialization, before cache or token operations.
+// Concurrent callers must agree on that value; individual accesses are atomic, not request-scoped transactions.
 - (BOOL)isBartFeatureEnabled;
 - (void)setBartSupportInAppCache:(BOOL)isEnabled;
 @end
-

@@ -86,6 +86,7 @@
 
 - (void)setUp
 {
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
 
 #if TARGET_OS_IOS
     _defaultDataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
@@ -106,6 +107,7 @@
 
 - (void)tearDown
 {
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
     [super tearDown];
     [_defaultDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
     [_otherDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
