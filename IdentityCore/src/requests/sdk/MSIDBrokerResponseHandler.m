@@ -42,6 +42,8 @@
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDAuthScheme.h"
 #import "MSIDFlightManager.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDTokenResponse.h"
 
 @interface MSIDBrokerResponseHandler()
 
@@ -55,6 +57,7 @@
 @property (nonatomic, readwrite) NSString *brokerNonce;
 @property (nonatomic, readwrite) NSURL *providedAuthority;
 @property (nonatomic, readwrite) BOOL instanceAware;
+@property (nonatomic, copy, readwrite) NSSet<NSString *> *ageAssuranceTargetIdentifiers;
 
 @end
 
@@ -91,6 +94,13 @@
     }
 
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeState objectForKey:@"correlation_id"]];
+    id targets = resumeState[@"age_assurance_targets"];
+    if (targets && ![targets isKindOfClass:NSArray.class])
+    {
+        MSIDFillAndLogError(error, MSIDErrorBrokerBadResumeStateFound, @"Invalid age-assurance resume state.", correlationId);
+        return nil;
+    }
+    self.ageAssuranceTargetIdentifiers = targets ? [NSSet setWithArray:targets] : nil;
     NSString *keychainGroup = resumeState[@"keychain_group"];
     NSString *oidcScope = resumeState[@"oidc_scope"];
     NSString *providedAuthorityStr = [resumeState msidStringObjectForKey:@"provided_authority_url"] ?: [resumeState msidStringObjectForKey:@"authority"];
@@ -156,6 +166,14 @@
         return nil;
     }
     
+    if (![MSIDClaimsRequest validateAgeAssuranceIdToken:brokerResponse.tokenResponse.idToken
+                                       expectedTargets:self.ageAssuranceTargetIdentifiers
+                                         correlationId:correlationId
+                                                 error:error])
+    {
+        return nil;
+    }
+
     NSString *applicationToken = brokerResponse.applicationToken;
     
     if (![NSString msidIsStringNilOrBlank:applicationToken])

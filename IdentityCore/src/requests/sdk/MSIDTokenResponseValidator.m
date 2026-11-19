@@ -268,6 +268,12 @@
                                  saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                             error:(NSError *__autoreleasing*)error
 {
+    if (tokenResponse && !tokenResponse.error
+        && ![parameters validateAgeAssuranceIdToken:tokenResponse.idToken error:error])
+    {
+        return nil;
+    }
+
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
                                                   oauthFactory:factory
                                                  configuration:parameters.msidConfiguration
@@ -279,7 +285,7 @@
     {
         return nil;
     }
-    
+
     if ([MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT isEqualToString:tokenResponse.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE]] && tokenResponse.boundAppRefreshTokenDeviceId)
     {
         tokenResult.refreshToken = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:(MSIDRefreshToken *)tokenResult.refreshToken
