@@ -93,6 +93,43 @@
 
 #pragma mark - tests
 
+- (void)testReceiptMismatchDoesNotInvokeFallbackController
+{
+    MSIDRequestParameters *parameters = [self requestParameters];
+    NSError *receiptError = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorAgeAssuranceTargetMismatch,
+                                           @"Receipt mismatch.", @"age_assurance_target_mismatch",
+                                           nil, nil, parameters.correlationId, nil, NO);
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                         testError:receiptError
+                                                                             testWebMSAuthResponse:nil];
+    MSIDTestTokenRequestProvider *fallbackProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:[self resultWithParameters:parameters]
+                                                                                                 testError:nil
+                                                                                     testWebMSAuthResponse:nil];
+    NSError *error = nil;
+    MSIDSilentController *fallback = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                                              forceRefresh:NO
+                                                                      tokenRequestProvider:fallbackProvider
+                                                                                     error:&error];
+    XCTAssertNotNil(fallback);
+    XCTAssertNil(error);
+    MSIDSilentController *controller = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                                                forceRefresh:NO
+                                                                        tokenRequestProvider:provider
+                                                               fallbackInteractiveController:fallback
+                                                                                       error:&error];
+    XCTAssertNotNil(controller);
+    XCTAssertNil(error);
+    __block BOOL completed = NO;
+    [controller acquireToken:^(MSIDTokenResult *result, NSError *acquireError)
+     {
+        completed = YES;
+        XCTAssertNil(result);
+        XCTAssertEqualObjects(acquireError, receiptError);
+     }];
+    XCTAssertTrue(completed);
+    XCTAssertNil(fallbackProvider.silentRequest);
+}
+
 - (void)testAcquireToken_whenSuccessfulSilentRequest_shouldReturnSuccess
 {
     // setup telemetry callback

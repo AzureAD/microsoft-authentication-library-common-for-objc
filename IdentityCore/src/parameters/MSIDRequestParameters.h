@@ -103,6 +103,9 @@
 
 #pragma mark Conditional access
 @property (nonatomic) MSIDClaimsRequest *claimsRequest;
+/** Snapshot captured when claims are assigned; never derived from returned tokens. */
+@property (nonatomic, copy, readonly) NSSet<NSString *> *ageAssuranceTargetIdentifiers;
+- (BOOL)validateAgeAssuranceIdToken:(NSString *)idToken error:(NSError *__autoreleasing *)error;
 @property (nonatomic) NSArray *clientCapabilities;
 
 #pragma mark Configuration

@@ -501,6 +501,28 @@
 
 #pragma mark - Request
 
+- (void)testRefreshTokenRequestPreservesOpaqueClaimPropertiesWithCapabilities
+{
+    NSDictionary *json = @{@"access_token": @{@"xms_cc": @{@"additionalProperties": @[NSNull.null, @{@"property-one": NSNull.null}]}}};
+    MSIDClaimsRequest *claims = [[MSIDClaimsRequest alloc] initWithJSONDictionary:json error:nil];
+    self.silentRequestParameters.claimsRequest = claims;
+    self.silentRequestParameters.clientCapabilities = @[@"new-capability"];
+    MSIDRefreshTokenGrantRequest *request = [[MSIDAADV2Oauth2Factory new] refreshTokenRequestWithRequestParameters:self.silentRequestParameters
+                                                                                                  refreshToken:@"refresh-token"];
+    XCTAssertNotNil(request);
+    NSData *data = [request.parameters[MSID_OAUTH2_CLAIMS] dataUsingEncoding:NSUTF8StringEncoding];
+    XCTAssertNotNil(data);
+    NSError *error = nil;
+    NSDictionary *outgoing = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    XCTAssertNotNil(outgoing);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(outgoing[@"access_token"][@"xms_cc"][@"additionalProperties"],
+                          json[@"access_token"][@"xms_cc"][@"additionalProperties"]);
+    XCTAssertEqualObjects(outgoing[@"access_token"][@"xms_cc"][@"values"], @[@"new-capability"]);
+    XCTAssertEqualObjects(claims.jsonDictionary, json);
+    XCTAssertEqualObjects(self.silentRequestParameters.claimsRequest.jsonDictionary, json);
+}
+
 - (void)testAuthorizationGrantRequest_whenNestedAuth_shouldIncludeAdditionalParameters
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
