@@ -313,6 +313,14 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
 
+/// Kill switch to revert mobile onboarding state gating to include compliance redirects.
+/// By default (OFF), only msauth://enroll enables isNewMobileOnboardingFlow and standalone
+/// msauth://compliance redirects do not set in-app=true. When ON, msauth://compliance also
+/// enables isNewMobileOnboardingFlow and sets in-app=true.
+/// Owner: maagubuzo
+/// Default: OFF
+extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_ENROLL_ONLY_MOBILE_ONBOARDING;
+
 /// Kill switch for the app-hosted WebCP onboarding-readiness WebKit bridge. Default: OFF.
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS;
 
