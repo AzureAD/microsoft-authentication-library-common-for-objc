@@ -33,6 +33,11 @@
 #import "MSIDBrokerConstants.h"
 #import "MSIDOAuth2Constants.h"
 #import "MSIDVersion.h"
+#import "MSIDDefaultBrokerResponseHandler.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDTokenResponseValidator.h"
+#import "MSIDTestSwizzle.h"
+#import "MSIDConstants.h"
 #import "NSURL+MSIDExtensions.h"
 #import "NSString+MSIDTestUtil.h"
 
@@ -40,6 +45,8 @@
 
 @property (nonatomic) MSIDIntuneEnrollmentIdsCache *originalEnrollmentCache;
 @property (nonatomic) MSIDIntuneMAMResourcesCache *originalResourceCache;
+@property (nonatomic) NSUserDefaults *resumeDefaults;
+@property (nonatomic) NSString *resumeDefaultsSuite;
 
 @end
 
@@ -60,6 +67,11 @@
 {
     MSIDIntuneEnrollmentIdsCache.sharedCache = self.originalEnrollmentCache;
     MSIDIntuneMAMResourcesCache.sharedCache = self.originalResourceCache;
+    [MSIDTestSwizzle reset];
+    if (self.resumeDefaultsSuite)
+    {
+        [self.resumeDefaults removePersistentDomainForName:self.resumeDefaultsSuite];
+    }
     [super tearDown];
 }
 
@@ -178,6 +190,89 @@
     XCTAssertNil(query[@"claims"]);
     XCTAssertNil(query[MSID_NESTED_AUTH_BROKER_CLIENT_ID]);
     XCTAssertNil(query[MSID_NESTED_AUTH_BROKER_REDIRECT_URI]);
+}
+
+- (MSIDDefaultBrokerResponseHandler *)responseHandlerWithIsolatedResumeState
+{
+    self.resumeDefaultsSuite = [@"MSIDBrokerResumeTests." stringByAppendingString:NSUUID.UUID.UUIDString];
+    self.resumeDefaults = [[NSUserDefaults alloc] initWithSuiteName:self.resumeDefaultsSuite];
+    NSUserDefaults *defaults = self.resumeDefaults;
+    [MSIDTestSwizzle classMethod:@selector(standardUserDefaults) class:NSUserDefaults.class
+                           block:^NSUserDefaults *(__unused id receiver)
+    {
+        return defaults;
+    }];
+    return [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                 tokenResponseValidator:[MSIDTokenResponseValidator new]];
+}
+
+- (void)testBrokerResponseRouting_requiresMatchingProtocolAndSDKOrActiveCompletion
+{
+    MSIDDefaultBrokerResponseHandler *handler = [self responseHandlerWithIsolatedResumeState];
+    NSURL *response = [NSURL URLWithString:[NSString stringWithFormat:@"my-redirect://callback?%@=%@",
+                                            MSID_BROKER_PROTOCOL_VERSION_KEY, MSID_MSAL_BROKER_MESSAGE_VERSION]];
+    XCTAssertFalse([handler canHandleBrokerResponse:response hasCompletionBlock:NO]);
+    XCTAssertTrue([handler canHandleBrokerResponse:response hasCompletionBlock:YES]);
+    [self.resumeDefaults setObject:@{MSID_SDK_NAME_KEY: @"another-sdk"} forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    XCTAssertFalse([handler canHandleBrokerResponse:response hasCompletionBlock:YES]);
+    [self.resumeDefaults setObject:@{MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME} forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    XCTAssertTrue([handler canHandleBrokerResponse:response hasCompletionBlock:NO]);
+    XCTAssertFalse([handler canHandleBrokerResponse:[NSURL URLWithString:@"my-redirect://callback?msg_protocol_ver=wrong"]
+                                hasCompletionBlock:YES]);
+}
+
+- (void)testBrokerResponse_whenResumeStateMissing_returnsErrorWithoutAccessingKeychain
+{
+    MSIDDefaultBrokerResponseHandler *handler = [self responseHandlerWithIsolatedResumeState];
+    NSError *error = nil;
+    id result = [handler handleBrokerResponseWithURL:[NSURL URLWithString:@"my-redirect://callback"]
+                                  sourceApplication:nil error:&error];
+    XCTAssertNil(result);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorBrokerNoResumeStateFound);
+    XCTAssertNil(handler.brokerCryptoProvider);
+    XCTAssertNil(handler.tokenCache);
+}
+
+- (void)testBrokerResponse_whenResumeFieldsMissing_returnsCorrelatedErrorBeforeKeychainLookup
+{
+    MSIDDefaultBrokerResponseHandler *handler = [self responseHandlerWithIsolatedResumeState];
+    NSString *correlationId = NSUUID.UUID.UUIDString;
+    NSDictionary *complete = @{@"redirect_uri": @"my-redirect://callback", @"broker_nonce": @"nonce",
+                                @"keychain_group": @"must-never-be-opened", @"correlation_id": correlationId};
+    for (NSString *key in @[@"redirect_uri", @"broker_nonce", @"keychain_group"])
+    {
+        NSMutableDictionary *resume = [complete mutableCopy];
+        [resume removeObjectForKey:key];
+        [self.resumeDefaults setObject:resume forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+        NSError *error = nil;
+        id result = [handler handleBrokerResponseWithURL:[NSURL URLWithString:@"my-redirect://callback"]
+                                      sourceApplication:nil error:&error];
+        XCTAssertNil(result);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorBrokerBadResumeStateFound);
+        XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], correlationId);
+        XCTAssertNil(handler.brokerCryptoProvider);
+        XCTAssertNil(handler.tokenCache);
+    }
+}
+
+- (void)testBrokerResponse_whenRedirectDoesNotMatch_returnsCorrelatedErrorBeforeKeychainLookup
+{
+    MSIDDefaultBrokerResponseHandler *handler = [self responseHandlerWithIsolatedResumeState];
+    NSString *correlationId = NSUUID.UUID.UUIDString;
+    [self.resumeDefaults setObject:@{@"redirect_uri": @"expected://callback", @"broker_nonce": @"nonce",
+                                    @"keychain_group": @"must-never-be-opened", @"correlation_id": correlationId}
+                           forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSError *error = nil;
+    id result = [handler handleBrokerResponseWithURL:[NSURL URLWithString:@"different://callback"]
+                                  sourceApplication:nil error:&error];
+    XCTAssertNil(result);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], correlationId);
+    XCTAssertNil(handler.brokerCryptoProvider);
+    XCTAssertNil(handler.tokenCache);
 }
 
 @end
