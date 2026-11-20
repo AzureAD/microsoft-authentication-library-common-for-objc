@@ -134,9 +134,20 @@
                                       tokenResponse:(MSIDCIAMTokenResponse *)response
                                               error:(NSError *__autoreleasing*)error
 {
+    // Use the tenant that issued the tokens (the id_token's `tid`), as the AAD v2 factory does.
+    // `client_info.utid` is the user's home tenant, which differs for guests and for users
+    // federated from another Microsoft Entra tenant: pairing it with the CIAM host makes every
+    // silent refresh fail with AADSTS500210.
+    NSString *tenant = response.idTokenObj.realm;
+    
+    if (!tenant)
+    {
+        return configuration.authority;
+    }
+    
     return [[MSIDCIAMAuthority alloc] initWithURL:configuration.authority.url
                                   validateFormat:NO
-                                       rawTenant:response.clientInfo.utid
+                                       rawTenant:tenant
                                          context:nil
                                            error:error];
 }
