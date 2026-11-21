@@ -58,6 +58,7 @@
 #import "MSIDTestSwizzle.h"
 #import "MSIDConstants.h"
 #import "MSIDCacheItemJsonSerializer.h"
+#import "MSIDLegacyTokenCacheItem.h"
 #endif
 
 @interface MSIDDefaultSilentTokenRequest (BoundRefreshTokenTests)
@@ -783,6 +784,266 @@
     XCTAssertEqual(filtered.count, 1u);
     XCTAssertEqualObjects(filtered.firstObject.refreshToken, @"primary-one");
     XCTAssertEqualObjects(filtered.firstObject.sessionKey, first.sessionKey);
+}
+
+- (void)testPrimaryRefreshTokenCopy_preservesRecoveryStateWithoutSharingMutableTokenIdentity
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"primary-token"];
+    token.deviceID = @"test-device";
+    token.cachedAt = [NSDate dateWithTimeIntervalSince1970:1700000000];
+    token.lastRecoveryAttempt = [NSDate dateWithTimeIntervalSince1970:1700000300];
+    token.recoveryAttemptCount = 2;
+    token.lastRecoveryAttemptFailed = YES;
+    token.expiryInterval = 3600;
+    token.externalKeyLocationType = MSIDExternalPRTKeyLocationTypeSSO;
+    MSIDPrimaryRefreshToken *copy = [token copy];
+    XCTAssertNotEqual(copy, token);
+    XCTAssertEqualObjects(copy, token);
+    XCTAssertEqual(copy.hash, token.hash);
+    XCTAssertEqual(copy.prtId, token.prtId);
+    XCTAssertEqualObjects(copy.expiresOn, token.expiresOn);
+    XCTAssertEqualObjects(copy.cachedAt, token.cachedAt);
+    XCTAssertEqualObjects(copy.lastRecoveryAttempt, token.lastRecoveryAttempt);
+    XCTAssertEqual(copy.recoveryAttemptCount, 2u);
+    XCTAssertTrue(copy.lastRecoveryAttemptFailed);
+    XCTAssertEqual(copy.expiryInterval, 3600u);
+    XCTAssertEqual(copy.refreshInterval, 120u);
+    XCTAssertEqual(copy.externalKeyLocationType, MSIDExternalPRTKeyLocationTypeSSO);
+    copy.deviceID = @"different-device";
+    copy.refreshToken = @"rotated-token";
+    XCTAssertNotEqualObjects(copy, token);
+    XCTAssertNotEqual(copy.prtId, token.prtId);
+    XCTAssertEqualObjects(token.deviceID, @"test-device");
+    XCTAssertEqualObjects(token.refreshToken, @"primary-token");
+}
+
+- (void)testLegacyPrimaryRefreshTokenMigration_preservesSessionAndBuildsAliasScopedDeletionItem
+{
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"legacy-primary"];
+    token.storageEnvironment = @"login.windows.net";
+    NSError *error = nil;
+    MSIDLegacyTokenCacheItem *legacy =
+    [[MSIDLegacyTokenCacheItem alloc] initWithJSONDictionary:token.tokenCacheItem.jsonDictionary error:&error];
+    XCTAssertNotNil(legacy);
+    XCTAssertNil(error);
+    legacy.refreshToken = token.refreshToken;
+    MSIDPrimaryRefreshToken *migrated = [[MSIDPrimaryRefreshToken alloc] initWithLegacyTokenCacheItem:legacy];
+    XCTAssertNotNil(migrated);
+    XCTAssertEqualObjects(migrated.refreshToken, token.refreshToken);
+    XCTAssertEqualObjects(migrated.sessionKey, token.sessionKey);
+    XCTAssertEqualObjects(migrated.accountIdentifier.homeAccountId, token.accountIdentifier.homeAccountId);
+    MSIDLegacyTokenCacheItem *deletionItem = migrated.legacyTokenCacheItem;
+    XCTAssertEqual(deletionItem.credentialType, MSIDPrimaryRefreshTokenType);
+    XCTAssertEqualObjects(deletionItem.clientId, token.clientId);
+    XCTAssertEqualObjects(deletionItem.environment, @"login.windows.net");
+    XCTAssertNil(deletionItem.refreshToken);
+    XCTAssertNil(deletionItem.secret);
+    migrated.storageEnvironment = nil;
+    migrated.environment = @"login.microsoftonline.com";
+    XCTAssertEqualObjects(migrated.legacyTokenCacheItem.environment, @"login.microsoftonline.com");
+}
+
+- (void)testLegacyPrimaryRefreshTokenMigration_whenOnlyExternalKeyAvailable_rejectsInsteadOfCreatingKeylessLegacyToken
+{
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"external-primary"];
+    token.sessionKey = nil;
+    token.externalKeyLocationType = MSIDExternalPRTKeyLocationTypeSSO;
+    MSIDCredentialCacheItem *item = token.tokenCacheItem;
+    XCTAssertNotNil(item);
+    MSIDPrimaryRefreshToken *modern = [[MSIDPrimaryRefreshToken alloc] initWithTokenCacheItem:item];
+    XCTAssertNotNil(modern);
+    XCTAssertEqual(modern.externalKeyLocationType, MSIDExternalPRTKeyLocationTypeSSO);
+    NSError *error = nil;
+    MSIDLegacyTokenCacheItem *legacy = [[MSIDLegacyTokenCacheItem alloc] initWithJSONDictionary:item.jsonDictionary error:&error];
+    XCTAssertNotNil(legacy);
+    XCTAssertNil(error);
+    legacy.refreshToken = token.refreshToken;
+    MSIDPrimaryRefreshToken *migrated = [[MSIDPrimaryRefreshToken alloc] initWithLegacyTokenCacheItem:legacy];
+    XCTAssertNil(migrated);
+}
+
+- (void)testClearAll_whenSecondaryCacheFails_reportsFailureAndPreservesSecondaryTokens
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDTestCacheDataSource *secondarySource = [MSIDTestCacheDataSource new];
+    MSIDDefaultTokenCacheAccessor *secondary =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:secondarySource otherCacheAccessors:nil];
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"secondary-primary"];
+    XCTAssertTrue([secondary saveToken:token context:self.parameters error:nil]);
+    MSIDDefaultTokenCacheAccessor *combined =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:@[secondary]];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:23 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(clearWithContext:error:) class:MSIDTestCacheDataSource.class
+                              block:^BOOL(id source, __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (source == secondarySource)
+        {
+            if (error)
+            {
+                *error = storageError;
+            }
+            return NO;
+        }
+        [source reset];
+        return YES;
+    }];
+    NSError *error = nil;
+    BOOL cleared = [combined clearCacheForAllAccountsWithContext:self.parameters error:&error];
+    XCTAssertFalse(cleared);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 0u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0u);
+    NSArray *remaining = [secondary getPrimaryRefreshTokensForConfiguration:self.parameters.msidConfiguration
+                                                                       context:self.parameters error:nil];
+    XCTAssertEqual(remaining.count, 1u);
+    XCTAssertEqualObjects([remaining.firstObject refreshToken], @"secondary-primary");
+}
+
+- (void)testClearAll_whenPrimaryCacheFails_stillClearsSecondaryAndPreservesFirstError
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDTestCacheDataSource *primarySource = self.dataSource;
+    MSIDDefaultTokenCacheAccessor *secondary =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:[MSIDTestCacheDataSource new] otherCacheAccessors:nil];
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"secondary-primary"];
+    XCTAssertTrue([secondary saveToken:token context:self.parameters error:nil]);
+    MSIDDefaultTokenCacheAccessor *combined =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:primarySource otherCacheAccessors:@[secondary]];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:24 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(clearWithContext:error:) class:MSIDTestCacheDataSource.class
+                              block:^BOOL(id source, __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (source == primarySource)
+        {
+            if (error)
+            {
+                *error = storageError;
+            }
+            return NO;
+        }
+        [source reset];
+        return YES;
+    }];
+    NSError *error = nil;
+    BOOL cleared = [combined clearCacheForAllAccountsWithContext:self.parameters error:&error];
+    XCTAssertFalse(cleared);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 1u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+    NSArray *remaining = [secondary getPrimaryRefreshTokensForConfiguration:self.parameters.msidConfiguration
+                                                                       context:self.parameters error:nil];
+    XCTAssertNotNil(remaining);
+    XCTAssertEqual(remaining.count, 0u);
+}
+
+- (void)testAccountEnumeration_whenStorageFails_returnsOriginalErrorWithoutDeletingTokens
+{
+    [self saveTokensExpiringIn:@"3600"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:25 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(accountsWithKey:serializer:context:error:) class:MSIDTestCacheDataSource.class
+                              block:^NSArray *(__unused id source, __unused MSIDCacheKey *key,
+                                                __unused id serializer, __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return nil;
+    }];
+    NSError *error = nil;
+    NSArray *accounts = [self.tokenCache accountsWithAuthority:self.parameters.authority clientId:self.parameters.clientId
+                                                     familyId:nil accountIdentifier:nil context:self.parameters error:&error];
+    XCTAssertEqualObjects(accounts, @[]);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+}
+
+- (void)testPrimaryRefreshTokenLookup_whenStorageFails_returnsOriginalError
+{
+    [self saveTokensExpiringIn:@"3600"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:26 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(tokensWithKey:serializer:context:error:) class:MSIDTestCacheDataSource.class
+                              block:^NSArray *(__unused id source, __unused MSIDCacheKey *key,
+                                                __unused id serializer, __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return nil;
+    }];
+    NSError *error = nil;
+    MSIDPrimaryRefreshToken *token = [self.tokenCache getPrimaryRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                                                  familyId:nil
+                                                                             configuration:self.parameters.msidConfiguration
+                                                                                   context:self.parameters error:&error];
+    XCTAssertNil(token);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+}
+
+- (void)testFamilyMetadataUpdate_whenReadFails_preservesExistingFamilyAndReturnsStorageError
+{
+    MSIDFlightManagerMockProvider *provider = [MSIDFlightManagerMockProvider new];
+    provider.stringForKeyContainer = @{MSID_FLIGHT_CLIENT_SFRT_STATUS: MSID_FRT_STATUS_DISABLED};
+    MSIDFlightManager.sharedInstance.flightProvider = provider;
+    [self saveTokensExpiringIn:@"3600" familyId:@"1"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:27 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(getAppMetadataEntriesWithQuery:context:error:)
+                              class:MSIDAccountCredentialCache.class
+                              block:^NSArray *(__unused id cache, __unused id query,
+                                                __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return nil;
+    }];
+    NSError *error = nil;
+    BOOL updated = [self.tokenCache updateAppMetadataWithFamilyId:@"2" clientId:self.parameters.clientId
+                                                           authority:self.parameters.authority context:self.parameters error:&error];
+    XCTAssertFalse(updated);
+    XCTAssertEqual(error, storageError);
+    [MSIDTestSwizzle reset];
+    NSArray<MSIDAppMetadataCacheItem *> *metadata =
+    [self.tokenCache getAppMetadataEntries:self.parameters.msidConfiguration context:self.parameters error:nil];
+    XCTAssertEqual(metadata.count, 1u);
+    XCTAssertEqualObjects(metadata.firstObject.familyId, @"1");
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 2u);
+}
+
+- (void)testFamilyMetadataUpdate_whenWriteFails_preservesExistingFamilyAndReturnsStorageError
+{
+    MSIDFlightManagerMockProvider *provider = [MSIDFlightManagerMockProvider new];
+    provider.stringForKeyContainer = @{MSID_FLIGHT_CLIENT_SFRT_STATUS: MSID_FRT_STATUS_DISABLED};
+    MSIDFlightManager.sharedInstance.flightProvider = provider;
+    [self saveTokensExpiringIn:@"3600" familyId:@"1"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:28 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(saveAppMetadata:context:error:)
+                              class:MSIDAccountCredentialCache.class
+                              block:^BOOL(__unused id cache, __unused MSIDAppMetadataCacheItem *item,
+                                          __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return NO;
+    }];
+    NSError *error = nil;
+    BOOL updated = [self.tokenCache updateAppMetadataWithFamilyId:@"2" clientId:self.parameters.clientId
+                                                           authority:self.parameters.authority context:self.parameters error:&error];
+    XCTAssertFalse(updated);
+    XCTAssertEqual(error, storageError);
+    [MSIDTestSwizzle reset];
+    NSArray<MSIDAppMetadataCacheItem *> *metadata =
+    [self.tokenCache getAppMetadataEntries:self.parameters.msidConfiguration context:self.parameters error:nil];
+    XCTAssertEqual(metadata.count, 1u);
+    XCTAssertEqualObjects(metadata.firstObject.familyId, @"1");
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 2u);
 }
 
 - (void)testPrimaryRefreshTokenValidation_preservesRotatedTokenAndRemovesOnlyMatchingVersion

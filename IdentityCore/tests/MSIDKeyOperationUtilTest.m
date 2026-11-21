@@ -45,6 +45,21 @@
 
 - (void)setUp
 {
+    [super setUp];
+#if TARGET_OS_OSX
+    NSDictionary *attributes = @{(id)kSecAttrKeyType: (id)kSecAttrKeyTypeECSECPrimeRandom,
+                                 (id)kSecAttrKeySizeInBits: @256,
+                                 (id)kSecPrivateKeyAttrs: @{(id)kSecAttrIsPermanent: @NO}};
+    CFErrorRef generationError = NULL;
+    self.eccPrivateKey = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &generationError);
+    NSError *error = CFBridgingRelease(generationError);
+    XCTAssertNotEqual(self.eccPrivateKey, NULL);
+    XCTAssertNil(error);
+    if (self.eccPrivateKey)
+    {
+        self.eccPublicKey = SecKeyCopyPublicKey(self.eccPrivateKey);
+    }
+#else
     _testApplicationTag = @"Microsoft ECC Test App";
     NSString *prefix = @"SGGM6D27TK";
 #if TARGET_OS_IPHONE
@@ -57,6 +72,7 @@
     }
     self.eccPrivateKey = [self.generator eccPrivateKey];
     self.eccPublicKey = [self.generator eccPublicKey];
+#endif
     if (!self.rsaPrivateKey)
     {
         [self populateRsaKeys];
@@ -66,6 +82,18 @@
 - (void)tearDown
 {
     self.generator = nil;
+#if TARGET_OS_OSX
+    if (self.eccPublicKey)
+    {
+        CFRelease(self.eccPublicKey);
+        self.eccPublicKey = NULL;
+    }
+    if (self.eccPrivateKey)
+    {
+        CFRelease(self.eccPrivateKey);
+        self.eccPrivateKey = NULL;
+    }
+#endif
     if (self.rsaPublicKey)
     {
         CFRelease(self.rsaPublicKey);
@@ -76,12 +104,17 @@
         CFRelease(self.rsaPrivateKey);
         self.rsaPrivateKey = NULL;
     }
+    [super tearDown];
 }
 
 - (void)testIfKeyIsFromSecureEnclave_shouldReturnTrueForSECKeys
 {
     XCTAssertTrue(self.eccPrivateKey != NULL);
+#if TARGET_OS_OSX
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:self.eccPrivateKey]);
+#else
     XCTAssertTrue([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:self.eccPrivateKey]);
+#endif
     XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:self.eccPublicKey]);
     // RSA keys can't be in secure enclave
     XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:self.rsaPrivateKey]);
@@ -227,6 +260,84 @@
     NSData *dataDigest = [[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
     XCTAssertNil([dataDigest msidSignHashWithPrivateKey:NULL]);
 }
+
+#if TARGET_OS_OSX
+- (void)testSigningOversizedDigest_returnsCorrelatedErrorWithSecurityFailure
+{
+    MSIDTestContext *context = [MSIDTestContext new];
+    context.correlationId = NSUUID.UUID;
+    NSData *invalidDigest = [NSMutableData dataWithLength:SecKeyGetBlockSize(self.rsaPrivateKey)];
+    NSError *error = nil;
+    NSData *signature = [MSIDKeyOperationUtil.sharedInstance getSignatureForDataWithKey:invalidDigest
+                                                                            privateKey:self.rsaPrivateKey
+                                                                      signingAlgorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256
+                                                                               context:context error:&error];
+    XCTAssertNil(signature);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+    XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], context.correlationId.UUIDString);
+    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    XCTAssertNotNil(underlyingError);
+    XCTAssertEqualObjects(underlyingError.domain, NSOSStatusErrorDomain);
+}
+
+- (void)testSignedPayload_whenPayloadChanged_publicKeyRejectsSignature
+{
+    NSData *payload = [@"account-one" dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error = nil;
+    NSData *signature = [MSIDKeyOperationUtil.sharedInstance getSignatureForDataWithKey:payload
+                                                                            privateKey:self.rsaPrivateKey
+                                                                      signingAlgorithm:kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256
+                                                                               context:nil error:&error];
+    XCTAssertNotNil(signature);
+    XCTAssertNil(error);
+    if (!signature)
+    {
+        return;
+    }
+    NSData *changedPayload = [@"account-two" dataUsingEncoding:NSUTF8StringEncoding];
+    CFErrorRef verificationError = NULL;
+    BOOL verified = SecKeyVerifySignature(self.rsaPublicKey, kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256,
+                                         (__bridge CFDataRef)changedPayload, (__bridge CFDataRef)signature,
+                                         &verificationError);
+    NSError *securityError = CFBridgingRelease(verificationError);
+    XCTAssertFalse(verified);
+    XCTAssertNotNil(securityError);
+}
+
+- (void)testValidateExternalRSAKeyPair_missingHandle_rejectsWithReasonAndCorrelation
+{
+    MSIDTestContext *context = [MSIDTestContext new];
+    context.correlationId = NSUUID.UUID;
+    for (NSNumber *missingPrivate in @[@YES, @NO])
+    {
+        NSError *error = nil;
+        MSIDExternalKeyPairValidationFailureReason reason = MSIDExternalKeyPairValidationFailureReasonNone;
+        BOOL valid = [MSIDKeyOperationUtil.sharedInstance validateExternalRSAKeyPair:missingPrivate.boolValue ? NULL : self.rsaPrivateKey
+                                                                            publicKey:missingPrivate.boolValue ? self.rsaPublicKey : NULL
+                                                                        failureReason:&reason context:context error:&error];
+        XCTAssertFalse(valid);
+        XCTAssertEqual(reason, MSIDExternalKeyPairValidationFailureReasonInvalidKeyHandle);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], context.correlationId.UUIDString);
+        XCTAssertEqual([error.userInfo[MSIDExternalKeyPairValidationFailureReasonKey] integerValue], reason);
+    }
+}
+
+- (void)testJwtAlgorithm_whenGivenPublicKey_rejectsWithCorrelatedError
+{
+    MSIDTestContext *context = [MSIDTestContext new];
+    context.correlationId = NSUUID.UUID;
+    NSError *error = nil;
+    NSString *algorithm = [MSIDKeyOperationUtil.sharedInstance getJwtAlgorithmForKey:self.rsaPublicKey
+                                                                             context:context error:&error];
+    XCTAssertNil(algorithm);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+    XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], context.correlationId.UUIDString);
+}
+#endif
 
 - (void)testValidateExternalRSAKeyPair_ValidPair_ShouldSucceed
 {
