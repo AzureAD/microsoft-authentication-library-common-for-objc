@@ -37,6 +37,30 @@
 #import "MSIDTestIdentifiers.h"
 #import "NSString+MSIDTestUtil.h"
 
+#if TARGET_OS_OSX
+#import "MSIDDefaultTokenResponseValidator.h"
+#import "MSIDAADV2TokenResponse.h"
+#import "MSIDTestURLResponse+Util.h"
+#import "MSIDTestURLSession.h"
+#import "MSIDTokenResult.h"
+#import "MSIDAccessToken.h"
+#import "MSIDAccount.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDLRUCache.h"
+#import "MSIDIdToken.h"
+#import "MSIDAppMetadataCacheItem.h"
+#import "MSIDPrimaryRefreshToken.h"
+#import "MSIDFamilyRefreshToken.h"
+#import "MSIDAccountCredentialCache.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDTestSwizzle.h"
+#import "MSIDConstants.h"
+#import "MSIDCacheItemJsonSerializer.h"
+#import "MSIDLegacyTokenCacheItem.h"
+#endif
+
 @interface MSIDDefaultSilentTokenRequest (BoundRefreshTokenTests)
 
 - (MSIDRefreshToken *)familyRefreshTokenWithError:(NSError *__autoreleasing *)error;
@@ -146,3 +170,987 @@
 }
 
 @end
+
+#if TARGET_OS_OSX
+@interface MSIDDefaultSilentTokenRequestCacheFlowTests : XCTestCase
+
+@property (nonatomic) MSIDTestCacheDataSource *dataSource;
+@property (nonatomic) MSIDDefaultTokenCacheAccessor *tokenCache;
+@property (nonatomic) MSIDRequestParameters *parameters;
+@property (nonatomic) id<MSIDFlightManagerInterface> originalFlightProvider;
+
+@end
+
+@implementation MSIDDefaultSilentTokenRequestCacheFlowTests
+
+- (void)setUp
+{
+    [super setUp];
+    self.originalFlightProvider = MSIDFlightManager.sharedInstance.flightProvider;
+    self.dataSource = [MSIDTestCacheDataSource new];
+    self.tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:nil];
+    self.parameters = [MSIDRequestParameters new];
+    self.parameters.authority = [DEFAULT_TEST_AUTHORITY_GUID aadAuthority];
+    self.parameters.clientId = @"my_client_id";
+    self.parameters.target = @"user.read tasks.read";
+    self.parameters.oidcScope = @"openid profile offline_access";
+    self.parameters.redirectUri = @"my_redirect_uri";
+    self.parameters.correlationId = [NSUUID UUID];
+    self.parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                             homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
+}
+
+- (void)tearDown
+{
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
+    [MSIDTestURLSession clearResponses];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
+    [self.dataSource reset];
+    MSIDFlightManager.sharedInstance.flightProvider = self.originalFlightProvider;
+    [MSIDTestSwizzle reset];
+    [super tearDown];
+}
+
+- (MSIDDefaultSilentTokenRequest *)requestWithForceRefresh:(BOOL)forceRefresh
+{
+    MSIDAccountMetadataCacheAccessor *metadata =
+    [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:[MSIDTestCacheDataSource new]];
+    return [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:self.parameters
+                                                               forceRefresh:forceRefresh
+                                                               oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                     tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                 tokenCache:self.tokenCache
+                                                       accountMetadataCache:metadata];
+}
+
+- (void)saveTokensExpiringIn:(NSString *)expiresIn
+{
+    [self saveTokensExpiringIn:expiresIn familyId:nil];
+}
+
+- (void)saveTokensExpiringIn:(NSString *)expiresIn familyId:(NSString *)familyId
+{
+    [self addDiscovery];
+    XCTestExpectation *resolved = [self expectationWithDescription:@"resolve cache environment"];
+    [self.parameters.authority resolveAndValidate:NO
+                                userPrincipalName:self.parameters.accountIdentifier.displayableId
+                                          context:self.parameters
+                                  completionBlock:^(__unused NSURL *endpoint, __unused BOOL validated, NSError *error)
+    {
+        XCTAssertNil(error);
+        [resolved fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
+    NSDictionary *response = [MSIDTestURLResponse tokenResponseWithAT:nil
+                                                            responseRT:nil
+                                                            responseID:nil
+                                                         responseScope:@"user.read tasks.read"
+                                                    responseClientInfo:nil
+                                                             expiresIn:expiresIn
+                                                                  foci:familyId
+                                                          extExpiresIn:self.parameters.extendedLifetimeEnabled ? @"3600000" : nil];
+    NSError *error = nil;
+    MSIDAADV2TokenResponse *tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:response error:&error];
+    XCTAssertNotNil(tokenResponse);
+    XCTAssertNil(error);
+    BOOL saved = [self.tokenCache saveTokensWithConfiguration:self.parameters.msidConfiguration
+                                                     response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
+                                                      context:self.parameters
+                                                        error:&error];
+    XCTAssertTrue(saved, @"%@", error);
+    XCTAssertNil(error);
+}
+
+- (void)addDiscovery
+{
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse discoveryResponseForAuthority:DEFAULT_TEST_AUTHORITY_GUID]];
+}
+
+- (void)testExecute_whenAccountMissing_returnsCorrelatedErrorWithoutNetwork
+{
+    self.parameters.accountIdentifier = nil;
+    XCTestExpectation *completion = [self expectationWithDescription:@"missing account"];
+    [[self requestWithForceRefresh:NO] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNil(result);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorMissingAccountParameter);
+        XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], self.parameters.correlationId.UUIDString);
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 0u);
+}
+
+- (void)testExecute_whenCachedTokenValid_returnsCachedAccountAndTokensWithoutRedemption
+{
+    [self saveTokensExpiringIn:@"3600"];
+    XCTestExpectation *completion = [self expectationWithDescription:@"cached access token"];
+    [[self requestWithForceRefresh:NO] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(result.accessToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, DEFAULT_TEST_HOME_ACCOUNT_ID);
+        XCTAssertNotNil(result.rawIdToken);
+        XCTAssertFalse(result.extendedLifeTimeToken);
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1u);
+}
+
+- (void)assertSuccessfulRefreshWithForceRefresh:(BOOL)forceRefresh expiresIn:(NSString *)expiresIn
+{
+    [self saveTokensExpiringIn:expiresIn];
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse oidcResponseForAuthority:DEFAULT_TEST_AUTHORITY_GUID]];
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                           requestClaims:nil
+                                                                           requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                              responseAT:@"renewed-access-token"
+                                                                              responseRT:@"rotated-refresh-token"
+                                                                              responseID:nil
+                                                                           responseScope:@"user.read tasks.read"
+                                                                      responseClientInfo:nil
+                                                                                     url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                            responseCode:200
+                                                                               expiresIn:nil]];
+    XCTestExpectation *completion = [self expectationWithDescription:@"refresh access token"];
+    [[self requestWithForceRefresh:forceRefresh] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(result.accessToken.accessToken, @"renewed-access-token");
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"rotated-refresh-token");
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, DEFAULT_TEST_HOME_ACCOUNT_ID);
+        XCTAssertEqualObjects(result.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY_GUID);
+        XCTAssertFalse(result.extendedLifeTimeToken);
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    NSError *error = nil;
+    MSIDAccessToken *cached = [self.tokenCache getAccessTokenForAccount:self.parameters.accountIdentifier
+                                                        configuration:self.parameters.msidConfiguration
+                                                              context:self.parameters
+                                                                error:&error];
+    XCTAssertNotNil(cached);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(cached.accessToken, @"renewed-access-token");
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+}
+
+- (void)testExecute_whenAccessTokenExpired_renewsAndReplacesCachedTokens
+{
+    [self assertSuccessfulRefreshWithForceRefresh:NO expiresIn:@"1"];
+}
+
+- (void)testExecute_whenForceRefreshRequested_doesNotReturnValidCachedToken
+{
+    [self assertSuccessfulRefreshWithForceRefresh:YES expiresIn:@"3600"];
+}
+
+- (void)assertRefreshFailure:(NSString *)oauthError
+                    subError:(NSString *)subError
+                expectedCode:(MSIDErrorCode)expectedCode
+         removesRefreshToken:(BOOL)removesRefreshToken
+{
+    [self saveTokensExpiringIn:@"1"];
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse oidcResponseForAuthority:DEFAULT_TEST_AUTHORITY_GUID]];
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse errorRefreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                requestClaims:nil
+                                                                                requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                responseError:oauthError
+                                                                                  description:@"refresh rejected"
+                                                                                     subError:subError
+                                                                                          url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                 responseCode:200]];
+    XCTestExpectation *completion = [self expectationWithDescription:@"refresh rejected"];
+    [[self requestWithForceRefresh:NO] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNil(result);
+        XCTAssertEqualObjects(error.domain, expectedCode == MSIDErrorInteractionRequired ? MSIDErrorDomain : MSIDOAuthErrorDomain);
+        XCTAssertEqual(error.code, expectedCode);
+        XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], oauthError);
+        XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], subError);
+        if (expectedCode == MSIDErrorInteractionRequired)
+        {
+            XCTAssertNotNil(error.userInfo[NSUnderlyingErrorKey]);
+        }
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 0u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, removesRefreshToken ? 0u : 1u);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 1u);
+}
+
+- (void)testExecute_whenRefreshRequiresInteraction_removesExpiredAccessTokenButPreservesRefreshToken
+{
+    [self assertRefreshFailure:@"invalid_grant" subError:@"consent_required"
+                  expectedCode:MSIDErrorInteractionRequired removesRefreshToken:NO];
+}
+
+- (void)testExecute_whenRefreshTokenInvalid_removesRejectedRefreshTokenButPreservesAccount
+{
+    [self assertRefreshFailure:@"invalid_grant" subError:@"bad_token"
+                  expectedCode:MSIDErrorInteractionRequired removesRefreshToken:YES];
+}
+
+- (void)testExecute_whenClientInvalid_returnsNonInteractiveErrorAndPreservesRefreshToken
+{
+    [self assertRefreshFailure:@"invalid_client" subError:@""
+                  expectedCode:MSIDErrorServerInvalidClient removesRefreshToken:NO];
+}
+
+- (void)testExecute_whenScopeInvalid_returnsNonInteractiveErrorAndPreservesRefreshToken
+{
+    [self assertRefreshFailure:@"invalid_scope" subError:@""
+                  expectedCode:MSIDErrorServerInvalidScope removesRefreshToken:NO];
+}
+
+- (void)testExecute_whenServerUnavailable_returnsEligibleExtendedLifetimeTokenWithoutReplacingCache
+{
+    [self assertServerUnavailableFallbackWithExtendedLifetime:YES];
+}
+
+- (void)testExecute_whenProactiveRefreshFails_returnsUnexpiredTokenWithoutExtendedLifetime
+{
+    [self assertServerUnavailableFallbackWithExtendedLifetime:NO];
+}
+
+- (void)assertServerUnavailableFallbackWithExtendedLifetime:(BOOL)extendedLifetime
+{
+    self.parameters.extendedLifetimeEnabled = extendedLifetime;
+    [self saveTokensExpiringIn:extendedLifetime ? @"1" : @"3600"];
+    if (!extendedLifetime)
+    {
+        MSIDAccessToken *token = [self.tokenCache getAccessTokenForAccount:self.parameters.accountIdentifier
+                                                            configuration:self.parameters.msidConfiguration
+                                                                  context:self.parameters error:nil];
+        XCTAssertNotNil(token);
+        token.refreshOn = [NSDate dateWithTimeIntervalSince1970:946684800];
+        XCTAssertTrue([self.tokenCache saveToken:token context:self.parameters error:nil]);
+    }
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse oidcResponseForAuthority:DEFAULT_TEST_AUTHORITY_GUID]];
+    MSIDTestURLResponse *unavailable = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                requestClaims:nil
+                                                                                requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                   responseAT:@"must-not-be-cached"
+                                                                                   responseRT:@"must-not-be-cached"
+                                                                                   responseID:nil
+                                                                                responseScope:@"user.read tasks.read"
+                                                                           responseClientInfo:nil
+                                                                                          url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                 responseCode:500
+                                                                                    expiresIn:nil];
+    [MSIDTestURLSession addResponse:unavailable];
+    [MSIDTestURLSession addResponse:unavailable];
+    XCTestExpectation *completion = [self expectationWithDescription:@"extended lifetime fallback"];
+    [[self requestWithForceRefresh:NO] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+        XCTAssertEqual(result.extendedLifeTimeToken, extendedLifetime);
+        XCTAssertEqualObjects(result.accessToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, DEFAULT_TEST_HOME_ACCOUNT_ID);
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+}
+
+- (void)addRefreshForToken:(NSString *)refreshToken error:(NSString *)oauthError subError:(NSString *)subError
+{
+    if (oauthError)
+    {
+        [MSIDTestURLSession addResponse:[MSIDTestURLResponse errorRefreshTokenGrantResponseWithRT:refreshToken
+                                                                                    requestClaims:nil
+                                                                                    requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                    responseError:oauthError
+                                                                                      description:@"refresh rejected"
+                                                                                         subError:subError
+                                                                                              url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                     responseCode:200]];
+        return;
+    }
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse refreshTokenGrantResponseWithRT:refreshToken
+                                                                           requestClaims:nil
+                                                                           requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                              responseAT:@"renewed-access-token"
+                                                                              responseRT:@"rotated-refresh-token"
+                                                                              responseID:nil
+                                                                           responseScope:@"user.read tasks.read"
+                                                                      responseClientInfo:nil
+                                                                                     url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                            responseCode:200 expiresIn:nil]];
+}
+
+- (MSIDRefreshToken *)cachedRefreshTokenForFamily:(NSString *)familyId
+{
+    NSError *error = nil;
+    MSIDRefreshToken *token = [self.tokenCache getRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                                  familyId:familyId
+                                                             configuration:self.parameters.msidConfiguration
+                                                                   context:self.parameters error:&error];
+    XCTAssertNotNil(token);
+    XCTAssertNil(error);
+    return token;
+}
+
+- (void)testExecute_whenAppRefreshRejected_recoversWithDistinctFamilyRefreshToken
+{
+    [self saveTokensExpiringIn:@"1" familyId:@"1"];
+    MSIDRefreshToken *familyToken = [self cachedRefreshTokenForFamily:@"1"];
+    familyToken.refreshToken = @"family-refresh-token";
+    XCTAssertTrue([self.tokenCache saveToken:familyToken context:self.parameters error:nil]);
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse oidcResponseForAuthority:DEFAULT_TEST_AUTHORITY_GUID]];
+    [self addRefreshForToken:DEFAULT_TEST_REFRESH_TOKEN error:@"invalid_grant" subError:@"consent_required"];
+    [self addRefreshForToken:@"family-refresh-token" error:nil subError:nil];
+    XCTestExpectation *completion = [self expectationWithDescription:@"family refresh recovery"];
+    [[self requestWithForceRefresh:NO] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(result.accessToken.accessToken, @"renewed-access-token");
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"rotated-refresh-token");
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, DEFAULT_TEST_HOME_ACCOUNT_ID);
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1u);
+    XCTAssertEqualObjects([self cachedRefreshTokenForFamily:nil].refreshToken, @"rotated-refresh-token");
+}
+
+- (void)testExecute_whenFamilyClientMismatch_persistsFamilyOptOutAndSkipsSecondRedemption
+{
+    [self saveTokensExpiringIn:@"1" familyId:@"1"];
+    XCTAssertTrue([self.tokenCache removeToken:[self cachedRefreshTokenForFamily:nil] context:self.parameters error:nil]);
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse oidcResponseForAuthority:DEFAULT_TEST_AUTHORITY_GUID]];
+    [self addRefreshForToken:DEFAULT_TEST_REFRESH_TOKEN error:@"invalid_grant" subError:@"client_mismatch"];
+    XCTestExpectation *first = [self expectationWithDescription:@"family client mismatch"];
+    [[self requestWithForceRefresh:NO] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"client_mismatch");
+        [first fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    NSError *cacheError = nil;
+    NSArray<MSIDAppMetadataCacheItem *> *metadata = [self.tokenCache getAppMetadataEntries:self.parameters.msidConfiguration
+                                                                                   context:self.parameters error:&cacheError];
+    XCTAssertNotNil(metadata);
+    XCTAssertNil(cacheError);
+    XCTAssertTrue(metadata.count > 0);
+    for (MSIDAppMetadataCacheItem *item in metadata)
+    {
+        XCTAssertEqualObjects(item.familyId, @"");
+    }
+    XCTestExpectation *second = [self expectationWithDescription:@"skip opted-out family"];
+    [[self requestWithForceRefresh:NO] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        XCTAssertNil(error.userInfo[MSIDOAuthSubErrorKey]);
+        [second fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+}
+
+- (void)testExecute_whenCachedIDTokenMissing_recoversByRefreshingInsteadOfReturningPartialResult
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDIdToken *idToken = [self.tokenCache getIDTokenForAccount:self.parameters.accountIdentifier
+                                                   configuration:self.parameters.msidConfiguration
+                                                     idTokenType:MSIDIDTokenType context:self.parameters error:nil];
+    XCTAssertNotNil(idToken);
+    XCTAssertTrue([self.tokenCache removeToken:idToken context:self.parameters error:nil]);
+    [MSIDTestURLSession addResponse:[MSIDTestURLResponse oidcResponseForAuthority:DEFAULT_TEST_AUTHORITY_GUID]];
+    [self addRefreshForToken:DEFAULT_TEST_REFRESH_TOKEN error:nil subError:nil];
+    XCTestExpectation *completion = [self expectationWithDescription:@"recover missing id token"];
+    [[self requestWithForceRefresh:NO] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(result.accessToken.accessToken, @"renewed-access-token");
+        XCTAssertNotNil(result.rawIdToken);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"rotated-refresh-token");
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 1u);
+}
+
+- (void)testExecute_whenLocalRefreshForbidden_doesNotRedeemOrDeleteValidCachedTokens
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDDefaultSilentTokenRequest *request = [self requestWithForceRefresh:YES];
+    request.skipLocalRt = YES;
+    XCTestExpectation *completion = [self expectationWithDescription:@"local refresh forbidden"];
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNil(result);
+        XCTAssertNil(error);
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+}
+
+- (MSIDPrimaryRefreshToken *)primaryRefreshTokenForAccount:(MSIDAccountIdentifier *)account token:(NSString *)secret
+{
+    MSIDPrimaryRefreshToken *token = [MSIDPrimaryRefreshToken new];
+    token.accountIdentifier = account;
+    token.environment = [self.parameters.authority cacheEnvironmentWithContext:self.parameters];
+    token.clientId = self.parameters.clientId;
+    token.refreshToken = secret;
+    token.sessionKey = [@"test-session-key" dataUsingEncoding:NSUTF8StringEncoding];
+    token.prtProtocolVersion = @"3.0";
+    token.expiresOn = [NSDate dateWithTimeIntervalSince1970:4102444800];
+    return token;
+}
+
+- (void)enableSingleFamilyRefreshToken
+{
+    MSIDFlightManagerMockProvider *provider = [MSIDFlightManagerMockProvider new];
+    provider.stringForKeyContainer = @{MSID_FLIGHT_CLIENT_SFRT_STATUS: MSID_FRT_STATUS_ENABLED};
+    MSIDFlightManager.sharedInstance.flightProvider = provider;
+    MSIDAccountCredentialCache *cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:self.dataSource];
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus status = [cache checkFRTEnabledForTenantId:self.parameters.accountIdentifier.utid
+                                                               context:self.parameters error:&error];
+    XCTAssertEqual(status, MSIDIsFRTEnabledStatusEnabled);
+    XCTAssertNil(error);
+}
+
+- (void)testSingleFamilyRefreshToken_savedOnceAndReturnedForAnotherClientInSameFamily
+{
+    [self enableSingleFamilyRefreshToken];
+    [self saveTokensExpiringIn:@"3600" familyId:@"1"];
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0u);
+    NSArray *familyTokens = [self.dataSource allTokensWithType:MSIDFamilyRefreshTokenType serializer:[MSIDCacheItemJsonSerializer new]];
+    XCTAssertEqual(familyTokens.count, 1u);
+    self.parameters.clientId = @"another-family-client";
+    NSError *error = nil;
+    MSIDRefreshToken *token = [self.tokenCache getRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                                  familyId:@"1"
+                                                             configuration:self.parameters.msidConfiguration
+                                                                   context:self.parameters error:&error];
+    XCTAssertNotNil(token);
+    XCTAssertNil(error);
+    XCTAssertTrue([token isKindOfClass:MSIDFamilyRefreshToken.class]);
+    XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(token.familyId, @"1");
+    XCTAssertNil([self.tokenCache getRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                       familyId:@"other-family"
+                                                  configuration:self.parameters.msidConfiguration
+                                                        context:self.parameters error:&error]);
+    XCTAssertNil(error);
+}
+
+- (void)testSingleFamilyRefreshToken_whenOnlyLegacyTokenExists_readsThenRemovesRejectedLegacyToken
+{
+    [self saveTokensExpiringIn:@"3600" familyId:@"1"];
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 2u);
+    [self enableSingleFamilyRefreshToken];
+    NSError *error = nil;
+    MSIDRefreshToken *token = [self.tokenCache getRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                                  familyId:@"1"
+                                                             configuration:self.parameters.msidConfiguration
+                                                                   context:self.parameters error:&error];
+    XCTAssertNotNil(token);
+    XCTAssertNil(error);
+    XCTAssertEqual(token.credentialType, MSIDRefreshTokenType);
+    XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+    BOOL removed = [self.tokenCache validateAndRemoveRefreshToken:token context:self.parameters error:&error];
+    XCTAssertTrue(removed);
+    XCTAssertNil(error);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 1u);
+}
+
+- (void)testSingleFamilyRefreshToken_accountEnumerationIncludesFamilyTokenAndRemovalPreservesAccount
+{
+    [self enableSingleFamilyRefreshToken];
+    [self saveTokensExpiringIn:@"3600" familyId:@"1"];
+    NSError *error = nil;
+    NSArray<MSIDAccount *> *accounts = [self.tokenCache accountsWithAuthority:self.parameters.authority
+                                                                      clientId:self.parameters.clientId
+                                                                      familyId:@"1" accountIdentifier:nil
+                                                                       context:self.parameters error:&error];
+    XCTAssertNotNil(accounts);
+    XCTAssertNil(error);
+    XCTAssertEqual(accounts.count, 1u);
+    XCTAssertEqualObjects(accounts.firstObject.accountIdentifier.homeAccountId, self.parameters.accountIdentifier.homeAccountId);
+    MSIDRefreshToken *token = [self.tokenCache getRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                                  familyId:@"1" configuration:self.parameters.msidConfiguration
+                                                                   context:self.parameters error:&error];
+    XCTAssertNotNil(token);
+    XCTAssertNil(error);
+    BOOL removed = [self.tokenCache validateAndRemoveRefreshToken:token context:self.parameters error:&error];
+    XCTAssertTrue(removed);
+    XCTAssertNil(error);
+    accounts = [self.tokenCache accountsWithAuthority:self.parameters.authority clientId:self.parameters.clientId
+                                                familyId:@"1" accountIdentifier:nil context:self.parameters error:&error];
+    XCTAssertNotNil(accounts);
+    XCTAssertNil(error);
+    XCTAssertEqual(accounts.count, 0u);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 1u);
+}
+
+- (void)testClearAccount_whenCredentialRemovalFails_reportsErrorAndRetainsCredentials
+{
+    [self saveTokensExpiringIn:@"3600"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:21 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(removeTokensWithKey:context:error:) class:MSIDTestCacheDataSource.class
+                              block:^BOOL(__unused id source, __unused MSIDCacheKey *key,
+                                          __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return NO;
+    }];
+    NSError *error = nil;
+    BOOL cleared = [self.tokenCache clearCacheForAccount:self.parameters.accountIdentifier authority:self.parameters.authority
+                                                  clientId:self.parameters.clientId familyId:nil clearAccounts:NO
+                                                   context:self.parameters error:&error];
+    XCTAssertFalse(cleared);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 1u);
+}
+
+- (void)testClearAccount_whenAccountRemovalFails_reportsErrorAfterClearingCredentials
+{
+    [self saveTokensExpiringIn:@"3600"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:22 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(removeAccountsWithKey:context:error:) class:MSIDTestCacheDataSource.class
+                              block:^BOOL(__unused id source, __unused MSIDCacheKey *key,
+                                          __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return NO;
+    }];
+    NSError *error = nil;
+    BOOL cleared = [self.tokenCache clearCacheForAccount:self.parameters.accountIdentifier authority:self.parameters.authority
+                                                  clientId:self.parameters.clientId familyId:nil clearAccounts:YES
+                                                   context:self.parameters error:&error];
+    XCTAssertFalse(cleared);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 0u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0u);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 1u);
+}
+
+- (void)testPrimaryRefreshTokens_filterByAccountWithoutReturningOtherAccountsCredentials
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDPrimaryRefreshToken *first = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"primary-one"];
+    MSIDAccountIdentifier *otherAccount = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"other@contoso.com"
+                                                                                homeAccountId:@"other.tenant"];
+    MSIDPrimaryRefreshToken *second = [self primaryRefreshTokenForAccount:otherAccount token:@"primary-two"];
+    XCTAssertTrue([self.tokenCache saveToken:first context:self.parameters error:nil]);
+    XCTAssertTrue([self.tokenCache saveToken:second context:self.parameters error:nil]);
+    NSError *error = nil;
+    NSArray<MSIDPrimaryRefreshToken *> *all = [self.tokenCache getPrimaryRefreshTokensForConfiguration:self.parameters.msidConfiguration
+                                                                                                context:self.parameters error:&error];
+    XCTAssertNotNil(all);
+    XCTAssertNil(error);
+    XCTAssertEqual(all.count, 2u);
+    NSArray<MSIDPrimaryRefreshToken *> *filtered =
+    [self.tokenCache getPrimaryRefreshTokensForConfiguration:self.parameters.msidConfiguration
+                                                       account:self.parameters.accountIdentifier
+                                                       context:self.parameters error:&error];
+    XCTAssertNotNil(filtered);
+    XCTAssertNil(error);
+    XCTAssertEqual(filtered.count, 1u);
+    XCTAssertEqualObjects(filtered.firstObject.refreshToken, @"primary-one");
+    XCTAssertEqualObjects(filtered.firstObject.sessionKey, first.sessionKey);
+}
+
+- (void)testPrimaryRefreshTokenCopy_preservesRecoveryStateWithoutSharingMutableTokenIdentity
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"primary-token"];
+    token.deviceID = @"test-device";
+    token.cachedAt = [NSDate dateWithTimeIntervalSince1970:1700000000];
+    token.lastRecoveryAttempt = [NSDate dateWithTimeIntervalSince1970:1700000300];
+    token.recoveryAttemptCount = 2;
+    token.lastRecoveryAttemptFailed = YES;
+    token.expiryInterval = 3600;
+    token.externalKeyLocationType = MSIDExternalPRTKeyLocationTypeSSO;
+    MSIDPrimaryRefreshToken *copy = [token copy];
+    XCTAssertNotEqual(copy, token);
+    XCTAssertEqualObjects(copy, token);
+    XCTAssertEqual(copy.hash, token.hash);
+    XCTAssertEqual(copy.prtId, token.prtId);
+    XCTAssertEqualObjects(copy.expiresOn, token.expiresOn);
+    XCTAssertEqualObjects(copy.cachedAt, token.cachedAt);
+    XCTAssertEqualObjects(copy.lastRecoveryAttempt, token.lastRecoveryAttempt);
+    XCTAssertEqual(copy.recoveryAttemptCount, 2u);
+    XCTAssertTrue(copy.lastRecoveryAttemptFailed);
+    XCTAssertEqual(copy.expiryInterval, 3600u);
+    XCTAssertEqual(copy.refreshInterval, 120u);
+    XCTAssertEqual(copy.externalKeyLocationType, MSIDExternalPRTKeyLocationTypeSSO);
+    copy.deviceID = @"different-device";
+    copy.refreshToken = @"rotated-token";
+    XCTAssertNotEqualObjects(copy, token);
+    XCTAssertNotEqual(copy.prtId, token.prtId);
+    XCTAssertEqualObjects(token.deviceID, @"test-device");
+    XCTAssertEqualObjects(token.refreshToken, @"primary-token");
+}
+
+- (void)testLegacyPrimaryRefreshTokenMigration_preservesSessionAndBuildsAliasScopedDeletionItem
+{
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"legacy-primary"];
+    token.storageEnvironment = @"login.windows.net";
+    NSError *error = nil;
+    MSIDLegacyTokenCacheItem *legacy =
+    [[MSIDLegacyTokenCacheItem alloc] initWithJSONDictionary:token.tokenCacheItem.jsonDictionary error:&error];
+    XCTAssertNotNil(legacy);
+    XCTAssertNil(error);
+    legacy.refreshToken = token.refreshToken;
+    MSIDPrimaryRefreshToken *migrated = [[MSIDPrimaryRefreshToken alloc] initWithLegacyTokenCacheItem:legacy];
+    XCTAssertNotNil(migrated);
+    XCTAssertEqualObjects(migrated.refreshToken, token.refreshToken);
+    XCTAssertEqualObjects(migrated.sessionKey, token.sessionKey);
+    XCTAssertEqualObjects(migrated.accountIdentifier.homeAccountId, token.accountIdentifier.homeAccountId);
+    MSIDLegacyTokenCacheItem *deletionItem = migrated.legacyTokenCacheItem;
+    XCTAssertEqual(deletionItem.credentialType, MSIDPrimaryRefreshTokenType);
+    XCTAssertEqualObjects(deletionItem.clientId, token.clientId);
+    XCTAssertEqualObjects(deletionItem.environment, @"login.windows.net");
+    XCTAssertNil(deletionItem.refreshToken);
+    XCTAssertNil(deletionItem.secret);
+    migrated.storageEnvironment = nil;
+    migrated.environment = @"login.microsoftonline.com";
+    XCTAssertEqualObjects(migrated.legacyTokenCacheItem.environment, @"login.microsoftonline.com");
+}
+
+- (void)testLegacyPrimaryRefreshTokenMigration_whenOnlyExternalKeyAvailable_rejectsInsteadOfCreatingKeylessLegacyToken
+{
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"external-primary"];
+    token.sessionKey = nil;
+    token.externalKeyLocationType = MSIDExternalPRTKeyLocationTypeSSO;
+    MSIDCredentialCacheItem *item = token.tokenCacheItem;
+    XCTAssertNotNil(item);
+    MSIDPrimaryRefreshToken *modern = [[MSIDPrimaryRefreshToken alloc] initWithTokenCacheItem:item];
+    XCTAssertNotNil(modern);
+    XCTAssertEqual(modern.externalKeyLocationType, MSIDExternalPRTKeyLocationTypeSSO);
+    NSError *error = nil;
+    MSIDLegacyTokenCacheItem *legacy = [[MSIDLegacyTokenCacheItem alloc] initWithJSONDictionary:item.jsonDictionary error:&error];
+    XCTAssertNotNil(legacy);
+    XCTAssertNil(error);
+    legacy.refreshToken = token.refreshToken;
+    MSIDPrimaryRefreshToken *migrated = [[MSIDPrimaryRefreshToken alloc] initWithLegacyTokenCacheItem:legacy];
+    XCTAssertNil(migrated);
+}
+
+- (void)testClearAll_whenSecondaryCacheFails_reportsFailureAndPreservesSecondaryTokens
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDTestCacheDataSource *secondarySource = [MSIDTestCacheDataSource new];
+    MSIDDefaultTokenCacheAccessor *secondary =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:secondarySource otherCacheAccessors:nil];
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"secondary-primary"];
+    XCTAssertTrue([secondary saveToken:token context:self.parameters error:nil]);
+    MSIDDefaultTokenCacheAccessor *combined =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:@[secondary]];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:23 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(clearWithContext:error:) class:MSIDTestCacheDataSource.class
+                              block:^BOOL(id source, __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (source == secondarySource)
+        {
+            if (error)
+            {
+                *error = storageError;
+            }
+            return NO;
+        }
+        [source reset];
+        return YES;
+    }];
+    NSError *error = nil;
+    BOOL cleared = [combined clearCacheForAllAccountsWithContext:self.parameters error:&error];
+    XCTAssertFalse(cleared);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 0u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0u);
+    NSArray *remaining = [secondary getPrimaryRefreshTokensForConfiguration:self.parameters.msidConfiguration
+                                                                       context:self.parameters error:nil];
+    XCTAssertEqual(remaining.count, 1u);
+    XCTAssertEqualObjects([remaining.firstObject refreshToken], @"secondary-primary");
+}
+
+- (void)testClearAll_whenPrimaryCacheFails_stillClearsSecondaryAndPreservesFirstError
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDTestCacheDataSource *primarySource = self.dataSource;
+    MSIDDefaultTokenCacheAccessor *secondary =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:[MSIDTestCacheDataSource new] otherCacheAccessors:nil];
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"secondary-primary"];
+    XCTAssertTrue([secondary saveToken:token context:self.parameters error:nil]);
+    MSIDDefaultTokenCacheAccessor *combined =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:primarySource otherCacheAccessors:@[secondary]];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:24 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(clearWithContext:error:) class:MSIDTestCacheDataSource.class
+                              block:^BOOL(id source, __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (source == primarySource)
+        {
+            if (error)
+            {
+                *error = storageError;
+            }
+            return NO;
+        }
+        [source reset];
+        return YES;
+    }];
+    NSError *error = nil;
+    BOOL cleared = [combined clearCacheForAllAccountsWithContext:self.parameters error:&error];
+    XCTAssertFalse(cleared);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 1u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+    NSArray *remaining = [secondary getPrimaryRefreshTokensForConfiguration:self.parameters.msidConfiguration
+                                                                       context:self.parameters error:nil];
+    XCTAssertNotNil(remaining);
+    XCTAssertEqual(remaining.count, 0u);
+}
+
+- (void)testAccountEnumeration_whenStorageFails_returnsOriginalErrorWithoutDeletingTokens
+{
+    [self saveTokensExpiringIn:@"3600"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:25 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(accountsWithKey:serializer:context:error:) class:MSIDTestCacheDataSource.class
+                              block:^NSArray *(__unused id source, __unused MSIDCacheKey *key,
+                                                __unused id serializer, __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return nil;
+    }];
+    NSError *error = nil;
+    NSArray *accounts = [self.tokenCache accountsWithAuthority:self.parameters.authority clientId:self.parameters.clientId
+                                                     familyId:nil accountIdentifier:nil context:self.parameters error:&error];
+    XCTAssertEqualObjects(accounts, @[]);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+}
+
+- (void)testPrimaryRefreshTokenLookup_whenStorageFails_returnsOriginalError
+{
+    [self saveTokensExpiringIn:@"3600"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:26 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(tokensWithKey:serializer:context:error:) class:MSIDTestCacheDataSource.class
+                              block:^NSArray *(__unused id source, __unused MSIDCacheKey *key,
+                                                __unused id serializer, __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return nil;
+    }];
+    NSError *error = nil;
+    MSIDPrimaryRefreshToken *token = [self.tokenCache getPrimaryRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                                                  familyId:nil
+                                                                             configuration:self.parameters.msidConfiguration
+                                                                                   context:self.parameters error:&error];
+    XCTAssertNil(token);
+    XCTAssertEqual(error, storageError);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+}
+
+- (void)testFamilyMetadataUpdate_whenReadFails_preservesExistingFamilyAndReturnsStorageError
+{
+    MSIDFlightManagerMockProvider *provider = [MSIDFlightManagerMockProvider new];
+    provider.stringForKeyContainer = @{MSID_FLIGHT_CLIENT_SFRT_STATUS: MSID_FRT_STATUS_DISABLED};
+    MSIDFlightManager.sharedInstance.flightProvider = provider;
+    [self saveTokensExpiringIn:@"3600" familyId:@"1"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:27 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(getAppMetadataEntriesWithQuery:context:error:)
+                              class:MSIDAccountCredentialCache.class
+                              block:^NSArray *(__unused id cache, __unused id query,
+                                                __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return nil;
+    }];
+    NSError *error = nil;
+    BOOL updated = [self.tokenCache updateAppMetadataWithFamilyId:@"2" clientId:self.parameters.clientId
+                                                           authority:self.parameters.authority context:self.parameters error:&error];
+    XCTAssertFalse(updated);
+    XCTAssertEqual(error, storageError);
+    [MSIDTestSwizzle reset];
+    NSArray<MSIDAppMetadataCacheItem *> *metadata =
+    [self.tokenCache getAppMetadataEntries:self.parameters.msidConfiguration context:self.parameters error:nil];
+    XCTAssertEqual(metadata.count, 1u);
+    XCTAssertEqualObjects(metadata.firstObject.familyId, @"1");
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 2u);
+}
+
+- (void)testFamilyMetadataUpdate_whenWriteFails_preservesExistingFamilyAndReturnsStorageError
+{
+    MSIDFlightManagerMockProvider *provider = [MSIDFlightManagerMockProvider new];
+    provider.stringForKeyContainer = @{MSID_FLIGHT_CLIENT_SFRT_STATUS: MSID_FRT_STATUS_DISABLED};
+    MSIDFlightManager.sharedInstance.flightProvider = provider;
+    [self saveTokensExpiringIn:@"3600" familyId:@"1"];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:28 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(saveAppMetadata:context:error:)
+                              class:MSIDAccountCredentialCache.class
+                              block:^BOOL(__unused id cache, __unused MSIDAppMetadataCacheItem *item,
+                                          __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return NO;
+    }];
+    NSError *error = nil;
+    BOOL updated = [self.tokenCache updateAppMetadataWithFamilyId:@"2" clientId:self.parameters.clientId
+                                                           authority:self.parameters.authority context:self.parameters error:&error];
+    XCTAssertFalse(updated);
+    XCTAssertEqual(error, storageError);
+    [MSIDTestSwizzle reset];
+    NSArray<MSIDAppMetadataCacheItem *> *metadata =
+    [self.tokenCache getAppMetadataEntries:self.parameters.msidConfiguration context:self.parameters error:nil];
+    XCTAssertEqual(metadata.count, 1u);
+    XCTAssertEqualObjects(metadata.firstObject.familyId, @"1");
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 2u);
+}
+
+- (void)testPrimaryRefreshTokenValidation_preservesRotatedTokenAndRemovesOnlyMatchingVersion
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDPrimaryRefreshToken *original = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"primary-old"];
+    XCTAssertTrue([self.tokenCache saveToken:original context:self.parameters error:nil]);
+    MSIDPrimaryRefreshToken *rotated = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"primary-rotated"];
+    XCTAssertTrue([self.tokenCache saveToken:rotated context:self.parameters error:nil]);
+    NSError *error = nil;
+    BOOL removed = [self.tokenCache validateAndRemovePrimaryRefreshToken:original context:self.parameters error:&error];
+    XCTAssertTrue(removed);
+    XCTAssertNil(error);
+    MSIDPrimaryRefreshToken *retained = [self.tokenCache getPrimaryRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                                                  familyId:nil
+                                                                             configuration:self.parameters.msidConfiguration
+                                                                                   context:self.parameters error:&error];
+    XCTAssertNotNil(retained);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(retained.refreshToken, @"primary-rotated");
+    removed = [self.tokenCache validateAndRemovePrimaryRefreshToken:retained context:self.parameters error:&error];
+    XCTAssertTrue(removed);
+    XCTAssertNil(error);
+    NSArray *remaining = [self.tokenCache getPrimaryRefreshTokensForConfiguration:self.parameters.msidConfiguration
+                                                                            context:self.parameters error:&error];
+    XCTAssertNotNil(remaining);
+    XCTAssertNil(error);
+    XCTAssertEqual(remaining.count, 0u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1u);
+}
+
+- (void)testPrimaryRefreshToken_whenOnlySecondaryCacheHasToken_readsFallbackAndClearsBothCaches
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDDefaultTokenCacheAccessor *secondary =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:[MSIDTestCacheDataSource new] otherCacheAccessors:nil];
+    MSIDPrimaryRefreshToken *token = [self primaryRefreshTokenForAccount:self.parameters.accountIdentifier token:@"secondary-primary"];
+    XCTAssertTrue([secondary saveToken:token context:self.parameters error:nil]);
+    MSIDDefaultTokenCacheAccessor *combined =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:self.dataSource otherCacheAccessors:@[secondary]];
+    NSError *error = nil;
+    MSIDPrimaryRefreshToken *result = [combined getPrimaryRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                                           familyId:nil
+                                                                      configuration:self.parameters.msidConfiguration
+                                                                            context:self.parameters error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result.refreshToken, @"secondary-primary");
+    BOOL cleared = [combined clearCacheForAllAccountsWithContext:self.parameters error:&error];
+    XCTAssertTrue(cleared);
+    XCTAssertNil(error);
+    NSArray *remaining = [secondary getPrimaryRefreshTokensForConfiguration:self.parameters.msidConfiguration
+                                                                       context:self.parameters error:&error];
+    XCTAssertNotNil(remaining);
+    XCTAssertNil(error);
+    XCTAssertEqual(remaining.count, 0u);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 0u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0u);
+}
+
+- (void)testUpdateAppMetadata_createsThenReplacesFamilyWithoutLeavingStaleEntries
+{
+    [self saveTokensExpiringIn:@"3600"];
+    MSIDDefaultTokenCacheAccessor *empty =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:[MSIDTestCacheDataSource new] otherCacheAccessors:nil];
+    for (NSString *familyId in @[@"1", @"2", @""])
+    {
+        NSError *error = nil;
+        BOOL updated = [empty updateAppMetadataWithFamilyId:familyId
+                                                     clientId:self.parameters.clientId
+                                                    authority:self.parameters.authority
+                                                      context:self.parameters error:&error];
+        XCTAssertTrue(updated);
+        XCTAssertNil(error);
+        NSArray<MSIDAppMetadataCacheItem *> *entries = [empty getAppMetadataEntries:self.parameters.msidConfiguration
+                                                                             context:self.parameters error:&error];
+        XCTAssertNotNil(entries);
+        XCTAssertNil(error);
+        XCTAssertEqual(entries.count, 1u);
+        XCTAssertEqualObjects(entries.firstObject.familyId, familyId);
+        XCTAssertEqualObjects(entries.firstObject.clientId, self.parameters.clientId);
+    }
+}
+
+- (void)testExecute_whenRefreshTokenMissing_returnsInteractionRequiredAndRemovesExpiredAccessToken
+{
+    [self saveTokensExpiringIn:@"1"];
+    MSIDRefreshToken *refreshToken = [self.tokenCache getRefreshTokenWithAccount:self.parameters.accountIdentifier
+                                                                       familyId:nil
+                                                                  configuration:self.parameters.msidConfiguration
+                                                                        context:self.parameters
+                                                                          error:nil];
+    XCTAssertNotNil(refreshToken);
+    XCTAssertTrue([self.tokenCache removeToken:refreshToken context:self.parameters error:nil]);
+    XCTestExpectation *completion = [self expectationWithDescription:@"missing refresh token"];
+    [[self requestWithForceRefresh:NO] executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        XCTAssertNil(result);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        [completion fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 0u);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0u);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 1u);
+}
+
+@end
+#endif

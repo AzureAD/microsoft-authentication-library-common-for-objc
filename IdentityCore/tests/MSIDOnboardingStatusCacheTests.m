@@ -29,6 +29,9 @@
 #import "MSIDBrokerConstants.h"
 #import "MSIDCacheKey.h"
 #import "MSIDJsonObject.h"
+#if TARGET_OS_OSX
+#import "MSIDTestSwizzle.h"
+#endif
 
 @interface MSIDOnboardingStatusCache ()
 
@@ -61,6 +64,9 @@
 
 - (void)tearDown
 {
+#if TARGET_OS_OSX
+    [MSIDTestSwizzle reset];
+#endif
     // Reset to clean state
     [self.testDataSource reset];
     MSIDOnboardingStatusCache.sharedInstance.dataSource = self.originalDataSource;
@@ -169,6 +175,130 @@
 }
 
 #pragma mark - getOnboardingStatus
+
+#if TARGET_OS_OSX
+- (void)testSetStatus_whenSerializationFails_returnsFailureWithoutCreatingStoredStatus
+{
+    MSIDOnboardingStatus *status = [self statusWithOwner:@"test.owner"
+                                                  phase:MSIDOnboardingPhaseFailed
+                                             ttlSeconds:900 startedAt:[NSDate date]];
+    [MSIDTestSwizzle instanceMethod:@selector(jsonDictionary) class:MSIDOnboardingStatus.class
+                              block:^NSDictionary *(__unused id object)
+    {
+        return nil;
+    }];
+    BOOL written = [self.cache setWithStatus:status];
+    XCTAssertFalse(written);
+    XCTAssertEqual([self readStatusJSONDirectly].count, 0u);
+}
+
+- (void)testSetStatus_whenStorageFails_returnsFailureAndPreservesExistingStatus
+{
+    MSIDOnboardingStatus *status = [self statusWithOwner:@"test.owner"
+                                                  phase:MSIDOnboardingPhaseFailed
+                                             ttlSeconds:900 startedAt:[NSDate date]];
+    XCTAssertTrue([self.cache setWithStatus:status]);
+    NSError *storageError = [NSError errorWithDomain:@"onboarding-test-storage" code:19 userInfo:nil];
+    __block NSUInteger writes = 0;
+    [MSIDTestSwizzle instanceMethod:@selector(saveJsonObject:serializer:key:context:error:)
+                              class:MSIDTestCacheDataSource.class
+                              block:^BOOL(__unused id source, __unused MSIDJsonObject *object,
+                                          __unused id<MSIDExtendedCacheItemSerializing> serializer,
+                                          __unused MSIDCacheKey *key, __unused id<MSIDRequestContext> context,
+                                          NSError **error)
+    {
+        writes++;
+        if (error)
+        {
+            *error = storageError;
+        }
+        return NO;
+    }];
+    MSIDOnboardingStatus *replacement = [self statusWithOwner:@"replacement"
+                                                       phase:MSIDOnboardingPhaseFailed
+                                                  ttlSeconds:900 startedAt:[NSDate date]];
+    BOOL written = [self.cache setWithStatus:replacement];
+    XCTAssertFalse(written);
+    XCTAssertEqual(writes, 1u);
+    MSIDOnboardingStatus *retained = [self.cache getOnboardingStatus];
+    XCTAssertEqualObjects(retained.ownerBundleId, status.ownerBundleId);
+    XCTAssertEqual([self readStatusJSONDirectly].count, 1u);
+}
+
+- (void)testGetStatus_whenStorageFails_returnsDefaultWithoutRemovingStoredStatus
+{
+    MSIDOnboardingStatus *original = [self statusWithOwner:@"test.owner"
+                                                    phase:MSIDOnboardingPhaseFailed
+                                               ttlSeconds:900 startedAt:[NSDate date]];
+    XCTAssertTrue([self.cache setWithStatus:original]);
+    NSError *storageError = [NSError errorWithDomain:@"onboarding-test-storage" code:20 userInfo:nil];
+    __block NSUInteger reads = 0;
+    [MSIDTestSwizzle instanceMethod:@selector(jsonObjectsWithKey:serializer:context:error:)
+                              class:MSIDTestCacheDataSource.class
+                              block:^NSArray *(__unused id source, __unused MSIDCacheKey *key,
+                                                __unused id<MSIDExtendedCacheItemSerializing> serializer,
+                                                __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        reads++;
+        if (error)
+        {
+            *error = storageError;
+        }
+        return nil;
+    }];
+    MSIDOnboardingStatus *status = [self.cache getOnboardingStatus];
+    XCTAssertNotNil(status);
+    XCTAssertEqual(status.phase, MSIDOnboardingPhaseNone);
+    XCTAssertEqual(reads, 1u);
+    [MSIDTestSwizzle reset];
+    XCTAssertEqual([self readStatusJSONDirectly].count, 1u);
+    XCTAssertEqualObjects([self.cache getOnboardingStatus].ownerBundleId, original.ownerBundleId);
+}
+
+- (void)testGetStatus_whenStoredJSONCannotBeSerialized_returnsDefaultWithoutDeletingStoredStatus
+{
+    MSIDOnboardingStatus *status = [self statusWithOwner:@"test.owner"
+                                                  phase:MSIDOnboardingPhaseFailed
+                                             ttlSeconds:900 startedAt:[NSDate date]];
+    XCTAssertTrue([self.cache setWithStatus:status]);
+    [MSIDTestSwizzle instanceMethod:@selector(jsonDictionary) class:MSIDJsonObject.class
+                              block:^NSDictionary *(__unused id object)
+    {
+        return nil;
+    }];
+    MSIDOnboardingStatus *read = [self.cache getOnboardingStatus];
+    XCTAssertNotNil(read);
+    XCTAssertEqual(read.phase, MSIDOnboardingPhaseNone);
+    [MSIDTestSwizzle reset];
+    XCTAssertEqual([self readStatusJSONDirectly].count, 1u);
+    XCTAssertEqualObjects([self.cache getOnboardingStatus].ownerBundleId, status.ownerBundleId);
+}
+
+- (void)testClearStatus_whenStorageFails_returnsFailureAndPreservesStoredStatus
+{
+    MSIDOnboardingStatus *status = [self statusWithOwner:@"test.owner"
+                                                  phase:MSIDOnboardingPhaseFailed
+                                             ttlSeconds:900 startedAt:[NSDate date]];
+    XCTAssertTrue([self.cache setWithStatus:status]);
+    NSError *storageError = [NSError errorWithDomain:@"onboarding-test-storage" code:21 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(removeAccountsWithKey:context:error:)
+                              class:MSIDTestCacheDataSource.class
+                              block:^BOOL(__unused id source, __unused MSIDCacheKey *key,
+                                          __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return NO;
+    }];
+    BOOL removed = [self.cache clear:status.ownerBundleId];
+    XCTAssertFalse(removed);
+    MSIDOnboardingStatus *retained = [self.cache getOnboardingStatus];
+    XCTAssertEqualObjects(retained.ownerBundleId, status.ownerBundleId);
+    XCTAssertEqual([self readStatusJSONDirectly].count, 1u);
+}
+#endif
 
 - (void)testGetOnboardingStatus_whenNothingCached_shouldReturnDefaultStatus
 {

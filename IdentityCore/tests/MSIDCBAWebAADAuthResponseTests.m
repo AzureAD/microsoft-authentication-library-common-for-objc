@@ -31,6 +31,7 @@
 @interface MSIDCBAWebAADAuthResponseTests : XCTestCase
 
 @property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
+@property (nonatomic) id<MSIDFlightManagerInterface> originalFlightProvider;
 
 @end
 
@@ -39,6 +40,7 @@
 - (void)setUp
 {
     [super setUp];
+    self.originalFlightProvider = MSIDFlightManager.sharedInstance.flightProvider;
     self.flightProvider = [[MSIDFlightManagerMockProvider alloc] init];
     MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
 }
@@ -46,7 +48,7 @@
 - (void)tearDown
 {
     self.flightProvider = nil;
-    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    MSIDFlightManager.sharedInstance.flightProvider = self.originalFlightProvider;
     [super tearDown];
 }
 

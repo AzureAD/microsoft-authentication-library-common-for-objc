@@ -2976,6 +2976,8 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
     XCTAssertNotNil(wipeInfo[@"wipeTime"]);
 }
 
+#endif
+
 #pragma mark - getAppMetadataEntriesWithQuery
 
 - (void)testGetAppMetadataWithUpdatedFamilyId_shouldReturnAppMetadata
@@ -3004,7 +3006,6 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
     XCTAssertNil(metadataEntries[0].familyId);
     XCTAssertNil(error);
 }
-
 - (void)testsGetAppMetadataEntriesWhenMultipleClientIds_shouldReturnAllEntries
 {
     MSIDAppMetadataCacheItem *itemWithFamilyId = [self createAppMetadataCacheItem:@"1"];
@@ -3100,9 +3101,121 @@ static NSString * const kMSIDTestTenantId = @"00000000-aaaa-aaaa-aaaa-0000000000
     XCTAssertEqualObjects(appMetadataEntries[0], item1);
 }
 
-#endif
-
 #pragma mark - checkFRTEnabled
+
+#if TARGET_OS_OSX
+- (void)testRemoveExpiredAccessTokens_removesOnlyExpiredTokensForRequestedAccount
+{
+    MSIDCredentialCacheItem *expired = [self createTestAccessTokenCacheItem];
+    expired.expiresOn = [NSDate dateWithTimeIntervalSince1970:946684800];
+    [self saveItem:expired];
+    MSIDCredentialCacheItem *valid = [self createTestAccessTokenCacheItem];
+    valid.target = @"files.read";
+    valid.expiresOn = [NSDate dateWithTimeIntervalSince1970:4102444800];
+    [self saveItem:valid];
+    MSIDCredentialCacheItem *otherAccount = [self createTestAccessTokenCacheItem];
+    otherAccount.homeAccountId = @"other.account";
+    otherAccount.expiresOn = expired.expiresOn;
+    [self saveItem:otherAccount];
+
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = expired.homeAccountId;
+    query.environment = expired.environment;
+    query.clientId = expired.clientId;
+    XCTAssertFalse(query.exactMatch);
+    NSError *error = nil;
+    BOOL removed = [self.cache removeExpiredAccessTokensCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertTrue(removed);
+    XCTAssertNil(error);
+    NSArray *remaining = [self.cache getAllCredentialsWithType:MSIDAccessTokenType context:nil error:&error];
+    XCTAssertNotNil(remaining);
+    XCTAssertNil(error);
+    XCTAssertEqual(remaining.count, 2u);
+    XCTAssertTrue([remaining containsObject:valid]);
+    XCTAssertTrue([remaining containsObject:otherAccount]);
+    XCTAssertFalse([remaining containsObject:expired]);
+}
+
+- (void)testRemoveExpiredAccessTokens_whenRefreshTokenQuery_rejectsWithoutDeletingCredentials
+{
+    MSIDCredentialCacheItem *token = [self createTestRefreshTokenCacheItem];
+    [self saveItem:token];
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDRefreshTokenType;
+    NSError *error = nil;
+    BOOL removed = [self.cache removeExpiredAccessTokensCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertFalse(removed);
+    XCTAssertNil(error);
+    NSArray *remaining = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNotNil(remaining);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(remaining, @[token]);
+}
+
+- (void)testRemoveExpiredAccessTokens_whenStorageReadFails_returnsFailureAndOriginalError
+{
+    MSIDCredentialCacheItem *token = [self createTestAccessTokenCacheItem];
+    token.expiresOn = [NSDate dateWithTimeIntervalSince1970:946684800];
+    [self saveItem:token];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:17 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(tokensWithKey:serializer:context:error:)
+                              class:MSIDTestCacheDataSource.class
+                              block:^NSArray *(__unused id source, __unused MSIDCacheKey *key,
+                                                __unused id<MSIDCacheItemSerializing> serializer,
+                                                __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return nil;
+    }];
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    NSError *error = nil;
+    BOOL removed = [self.cache removeExpiredAccessTokensCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertFalse(removed);
+    XCTAssertEqual(error, storageError);
+    [MSIDTestSwizzle reset];
+    error = nil;
+    NSArray *remaining = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNotNil(remaining);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(remaining, @[token]);
+}
+
+- (void)testRemoveExpiredAccessTokens_whenStorageRemovalFails_preservesTokenAndPropagatesError
+{
+    MSIDCredentialCacheItem *token = [self createTestAccessTokenCacheItem];
+    token.expiresOn = [NSDate dateWithTimeIntervalSince1970:946684800];
+    [self saveItem:token];
+    NSError *storageError = [NSError errorWithDomain:@"cache-test-storage" code:18 userInfo:nil];
+    [MSIDTestSwizzle instanceMethod:@selector(removeTokensWithKey:context:error:)
+                              class:MSIDTestCacheDataSource.class
+                              block:^BOOL(__unused id source, __unused MSIDCacheKey *key,
+                                          __unused id<MSIDRequestContext> context, NSError **error)
+    {
+        if (error)
+        {
+            *error = storageError;
+        }
+        return NO;
+    }];
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    NSError *error = nil;
+    BOOL removed = [self.cache removeExpiredAccessTokensCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertFalse(removed);
+    XCTAssertEqual(error, storageError);
+    [MSIDTestSwizzle reset];
+    error = nil;
+    NSArray *remaining = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNotNil(remaining);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(remaining, @[token]);
+}
+#endif
 
 - (void)testCheckFRTEnabled_whenFRTClientNotEnabled_shouldReturnDisabledByClientApp
 {

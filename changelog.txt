@@ -1,4 +1,5 @@
 ## [TBD]
+* Expand macOS silent-token, refresh-token rotation, cache/storage failure, software-key signing, broker request/response, and XPC failover tests; enable shared cache/validator/response tests and correct in-memory test-cache replacement isolation. Production behavior is unchanged.
 * (iOS) Avoid a potential authentication hang by keeping BART enablement in process-local memory instead of writing application preferences; applications must configure enablement on each launch.
 * Preserve additionalProperties arrays in typed claims requests, including broker reconstruction.
 

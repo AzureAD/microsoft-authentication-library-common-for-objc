@@ -42,6 +42,169 @@
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDDefaultTokenResponseValidator.h"
+#import "MSIDXpcProviderCache.h"
+
+@interface MSIDXpcProviderCache (CacheIsolationTests)
+
+@property (nonatomic) NSUserDefaults *userDefaults;
+@property (nonatomic) BOOL isMacBrokerXpcProviderInstalled;
+@property (nonatomic) BOOL isCompanyPortalXpcProviderInstalled;
+
+@end
+
+@interface MSIDXpcProviderCacheEndpointTests : XCTestCase
+
+@property (nonatomic) MSIDXpcProviderCache *cache;
+@property (nonatomic) NSUserDefaults *originalDefaults;
+@property (nonatomic) MSIDXpcConfiguration *originalConfiguration;
+@property (nonatomic) NSXPCListenerEndpoint *originalEndpoint;
+@property (nonatomic) NSString *suiteName;
+@property (nonatomic) NSUserDefaults *isolatedDefaults;
+@property (nonatomic) NSXPCListener *listener;
+@property (nonatomic) BOOL originalBrokerInstalled;
+@property (nonatomic) BOOL originalCompanyPortalInstalled;
+
+@end
+
+@implementation MSIDXpcProviderCacheEndpointTests
+
+- (void)setUp
+{
+    [super setUp];
+    self.cache = MSIDXpcProviderCache.sharedInstance;
+    self.originalDefaults = self.cache.userDefaults;
+    self.originalConfiguration = self.cache.xpcConfiguration;
+    self.originalEndpoint = self.cache.cachedBrokerInstanceEndpoint;
+    self.originalBrokerInstalled = self.cache.isMacBrokerXpcProviderInstalled;
+    self.originalCompanyPortalInstalled = self.cache.isCompanyPortalXpcProviderInstalled;
+    self.suiteName = [@"com.microsoft.identity.xpc-cache-tests." stringByAppendingString:NSUUID.UUID.UUIDString];
+    self.isolatedDefaults = [[NSUserDefaults alloc] initWithSuiteName:self.suiteName];
+    self.cache.userDefaults = self.isolatedDefaults;
+    self.cache.cachedXpcProviderType = MSIDMacBrokerSsoProvider;
+    self.listener = [NSXPCListener anonymousListener];
+}
+
+- (void)tearDown
+{
+    [MSIDTestSwizzle reset];
+    self.cache.isMacBrokerXpcProviderInstalled = self.originalBrokerInstalled;
+    self.cache.isCompanyPortalXpcProviderInstalled = self.originalCompanyPortalInstalled;
+    [self.cache clearCachedBrokerInstanceEndpoint];
+    self.cache.userDefaults = self.originalDefaults;
+    self.cache.xpcConfiguration = self.originalConfiguration;
+    if (self.originalEndpoint)
+    {
+        XCTAssertTrue([self.cache setCachedBrokerInstanceEndpoint:self.originalEndpoint
+                                                 forProviderType:self.cache.cachedXpcProviderType]);
+    }
+    [self.listener invalidate];
+    [self.isolatedDefaults removePersistentDomainForName:self.suiteName];
+    [super tearDown];
+}
+
+- (void)testStoreEndpoint_whenProviderMatches_returnsEndpointAndClearIsIdempotent
+{
+    NSXPCListenerEndpoint *endpoint = self.listener.endpoint;
+    XCTAssertNotNil(endpoint);
+    XCTAssertTrue([self.cache setCachedBrokerInstanceEndpoint:endpoint forProviderType:MSIDMacBrokerSsoProvider]);
+    XCTAssertEqual(self.cache.cachedBrokerInstanceEndpoint, endpoint);
+    [self.cache clearCachedBrokerInstanceEndpoint];
+    [self.cache clearCachedBrokerInstanceEndpoint];
+    XCTAssertNil(self.cache.cachedBrokerInstanceEndpoint);
+    XCTAssertEqual(self.cache.cachedXpcProviderType, MSIDMacBrokerSsoProvider);
+}
+
+- (void)testStoreEndpoint_whenReplyFromPreviousProvider_arrivesAfterSwitch_rejectsStaleEndpoint
+{
+    NSXPCListenerEndpoint *endpoint = self.listener.endpoint;
+    XCTAssertTrue([self.cache setCachedBrokerInstanceEndpoint:endpoint forProviderType:MSIDMacBrokerSsoProvider]);
+    self.cache.cachedXpcProviderType = MSIDCompanyPortalSsoProvider;
+    XCTAssertNil(self.cache.cachedBrokerInstanceEndpoint);
+    XCTAssertFalse([self.cache setCachedBrokerInstanceEndpoint:endpoint forProviderType:MSIDMacBrokerSsoProvider]);
+    XCTAssertNil(self.cache.cachedBrokerInstanceEndpoint);
+    XCTAssertEqual(self.cache.xpcConfiguration.xpcProviderType, MSIDCompanyPortalSsoProvider);
+    XCTAssertTrue([self.cache setCachedBrokerInstanceEndpoint:endpoint forProviderType:MSIDCompanyPortalSsoProvider]);
+    XCTAssertEqual(self.cache.cachedBrokerInstanceEndpoint, endpoint);
+}
+
+- (void)testStoreEndpoint_whenProviderDoesNotMatch_preservesCurrentEndpoint
+{
+    NSXPCListenerEndpoint *endpoint = self.listener.endpoint;
+    XCTAssertTrue([self.cache setCachedBrokerInstanceEndpoint:endpoint forProviderType:MSIDMacBrokerSsoProvider]);
+    XCTAssertFalse([self.cache setCachedBrokerInstanceEndpoint:nil forProviderType:MSIDCompanyPortalSsoProvider]);
+    XCTAssertEqual(self.cache.cachedBrokerInstanceEndpoint, endpoint);
+}
+
+- (void)testRewriteSameProvider_discardsEndpointFromPreviousBinding
+{
+    XCTAssertTrue([self.cache setCachedBrokerInstanceEndpoint:self.listener.endpoint forProviderType:MSIDMacBrokerSsoProvider]);
+    self.cache.cachedXpcProviderType = MSIDMacBrokerSsoProvider;
+    XCTAssertNil(self.cache.cachedBrokerInstanceEndpoint);
+    XCTAssertEqual(self.cache.cachedXpcProviderType, MSIDMacBrokerSsoProvider);
+    XCTAssertEqual(self.cache.xpcConfiguration.xpcProviderType, MSIDMacBrokerSsoProvider);
+}
+
+- (void)testReplaceConfiguration_discardsEndpointWithoutChangingPersistedProvider
+{
+    XCTAssertTrue([self.cache setCachedBrokerInstanceEndpoint:self.listener.endpoint forProviderType:MSIDMacBrokerSsoProvider]);
+    MSIDXpcConfiguration *configuration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:MSIDCompanyPortalSsoProvider];
+    self.cache.xpcConfiguration = configuration;
+    XCTAssertEqual(self.cache.xpcConfiguration, configuration);
+    XCTAssertNil(self.cache.cachedBrokerInstanceEndpoint);
+    XCTAssertEqual(self.cache.cachedXpcProviderType, MSIDMacBrokerSsoProvider);
+}
+
+- (void)testValidateProvider_updatesStaleOrUnknownBindingsButPreservesValidBindings
+{
+    NSArray<NSArray<NSNumber *> *> *cases = @[
+        @[@(MSIDUnknownSsoProvider), @YES, @YES, @YES, @(MSIDMacBrokerSsoProvider)],
+        @[@(MSIDUnknownSsoProvider), @NO, @YES, @YES, @(MSIDCompanyPortalSsoProvider)],
+        @[@(MSIDUnknownSsoProvider), @NO, @NO, @NO, @(MSIDUnknownSsoProvider)],
+        @[@(MSIDMacBrokerSsoProvider), @NO, @YES, @YES, @(MSIDCompanyPortalSsoProvider)],
+        @[@(MSIDCompanyPortalSsoProvider), @YES, @NO, @YES, @(MSIDMacBrokerSsoProvider)],
+        @[@(MSIDMacBrokerSsoProvider), @NO, @NO, @NO, @(MSIDMacBrokerSsoProvider)],
+        @[@(MSIDMacBrokerSsoProvider), @YES, @YES, @YES, @(MSIDMacBrokerSsoProvider)],
+        @[@(MSIDCompanyPortalSsoProvider), @YES, @YES, @YES, @(MSIDCompanyPortalSsoProvider)]
+    ];
+    for (NSArray<NSNumber *> *testCase in cases)
+    {
+        MSIDSsoProviderType initialProvider = testCase[0].integerValue;
+        BOOL brokerInstalled = testCase[1].boolValue;
+        BOOL companyPortalInstalled = testCase[2].boolValue;
+        MSIDSsoProviderType expectedProvider = testCase[4].integerValue;
+        [MSIDTestSwizzle instanceMethod:NSSelectorFromString(@"isXpcProviderExist:")
+                                  class:MSIDXpcProviderCache.class
+                                  block:^BOOL(__unused id cache, NSString *identifier)
+        {
+            if ([identifier isEqualToString:macBrokerAppXpcInstance])
+            {
+                return brokerInstalled;
+            }
+            return [identifier isEqualToString:companyPortalXpcInstance] && companyPortalInstalled;
+        }];
+        self.cache.cachedXpcProviderType = initialProvider;
+        NSXPCListenerEndpoint *endpoint = self.listener.endpoint;
+        XCTAssertTrue([self.cache setCachedBrokerInstanceEndpoint:endpoint forProviderType:initialProvider]);
+        XCTAssertEqual([self.cache isXpcProviderInstalledOnDevice], brokerInstalled || companyPortalInstalled);
+        XCTAssertEqual([self.cache validateCacheXpcProvider], testCase[3].boolValue, @"%@", testCase);
+        XCTAssertEqual(self.cache.cachedXpcProviderType, expectedProvider, @"%@", testCase);
+        if (initialProvider == expectedProvider)
+        {
+            XCTAssertEqual(self.cache.cachedBrokerInstanceEndpoint, endpoint);
+        }
+        else
+        {
+            XCTAssertNil(self.cache.cachedBrokerInstanceEndpoint);
+        }
+        if (testCase[3].boolValue)
+        {
+            XCTAssertEqual(self.cache.xpcConfiguration.xpcProviderType, expectedProvider);
+        }
+        [MSIDTestSwizzle reset];
+    }
+}
+
+@end
 
 typedef void (^MSIDXpcTestEndpointReplyBlock)(NSXPCListenerEndpoint *endpoint, NSDictionary *parameters, NSError *error);
 typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *startDate, NSString *processId, NSError *error);

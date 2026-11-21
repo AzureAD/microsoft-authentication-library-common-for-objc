@@ -487,11 +487,14 @@
     NSString *uniqueIdKey = [self uniqueIdFromKey:key];
     NSString *componentsKey = [self keyComponentsStringFromKey:key];
     
-    @synchronized (self) {
+    @synchronized (self)
+    {
+        NSString *previousComponentsKey = cacheKeys[uniqueIdKey];
+        if (previousComponentsKey && ![previousComponentsKey isEqualToString:componentsKey])
+        {
+            [cacheContent removeObjectForKey:previousComponentsKey];
+        }
         cacheKeys[uniqueIdKey] = componentsKey;
-    }
-    
-    @synchronized (self) {
         cacheContent[componentsKey] = serializedItem;
     }
     
