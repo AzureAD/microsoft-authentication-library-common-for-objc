@@ -233,6 +233,12 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                     completionBlock(tokenResult, nil);
                     return;
                 }
+
+                if (resultError.code == MSIDErrorAgeAssuranceTargetMismatch)
+                {
+                    completionBlock(nil, resultError);
+                    return;
+                }
                 
                 MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
             }
@@ -661,6 +667,12 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                     completionBlock(tokenResult, nil);
                     return;
                 }
+
+                if (cacheError.code == MSIDErrorAgeAssuranceTargetMismatch)
+                {
+                    completionBlock(nil, cacheError);
+                    return;
+                }
                 
                 MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(cacheError));
                 
@@ -677,7 +689,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                 
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Found error retrieving cache for result %@, %ld", cacheError.domain, (long)cacheError.code);
                 tokenResult.extendedLifeTimeToken = YES;
-                NSError *resultError = (tokenResult ? nil : error);
+                NSError *resultError = tokenResult ? nil : (cacheError.code == MSIDErrorAgeAssuranceTargetMismatch ? cacheError : error);
                 
                 completionBlock(tokenResult, resultError);
                 return;

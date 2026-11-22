@@ -44,7 +44,14 @@
     if (operationResponse.authority) requestParameters.cloudAuthority = operationResponse.authority;
     
     BOOL saveSSOStateOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
-    
+
+    if (!error && operationResponse.tokenResponse && !operationResponse.tokenResponse.error
+        && ![requestParameters validateAgeAssuranceIdToken:operationResponse.tokenResponse.idToken error:&error])
+    {
+        completionBlock(nil, error);
+        return;
+    }
+
     if (operationResponse.additionalTokenResponse)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Saving additional token response...");

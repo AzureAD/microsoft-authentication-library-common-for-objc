@@ -22,8 +22,8 @@
 // THE SOFTWARE.
 
 #import "MSIDClaimsRequest.h"
-#import "MSIDIndividualClaimRequest.h"
 #import "MSIDIndividualClaimRequestAdditionalInfo.h"
+#import "MSIDIndividualClaimRequest.h"
 
 @interface MSIDClaimsRequest()
 
@@ -32,6 +32,100 @@
 @end
 
 @implementation MSIDClaimsRequest
+
+- (NSSet<NSString *> *)ageAssuranceTargetIdentifiers
+{
+    NSMutableSet<NSString *> *targets = [NSMutableSet new];
+    for (MSIDIndividualClaimRequest *claim in [self claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken])
+    {
+        if (![claim.name isEqualToString:@"xms_agvs"])
+        {
+            continue;
+        }
+
+        for (id property in claim.additionalInfo.additionalProperties)
+        {
+            if ([property isKindOfClass:NSString.class] && [[property lowercaseString] hasPrefix:@"target-"])
+            {
+                // Preserve malformed explicit targets so they fail closed, rather than disabling validation.
+                [targets addObject:[[[property substringFromIndex:7] lowercaseString] copy]];
+            }
+        }
+    }
+    return [targets copy];
+}
+
++ (BOOL)isAgeAssuranceTargetIdentifier:(NSString *)identifier
+{
+    if (![identifier isKindOfClass:NSString.class] || identifier.length == 0)
+    {
+        return NO;
+    }
+    return ![identifier hasPrefix:@"+"] && ![identifier hasPrefix:@"-"]
+        && [identifier rangeOfString:@","].location == NSNotFound
+        && [identifier rangeOfCharacterFromSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].location == NSNotFound;
+}
+
++ (BOOL)validateAgeAssuranceIdToken:(NSString *)idToken
+                   expectedTargets:(NSSet<NSString *> *)expectedTargets
+                     correlationId:(NSUUID *)correlationId
+                             error:(NSError *__autoreleasing *)error
+{
+    if (expectedTargets.count == 0)
+    {
+        return YES;
+    }
+
+    // Read the JWT payload only. Header parameters are not ID-token claims.
+    NSArray<NSString *> *parts = [idToken isKindOfClass:NSString.class] ? [idToken componentsSeparatedByString:@"."] : nil;
+    NSDictionary *payload = nil;
+    if (parts.count == 3)
+    {
+        NSData *data = [[parts[1] msidBase64UrlDecode] dataUsingEncoding:NSUTF8StringEncoding];
+        id json = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+        if ([json isKindOfClass:NSDictionary.class])
+        {
+            payload = json;
+        }
+    }
+
+    id receipt = payload[@"xms_agvt"];
+    BOOL valid = [receipt isKindOfClass:NSString.class] && [receipt length] > 0;
+    NSMutableSet<NSString *> *actualTargets = [NSMutableSet new];
+    if (valid)
+    {
+        for (NSString *entry in [receipt componentsSeparatedByString:@","])
+        {
+            if (entry.length < 2 || (![entry hasPrefix:@"+"] && ![entry hasPrefix:@"-"]))
+            {
+                valid = NO;
+                break;
+            }
+            NSString *identity = [[entry substringFromIndex:1] lowercaseString];
+            if (![self isAgeAssuranceTargetIdentifier:identity] || [actualTargets containsObject:identity])
+            {
+                valid = NO;
+                break;
+            }
+            [actualTargets addObject:identity];
+        }
+    }
+    for (NSString *identity in expectedTargets)
+    {
+        valid = valid && [self isAgeAssuranceTargetIdentifier:identity];
+    }
+    if (valid && [actualTargets isEqualToSet:expectedTargets])
+    {
+        return YES;
+    }
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorAgeAssuranceTargetMismatch,
+                                 @"The ID-token age-assurance receipt does not match the request.",
+                                 @"age_assurance_target_mismatch", nil, nil, correlationId, nil, NO);
+    }
+    return NO;
+}
 
 - (NSString *)description
 {
@@ -142,7 +236,29 @@
 - (id)copyWithZone:(__unused NSZone *)zone
 {
     MSIDClaimsRequest *item = [MSIDClaimsRequest new];
-    item->_claimsRequestsDict = [_claimsRequestsDict mutableCopy];
+    for (NSNumber *target in self.claimsRequestsDict)
+    {
+        NSMutableSet *requests = [NSMutableSet new];
+        for (MSIDIndividualClaimRequest *request in self.claimsRequestsDict[target])
+        {
+            MSIDIndividualClaimRequest *requestCopy = [[MSIDIndividualClaimRequest alloc] initWithName:[request.name copy]];
+            if (request.additionalInfo)
+            {
+                MSIDIndividualClaimRequestAdditionalInfo *info = [MSIDIndividualClaimRequestAdditionalInfo new];
+                info.essential = request.additionalInfo.essential;
+                info.value = request.additionalInfo.value;
+                info.values = [request.additionalInfo.values copy];
+                if (request.additionalInfo.additionalProperties)
+                {
+                    // Copy strings as well as the array so mutable target identifiers cannot change in flight.
+                    info.additionalProperties = [[NSArray alloc] initWithArray:request.additionalInfo.additionalProperties copyItems:YES];
+                }
+                requestCopy.additionalInfo = info;
+            }
+            [requests addObject:requestCopy];
+        }
+        item.claimsRequestsDict[target] = requests;
+    }
     return item;
 }
 
