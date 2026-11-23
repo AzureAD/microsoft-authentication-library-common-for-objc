@@ -86,9 +86,11 @@
         return NO;
     }
         
-    //No need to update if the request authority is the same as the authority used internally
-    if (!cacheAuthorityURL
-        || [cacheAuthorityURL isEqual:requestAuthorityURL]) return YES;
+    // A request authority that resolves to itself needs no record. A record stored earlier for it
+    // must still not outlive this successful response: lookups would keep returning the old
+    // authority (e.g. a CIAM guest's home tenant, stored before the CIAM result authority used the
+    // ID token's tenant), so it is replaced below.
+    BOOL resultIsRequest = [cacheAuthorityURL isEqual:requestAuthorityURL];
     
     NSError *localError;
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
@@ -101,14 +103,21 @@
     
     if (!cacheItem)
     {
+        //No need to update if the request authority is the same as the authority used internally
+        if (resultIsRequest) return YES;
         cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:clientId];
     }
     
     MSIDAccountMetadata *accountMetadata = [cacheItem accountMetadataForHomeAccountId:homeAccountId];
     if (accountMetadata)
     {
+        NSURL *existingURL = [accountMetadata cachedURL:requestAuthorityURL instanceAware:instanceAware];
+        
+        // Nothing stored for the request authority, or only itself: nothing to update
+        if (resultIsRequest && (!existingURL || [existingURL isEqual:requestAuthorityURL])) return YES;
+        
         // No need to update if same record exists
-        if ([[accountMetadata cachedURL:requestAuthorityURL instanceAware:instanceAware] isEqual:cacheAuthorityURL] &&
+        if ([existingURL isEqual:cacheAuthorityURL] &&
             accountMetadata.signInState == MSIDAccountMetadataStateSignedIn)
         {
             return YES;
@@ -116,6 +125,8 @@
     }
     else
     {
+        //No need to update if the request authority is the same as the authority used internally
+        if (resultIsRequest) return YES;
         accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
     }
     

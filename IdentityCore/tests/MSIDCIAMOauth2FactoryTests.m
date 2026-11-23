@@ -37,6 +37,9 @@
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDConfiguration.h"
+#import "MSIDAuthority.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDCIAMOauth2FactoryTests :  XCTestCase
 
@@ -138,6 +141,67 @@
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Client info was not returned in the server response");
+}
+
+#pragma mark - Result authority
+
+- (MSIDConfiguration *)ciamConfiguration
+{
+    return [[MSIDConfiguration alloc] initWithAuthority:[@"https://contoso.ciamlogin.com/ciam-tenant-id" ciamAuthority]
+                                            redirectUri:@"redirect uri"
+                                               clientId:@"client id"
+                                                 target:@"target"];
+}
+
+- (MSIDCIAMTokenResponse *)responseWithHomeTenant:(NSString *)homeTenant idTokenTenant:(NSString *)idTokenTenant
+{
+    NSMutableDictionary *json = [@{@"access_token": @"fake_access_token",
+                                   @"refresh_token": @"fake_refresh_token",
+                                   @"client_info": [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : homeTenant} msidBase64UrlJson]} mutableCopy];
+    if (idTokenTenant)
+    {
+        json[@"id_token"] = [MSIDTestIdTokenUtil idTokenWithName:@"Test" preferredUsername:@"user@contoso.com" oid:@"oid" tenantId:idTokenTenant];
+    }
+    return [[MSIDCIAMTokenResponse alloc] initWithJSONDictionary:json error:nil];
+}
+
+- (void)testResultAuthority_whenHomeTenantDiffersFromTokenTenant_shouldUseIdTokenTenant
+{
+    // A guest or a user federated from another Entra tenant: client_info.utid is the home tenant.
+    MSIDCIAMOauth2Factory *factory = [MSIDCIAMOauth2Factory new];
+    MSIDCIAMTokenResponse *response = [self responseWithHomeTenant:@"home-tenant-id" idTokenTenant:@"ciam-tenant-id"];
+
+    NSError *error = nil;
+    MSIDAuthority *authority = [factory resultAuthorityWithConfiguration:[self ciamConfiguration] tokenResponse:response error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(authority.url.absoluteString, @"https://contoso.ciamlogin.com/ciam-tenant-id");
+    XCTAssertEqualObjects(authority.realm, @"ciam-tenant-id");
+}
+
+- (void)testResultAuthority_whenNativeUser_shouldUseCIAMTenant
+{
+    MSIDCIAMOauth2Factory *factory = [MSIDCIAMOauth2Factory new];
+    MSIDCIAMTokenResponse *response = [self responseWithHomeTenant:@"ciam-tenant-id" idTokenTenant:@"ciam-tenant-id"];
+
+    NSError *error = nil;
+    MSIDAuthority *authority = [factory resultAuthorityWithConfiguration:[self ciamConfiguration] tokenResponse:response error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(authority.url.absoluteString, @"https://contoso.ciamlogin.com/ciam-tenant-id");
+}
+
+- (void)testResultAuthority_whenNoIdToken_shouldReturnConfiguredAuthority
+{
+    MSIDCIAMOauth2Factory *factory = [MSIDCIAMOauth2Factory new];
+    MSIDCIAMTokenResponse *response = [self responseWithHomeTenant:@"home-tenant-id" idTokenTenant:nil];
+    MSIDConfiguration *configuration = [self ciamConfiguration];
+
+    NSError *error = nil;
+    MSIDAuthority *authority = [factory resultAuthorityWithConfiguration:configuration tokenResponse:response error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(authority.url, configuration.authority.url);
 }
 
 @end
