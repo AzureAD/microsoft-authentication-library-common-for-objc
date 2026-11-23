@@ -364,6 +364,64 @@
     XCTAssertNil(error);
 }
 
+- (void)testUpdateAuthorityURL_whenResultEqualsRequestAndStaleMappingExists_shouldReplaceMapping {
+    // A CIAM guest signed in with a version that stored the home tenant as the cache authority.
+    NSURL *ciamURL = [NSURL URLWithString:@"https://contoso.ciamlogin.com/ciam-tenant-id"];
+    NSURL *homeTenantURL = [NSURL URLWithString:@"https://contoso.ciamlogin.com/home-tenant-id"];
+    NSError *error;
+    XCTAssertTrue([self.accountMetadataCache updateAuthorityURL:homeTenantURL
+                                                  forRequestURL:ciamURL
+                                                  homeAccountId:@"uid.home-tenant-id"
+                                                       clientId:@"my-client-id"
+                                                  instanceAware:NO
+                                                        context:nil
+                                                          error:&error]);
+    XCTAssertNil(error);
+    
+    // Reauthentication now resolves the request authority to itself.
+    XCTAssertTrue([self.accountMetadataCache updateAuthorityURL:ciamURL
+                                                  forRequestURL:ciamURL
+                                                  homeAccountId:@"uid.home-tenant-id"
+                                                       clientId:@"my-client-id"
+                                                  instanceAware:NO
+                                                        context:nil
+                                                          error:&error]);
+    XCTAssertNil(error);
+    
+    // Also after a restart: a new accessor reads the record from the data source.
+    MSIDAccountMetadataCacheAccessor *recreated = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:self.dataSource];
+    NSURL *retrievedCacheURL = [recreated getAuthorityURL:ciamURL
+                                            homeAccountId:@"uid.home-tenant-id"
+                                                 clientId:@"my-client-id"
+                                            instanceAware:NO
+                                                  context:nil
+                                                    error:&error];
+    XCTAssertEqualObjects(retrievedCacheURL, ciamURL);
+    XCTAssertNil(error);
+}
+
+- (void)testUpdateAuthorityURL_whenResultEqualsRequestAndNoMappingExists_shouldNotStoreMapping {
+    NSURL *requestURL = [NSURL URLWithString:@"https://contoso.ciamlogin.com/ciam-tenant-id"];
+    NSError *error;
+    XCTAssertTrue([self.accountMetadataCache updateAuthorityURL:requestURL
+                                                  forRequestURL:requestURL
+                                                  homeAccountId:@"uid.utid"
+                                                       clientId:@"my-client-id"
+                                                  instanceAware:NO
+                                                        context:nil
+                                                          error:&error]);
+    XCTAssertNil(error);
+    
+    MSIDAccountMetadataCacheAccessor *recreated = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:self.dataSource];
+    XCTAssertNil([recreated getAuthorityURL:requestURL
+                              homeAccountId:@"uid.utid"
+                                   clientId:@"my-client-id"
+                              instanceAware:NO
+                                    context:nil
+                                      error:&error]);
+    XCTAssertNil(error);
+}
+
 - (void)testPrincipalAccountIdForClientId_whenClientIdNil_shouldReturnNilAndFillError
 {
     NSString *clientId = nil;

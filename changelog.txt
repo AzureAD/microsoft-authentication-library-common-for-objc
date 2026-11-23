@@ -1,5 +1,5 @@
 ## [TBD]
-* Use the ID token's tenant for the CIAM result authority, so silent token requests work for guest accounts and users federated from another Microsoft Entra tenant (AADSTS500210; AzureAD/microsoft-authentication-library-for-objc#2871, #3082).
+* Use the ID token's tenant for the CIAM result authority, so silent token requests work for guest accounts and users federated from another Microsoft Entra tenant (AADSTS500210; AzureAD/microsoft-authentication-library-for-objc#2871, #3082). A stale authority mapping stored by earlier versions is replaced on the next successful sign-in.
 * (iOS) Avoid a potential authentication hang by keeping BART enablement in process-local memory instead of writing application preferences; applications must configure enablement on each launch.
 
 Version 2.18.1
