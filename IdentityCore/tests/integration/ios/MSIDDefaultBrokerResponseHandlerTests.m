@@ -62,11 +62,26 @@
 
 - (void)testAgeAssuranceURLBrokerUsesResumeTargetsBeforeCaching
 {
-    for (NSString *receipt in @[@"+other", @"+mc,-MC", @"-MC"])
+    [self assertURLBrokerUsesResumeTargetsBeforeCaching:@[@"mc"] matchingReceipt:@"-MC"];
+}
+
+- (void)testAgeAssuranceURLBrokerWithoutResumeTargetsValidatesReceiptBeforeCaching
+{
+    [self assertURLBrokerUsesResumeTargetsBeforeCaching:nil matchingReceipt:@"-ALL"];
+}
+
+- (void)testAgeAssuranceURLBrokerWithEmptyResumeTargetsValidatesReceiptBeforeCaching
+{
+    [self assertURLBrokerUsesResumeTargetsBeforeCaching:@[] matchingReceipt:@"+all"];
+}
+
+- (void)assertURLBrokerUsesResumeTargetsBeforeCaching:(NSArray *)targets matchingReceipt:(NSString *)matchingReceipt
+{
+    for (NSString *receipt in @[@"+other", @"+mc,-MC", @"+all,-ALL", matchingReceipt])
     {
         [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
         NSMutableDictionary *resume = [[[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY] mutableCopy];
-        resume[@"age_assurance_targets"] = @[@"mc"];
+        resume[@"age_assurance_targets"] = targets;
         [[NSUserDefaults standardUserDefaults] setObject:resume forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
         NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test user"
                                                           upn:@"user@contoso.com"
@@ -88,11 +103,11 @@
             @"broker_nonce": @"nonce"
         };
         NSMutableDictionary *responseWithAdditionalTokens = [response mutableCopy];
-        if (![receipt isEqualToString:@"-MC"])
+        if (![receipt isEqualToString:matchingReceipt])
         {
             NSMutableDictionary *additional = [response mutableCopy];
             additional[@"id_token"] = [MSIDTestIdTokenUtil idTokenWithName:@"Test user" upn:@"user@contoso.com" tenantId:nil
-                                                        additionalClaims:@{@"ver": @"2.0", @"preferred_username": @"user@contoso.com", @"xms_agvt": @"+mc"}];
+                                                        additionalClaims:@{@"ver": @"2.0", @"preferred_username": @"user@contoso.com", @"xms_agvt": matchingReceipt}];
             responseWithAdditionalTokens[@"additional_tokens"] = [additional msidJSONSerializeWithContext:nil];
         }
         NSURL *url = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:responseWithAdditionalTokens
@@ -102,7 +117,7 @@
                                                                                           tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
         NSError *error = nil;
         MSIDTokenResult *result = [handler handleBrokerResponseWithURL:url sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
-        if ([receipt isEqualToString:@"-MC"])
+        if ([receipt isEqualToString:matchingReceipt])
         {
             XCTAssertNotNil(result);
             XCTAssertNil(error);

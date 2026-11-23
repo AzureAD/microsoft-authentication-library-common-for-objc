@@ -88,6 +88,13 @@
     XCTAssertFalse(parameters.claimsRequest.hasClaims);
     XCTAssertEqual(parameters.ageAssuranceTargetIdentifiers.count, 0);
     XCTAssertTrue([parameters validateAgeAssuranceIdToken:nil error:nil]);
+    MSIDRequestParameters *copy = [parameters copy];
+    NSString *namedReceipt = [NSString stringWithFormat:@"%@.%@.", [@{} msidBase64UrlJson], [@{@"xms_agvt": @"+mc"} msidBase64UrlJson]];
+    NSString *allReceipt = [NSString stringWithFormat:@"%@.%@.", [@{} msidBase64UrlJson], [@{@"xms_agvt": @"-ALL"} msidBase64UrlJson]];
+    XCTAssertFalse([parameters validateAgeAssuranceIdToken:namedReceipt error:nil]);
+    XCTAssertFalse([copy validateAgeAssuranceIdToken:namedReceipt error:nil]);
+    XCTAssertTrue([parameters validateAgeAssuranceIdToken:allReceipt error:nil]);
+    XCTAssertTrue([copy validateAgeAssuranceIdToken:allReceipt error:nil]);
 }
 
 - (void)testAgeAssuranceConcurrentRequestsDoNotShareTargets

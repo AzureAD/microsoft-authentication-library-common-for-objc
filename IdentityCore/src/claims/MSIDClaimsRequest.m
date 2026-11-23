@@ -76,7 +76,7 @@
                      correlationId:(NSUUID *)correlationId
                              error:(NSError *__autoreleasing *)error
 {
-    if (expectedTargets.count == 0)
+    if (!idToken && expectedTargets.count == 0)
     {
         return YES;
     }
@@ -96,6 +96,11 @@
 
     id receiptValue = payload[@"xms_agvt"];
     NSString *receipt = [receiptValue isKindOfClass:NSString.class] ? receiptValue : nil;
+    if (payload && expectedTargets.count == 0 && (!receiptValue || (receipt && receipt.length == 0)))
+    {
+        return YES;
+    }
+
     BOOL valid = receipt.length > 0;
     NSMutableSet<NSString *> *actualTargets = [NSMutableSet new];
     if (valid)
@@ -120,7 +125,8 @@
     {
         valid = valid && [self isAgeAssuranceTargetIdentifier:identity];
     }
-    if (valid && [actualTargets isEqualToSet:expectedTargets])
+    NSSet<NSString *> *requiredTargets = expectedTargets.count == 0 ? [NSSet setWithObject:@"all"] : expectedTargets;
+    if (valid && [actualTargets isEqualToSet:requiredTargets])
     {
         return YES;
     }

@@ -65,8 +65,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSSet<NSString *> *)ageAssuranceTargetIdentifiers;
 
 /**
- Validates only the ID-token payload receipt for explicit requested targets.
- An empty expected set leaves existing token handling unchanged.
+ Validates the ID-token payload receipt against the requested targets.
+ An empty expected set accepts an absent ID token, or an ID token with an absent/empty
+ receipt or exactly one +all/-all entry (case-insensitive). Explicit targets require
+ an exact identity set, including literal all; malformed and duplicate entries fail.
  This is request binding, not signature validation or resource authorization.
  */
 + (BOOL)validateAgeAssuranceIdToken:(nullable NSString *)idToken
