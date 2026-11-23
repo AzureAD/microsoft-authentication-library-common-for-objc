@@ -139,6 +139,8 @@ NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_
 
 NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboarding";
 
+NSString *const MSID_FLIGHT_DISABLE_ENROLL_ONLY_MOBILE_ONBOARDING = @"disable_enroll_only_mobile_onboarding";
+
 NSString *const MSID_FLIGHT_DISABLE_WEBCP_ONBOARDING_READINESS = @"disable_webcp_onboarding_readiness";
 
 NSString *const MSID_FLIGHT_ENABLE_MFA_ACTIVATION_HANDOFF = @"enable_mfa_activation_handoff";
