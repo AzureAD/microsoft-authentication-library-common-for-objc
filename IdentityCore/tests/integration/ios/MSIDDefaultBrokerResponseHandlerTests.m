@@ -1611,7 +1611,10 @@
         @"authority" : @"https://login.microsoftonline.com/common",
         @"scope" : @"myscope",
         @"client_id" : @"my_client_id",
-        @"id_token" : @"token_string",
+        @"id_token" : [MSIDTestIdTokenUtil idTokenWithName:@"Test user"
+                                      preferredUsername:@"user@contoso.com"
+                                                    oid:@"1"
+                                               tenantId:@"1234-5678-90abcdefg"],
         @"client_info" : rawClientInfo,
         @"home_account_id" : @"1.1234-5678-90abcdefg",
         @"access_token" : @"i-am-a-access-token",
@@ -1639,7 +1642,10 @@
         @"authority" : @"https://login.microsoftonline.com/common",
         @"scope" : @"myscope",
         @"client_id" : @"my_client_id",
-        @"id_token" : @"token_string",
+        @"id_token" : [MSIDTestIdTokenUtil idTokenWithName:@"Test user"
+                                      preferredUsername:@"user@contoso.com"
+                                                    oid:@"1"
+                                               tenantId:@"1234-5678-90abcdefg"],
         @"client_info" : rawClientInfo,
         @"home_account_id" : @"1.1234-5678-90abcdefg",
         @"access_token" : @"i-am-a-access-token",
