@@ -297,6 +297,20 @@
             operation.tokenResponse = malformedPrimary.boolValue ? malformedResponse : [self ageAssuranceResponseWithReceipt:@"+all"];
             operation.additionalTokenResponse = malformedPrimary.boolValue ? [self ageAssuranceResponseWithReceipt:@"+all"] : malformedResponse;
             [self assertSSOOperationRejectsBeforeCacheWrites:operation parameters:parameters error:nil];
+
+            NSMutableDictionary *operationJson = [[operation.tokenResponse jsonDictionary] mutableCopy];
+            operationJson[@"operation"] = @"login";
+            operationJson[@"success"] = @"0";
+            operationJson[@"client_app_version"] = @"1.0";
+            operationJson[@"operation_response_type"] = @"operation_token_response";
+            operationJson[@"additional_token_reponse"] = [operation.additionalTokenResponse.jsonDictionary msidJSONSerializeWithContext:nil];
+            NSError *parseError = nil;
+            MSIDBrokerOperationTokenResponse *parsedOperation = [[MSIDBrokerOperationTokenResponse alloc] initWithJSONDictionary:operationJson error:&parseError];
+            XCTAssertNotNil(parsedOperation);
+            XCTAssertNil(parseError);
+            XCTAssertEqualObjects(parsedOperation.tokenResponse.rawIdToken, operation.tokenResponse.rawIdToken);
+            XCTAssertEqualObjects(parsedOperation.additionalTokenResponse.rawIdToken, operation.additionalTokenResponse.rawIdToken);
+            [self assertSSOOperationRejectsBeforeCacheWrites:parsedOperation parameters:parameters error:nil];
         }
     }
 }
