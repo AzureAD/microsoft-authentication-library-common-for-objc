@@ -257,7 +257,7 @@
                                                                    error:&error];
     XCTAssertNotNil(result);
     XCTAssertNil(error);
-    XCTAssertNil(result.idToken);
+    XCTAssertNil(result.rawIdToken);
     XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1);
     XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1);
     XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 0);
