@@ -1286,6 +1286,11 @@
                                                                                  responseCode:200
                                                                                     expiresIn:nil];
 
+    // The response helper substitutes a valid ID token for nil; omit the optional field explicitly.
+    NSMutableDictionary *responseJson = [NSJSONSerialization JSONObjectWithData:tokenResponse->_responseData options:NSJSONReadingMutableContainers error:nil];
+    [responseJson removeObjectForKey:@"id_token"];
+    [tokenResponse setResponseJSON:responseJson];
+
     [MSIDTestURLSession addResponse:tokenResponse];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
