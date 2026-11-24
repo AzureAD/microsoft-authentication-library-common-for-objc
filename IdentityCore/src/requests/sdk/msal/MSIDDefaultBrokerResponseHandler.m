@@ -115,7 +115,10 @@
         NSDictionary *additionalTokensDict = [decryptedResponse[@"additional_tokens"] msidJson];
         if (additionalTokensDict)
         {
-            if (![MSIDClaimsRequest validateAgeAssuranceIdToken:additionalTokensDict[MSID_OAUTH2_ID_TOKEN]
+            // The normalized dictionary removes JSON null; validate the original value first.
+            NSData *additionalTokensData = [decryptedResponse[@"additional_tokens"] dataUsingEncoding:NSUTF8StringEncoding];
+            NSDictionary *rawAdditionalTokens = [NSJSONSerialization JSONObjectWithData:additionalTokensData options:0 error:nil];
+            if (![MSIDClaimsRequest validateAgeAssuranceIdToken:rawAdditionalTokens[MSID_OAUTH2_ID_TOKEN]
                                                expectedTargets:self.ageAssuranceTargetIdentifiers
                                                  correlationId:correlationID
                                                          error:error])
