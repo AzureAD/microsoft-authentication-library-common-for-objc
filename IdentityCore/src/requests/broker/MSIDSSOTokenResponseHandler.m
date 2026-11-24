@@ -45,10 +45,18 @@
     
     BOOL saveSSOStateOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
 
-    if (!error && operationResponse.tokenResponse && !operationResponse.tokenResponse.error
-        && ![requestParameters validateAgeAssuranceIdToken:operationResponse.tokenResponse.idToken error:&error])
+    // Preflight both responses before either can mutate the cache, even on broker failure.
+    NSError *receiptError = nil;
+    if (operationResponse.tokenResponse && !operationResponse.tokenResponse.error
+        && ![requestParameters validateAgeAssuranceIdToken:operationResponse.tokenResponse.rawIdToken error:&receiptError])
     {
-        completionBlock(nil, error);
+        completionBlock(nil, receiptError);
+        return;
+    }
+    if (operationResponse.additionalTokenResponse && !operationResponse.additionalTokenResponse.error
+        && ![requestParameters validateAgeAssuranceIdToken:operationResponse.additionalTokenResponse.rawIdToken error:&receiptError])
+    {
+        completionBlock(nil, receiptError);
         return;
     }
 

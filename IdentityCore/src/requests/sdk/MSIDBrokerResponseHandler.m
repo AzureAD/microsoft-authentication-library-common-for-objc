@@ -166,7 +166,7 @@
         return nil;
     }
     
-    if (![MSIDClaimsRequest validateAgeAssuranceIdToken:brokerResponse.tokenResponse.idToken
+    if (![MSIDClaimsRequest validateAgeAssuranceIdToken:brokerResponse.tokenResponse.rawIdToken
                                        expectedTargets:self.ageAssuranceTargetIdentifiers
                                          correlationId:correlationId
                                                  error:error])

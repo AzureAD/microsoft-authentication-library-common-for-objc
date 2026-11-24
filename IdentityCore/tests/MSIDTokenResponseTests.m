@@ -46,6 +46,35 @@
 
 @implementation MSIDTokenResponseTests
 
+- (void)testRawIdToken_preservesMalformedSuppliedValuesAcrossSerialization
+{
+    for (id rawIdToken in @[@"", @" \t\n", @42, @YES, NSNull.null, @[], @{}])
+    {
+        MSIDTestTokenResponseStub *response = [[MSIDTestTokenResponseStub alloc] initWithJSONDictionary:@{@"id_token": rawIdToken} error:nil];
+        XCTAssertNil(response.idToken);
+        XCTAssertEqualObjects(response.rawIdToken, rawIdToken);
+        MSIDTestTokenResponseStub *roundTripped = [[MSIDTestTokenResponseStub alloc] initWithJSONDictionary:response.jsonDictionary error:nil];
+        XCTAssertEqualObjects(roundTripped.rawIdToken, rawIdToken);
+    }
+}
+
+- (void)testRawIdToken_tracksAbsenceAndExplicitReplacement
+{
+    MSIDTestTokenResponseStub *response = [[MSIDTestTokenResponseStub alloc] initWithJSONDictionary:@{} error:nil];
+    XCTAssertNil(response.rawIdToken);
+    XCTAssertNil(response.jsonDictionary[@"id_token"]);
+    response.idToken = @" ";
+    XCTAssertNil(response.idToken);
+    XCTAssertEqualObjects(response.rawIdToken, @" ");
+    NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
+    response.idToken = idToken;
+    XCTAssertEqualObjects(response.rawIdToken, idToken);
+    XCTAssertEqualObjects(response.idToken, idToken);
+    response.idToken = nil;
+    XCTAssertNil(response.rawIdToken);
+    XCTAssertNil(response.jsonDictionary[@"id_token"]);
+}
+
 - (void)testExpiresIn_whenStringExpiresIn_shouldReturnValue
 {
     NSDictionary *jsonInput = @{@"access_token": @"at",

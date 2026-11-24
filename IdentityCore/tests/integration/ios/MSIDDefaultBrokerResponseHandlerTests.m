@@ -134,6 +134,65 @@
     }
 }
 
+- (void)testAgeAssuranceURLBrokerAdditionalMismatchIsTerminalBeforeEitherCacheWrite
+{
+    for (NSArray *targets in @[@[], @[@"mc"]])
+    {
+        NSString *matchingToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test user" upn:@"user@contoso.com" tenantId:nil
+                                                   additionalClaims:@{@"ver": @"2.0", @"preferred_username": @"user@contoso.com",
+                                                                      @"xms_agvt": targets.count ? @"-MC" : @"+all"}];
+        NSString *mismatchingToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test user" upn:@"user@contoso.com" tenantId:nil
+                                                      additionalClaims:@{@"ver": @"2.0", @"preferred_username": @"user@contoso.com", @"xms_agvt": @"+other"}];
+        for (id additionalIdToken in @[mismatchingToken, @"", @" \t\n", @42, @YES, NSNull.null, @[], @{}])
+        {
+            for (NSNumber *primarySuccess in @[@YES, @NO])
+            {
+                [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+                NSMutableDictionary *resume = [[[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY] mutableCopy];
+                resume[@"age_assurance_targets"] = targets;
+                [[NSUserDefaults standardUserDefaults] setObject:resume forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+                NSMutableDictionary *response = [@{
+                    @"authority": @"https://login.microsoftonline.com/common",
+                    @"scope": @"myscope1 myscope2",
+                    @"client_id": @"my_client_id",
+                    @"id_token": matchingToken,
+                    @"client_info": [@{@"uid": @"1", @"utid": @"1234-5678-90abcdefg"} msidBase64UrlJson],
+                    @"home_account_id": @"1.1234-5678-90abcdefg",
+                    @"access_token": @"test-access-token",
+                    @"refresh_token": @"test-refresh-token",
+                    @"token_type": @"Bearer",
+                    @"expires_on": [NSString stringWithFormat:@"%ld", (long)[NSDate dateWithTimeIntervalSinceNow:3600].timeIntervalSince1970],
+                    @"correlation_id": NSUUID.UUID.UUIDString,
+                    @"success": @YES,
+                    @"broker_nonce": @"nonce"
+                } mutableCopy];
+                NSMutableDictionary *additional = [response mutableCopy];
+                additional[@"id_token"] = additionalIdToken;
+                response[@"additional_tokens"] = [additional msidJSONSerializeWithContext:nil];
+                if (!primarySuccess.boolValue)
+                {
+                    response[@"success"] = @NO;
+                    response[@"broker_error_domain"] = MSIDErrorDomain;
+                    response[@"broker_error_code"] = [@(MSIDErrorInteractionRequired) stringValue];
+                    response[@"error"] = @"interaction_required";
+                }
+                NSURL *url = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:response
+                                                                         redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                       encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+                MSIDDefaultBrokerResponseHandler *handler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                                  tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+                NSError *error = nil;
+                XCTAssertNil([handler handleBrokerResponseWithURL:url sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error]);
+                XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+                XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+                XCTAssertEqual([MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:self.cacheAccessor].count, 0);
+                XCTAssertEqual([MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:self.cacheAccessor].count, 0);
+                XCTAssertEqual([MSIDTestCacheAccessorHelper getAllIdTokens:self.cacheAccessor].count, 0);
+            }
+        }
+    }
+}
+
 - (void)setUp {
     [super setUp];
     [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:MSID_BROKER_SYMMETRIC_KEY_TAG];

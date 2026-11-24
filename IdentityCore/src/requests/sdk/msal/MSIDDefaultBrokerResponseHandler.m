@@ -115,13 +115,17 @@
         NSDictionary *additionalTokensDict = [decryptedResponse[@"additional_tokens"] msidJson];
         if (additionalTokensDict)
         {
+            if (![MSIDClaimsRequest validateAgeAssuranceIdToken:additionalTokensDict[MSID_OAUTH2_ID_TOKEN]
+                                               expectedTargets:self.ageAssuranceTargetIdentifiers
+                                                 correlationId:correlationID
+                                                         error:error])
+            {
+                return nil;
+            }
+
             MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:additionalTokensDict error:&additionalTokensError];
             
-            if (brokerResponse
-                && [MSIDClaimsRequest validateAgeAssuranceIdToken:brokerResponse.tokenResponse.idToken
-                                                 expectedTargets:self.ageAssuranceTargetIdentifiers
-                                                   correlationId:correlationID
-                                                           error:&additionalTokensError])
+            if (brokerResponse)
             {
                 //If Broker responds with different auth scheme, switch auth scheme to default Bearer.
                 NSString *tokenType = [brokerResponse.tokenResponse.tokenType lowercaseString];

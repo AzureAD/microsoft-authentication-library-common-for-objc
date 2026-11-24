@@ -52,6 +52,8 @@
 @property (nonatomic, nullable) NSString *scope;
 @property (nonatomic, nullable) NSString *state;
 @property (nonatomic, nullable) NSString *idToken;
+// Preserve supplied values so malformed ID tokens cannot be treated as absent.
+@property (nonatomic, readonly, nullable) id rawIdToken;
 // Additional properties that server sends
 @property (nonatomic, nullable) NSDictionary *additionalServerInfo;
 

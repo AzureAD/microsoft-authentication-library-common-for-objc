@@ -269,7 +269,7 @@
                                             error:(NSError *__autoreleasing*)error
 {
     if (tokenResponse && !tokenResponse.error
-        && ![parameters validateAgeAssuranceIdToken:tokenResponse.idToken error:error])
+        && ![parameters validateAgeAssuranceIdToken:tokenResponse.rawIdToken error:error])
     {
         return nil;
     }
