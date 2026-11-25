@@ -1,0 +1,91 @@
+
+name: Expo Go iOS Validation
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "expo-go/**"
+      - ".github/workflows/expo-go.yml"
+  pull_request:
+    branches: [dev]
+    paths:
+      - "expo-go/**"
+      - ".github/workflows/expo-go.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: expo-go
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check Expo project
+        run: |
+          test -f package.json
+          test -f package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Expo compatibility
+        run: npx --yes expo-doctor@latest
+
+      - name: Export iOS bundle
+        run: npx expo export --platform ios
+name: Expo Go iOS Validation
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "expo-go/**"
+      - ".github/workflows/expo-go.yml"
+  pull_request:
+    branches: [dev]
+    paths:
+      - "expo-go/**"
+      - ".github/workflows/expo-go.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: expo-go
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check Expo project
+        run: |
+          test -f package.json
+          test -f package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Expo compatibility
+        run: npx --yes expo-doctor@latest
+
+      - name: Export iOS bundle
+        run: npx expo export --platform ios
