@@ -45,6 +45,16 @@
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDSSOTokenResponseHandler.h"
+#import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDDefaultSilentTokenRequest.h"
+
+@interface MSIDDefaultSilentTokenRequest (AgeAssuranceTests)
+- (MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
+                            refreshToken:(id<MSIDRefreshableToken>)refreshToken
+                                   error:(NSError **)error;
+@end
 
 @interface MSIDDefaultTokenResponseValidatorTests : XCTestCase
 
@@ -70,6 +80,412 @@
 }
 
 #pragma mark - Tests
+
+- (MSIDRequestParameters *)ageAssuranceParameters
+{
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:[@"https://login.microsoftonline.com/contoso.com" aadAuthority]
+                                                                           authScheme:[MSIDAuthenticationScheme new]
+                                                                          redirectUri:@"some_uri"
+                                                                             clientId:@"myclient"
+                                                                               scopes:[NSOrderedSet orderedSetWithObject:DEFAULT_TEST_SCOPE]
+                                                                           oidcScopes:[NSOrderedSet orderedSetWithObjects:@"openid", @"profile", @"offline_access", nil]
+                                                                        correlationId:[NSUUID new]
+                                                                       telemetryApiId:nil
+                                                                intuneAppIdentifier:nil
+                                                                          requestType:MSIDRequestLocalType
+                                                                                error:nil];
+    parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[@"target-mc"]}}} error:nil];
+    return parameters;
+}
+
+- (MSIDAADV2TokenResponse *)ageAssuranceResponseWithReceipt:(NSString *)receipt
+{
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    NSMutableDictionary *claims = [@{@"ver": @"2.0", @"xms_agvs": @0, @"preferred_username": @"user@contoso.com"} mutableCopy];
+    claims[@"xms_agvt"] = receipt;
+    response.idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test user" upn:@"user@contoso.com" tenantId:nil additionalClaims:claims];
+    return response;
+}
+
+- (void)testAgeAssuranceNetworkRejectsBeforeCacheMutation
+{
+    for (id receipt in @[[NSNull null], @"+other", @"+mc,-mc", @"mc", @"+mc,+extra"])
+    {
+        MSIDAADV2TokenResponse *response = [self ageAssuranceResponseWithReceipt:receipt == NSNull.null ? nil : receipt];
+        NSError *error = nil;
+        MSIDTokenResult *result = [self.validator validateAndSaveTokenResponse:response
+                                                                oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                  tokenCache:self.tokenCache
+                                                        accountMetadataCache:self.accountMetadataCache
+                                                           requestParameters:[self ageAssuranceParameters]
+                                                            saveSSOStateOnly:NO
+                                                                       error:&error];
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+        XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 0);
+        XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0);
+        XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 0);
+        XCTAssertEqual(self.dataSource.allAccounts.count, 0);
+    }
+}
+
+- (void)testAgeAssuranceNetworkAndCacheMatchingNegativeReceipt
+{
+    MSIDRequestParameters *parameters = [self ageAssuranceParameters];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    NSError *error = nil;
+    MSIDTokenResult *saved = [self.validator validateAndSaveTokenResponse:[self ageAssuranceResponseWithReceipt:@"-MC"]
+                                                            oauthFactory:factory
+                                                              tokenCache:self.tokenCache
+                                                    accountMetadataCache:self.accountMetadataCache
+                                                       requestParameters:parameters
+                                                        saveSSOStateOnly:NO
+                                                                   error:&error];
+    XCTAssertNotNil(saved);
+    XCTAssertNil(error);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1);
+    parameters.accountIdentifier = saved.account.accountIdentifier;
+    parameters.authority = saved.authority;
+    MSIDDefaultSilentTokenRequest *request = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                              forceRefresh:NO
+                                                                                              oauthFactory:factory
+                                                                                    tokenResponseValidator:self.validator
+                                                                                                tokenCache:self.tokenCache
+                                                                                     accountMetadataCache:self.accountMetadataCache];
+    MSIDTokenResult *cached = [request resultWithAccessToken:saved.accessToken refreshToken:saved.refreshToken error:&error];
+    XCTAssertNotNil(cached);
+    XCTAssertNil(error);
+    parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[@"target-other"]}}} error:nil];
+    XCTAssertNil([request resultWithAccessToken:saved.accessToken refreshToken:saved.refreshToken error:&error]);
+    XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+}
+
+- (void)testAgeAssuranceNoIDTargetsAcceptDefaultReceipts
+{
+    for (NSDictionary *claims in @[@{}, @{@"access_token": @{@"xms_agvs": @{@"additionalProperties": @[@"target-mc"]}}},
+                                    @{@"id_token": @{@"xms_agvs": @{@"value": @1}}}])
+    {
+        MSIDRequestParameters *parameters = [self ageAssuranceParameters];
+        parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claims error:nil];
+        for (id receipt in @[NSNull.null, @"", @"+all", @"-ALL"])
+        {
+            NSError *error = nil;
+            MSIDTokenResult *result = [self.validator validateAndSaveTokenResponse:[self ageAssuranceResponseWithReceipt:receipt == NSNull.null ? nil : receipt]
+                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                      tokenCache:self.tokenCache
+                                                            accountMetadataCache:self.accountMetadataCache
+                                                               requestParameters:parameters
+                                                                saveSSOStateOnly:NO
+                                                                           error:&error];
+            XCTAssertNotNil(result);
+            XCTAssertNil(error);
+        }
+    }
+}
+
+- (void)testAgeAssuranceNoIDTargetsRejectNamedReceiptBeforeCacheMutation
+{
+    for (MSIDClaimsRequest *claims in @[[MSIDClaimsRequest new],
+                                      [[MSIDClaimsRequest alloc] initWithJSONDictionary:
+                                       @{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[]}}} error:nil]])
+    {
+        MSIDRequestParameters *parameters = [self ageAssuranceParameters];
+        parameters.claimsRequest = claims;
+        NSError *error = nil;
+        MSIDTokenResult *result = [self.validator validateAndSaveTokenResponse:[self ageAssuranceResponseWithReceipt:@"+mc"]
+                                                                oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                  tokenCache:self.tokenCache
+                                                        accountMetadataCache:self.accountMetadataCache
+                                                           requestParameters:parameters
+                                                            saveSSOStateOnly:NO
+                                                                       error:&error];
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+        XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 0);
+        XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0);
+        XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 0);
+        XCTAssertEqual(self.dataSource.allAccounts.count, 0);
+    }
+}
+
+- (void)testAgeAssuranceSharedIdTokenReplacementRejectsEarlierOperation
+{
+    [self assertSharedIdTokenReplacementRejectsEarlierOperationWithTargets:YES];
+}
+
+- (void)testAgeAssuranceUntargetedNetworkRejectsMalformedSuppliedIdToken
+{
+    MSIDRequestParameters *parameters = [self ageAssuranceParameters];
+    parameters.claimsRequest = nil;
+    for (id rawIdToken in @[@"", @" \t\n", @42, @YES, NSNull.null, @[], @{}])
+    {
+        NSMutableDictionary *json = [[MSIDTestTokenResponse v2DefaultTokenResponse].jsonDictionary mutableCopy];
+        json[MSID_OAUTH2_ID_TOKEN] = rawIdToken;
+        MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:nil];
+        XCTAssertNotNil(response);
+        NSError *error = nil;
+        XCTAssertNil([self.validator validateAndSaveTokenResponse:response
+                                                     oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                       tokenCache:self.tokenCache
+                                             accountMetadataCache:self.accountMetadataCache
+                                                requestParameters:parameters
+                                                 saveSSOStateOnly:NO
+                                                            error:&error]);
+        XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+        XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+        XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 0);
+        XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0);
+        XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 0);
+        XCTAssertEqual(self.dataSource.allAccounts.count, 0);
+    }
+}
+
+- (void)testAgeAssuranceUntargetedNetworkAcceptsAbsentIdToken
+{
+    MSIDRequestParameters *parameters = [self ageAssuranceParameters];
+    parameters.claimsRequest = nil;
+    NSMutableDictionary *json = [[MSIDTestTokenResponse v2DefaultTokenResponse].jsonDictionary mutableCopy];
+    [json removeObjectForKey:MSID_OAUTH2_ID_TOKEN];
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:nil];
+    NSError *error = nil;
+    MSIDTokenResult *result = [self.validator validateAndSaveTokenResponse:response
+                                                            oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                              tokenCache:self.tokenCache
+                                                    accountMetadataCache:self.accountMetadataCache
+                                                       requestParameters:parameters
+                                                        saveSSOStateOnly:NO
+                                                                   error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertNil(result.rawIdToken);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1);
+    XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 0);
+}
+
+- (void)testAgeAssuranceSSOBrokerAdditionalMismatchIsTerminalEvenWithBrokerError
+{
+    for (NSNumber *targeted in @[@NO, @YES])
+    {
+        MSIDRequestParameters *parameters = [self ageAssuranceParameters];
+        if (!targeted.boolValue)
+        {
+            parameters.claimsRequest = nil;
+        }
+        for (id inputError in @[NSNull.null, [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorInteractionRequired userInfo:nil]])
+        {
+            MSIDBrokerOperationTokenResponse *operation = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+            operation.tokenResponse = [self ageAssuranceResponseWithReceipt:targeted.boolValue ? @"-MC" : @"+all"];
+            operation.additionalTokenResponse = [self ageAssuranceResponseWithReceipt:@"+other"];
+            [self assertSSOOperationRejectsBeforeCacheWrites:operation parameters:parameters error:inputError == NSNull.null ? nil : inputError];
+        }
+    }
+}
+
+- (void)testAgeAssuranceUntargetedSSOBrokerRejectsMalformedPrimaryAndAdditionalIdTokens
+{
+    MSIDRequestParameters *parameters = [self ageAssuranceParameters];
+    parameters.claimsRequest = nil;
+    for (id rawIdToken in @[@"", @" \t\n", @42, @YES, NSNull.null, @[], @{}])
+    {
+        NSMutableDictionary *json = [[MSIDTestTokenResponse v2DefaultTokenResponse].jsonDictionary mutableCopy];
+        json[MSID_OAUTH2_ID_TOKEN] = rawIdToken;
+        MSIDAADV2TokenResponse *malformedResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:nil];
+        for (NSNumber *malformedPrimary in @[@YES, @NO])
+        {
+            MSIDBrokerOperationTokenResponse *operation = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+            operation.tokenResponse = malformedPrimary.boolValue ? malformedResponse : [self ageAssuranceResponseWithReceipt:@"+all"];
+            operation.additionalTokenResponse = malformedPrimary.boolValue ? [self ageAssuranceResponseWithReceipt:@"+all"] : malformedResponse;
+            [self assertSSOOperationRejectsBeforeCacheWrites:operation parameters:parameters error:nil];
+
+            NSMutableDictionary *operationJson = [[operation.tokenResponse jsonDictionary] mutableCopy];
+            operationJson[@"operation"] = @"login";
+            operationJson[@"success"] = @"0";
+            operationJson[@"client_app_version"] = @"1.0";
+            operationJson[@"operation_response_type"] = @"operation_token_response";
+            operationJson[@"additional_token_reponse"] = [operation.additionalTokenResponse.jsonDictionary msidJSONSerializeWithContext:nil];
+            NSError *parseError = nil;
+            MSIDBrokerOperationTokenResponse *parsedOperation = [[MSIDBrokerOperationTokenResponse alloc] initWithJSONDictionary:operationJson error:&parseError];
+            XCTAssertNotNil(parsedOperation);
+            XCTAssertNil(parseError);
+            XCTAssertEqualObjects(parsedOperation.tokenResponse.rawIdToken, operation.tokenResponse.rawIdToken);
+            XCTAssertEqualObjects(parsedOperation.additionalTokenResponse.rawIdToken, operation.additionalTokenResponse.rawIdToken);
+            [self assertSSOOperationRejectsBeforeCacheWrites:parsedOperation parameters:parameters error:nil];
+        }
+    }
+}
+
+- (void)assertSSOOperationRejectsBeforeCacheWrites:(MSIDBrokerOperationTokenResponse *)operation
+                                       parameters:(MSIDRequestParameters *)parameters
+                                            error:(NSError *)inputError
+{
+    __block NSUInteger completions = 0;
+    [[MSIDSSOTokenResponseHandler new] handleOperationResponse:operation
+                                          requestParameters:parameters
+                                     tokenResponseValidator:self.validator
+                                               oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                 tokenCache:self.tokenCache
+                                       accountMetadataCache:self.accountMetadataCache
+                                            validateAccount:NO
+                                                      error:inputError
+                                            completionBlock:^(MSIDTokenResult *result, NSError *error)
+     {
+        completions++;
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+        XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+     }];
+    XCTAssertEqual(completions, 1);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 0);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0);
+    XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 0);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 0);
+}
+
+- (void)testAgeAssuranceSharedIdTokenReplacementRejectsEarlierUntargetedOperation
+{
+    [self assertSharedIdTokenReplacementRejectsEarlierOperationWithTargets:NO];
+}
+
+- (void)assertSharedIdTokenReplacementRejectsEarlierOperationWithTargets:(BOOL)hasTargets
+{
+    MSIDRequestParameters *first = [self ageAssuranceParameters];
+    if (!hasTargets)
+    {
+        first.claimsRequest = nil;
+    }
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    NSError *error = nil;
+    MSIDTokenResult *saved = [self.validator validateAndSaveTokenResponse:[self ageAssuranceResponseWithReceipt:hasTargets ? @"+mc" : @"-ALL"]
+                                                            oauthFactory:factory
+                                                              tokenCache:self.tokenCache
+                                                    accountMetadataCache:self.accountMetadataCache
+                                                       requestParameters:first
+                                                        saveSSOStateOnly:NO
+                                                                   error:&error];
+    XCTAssertNotNil(saved);
+    XCTAssertNil(error);
+    first.accountIdentifier = saved.account.accountIdentifier;
+    first.authority = saved.authority;
+    MSIDRequestParameters *second = [first copy];
+    second.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:
+                           @{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[@"target-other"]}}} error:nil];
+    MSIDTokenResult *replacement = [self.validator validateAndSaveTokenResponse:[self ageAssuranceResponseWithReceipt:@"-other"]
+                                                                  oauthFactory:factory
+                                                                    tokenCache:self.tokenCache
+                                                          accountMetadataCache:self.accountMetadataCache
+                                                             requestParameters:second
+                                                              saveSSOStateOnly:NO
+                                                                         error:&error];
+    XCTAssertNotNil(replacement);
+    XCTAssertNil(error);
+    XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 1);
+    MSIDDefaultSilentTokenRequest *request = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:first
+                                                                                              forceRefresh:NO
+                                                                                              oauthFactory:factory
+                                                                                    tokenResponseValidator:self.validator
+                                                                                                tokenCache:self.tokenCache
+                                                                                     accountMetadataCache:self.accountMetadataCache];
+    XCTAssertNil([request resultWithAccessToken:saved.accessToken refreshToken:saved.refreshToken error:&error]);
+    XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+    XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 1);
+    XCTAssertEqualObjects(first.ageAssuranceTargetIdentifiers, hasTargets ? [NSSet setWithObject:@"mc"] : nil);
+}
+
+- (void)testAgeAssuranceSSOBrokerRejectsBeforePrimaryAndAdditionalCacheWrites
+{
+    [self assertSSOBrokerRejectsBeforeCacheWritesWithTargets:YES];
+}
+
+- (void)testAgeAssuranceUntargetedSSOBrokerRejectsBeforePrimaryAndAdditionalCacheWrites
+{
+    [self assertSSOBrokerRejectsBeforeCacheWritesWithTargets:NO];
+}
+
+- (void)assertSSOBrokerRejectsBeforeCacheWritesWithTargets:(BOOL)hasTargets
+{
+    MSIDRequestParameters *parameters = [self ageAssuranceParameters];
+    if (!hasTargets)
+    {
+        parameters.claimsRequest = nil;
+    }
+    MSIDBrokerOperationTokenResponse *operation = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+    operation.tokenResponse = [self ageAssuranceResponseWithReceipt:@"+other"];
+    operation.additionalTokenResponse = [self ageAssuranceResponseWithReceipt:hasTargets ? @"+mc" : @"+all"];
+    __block BOOL completed = NO;
+    [[MSIDSSOTokenResponseHandler new] handleOperationResponse:operation
+                                          requestParameters:parameters
+                                     tokenResponseValidator:self.validator
+                                               oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                 tokenCache:self.tokenCache
+                                       accountMetadataCache:self.accountMetadataCache
+                                            validateAccount:NO
+                                                      error:nil
+                                            completionBlock:^(MSIDTokenResult *result, NSError *error)
+     {
+        completed = YES;
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+     }];
+    XCTAssertTrue(completed);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 0);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 0);
+    XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 0);
+    XCTAssertEqual(self.dataSource.allAccounts.count, 0);
+}
+
+- (void)testAgeAssuranceSSOBrokerAcceptsMatchingReceipt
+{
+    MSIDBrokerOperationTokenResponse *operation = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+    operation.tokenResponse = [self ageAssuranceResponseWithReceipt:@"-MC"];
+    operation.additionalTokenResponse = [self ageAssuranceResponseWithReceipt:@"+mc"];
+    __block BOOL completed = NO;
+    [[MSIDSSOTokenResponseHandler new] handleOperationResponse:operation
+                                          requestParameters:[self ageAssuranceParameters]
+                                     tokenResponseValidator:self.validator
+                                               oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                 tokenCache:self.tokenCache
+                                       accountMetadataCache:self.accountMetadataCache
+                                            validateAccount:NO
+                                                      error:nil
+                                            completionBlock:^(MSIDTokenResult *result, NSError *error)
+     {
+        completed = YES;
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+     }];
+    XCTAssertTrue(completed);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1);
+}
+
+- (void)testAgeAssuranceSSOBrokerValidAdditionalResponsePreservesOriginalError
+{
+    MSIDRequestParameters *parameters = [self ageAssuranceParameters];
+    parameters.claimsRequest = nil;
+    MSIDBrokerOperationTokenResponse *operation = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+    operation.additionalTokenResponse = [self ageAssuranceResponseWithReceipt:@"-ALL"];
+    NSError *inputError = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorInteractionRequired userInfo:nil];
+    __block NSUInteger completions = 0;
+    [[MSIDSSOTokenResponseHandler new] handleOperationResponse:operation
+                                          requestParameters:parameters
+                                     tokenResponseValidator:self.validator
+                                               oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                 tokenCache:self.tokenCache
+                                       accountMetadataCache:self.accountMetadataCache
+                                            validateAccount:NO
+                                                      error:inputError
+                                            completionBlock:^(MSIDTokenResult *result, NSError *error)
+     {
+        completions++;
+        XCTAssertNil(result);
+        XCTAssertEqualObjects(error, inputError);
+     }];
+    XCTAssertEqual(completions, 1);
+    XCTAssertEqual(self.dataSource.allDefaultAccessTokens.count, 1);
+    XCTAssertEqual(self.dataSource.allDefaultRefreshTokens.count, 1);
+    XCTAssertEqual(self.dataSource.allDefaultIDTokens.count, 1);
+}
 
 - (void)testValidateTokenResult_whenSomeScopesRejectedByServer_shouldReturnErrorWithGrantedScopesButWithoutDefaultOidcScopes
 {

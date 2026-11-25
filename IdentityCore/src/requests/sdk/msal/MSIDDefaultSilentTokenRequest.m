@@ -110,6 +110,11 @@
 
     MSIDIdToken *idToken = [self getIDToken:&cacheError];
 
+    if (![self.requestParameters validateAgeAssuranceIdToken:idToken.rawIdToken error:error])
+    {
+        return nil;
+    }
+
     if (!idToken)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);

@@ -108,7 +108,8 @@
         NSDictionary *additionalInfoJson = [self.additionalInfo jsonDictionary];
         if (!additionalInfoJson) return nil;
         
-        claimJson[self.name] = additionalInfoJson;
+        // Clearing the last optional field restores a default claim, not an invalid empty object.
+        claimJson[self.name] = additionalInfoJson.count > 0 ? (id)additionalInfoJson : NSNull.null;
     }
     else
     {

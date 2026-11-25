@@ -36,6 +36,8 @@
 #import "MSIDConstants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
 #import "MSIDRequestParameters.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDOAuth2Constants.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -121,6 +123,14 @@
                                                                                      error:error];
 
         if (!decryptedResponse)
+        {
+            return nil;
+        }
+
+        if (![MSIDClaimsRequest validateAgeAssuranceIdToken:decryptedResponse[MSID_OAUTH2_ID_TOKEN]
+                                           expectedTargets:self.ageAssuranceTargetIdentifiers
+                                             correlationId:correlationID
+                                                     error:error])
         {
             return nil;
         }

@@ -31,6 +31,7 @@
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializer.h"
+#import "MSIDOAuth2Constants.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 
 NSString *const MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY = @"additional_token_reponse";
@@ -68,7 +69,14 @@ NSString *const MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY = @"additional_to
         NSString *tokenResponseJsonString = json[MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY];
         if (tokenResponseJsonString)
         {
-            NSDictionary *tokenResponseJson = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:tokenResponseJsonString ofType:NSDictionary.class context:nil error:nil];
+            NSMutableDictionary *tokenResponseJson = [(NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:tokenResponseJsonString ofType:NSDictionary.class context:nil error:nil] mutableCopy];
+            if (tokenResponseJson)
+            {
+                // Preserve a supplied JSON null ID token for validation, not optional-token handling.
+                NSData *tokenResponseData = [tokenResponseJsonString dataUsingEncoding:NSUTF8StringEncoding];
+                NSDictionary *rawTokenResponseJson = [NSJSONSerialization JSONObjectWithData:tokenResponseData options:0 error:nil];
+                tokenResponseJson[MSID_OAUTH2_ID_TOKEN] = rawTokenResponseJson[MSID_OAUTH2_ID_TOKEN];
+            }
             _additionalTokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:tokenResponseJson classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:nil];
         }
 

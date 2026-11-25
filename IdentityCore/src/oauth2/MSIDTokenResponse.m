@@ -72,6 +72,7 @@
 
 - (void)setIdToken:(NSString *)idToken
 {
+    _rawIdToken = [idToken copy];
     if (![NSString msidIsStringNilOrBlank:idToken])
     {
         _idToken = idToken;
@@ -166,6 +167,7 @@
         _scope = [json msidStringObjectForKey:MSID_OAUTH2_SCOPE];
         _state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
         [self setIdToken:[json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN]];
+        _rawIdToken = [json[MSID_OAUTH2_ID_TOKEN] copy];
         _error = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
         _stsErrorCodes = [json msidArrayOfIntegersForKey: MSID_OAUTH2_ERROR_CODES];
         _errorDescription = [[json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION] msidURLDecode];
@@ -196,7 +198,7 @@
         json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
         json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
         json[MSID_OAUTH2_SCOPE] = self.scope;
-        json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
+        json[MSID_OAUTH2_ID_TOKEN] = self.rawIdToken;
         json[MSID_OAUTH2_REQUEST_CONFIRMATION] = self.requestConf;
     }
     

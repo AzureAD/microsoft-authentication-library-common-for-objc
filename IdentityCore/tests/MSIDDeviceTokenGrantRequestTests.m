@@ -40,6 +40,7 @@
 #import "MSIDTestURLResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDTestIdentifiers.h"
+#import "MSIDTestIdTokenUtil.h"
 #import "MSIDDeviceTokenGrantRequestMock.h"
 #import "MSIDAccessToken.h"
 
@@ -455,7 +456,7 @@
         MSID_OAUTH2_EXPIRES_IN : @"3600",
         MSID_OAUTH2_SCOPE : @"scope1 scope2",
         MSID_OAUTH2_CLIENT_INFO : clientInfoString,
-        MSID_OAUTH2_ID_TOKEN : @"test-id-token"
+        MSID_OAUTH2_ID_TOKEN : [MSIDTestIdTokenUtil defaultV2IdToken]
     };
     request.expectedResponse = tokenResponse;
     request.expectedError = nil;
