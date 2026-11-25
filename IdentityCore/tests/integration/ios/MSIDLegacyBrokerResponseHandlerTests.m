@@ -515,13 +515,32 @@
 
 - (void)testHandleBrokerResponse_whenBrokerIntuneErrorResponse_withAdditionalToken_shouldReturnNilResultAndError_andCacheMAMToken
 {
+    [self assertIntuneMAMTokenWithReceipt:nil shouldCache:YES];
+}
+
+- (void)testHandleBrokerResponse_whenBrokerIntuneErrorResponse_withInvalidReceipt_shouldNotCacheMAMToken
+{
+    for (id receipt in @[@"+mc", @"mc", @"+all,-ALL", @"+all,+other", @42, NSNull.null])
+    {
+        [self assertIntuneMAMTokenWithReceipt:receipt shouldCache:NO];
+    }
+}
+
+- (void)testHandleBrokerResponse_whenBrokerIntuneErrorResponse_withDefaultReceipt_shouldCacheMAMToken
+{
+    [self assertIntuneMAMTokenWithReceipt:@"-ALL" shouldCache:YES];
+}
+
+- (void)assertIntuneMAMTokenWithReceipt:(id)receipt shouldCache:(BOOL)shouldCache
+{
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
 
     NSString *correlationId = [[NSUUID UUID] UUIDString];
 
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" tenantId:@"contoso.com-guid"
+                                        additionalClaims:receipt ? @{@"xms_agvt": receipt} : @{}];
 
     NSDictionary *intuneMAMTokenDictionary = @{@"authority":@"https://login.microsoftonline.de/common",
                                                @"client_id": @"my_client_id",
@@ -561,6 +580,18 @@
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
+    if (!shouldCache)
+    {
+        XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+        XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+        XCTAssertEqual([MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:self.cacheAccessor].count, 0);
+        XCTAssertEqual([MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor].count, 0);
+        MSIDDefaultTokenCacheAccessor *defaultCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:[MSIDKeychainTokenCache defaultKeychainCache] otherCacheAccessors:nil];
+        XCTAssertEqual([MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:defaultCache].count, 0);
+        XCTAssertEqual([MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:defaultCache].count, 0);
+        XCTAssertEqual([MSIDTestCacheAccessorHelper getAllIdTokens:defaultCache].count, 0);
+        return;
+    }
     XCTAssertEqual(error.code, 213);
     XCTAssertEqualObjects(error.domain, @"MSIDErrorDomain");
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"unauthorized_client");

@@ -44,7 +44,22 @@
     if (operationResponse.authority) requestParameters.cloudAuthority = operationResponse.authority;
     
     BOOL saveSSOStateOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
-    
+
+    // Preflight both responses before either can mutate the cache, even on broker failure.
+    NSError *receiptError = nil;
+    if (operationResponse.tokenResponse && !operationResponse.tokenResponse.error
+        && ![requestParameters validateAgeAssuranceIdToken:operationResponse.tokenResponse.rawIdToken error:&receiptError])
+    {
+        completionBlock(nil, receiptError);
+        return;
+    }
+    if (operationResponse.additionalTokenResponse && !operationResponse.additionalTokenResponse.error
+        && ![requestParameters validateAgeAssuranceIdToken:operationResponse.additionalTokenResponse.rawIdToken error:&receiptError])
+    {
+        completionBlock(nil, receiptError);
+        return;
+    }
+
     if (operationResponse.additionalTokenResponse)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Saving additional token response...");

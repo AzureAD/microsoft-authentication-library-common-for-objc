@@ -34,6 +34,8 @@
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDIndividualClaimRequest.h"
+#import "MSIDIndividualClaimRequestAdditionalInfo.h"
 #import "MSIDOAuth2Constants.h"
 
 @interface MSIDInteractiveTokenRequestParametersBrowserNativeMessageGetTokenTests : XCTestCase
@@ -73,6 +75,9 @@
 - (void)testRequestParametersWithRequest_copiesAndTransformsCompleteRequest
 {
     MSIDBrowserNativeMessageGetTokenRequest *request = [self request];
+    NSDictionary *claimsJson = @{@"id_token": @{@"xms_agvs": @{@"value": @0, @"additionalProperties": @[@"target-one"]}}};
+    request.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJson error:nil];
+    XCTAssertNotNil(request.claimsRequest);
     NSUUID *correlationOverride = [NSUUID UUID];
     NSError *error = nil;
 
@@ -97,7 +102,10 @@
     XCTAssertEqual(parameters.accountIdentifier, request.accountId);
     XCTAssertEqual(parameters.promptType, request.prompt);
     XCTAssertEqualObjects(parameters.loginHint, request.loginHint);
-    XCTAssertEqual(parameters.claimsRequest, request.claimsRequest);
+    XCTAssertNotEqual(parameters.claimsRequest, request.claimsRequest);
+    XCTAssertEqualObjects(parameters.claimsRequest.jsonDictionary, request.claimsRequest.jsonDictionary);
+    XCTAssertEqualObjects(parameters.claimsRequest.jsonDictionary, claimsJson);
+    XCTAssertEqualObjects(parameters.ageAssuranceTargetIdentifiers, [NSSet setWithObject:@"one"]);
     XCTAssertEqualObjects(parameters.nonce, request.nonce);
     XCTAssertTrue(parameters.instanceAware);
     XCTAssertEqualObjects(parameters.webPageUri, request.sender.absoluteString);
@@ -108,6 +116,23 @@
     XCTAssertEqual(parameters.requestType, MSIDRequestBrokeredType);
     XCTAssertTrue(parameters.isBoundAppRefreshTokenRequested);
     XCTAssertEqualObjects(parameters.correlationId, correlationOverride);
+
+    MSIDIndividualClaimRequestAdditionalInfo *requestInfo =
+    [request.claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo;
+    requestInfo.value = @1;
+    requestInfo.additionalProperties = @[@"target-two"];
+    XCTAssertEqualObjects(parameters.claimsRequest.jsonDictionary, claimsJson);
+    XCTAssertEqualObjects(parameters.ageAssuranceTargetIdentifiers, [NSSet setWithObject:@"one"]);
+    XCTAssertEqualObjects(request.claimsRequest.ageAssuranceTargetIdentifiers, [NSSet setWithObject:@"two"]);
+
+    MSIDIndividualClaimRequestAdditionalInfo *operationInfo =
+    [parameters.claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo;
+    operationInfo.value = @2;
+    operationInfo.additionalProperties = @[@"target-three"];
+    XCTAssertEqualObjects(requestInfo.value, @1);
+    XCTAssertEqualObjects(requestInfo.additionalProperties, @[@"target-two"]);
+    XCTAssertEqualObjects(parameters.claimsRequest.ageAssuranceTargetIdentifiers, [NSSet setWithObject:@"three"]);
+    XCTAssertEqualObjects(parameters.ageAssuranceTargetIdentifiers, [NSSet setWithObject:@"one"]);
 }
 
 - (void)testRequestParametersWithRequest_unpairedChildParameter_isForwardedWithoutNesting

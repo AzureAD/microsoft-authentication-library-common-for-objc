@@ -26,12 +26,149 @@
 #import "MSIDClaimsRequest+ClientCapabilities.h"
 #import "MSIDIndividualClaimRequest.h"
 #import "MSIDIndividualClaimRequestAdditionalInfo.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDClaimsRequestTests : XCTestCase
 
 @end
 
 @implementation MSIDClaimsRequestTests
+
+- (NSString *)ageAssuranceIdTokenWithClaims:(NSDictionary *)claims
+{
+    return [NSString stringWithFormat:@"%@.%@.", [@{@"alg": @"RS256"} msidBase64UrlJson], [claims msidBase64UrlJson]];
+}
+
+- (void)testAgeAssuranceReceiptRequiresExactSignedIdentitySet
+{
+    NSSet *expected = [NSSet setWithArray:@[@"mc", @"vg"]];
+    for (NSString *receipt in @[@"+mc,-vg", @"-VG,+MC", @"-mc,-vg", @"+vg,+mc"])
+    {
+        NSString *token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvs": @0, @"xms_agvt": receipt}];
+        XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:expected correlationId:nil error:nil]);
+    }
+    for (id receipt in @[[NSNull null], @0, @[], @{}, @"", @"+mc", @"+mc,-vg,+extra",
+                          @"+other,-vg", @"+mc,-mc", @"+mc,-MC,-vg", @"mc,vg", @"+mc,vg",
+                          @"+mc,", @",+mc", @"+mc,,+vg", @"+mc, -vg", @" +mc,-vg",
+                          @"++mc,-vg", @"+-mc,-vg", @"+mc,-", @"+mc,\n-vg"])
+    {
+        for (NSNumber *status in @[@0, @1])
+        {
+            NSString *token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvs": status, @"xms_agvt": receipt}];
+            NSError *error = nil;
+            XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:expected correlationId:nil error:&error]);
+            XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+            XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+            XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"age_assurance_target_mismatch");
+        }
+    }
+    NSString *missing = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvs": @0}];
+    XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:missing expectedTargets:expected correlationId:nil error:nil]);
+    XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:nil expectedTargets:expected correlationId:nil error:nil]);
+    XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:@"malformed" expectedTargets:expected correlationId:nil error:nil]);
+}
+
+- (void)testAgeAssuranceTargetsAreOpaqueAndAllIsLiteral
+{
+    for (NSString *identity in @[@"all", @"future.target/v2", @"vendor-name_v3", @"\u00e9"])
+    {
+        NSSet *expected = [NSSet setWithObject:identity];
+        NSString *token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvt": [@"-" stringByAppendingString:identity]}];
+        XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:expected correlationId:nil error:nil]);
+    }
+    NSString *token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvt": @"+mc"}];
+    XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:[NSSet setWithObject:@"all"] correlationId:nil error:nil]);
+    token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvt": @"+all"}];
+    XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:[NSSet setWithObject:@"mc"] correlationId:nil error:nil]);
+    NSString *headerOnly = [NSString stringWithFormat:@"%@.%@.", [@{@"xms_agvt": @"+mc"} msidBase64UrlJson], [@{@"sub": @"subject"} msidBase64UrlJson]];
+    XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:headerOnly expectedTargets:[NSSet setWithObject:@"mc"] correlationId:nil error:nil]);
+}
+
+- (void)testAgeAssuranceEmptyExpectedTargetsValidateReturnedReceipts
+{
+    for (NSSet *expected in @[[NSSet set], [MSIDClaimsRequest new].ageAssuranceTargetIdentifiers])
+    {
+        XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:nil expectedTargets:expected correlationId:nil error:nil]);
+        NSString *missing = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvs": @0}];
+        XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:missing expectedTargets:expected correlationId:nil error:nil]);
+        XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:missing expectedTargets:nil correlationId:nil error:nil]);
+        for (NSString *receipt in @[@"", @"+all", @"-ALL"])
+        {
+            NSString *token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvt": receipt}];
+            XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:expected correlationId:nil error:nil]);
+            XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:nil correlationId:nil error:nil]);
+        }
+        for (id receipt in @[@"+mc", @"-mc", @"+all,+mc", @"+all,-ALL", @"+all,+all", @"all",
+                              @"+", @"-", @"++all", @"+-all", @"+all,", @",+all", @"+all,,",
+                              @" ", @" +all", @"+all ", @"+all\n", NSNull.null, @0, @YES, @[], @{}])
+        {
+            NSString *token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvs": @0, @"xms_agvt": receipt}];
+            NSError *error = nil;
+            XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:expected correlationId:nil error:&error]);
+            XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+            XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+            XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:nil correlationId:nil error:nil]);
+        }
+    }
+}
+
+- (void)testAgeAssuranceEmptyTargetsDoNotAcceptMalformedProvidedIdTokens
+{
+    XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:nil expectedTargets:nil correlationId:nil error:nil]);
+    NSString *arrayPayload = [NSString stringWithFormat:@"%@.%@.", [@{} msidBase64UrlJson], @"W10"];
+    for (id token in @[@"", @" ", @"malformed", @"e30.!.", arrayPayload, NSNull.null, @0])
+    {
+        NSError *error = nil;
+        XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:nil correlationId:nil error:&error]);
+        XCTAssertEqual(error.code, MSIDErrorAgeAssuranceTargetMismatch);
+    }
+}
+
+- (void)testAgeAssuranceExplicitAllRequiresReceipt
+{
+    NSSet *expected = [NSSet setWithObject:@"all"];
+    for (NSDictionary *claims in @[@{}, @{@"xms_agvt": @""}, @{@"xms_agvt": NSNull.null}])
+    {
+        NSString *token = [self ageAssuranceIdTokenWithClaims:claims];
+        XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:expected correlationId:nil error:nil]);
+    }
+    for (NSString *receipt in @[@"+all", @"-ALL"])
+    {
+        NSString *token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvt": receipt}];
+        XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:expected correlationId:nil error:nil]);
+    }
+    XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:nil expectedTargets:expected correlationId:nil error:nil]);
+}
+
+- (void)testAgeAssuranceRequestParsingAndEmptyTargetValidation
+{
+    MSIDClaimsRequest *request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:
+                                 @{@"id_token": @{@"xms_agvs": @{@"value": @0, @"additionalProperties": @[@"TARGET-MC", @"target-mc", @"target-future.target/v2", @"other", @7]}}} error:nil];
+    XCTAssertEqualObjects(request.ageAssuranceTargetIdentifiers, ([NSSet setWithArray:@[@"mc", @"future.target/v2"]]));
+    for (NSDictionary *json in @[
+        @{},
+        @{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[]}}},
+        @{@"id_token": @{@"xms_agvs": @{@"values": @[@1, @2]}}},
+        @{@"access_token": @{@"xms_agvs": @{@"additionalProperties": @[@"target-mc"]}}},
+        @{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[@" target-mc", @"unrelated"]}}},
+        @{@"id_token": @{@"XMS_AGVS": @{@"additionalProperties": @[@"target-mc"]}}}
+    ])
+    {
+        request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:json error:nil];
+        XCTAssertEqual(request.ageAssuranceTargetIdentifiers.count, 0);
+        XCTAssertTrue([MSIDClaimsRequest validateAgeAssuranceIdToken:nil expectedTargets:request.ageAssuranceTargetIdentifiers correlationId:nil error:nil]);
+        NSString *token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvt": @"+mc"}];
+        XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:request.ageAssuranceTargetIdentifiers correlationId:nil error:nil]);
+    }
+    for (NSString *property in @[@"target-", @"target-mc ", @"target-+mc", @"target--mc", @"target-mc,vg"])
+    {
+        request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"id_token": @{@"xms_agvs": @{@"additionalProperties": @[property]}}} error:nil];
+        XCTAssertEqual(request.ageAssuranceTargetIdentifiers.count, 1);
+        NSString *token = [self ageAssuranceIdTokenWithClaims:@{@"xms_agvt": @"+mc"}];
+        XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:token expectedTargets:request.ageAssuranceTargetIdentifiers correlationId:nil error:nil]);
+        XCTAssertFalse([MSIDClaimsRequest validateAgeAssuranceIdToken:nil expectedTargets:request.ageAssuranceTargetIdentifiers correlationId:nil error:nil]);
+    }
+}
 
 - (void)testAdditionalPropertiesRoundTripAndCopy
 {
@@ -79,6 +216,43 @@
 
 - (void)tearDown
 {
+}
+
+- (void)testClearingPropertyOnlyClaimRestoresDefaultClaim
+{
+    NSError *error = nil;
+    MSIDClaimsRequest *request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:
+                                 @{@"id_token": @{@"custom_claim": @{@"additionalProperties": @[@"property-one"]}}}
+                                                                          error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    [request claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo.additionalProperties = nil;
+    XCTAssertEqualObjects(request.jsonDictionary, (@{@"id_token": @{@"custom_claim": NSNull.null}}));
+    MSIDClaimsRequest *reparsed = [[MSIDClaimsRequest alloc] initWithJSONDictionary:request.jsonDictionary error:&error];
+    XCTAssertNotNil(reparsed);
+    XCTAssertNil(error);
+    XCTAssertEqual([reparsed claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].count, 1);
+    XCTAssertNil([reparsed claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken].firstObject.additionalInfo);
+}
+
+- (void)testCapabilitiesPreserveAdditionalInfoWithoutMutatingCaller
+{
+    NSDictionary *json = @{@"access_token": @{@"xms_cc": @{@"essential": @YES, @"value": @"opaque-value",
+                                                         @"values": @[@"original-capability"],
+                                                         @"additionalProperties": @[NSNull.null, @{@"property-one": NSNull.null}]}}};
+    MSIDClaimsRequest *request = [[MSIDClaimsRequest alloc] initWithJSONDictionary:json error:nil];
+    MSIDClaimsRequest *merged = [MSIDClaimsRequest claimsRequestFromCapabilities:@[@"new-capability"] claimsRequest:request];
+    MSIDIndividualClaimRequestAdditionalInfo *info = [merged claimsRequestsForTarget:MSIDClaimsRequestTargetAccessToken].firstObject.additionalInfo;
+    XCTAssertEqualObjects(info.values, @[@"new-capability"]);
+    XCTAssertEqualObjects(info.essential, @YES);
+    XCTAssertEqualObjects(info.value, @"opaque-value");
+    XCTAssertEqualObjects(info.additionalProperties, (@[NSNull.null, @{@"property-one": NSNull.null}]));
+    NSError *error = nil;
+    MSIDClaimsRequest *reparsed = [[MSIDClaimsRequest alloc] initWithJSONDictionary:merged.jsonDictionary error:&error];
+    XCTAssertNotNil(reparsed);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(reparsed.jsonDictionary, merged.jsonDictionary);
+    XCTAssertEqualObjects(request.jsonDictionary, json);
 }
 
 #pragma mark - requestCapabilities

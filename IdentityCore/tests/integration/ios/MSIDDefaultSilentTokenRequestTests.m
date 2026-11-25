@@ -1279,12 +1279,17 @@
                                                                                 requestScopes:@"user.read tasks.read openid profile offline_access"
                                                                                    responseAT:@""
                                                                                    responseRT:@"new rt"
-                                                                                   responseID:@""
+                                                                                   responseID:nil
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:differentClientInfo
                                                                                           url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
                                                                                  responseCode:200
                                                                                     expiresIn:nil];
+
+    // The response helper substitutes a valid ID token for nil; omit the optional field explicitly.
+    NSMutableDictionary *responseJson = [NSJSONSerialization JSONObjectWithData:tokenResponse->_responseData options:NSJSONReadingMutableContainers error:nil];
+    [responseJson removeObjectForKey:@"id_token"];
+    [tokenResponse setResponseJSON:responseJson];
 
     [MSIDTestURLSession addResponse:tokenResponse];
 

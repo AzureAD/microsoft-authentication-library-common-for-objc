@@ -35,6 +35,16 @@ static NSString *kCapabilitiesClaimName = @"xms_cc";
     
     MSIDIndividualClaimRequest *claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:kCapabilitiesClaimName];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    for (MSIDIndividualClaimRequest *existingClaim in [self claimsRequestsForTarget:MSIDClaimsRequestTargetAccessToken])
+    {
+        if ([existingClaim.name isEqualToString:kCapabilitiesClaimName])
+        {
+            claimRequest.additionalInfo.essential = existingClaim.additionalInfo.essential;
+            claimRequest.additionalInfo.value = existingClaim.additionalInfo.value;
+            claimRequest.additionalInfo.additionalProperties = existingClaim.additionalInfo.additionalProperties;
+            break;
+        }
+    }
     claimRequest.additionalInfo.values = capabilities;
     
     [self requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken error:nil];
