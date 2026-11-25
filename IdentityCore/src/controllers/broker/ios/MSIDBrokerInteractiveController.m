@@ -59,11 +59,23 @@
 static MSIDBrokerInteractiveController *s_currentExecutingController;
 static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
+static Class MSIDBrokerDependencyClass(Class defaultClass)
+{
+    return [MSIDDIContainer.sharedInstance resolveImplClassForClass:defaultClass
+                                                         orDefault:^Class { return defaultClass; }];
+}
+
+static MSIDOnboardingStatusCache *MSIDBrokerOnboardingStatusCache(void)
+{
+    return [MSIDDIContainer.sharedInstance
+        resolveClass:MSIDOnboardingStatusCache.class
+           orDefault:^id { return MSIDOnboardingStatusCache.sharedInstance; }];
+}
+
 @interface MSIDBrokerInteractiveController()
 
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveParameters;
 @property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
-@property (nonatomic, readonly) MSIDOnboardingStatusCache *onboardingStatusCache;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (atomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic, readwrite) BOOL isReplayRequest;
@@ -88,10 +100,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     {
         _interactiveParameters = parameters;
         NSString *accessGroup = parameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
-        Class keyProviderClass = [MSIDDIContainer.sharedInstance
-            resolveImplClassForClass:MSIDBrokerKeyProvider.class
-                           orDefault:^Class { return MSIDBrokerKeyProvider.class; }];
-        _brokerKeyProvider = [[keyProviderClass alloc] initWithGroup:accessGroup];
+        _brokerKeyProvider = [[MSIDBrokerDependencyClass(MSIDBrokerKeyProvider.class) alloc] initWithGroup:accessGroup];
     }
 
     return self;
@@ -113,13 +122,6 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     }
 
     return self;
-}
-
-- (MSIDOnboardingStatusCache *)onboardingStatusCache
-{
-    return [MSIDDIContainer.sharedInstance
-        resolveClass:MSIDOnboardingStatusCache.class
-           orDefault:^id { return MSIDOnboardingStatusCache.sharedInstance; }];
 }
 
 #pragma mark - MSIDRequestControlling
@@ -264,7 +266,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
                                                                            ownerBundleId:MSID_BROKER_APP_BUNDLE_ID
                                                                            correlationId:self.requestParameters.correlationId];
     
-    BOOL didPersistOnboardingStatus = [self.onboardingStatusCache setWithStatus:onboardingStatus];
+    BOOL didPersistOnboardingStatus = [MSIDBrokerOnboardingStatusCache() setWithStatus:onboardingStatus];
     if (!didPersistOnboardingStatus)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Failed to persist onboarding status for broker interactive request replay.");
@@ -319,10 +321,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         options = @{UIApplicationOpenURLOptionUniversalLinksOnly : @YES};
     }
     
-    Class appExtensionUtil = [MSIDDIContainer.sharedInstance
-        resolveImplClassForClass:MSIDAppExtensionUtil.class
-                       orDefault:^Class { return MSIDAppExtensionUtil.class; }];
-    [appExtensionUtil sharedApplicationOpenURL:requestURL
+    [MSIDBrokerDependencyClass(MSIDAppExtensionUtil.class) sharedApplicationOpenURL:requestURL
                                            options:options
                                  completionHandler:^(BOOL success) {
         
@@ -337,10 +336,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
 - (void)saveToPasteBoard:(NSURL *)url
 {
-    Class pasteboardClass = [MSIDDIContainer.sharedInstance
-        resolveImplClassForClass:UIPasteboard.class
-                       orDefault:^Class { return UIPasteboard.class; }];
-    UIPasteboard *appPasteBoard = [pasteboardClass pasteboardWithName:@"WPJ"
+    UIPasteboard *appPasteBoard = [MSIDBrokerDependencyClass(UIPasteboard.class) pasteboardWithName:@"WPJ"
                                                             create:YES];
     NSURL *pasteBoardURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
     [appPasteBoard setURL:pasteBoardURL];
@@ -446,7 +442,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         // Go back to broker
         BOOL returnToBroker = NO;
         // First read from Keychain to see if we have a request in progress from this app
-        MSIDOnboardingStatus *onboardingStatus = [brokerController.onboardingStatusCache getOnboardingStatus];
+        MSIDOnboardingStatus *onboardingStatus = [MSIDBrokerOnboardingStatusCache() getOnboardingStatus];
         NSString *originatingBundleId = onboardingStatus.originatingBundleId;
         NSString *currentBundleId = [NSBundle.mainBundle bundleIdentifier];
         if (onboardingStatus.phase == MSIDOnboardingPhaseBrokerInteractiveInProgress &&
@@ -530,11 +526,11 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
     if (error)
     {
-        MSIDOnboardingStatus *status = [self.onboardingStatusCache getOnboardingStatus];
+        MSIDOnboardingStatus *status = [MSIDBrokerOnboardingStatusCache() getOnboardingStatus];
         if (status && status.phase != MSIDOnboardingPhaseNone)
         {
             status.phase = MSIDOnboardingPhaseFailed;
-            [self.onboardingStatusCache setWithStatus:status];
+            [MSIDBrokerOnboardingStatusCache() setWithStatus:status];
         }
     }
     else
@@ -542,13 +538,13 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
         if (!bundleId)
         {
-            MSIDOnboardingStatus *status = [self.onboardingStatusCache getOnboardingStatus];
+            MSIDOnboardingStatus *status = [MSIDBrokerOnboardingStatusCache() getOnboardingStatus];
             bundleId = status.originatingBundleId ?: status.ownerBundleId;
         }
         
         if (bundleId)
         {
-            [self.onboardingStatusCache clear:bundleId];
+            [MSIDBrokerOnboardingStatusCache() clear:bundleId];
         }
     }
     
@@ -613,7 +609,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
     if (![NSString msidIsStringNilOrBlank:bundleId])
     {
-        [self.onboardingStatusCache clear:bundleId];
+        [MSIDBrokerOnboardingStatusCache() clear:bundleId];
     }
     
     MSIDRequestCompletionBlock completionBlock = [self copyAndClearCompletionBlock];
@@ -622,10 +618,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     {
         NSString *applicationState = @"";
         MSIDErrorCode openBrokerErrorCode = MSIDErrorInternal;
-        Class appExtensionUtil = [MSIDDIContainer.sharedInstance
-            resolveImplClassForClass:MSIDAppExtensionUtil.class
-                           orDefault:^Class { return MSIDAppExtensionUtil.class; }];
-        switch ([appExtensionUtil sharedApplication].applicationState)
+        switch ([MSIDBrokerDependencyClass(MSIDAppExtensionUtil.class) sharedApplication].applicationState)
         {
             case UIApplicationStateActive:
                 applicationState = @"active";

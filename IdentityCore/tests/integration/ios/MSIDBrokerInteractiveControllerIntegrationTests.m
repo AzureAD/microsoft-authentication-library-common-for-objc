@@ -254,7 +254,7 @@
     [container registerClass:MSIDOnboardingStatusCache.class lifetime:MSIDDIContainerLifetimeSingleton
                      factory:^id { return cache; }];
     self.installURL = [NSURL URLWithString:@"itms-apps://itunes.apple.com/app/test-broker"];
-    self.brokerURL = [NSURL URLWithString:@"msauthv2://broker?client_id=my_client_id"];
+    self.brokerURL = [NSURL URLWithString:[NSString stringWithFormat:@"msauthv2://broker?client_id=%@", DEFAULT_TEST_CLIENT_ID]];
     self.savedResumeState = [NSUserDefaults.standardUserDefaults objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 }
 
@@ -277,15 +277,9 @@
 
 - (void)startInstallRequest
 {
-    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority = [[MSIDReplayTestAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
                                                            rawTenant:nil context:nil error:nil];
-    parameters.clientId = @"my_client_id";
-    parameters.redirectUri = @"my_redirect_uri";
-    parameters.target = @"user.read";
-    parameters.oidcScope = @"openid profile offline_access";
-    parameters.correlationId = NSUUID.UUID;
-    parameters.telemetryRequestId = [NSUUID.UUID UUIDString];
     MSIDReplayTestBrokerOptions *options = [[MSIDReplayTestBrokerOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
                                                                                            protocolType:MSIDBrokerProtocolTypeCustomScheme
                                                                                       aadRequestVersion:MSIDBrokerAADRequestVersionV2];
