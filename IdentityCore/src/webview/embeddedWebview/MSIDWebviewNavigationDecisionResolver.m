@@ -33,6 +33,8 @@
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDFlightManager.h"
+#import "MSIDInteractiveRequestParameters.h"
 #import "MSIDOAuth2Constants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
@@ -195,10 +197,6 @@
     // Build query parameters for enrollment.
     NSMutableDictionary *allQueryParams = [NSMutableDictionary dictionary];
 
-    // Add enrollment-specific parameters.
-    allQueryParams[MSID_IN_APP_KEY] = @"true";
-    allQueryParams[@"webauthn"] = @"1";
-
     // Copy additional params from the original msauth URL (excluding intuneUrl itself).
     for (NSString *key in params)
     {
@@ -207,6 +205,10 @@
             allQueryParams[key] = params[key];
         }
     }
+
+    // Add enrollment-specific parameters.
+    allQueryParams[MSID_IN_APP_KEY] = @"true";
+    allQueryParams[@"webauthn"] = @"1";
     
     // Re-attach intuneDeviceId from keychain if it was captured during a prior
     // profile download complete redirect and is not already present in the URL.
@@ -468,6 +470,18 @@
             allQueryParams[key] = params[key];
         }
     }
+
+    id contextObject = embeddedWebviewController.context;
+    MSIDInteractiveRequestParameters *interactiveRequestParameters =
+        [contextObject isKindOfClass:[MSIDInteractiveRequestParameters class]]
+            ? (MSIDInteractiveRequestParameters *)contextObject : nil;
+    BOOL allowComplianceInAppAlways =
+        [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_ENROLL_ONLY_MOBILE_ONBOARDING];
+    if (interactiveRequestParameters.isNewMobileOnboardingFlow || allowComplianceInAppAlways)
+    {
+        allQueryParams[MSID_IN_APP_KEY] = @"true";
+    }
+
     // Build the final request with all query params.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
                                         extraHeaders:nil
@@ -562,14 +576,20 @@
         }
     }
 
-    // The navigation controller gates this resolver on new mobile onboarding.
-    NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
+    if ([extraParams[MSID_IN_APP_KEY] isEqualToString:@"true"])
     {
-        return [queryItem.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
-    }];
-    [queryItems removeObjectsAtIndexes:existingInAppIndexes];
-    [queryItems addObject:[NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"true"]];
-    components.queryItems = queryItems;
+        NSIndexSet *existingInAppIndexes = [queryItems indexesOfObjectsPassingTest:^BOOL(NSURLQueryItem *queryItem, NSUInteger __unused idx, BOOL * __unused stop)
+        {
+            return [queryItem.name caseInsensitiveCompare:MSID_IN_APP_KEY] == NSOrderedSame;
+        }];
+        [queryItems removeObjectsAtIndexes:existingInAppIndexes];
+        [queryItems addObject:[NSURLQueryItem queryItemWithName:MSID_IN_APP_KEY value:@"true"]];
+    }
+
+    if (queryItems.count > 0)
+    {
+        components.queryItems = queryItems;
+    }
 
     // Create the final URL from components.
     NSURL *finalURL = components.URL;

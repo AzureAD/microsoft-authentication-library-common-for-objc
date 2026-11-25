@@ -1,4 +1,6 @@
 ## [TBD]
+* (iOS) Resume pending broker requests in Authenticator after installation instead of reopening the App Store when the calling app returns to the foreground. (AzureAD/microsoft-authentication-library-for-objc#3160)
+* Preserve additionalProperties arrays in typed claims requests, including broker reconstruction.
 
 Version 2.18.2
 * (iOS) Avoid a potential authentication hang by keeping BART enablement in process-local memory instead of writing application preferences; applications must configure enablement on each launch.

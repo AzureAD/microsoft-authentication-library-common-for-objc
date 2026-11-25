@@ -138,23 +138,29 @@
     
     // Server-side trigger: msauth://enroll means the server opted this
     // session into the new mobile onboarding flow.
-    BOOL isServerNewOnboardingRedirect =
-           isBrokerUrl
-    && ([MSID_MDM_ENROLL_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame || [MSID_COMPLIANCE_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame);
+    BOOL isEnrollRedirect = isBrokerUrl
+        && [MSID_MDM_ENROLL_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame;
+    BOOL isComplianceRedirect = isBrokerUrl
+        && [MSID_COMPLIANCE_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame;
+    BOOL isServerRedirectFromNewOnboardingFlow = isEnrollRedirect || isComplianceRedirect;
+    BOOL clientOnboardingDisabled =
+        [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING];
 
-    if (isServerNewOnboardingRedirect && !interactiveRequestParameters.isNewMobileOnboardingFlow)
+    if (isServerRedirectFromNewOnboardingFlow && !interactiveRequestParameters.isNewMobileOnboardingFlow)
     {
-        BOOL clientOnboardingDisabled =
-            [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING];
-
         if (!clientOnboardingDisabled)
         {
-            // Server ON + client ON -> new flow for the rest of the session.
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
-                @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
-            interactiveRequestParameters.isNewMobileOnboardingFlow = YES;
+            BOOL allowComplianceToEnableOnboarding =
+                [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_ENROLL_ONLY_MOBILE_ONBOARDING];
+            if (isEnrollRedirect || allowComplianceToEnableOnboarding)
+            {
+                // Server ON + client ON -> new flow for the rest of the session.
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                    @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
+                interactiveRequestParameters.isNewMobileOnboardingFlow = YES;
 
-            [self.onboardingBlobBuilder addUxFlowUsed:MSIDOnboardingUxFlowNewCAMdmRedirect];
+                [self.onboardingBlobBuilder addUxFlowUsed:MSIDOnboardingUxFlowNewCAMdmRedirect];
+            }
         }
         else
         {
@@ -212,12 +218,16 @@
             }
         }
     }
-    // Hand off broker and browser URLs to the delegate when mobile onboarding is enabled.
+    // Hand off broker and browser URLs to the delegate when mobile onboarding is enabled
+    // or when handling a compliance redirect.
     if (isBrokerUrl || isBrowserUrl)
     {
         id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+        BOOL shouldHandleSpecialRedirect =
+            interactiveRequestParameters.isNewMobileOnboardingFlow
+            || (interactiveRequestParameters && isComplianceRedirect && !clientOnboardingDisabled);
 
-        if (interactiveRequestParameters.isNewMobileOnboardingFlow
+        if (shouldHandleSpecialRedirect
             && [strongNavigationDelegate respondsToSelector:
                 @selector(handleSpecialRedirectURL:embeddedWebviewController:completion:)])
         {
