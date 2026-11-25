@@ -76,6 +76,7 @@
 + (MSIDBrokerTokenRequest *)currentBrokerRequest;
 + (void)stopTrackingAppState;
 @property (nonatomic, readwrite) BOOL isReplayRequest;
+@property (nonatomic, readonly) id brokerKeyProvider;
 @end
 
 @interface MSIDOnboardingStatusCache ()
@@ -84,7 +85,7 @@
 
 #if !AD_BROKER
 
-@interface MSIDReplayTestPlatform : NSObject <MSIDBrokerApplication, MSIDBrokerPasteboard>
+@interface MSIDReplayTestPlatform : NSObject
 @property (nonatomic) BOOL brokerInstalled;
 @property (nonatomic) BOOL openSucceeds;
 @property (nonatomic) UIApplicationState applicationState;
@@ -95,9 +96,21 @@
 
 @implementation MSIDReplayTestPlatform
 
-- (BOOL)canPerformRequest:(__unused MSIDInteractiveTokenRequestParameters *)parameters
++ (UIApplication *)sharedApplication
 {
-    return self.brokerInstalled;
+    return [MSIDDIContainer.sharedInstance resolveClass:MSIDReplayTestPlatform.class];
+}
+
++ (void)sharedApplicationOpenURL:(NSURL *)url
+                         options:(NSDictionary *)options
+               completionHandler:(void (^)(BOOL))completionHandler
+{
+    [[self sharedApplication] openURL:url options:options completionHandler:completionHandler];
+}
+
++ (UIPasteboard *)pasteboardWithName:(__unused NSString *)name create:(__unused BOOL)create
+{
+    return [MSIDDIContainer.sharedInstance resolveClass:MSIDReplayTestPlatform.class];
 }
 
 - (void)openURL:(NSURL *)url options:(__unused NSDictionary *)options completionHandler:(void (^)(BOOL))completionHandler
@@ -117,12 +130,18 @@
 
 @end
 
-@interface MSIDReplayTestKeyProvider : NSObject <MSIDBrokerKeyProviding>
+@interface MSIDReplayTestKeyProvider : NSObject
 @property (nonatomic) NSUInteger keyReadCount;
 @property (nonatomic) NSUInteger applicationTokenReadCount;
+- (instancetype)initWithGroup:(NSString *)group;
 @end
 
 @implementation MSIDReplayTestKeyProvider
+
+- (instancetype)initWithGroup:(__unused NSString *)group
+{
+    return [super init];
+}
 
 - (NSString *)base64BrokerKeyWithContext:(__unused id<MSIDRequestContext>)context
                                   error:(__unused NSError *__autoreleasing *)error
@@ -135,6 +154,47 @@
 {
     self.applicationTokenReadCount++;
     return @"test-application-token";
+}
+
+@end
+
+@interface MSIDReplayTestOnboardingCache : NSObject
+@property (nonatomic) MSIDOnboardingStatus *status;
+- (BOOL)setWithStatus:(MSIDOnboardingStatus *)status;
+- (MSIDOnboardingStatus *)getOnboardingStatus;
+- (BOOL)clear:(NSString *)bundleId;
+@end
+
+@implementation MSIDReplayTestOnboardingCache
+
+- (BOOL)setWithStatus:(MSIDOnboardingStatus *)status
+{
+    self.status = status;
+    return YES;
+}
+
+- (MSIDOnboardingStatus *)getOnboardingStatus
+{
+    return self.status ?: [MSIDOnboardingStatus new];
+}
+
+- (BOOL)clear:(__unused NSString *)bundleId
+{
+    self.status = nil;
+    return YES;
+}
+
+@end
+
+@interface MSIDReplayTestBrokerOptions : MSIDBrokerInvocationOptions
+@property (nonatomic) MSIDReplayTestPlatform *platform;
+@end
+
+@implementation MSIDReplayTestBrokerOptions
+
+- (BOOL)isRequiredBrokerPresent
+{
+    return self.platform.brokerInstalled;
 }
 
 @end
@@ -158,7 +218,7 @@
 @interface MSIDBrokerReplayTests : XCTestCase
 @property (nonatomic) MSIDReplayTestPlatform *platform;
 @property (nonatomic) MSIDReplayTestKeyProvider *keyProvider;
-@property (nonatomic) MSIDOnboardingStatusCache *onboardingCache;
+@property (nonatomic) MSIDReplayTestOnboardingCache *onboardingCache;
 @property (nonatomic) MSIDBrokerInteractiveController *controller;
 @property (nonatomic) NSURL *installURL;
 @property (nonatomic) NSURL *brokerURL;
@@ -178,8 +238,21 @@
     self.platform.applicationState = UIApplicationStateActive;
     self.platform.openedURLs = [NSMutableArray new];
     self.platform.writtenURLs = [NSMutableArray new];
-    self.keyProvider = [MSIDReplayTestKeyProvider new];
-    self.onboardingCache = [[MSIDOnboardingStatusCache alloc] initWithDataSource:[MSIDTestCacheDataSource new]];
+    self.onboardingCache = [MSIDReplayTestOnboardingCache new];
+    MSIDDIContainer *container = MSIDDIContainer.sharedInstance;
+    [container reset];
+    MSIDReplayTestPlatform *platform = self.platform;
+    MSIDReplayTestOnboardingCache *cache = self.onboardingCache;
+    [container registerClass:MSIDReplayTestPlatform.class lifetime:MSIDDIContainerLifetimeSingleton
+                     factory:^id { return platform; }];
+    [container registerClass:MSIDAppExtensionUtil.class lifetime:MSIDDIContainerLifetimeSingleton
+                     factory:^id { return MSIDReplayTestPlatform.class; }];
+    [container registerClass:UIPasteboard.class lifetime:MSIDDIContainerLifetimeSingleton
+                     factory:^id { return MSIDReplayTestPlatform.class; }];
+    [container registerClass:MSIDBrokerKeyProvider.class lifetime:MSIDDIContainerLifetimeSingleton
+                     factory:^id { return MSIDReplayTestKeyProvider.class; }];
+    [container registerClass:MSIDOnboardingStatusCache.class lifetime:MSIDDIContainerLifetimeSingleton
+                     factory:^id { return cache; }];
     self.installURL = [NSURL URLWithString:@"itms-apps://itunes.apple.com/app/test-broker"];
     self.brokerURL = [NSURL URLWithString:@"msauthv2://broker?client_id=my_client_id"];
     self.savedResumeState = [NSUserDefaults.standardUserDefaults objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
@@ -190,6 +263,7 @@
     [MSIDBrokerInteractiveController stopTrackingAppState];
     [MSIDBrokerInteractiveController setCurrentBrokerController:nil];
     [MSIDBrokerInteractiveController setCurrentBrokerRequest:nil];
+    [MSIDDIContainer.sharedInstance reset];
     if (self.savedResumeState)
     {
         [NSUserDefaults.standardUserDefaults setObject:self.savedResumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
@@ -212,9 +286,11 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.correlationId = NSUUID.UUID;
     parameters.telemetryRequestId = [NSUUID.UUID UUIDString];
-    parameters.brokerInvocationOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+    MSIDReplayTestBrokerOptions *options = [[MSIDReplayTestBrokerOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
                                                                                            protocolType:MSIDBrokerProtocolTypeCustomScheme
                                                                                       aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    options.platform = self.platform;
+    parameters.brokerInvocationOptions = options;
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil
                                                                                  testWebMSAuthResponse:nil
                                                                                       brokerRequestURL:self.brokerURL
@@ -222,15 +298,11 @@
     NSError *error = nil;
     self.controller = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                                tokenRequestProvider:provider
-                                                                                 fallbackController:nil
                                                                                   brokerInstallLink:self.installURL
-                                                                                  brokerKeyProvider:self.keyProvider
-                                                                              onboardingStatusCache:self.onboardingCache
-                                                                                        application:self.platform
-                                                                                         pasteboard:self.platform
                                                                                               error:&error];
     XCTAssertNotNil(self.controller);
     XCTAssertNil(error);
+    self.keyProvider = self.controller.brokerKeyProvider;
     XCTestExpectation *opened = [self expectationWithDescription:@"Initial installation launch"];
     self.platform.onOpenURL = ^{ [opened fulfill]; };
     __weak typeof(self) weakSelf = self;

@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import "MSIDBaseRequestController.h"
 #import "MSIDTokenRequestProviding.h"
 #import "MSIDRequestControlling.h"
@@ -30,25 +29,6 @@
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDBrokerResponseHandler;
 @class MSIDBrokerInvocationOptions;
-@class MSIDOnboardingStatusCache;
-@protocol MSIDBrokerKeyProviding;
-
-@protocol MSIDBrokerApplication <NSObject>
-
-@property (nonatomic, readonly) UIApplicationState applicationState;
-
-- (BOOL)canPerformRequest:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
-- (void)openURL:(nonnull NSURL *)url
-       options:(nullable NSDictionary *)options
-completionHandler:(nonnull void (^)(BOOL success))completionHandler;
-
-@end
-
-@protocol MSIDBrokerPasteboard <NSObject>
-
-- (void)setURL:(nonnull NSURL *)url;
-
-@end
 
 @interface MSIDBrokerInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 
@@ -64,20 +44,6 @@ completionHandler:(nonnull void (^)(BOOL success))completionHandler;
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                             brokerInstallLink:(nonnull NSURL *)brokerInstallLink
-                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
-
-/**
- Initializes the controller with explicit platform and storage collaborators.
- Passing nil uses the system application/pasteboard or the keychain-backed provider for that collaborator.
- */
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                           fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                            brokerInstallLink:(nullable NSURL *)brokerInstallLink
-                                            brokerKeyProvider:(nullable id<MSIDBrokerKeyProviding>)brokerKeyProvider
-                                        onboardingStatusCache:(nullable MSIDOnboardingStatusCache *)onboardingStatusCache
-                                                  application:(nullable id<MSIDBrokerApplication>)application
-                                                   pasteboard:(nullable id<MSIDBrokerPasteboard>)pasteboard
                                                         error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL

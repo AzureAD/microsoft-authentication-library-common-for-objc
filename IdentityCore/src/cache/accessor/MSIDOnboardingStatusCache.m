@@ -77,16 +77,11 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 
 - (instancetype)init
 {
-    return [self initWithDataSource:nil];
-}
-
-- (instancetype)initWithDataSource:(nullable id<MSIDExtendedTokenCacheDataSource>)dataSource
-{
     self = [super init];
 
     if (self)
     {
-        _dataSource = dataSource ?: [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDKeychainTokenCache.defaultKeychainGroup error:nil];
+        _dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDKeychainTokenCache.defaultKeychainGroup error:nil];
         _serializer = [[MSIDCacheItemJsonSerializer alloc] init];
         _accessQueue = dispatch_queue_create("com.microsoft.identity.onboardingStatusCache", DISPATCH_QUEUE_SERIAL);
     }

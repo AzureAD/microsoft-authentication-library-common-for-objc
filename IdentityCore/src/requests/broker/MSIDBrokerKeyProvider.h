@@ -36,16 +36,7 @@ enum {
 
 #endif
 
-@protocol MSIDBrokerKeyProviding <NSObject>
-
-- (NSString *)base64BrokerKeyWithContext:(id<MSIDRequestContext>)context
-                                  error:(NSError *__autoreleasing *)error;
-
-- (NSString *)getApplicationToken:(NSString *)clientId error:(NSError *__autoreleasing *)error;
-
-@end
-
-@interface MSIDBrokerKeyProvider : NSObject <MSIDBrokerKeyProviding>
+@interface MSIDBrokerKeyProvider : NSObject
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup;
 
