@@ -84,15 +84,16 @@
 
 #if !AD_BROKER
 
-@interface MSIDReplayTestApplication : NSObject <MSIDBrokerApplication>
+@interface MSIDReplayTestPlatform : NSObject <MSIDBrokerApplication, MSIDBrokerPasteboard>
 @property (nonatomic) BOOL brokerInstalled;
 @property (nonatomic) BOOL openSucceeds;
 @property (nonatomic) UIApplicationState applicationState;
 @property (nonatomic) NSMutableArray<NSURL *> *openedURLs;
+@property (nonatomic) NSMutableArray<NSURL *> *writtenURLs;
 @property (nonatomic, copy) void (^onOpenURL)(void);
 @end
 
-@implementation MSIDReplayTestApplication
+@implementation MSIDReplayTestPlatform
 
 - (BOOL)canPerformRequest:(__unused MSIDInteractiveTokenRequestParameters *)parameters
 {
@@ -108,14 +109,6 @@
         self.onOpenURL();
     }
 }
-
-@end
-
-@interface MSIDReplayTestPasteboard : NSObject <MSIDBrokerPasteboard>
-@property (nonatomic) NSMutableArray<NSURL *> *writtenURLs;
-@end
-
-@implementation MSIDReplayTestPasteboard
 
 - (void)setURL:(NSURL *)url
 {
@@ -163,8 +156,7 @@
 
 // Separate from the legacy integration fixture so setup and cleanup never access the Keychain.
 @interface MSIDBrokerReplayTests : XCTestCase
-@property (nonatomic) MSIDReplayTestApplication *application;
-@property (nonatomic) MSIDReplayTestPasteboard *pasteboard;
+@property (nonatomic) MSIDReplayTestPlatform *platform;
 @property (nonatomic) MSIDReplayTestKeyProvider *keyProvider;
 @property (nonatomic) MSIDOnboardingStatusCache *onboardingCache;
 @property (nonatomic) MSIDBrokerInteractiveController *controller;
@@ -181,12 +173,11 @@
 - (void)setUp
 {
     [super setUp];
-    self.application = [MSIDReplayTestApplication new];
-    self.application.openSucceeds = YES;
-    self.application.applicationState = UIApplicationStateActive;
-    self.application.openedURLs = [NSMutableArray new];
-    self.pasteboard = [MSIDReplayTestPasteboard new];
-    self.pasteboard.writtenURLs = [NSMutableArray new];
+    self.platform = [MSIDReplayTestPlatform new];
+    self.platform.openSucceeds = YES;
+    self.platform.applicationState = UIApplicationStateActive;
+    self.platform.openedURLs = [NSMutableArray new];
+    self.platform.writtenURLs = [NSMutableArray new];
     self.keyProvider = [MSIDReplayTestKeyProvider new];
     self.onboardingCache = [[MSIDOnboardingStatusCache alloc] initWithDataSource:[MSIDTestCacheDataSource new]];
     self.installURL = [NSURL URLWithString:@"itms-apps://itunes.apple.com/app/test-broker"];
@@ -235,13 +226,13 @@
                                                                                   brokerInstallLink:self.installURL
                                                                                   brokerKeyProvider:self.keyProvider
                                                                               onboardingStatusCache:self.onboardingCache
-                                                                                        application:self.application
-                                                                                         pasteboard:self.pasteboard
+                                                                                        application:self.platform
+                                                                                         pasteboard:self.platform
                                                                                               error:&error];
     XCTAssertNotNil(self.controller);
     XCTAssertNil(error);
     XCTestExpectation *opened = [self expectationWithDescription:@"Initial installation launch"];
-    self.application.onOpenURL = ^{ [opened fulfill]; };
+    self.platform.onOpenURL = ^{ [opened fulfill]; };
     __weak typeof(self) weakSelf = self;
     [self.controller acquireToken:^(MSIDTokenResult *result, NSError *acquireTokenError)
     {
@@ -251,12 +242,12 @@
         strongSelf.error = acquireTokenError;
     }];
     [self waitForExpectationsWithTimeout:2.0 handler:nil];
-    self.application.onOpenURL = nil;
-    XCTAssertEqualObjects(self.application.openedURLs, (@[self.installURL]));
-    XCTAssertEqual(self.pasteboard.writtenURLs.count, 1u);
-    XCTAssertEqualObjects(self.pasteboard.writtenURLs.firstObject.scheme, self.brokerURL.scheme);
-    XCTAssertEqualObjects([self.pasteboard.writtenURLs.firstObject msidQueryParameters][@"sourceApplication"], NSBundle.mainBundle.bundleIdentifier);
-    XCTAssertNil([self.pasteboard.writtenURLs.firstObject msidQueryParameters][MSID_IGNORE_BROKER_REQUEST]);
+    self.platform.onOpenURL = nil;
+    XCTAssertEqualObjects(self.platform.openedURLs, (@[self.installURL]));
+    XCTAssertEqual(self.platform.writtenURLs.count, 1u);
+    XCTAssertEqualObjects(self.platform.writtenURLs.firstObject.scheme, self.brokerURL.scheme);
+    XCTAssertEqualObjects([self.platform.writtenURLs.firstObject msidQueryParameters][@"sourceApplication"], NSBundle.mainBundle.bundleIdentifier);
+    XCTAssertNil([self.platform.writtenURLs.firstObject msidQueryParameters][MSID_IGNORE_BROKER_REQUEST]);
     XCTAssertEqual(self.keyProvider.keyReadCount, 1u);
     XCTAssertEqual(self.keyProvider.applicationTokenReadCount, 1u);
     XCTAssertEqual(self.completionCount, 0u);
@@ -278,8 +269,8 @@
 - (void)assertReplayFinished
 {
     [self returnToClient];
-    XCTAssertEqual(self.application.openedURLs.count, 2u);
-    XCTAssertEqual(self.pasteboard.writtenURLs.count, 1u);
+    XCTAssertEqual(self.platform.openedURLs.count, 2u);
+    XCTAssertEqual(self.platform.writtenURLs.count, 1u);
     XCTAssertEqual(self.completionCount, 1u);
     XCTAssertNil([MSIDBrokerInteractiveController currentBrokerController]);
     XCTAssertNil([MSIDBrokerInteractiveController currentBrokerRequest]);
@@ -289,12 +280,12 @@
 - (void)testAcquireToken_whenBrokerInstalledAfterInstallPrompt_shouldReplayToBroker
 {
     [self startInstallRequest];
-    self.application.brokerInstalled = YES;
+    self.platform.brokerInstalled = YES;
     [self returnToClient];
     NSURL *replayURL = [self.brokerURL msidURLWithQueryParameters:@{MSID_IGNORE_BROKER_REQUEST: @"1"}];
-    XCTAssertEqualObjects(self.application.openedURLs, (@[self.installURL, replayURL]));
+    XCTAssertEqualObjects(self.platform.openedURLs, (@[self.installURL, replayURL]));
     XCTAssertTrue(self.controller.isReplayRequest);
-    XCTAssertEqual(self.pasteboard.writtenURLs.count, 1u);
+    XCTAssertEqual(self.platform.writtenURLs.count, 1u);
     XCTAssertEqual(self.completionCount, 0u);
 
     MSIDTokenResult *result = [MSIDTokenResult new];
@@ -310,11 +301,11 @@
 - (void)testAcquireToken_whenBrokerLaunchFailsAfterInstallPrompt_shouldReturnError
 {
     [self startInstallRequest];
-    self.application.brokerInstalled = YES;
-    self.application.openSucceeds = NO;
+    self.platform.brokerInstalled = YES;
+    self.platform.openSucceeds = NO;
     [self returnToClient];
     NSURL *replayURL = [self.brokerURL msidURLWithQueryParameters:@{MSID_IGNORE_BROKER_REQUEST: @"1"}];
-    XCTAssertEqualObjects(self.application.openedURLs, (@[self.installURL, replayURL]));
+    XCTAssertEqualObjects(self.platform.openedURLs, (@[self.installURL, replayURL]));
     XCTAssertNil(self.result);
     XCTAssertNotNil(self.error);
     XCTAssertEqualObjects(self.error.domain, MSIDErrorDomain);
@@ -326,14 +317,14 @@
 {
     [self startInstallRequest];
     [self returnToClient];
-    XCTAssertEqualObjects(self.application.openedURLs, (@[self.installURL]));
+    XCTAssertEqualObjects(self.platform.openedURLs, (@[self.installURL]));
     XCTAssertNil(self.result);
     XCTAssertEqualObjects(self.error.domain, MSIDErrorDomain);
     XCTAssertEqual(self.error.code, MSIDErrorBrokerResponseNotReceived);
     XCTAssertEqual([self.onboardingCache getOnboardingStatus].phase, MSIDOnboardingPhaseFailed);
     [self returnToClient];
-    XCTAssertEqual(self.application.openedURLs.count, 1u);
-    XCTAssertEqual(self.pasteboard.writtenURLs.count, 1u);
+    XCTAssertEqual(self.platform.openedURLs.count, 1u);
+    XCTAssertEqual(self.platform.writtenURLs.count, 1u);
     XCTAssertEqual(self.completionCount, 1u);
     XCTAssertNil([MSIDBrokerInteractiveController currentBrokerController]);
     XCTAssertNil([MSIDBrokerInteractiveController currentBrokerRequest]);

@@ -68,16 +68,16 @@ completionHandler:(nonnull void (^)(BOOL success))completionHandler;
 
 /**
  Initializes the controller with explicit platform and storage collaborators.
- The convenience initializers supply the production application, pasteboard, and keychain-backed providers.
+ Passing nil uses the system application/pasteboard or the keychain-backed provider for that collaborator.
  */
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                             brokerInstallLink:(nullable NSURL *)brokerInstallLink
-                                            brokerKeyProvider:(nonnull id<MSIDBrokerKeyProviding>)brokerKeyProvider
-                                        onboardingStatusCache:(nonnull MSIDOnboardingStatusCache *)onboardingStatusCache
-                                                  application:(nonnull id<MSIDBrokerApplication>)application
-                                                   pasteboard:(nonnull id<MSIDBrokerPasteboard>)pasteboard
+                                            brokerKeyProvider:(nullable id<MSIDBrokerKeyProviding>)brokerKeyProvider
+                                        onboardingStatusCache:(nullable MSIDOnboardingStatusCache *)onboardingStatusCache
+                                                  application:(nullable id<MSIDBrokerApplication>)application
+                                                   pasteboard:(nullable id<MSIDBrokerPasteboard>)pasteboard
                                                         error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL

@@ -39,9 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)new NS_UNAVAILABLE;
 
 /**
- Initializes an independent cache backed by the supplied storage instead of the default keychain.
+ Initializes an independent cache using the supplied storage, or the default keychain when nil.
  */
-- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource;
+- (instancetype)initWithDataSource:(nullable id<MSIDExtendedTokenCacheDataSource>)dataSource;
 
 /**
  Shared instance of MSIDOnboardingStatusCache using the default keychain group.
