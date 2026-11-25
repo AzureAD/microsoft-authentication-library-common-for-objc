@@ -1,6 +1,8 @@
 Version 2.19.0
-* (iOS) Avoid a potential authentication hang by keeping BART enablement in process-local memory instead of writing application preferences; applications must configure enablement on each launch.
 * Preserve additionalProperties arrays in typed claims requests, including broker reconstruction.
+
+Version 2.18.2
+* (iOS) Avoid a potential authentication hang by keeping BART enablement in process-local memory instead of writing application preferences; applications must configure enablement on each launch.
 
 Version 2.18.1
 * Fix shared password-entry UI test readiness by prioritizing a ready secure field and avoiding queries against the departing Verify-email page after password selection, while preserving alternate sign-in paths and hidden-keyboard dismissal. (#1984)
