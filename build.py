@@ -30,6 +30,8 @@ import re
 import os
 import argparse
 import device_guids
+import shlex
+import shutil
 
 from timeit import default_timer as timer
 
@@ -106,7 +108,7 @@ def print_operation_end(name, operation, exit_code, start_time) :
         print(ColorValues.FAIL + name + " [" + operation + "] Failed" + ColorValues.END + " (" + "{0:.2f}".format(end_time - start_time) + " seconds)")
 
 class BuildTarget:
-    def __init__(self, target):
+    def __init__(self, target, enable_coverage=False):
         self.name = target["name"]
         self.project = target.get("project")
         self.workspace = target.get("workspace")
@@ -126,6 +128,12 @@ class BuildTarget:
         self.skipped = False
         self.start_time = None
         self.end_time = None
+        self.coverage_name = re.sub(r'[^A-Za-z0-9._-]', '_', self.scheme)
+        self.coverage_derived_data = None
+        # Isolate identical archive/test product names across platform schemes.
+        if enable_coverage and "test" in self.operations:
+            self.coverage_derived_data = os.path.abspath(
+                "./build/coverage/derived-data/" + self.coverage_name)
     
     def xcodebuild_command(self, operation, xcpretty) :
         """
@@ -150,6 +158,8 @@ class BuildTarget:
             command += " -workspace " + self.workspace
         
         command += " -scheme \"" + self.scheme + "\" -configuration " + default_config
+        if self.coverage_derived_data:
+            command += " -derivedDataPath " + shlex.quote(self.coverage_derived_data)
         
         # The shallow analyzer is buggy. Stupidly buggy, causing random failures that didn't fail the build on things like
         # headers not being found. If Apple can't make this reliable then we should short circuit it out of our build
@@ -158,6 +168,12 @@ class BuildTarget:
         
         if (operation != None and "codecov" in self.operations) :
             command += " -enableCodeCoverage YES"
+        elif self.coverage_derived_data and operation in ("build", "test"):
+            command += " -enableCodeCoverage YES"
+
+        if self.coverage_derived_data and operation == "test":
+            command += " -resultBundlePath " + shlex.quote(
+                "./build/coverage/" + self.coverage_name + ".xcresult")
 
         if (self.platform == "iOS") :
             command += " " + ios_sim_flags + " " + ios_sim_dest
@@ -362,6 +378,17 @@ class BuildTarget:
                 exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
                 if (exit_code != 0) :
                     self.dump_error_context(operation)
+
+            # Export before another scheme can rebuild a matching product.
+            # Failed tests may still have usable coverage; retain their failure.
+            if self.coverage_derived_data and operation == "test":
+                coverage_exit = subprocess.call([
+                    "ruby", "scripts/coverage.rb", "export", self.scheme,
+                    self.coverage_derived_data,
+                    "./build/coverage/" + self.coverage_name + ".xcresult"
+                ])
+                if exit_code == 0:
+                    exit_code = coverage_exit
             
             if (exit_code != 0) :
                 self.failed = True
@@ -411,11 +438,19 @@ parser.add_argument('--no-clean', action='store_false', help="Skips the clean bu
 parser.add_argument('--no-xcpretty', action='store_false', help="Show raw xcodebuild output instead of using xcpretty")
 parser.add_argument('--show-build-settings', action='store_true',  help="Show xcodebuild's settings output")
 parser.add_argument('--targets', nargs='+', help="Specify individual targets to run")
+parser.add_argument('--coverage', action='store_true', help="Export existing iOS/macOS tests to per-scheme Cobertura XML (requires slather)")
 args = parser.parse_args()
 
 clean = args.no_clean
 use_xcpretty = args.no_xcpretty
 show_build_settings = args.show_build_settings
+enable_coverage = args.coverage
+
+if enable_coverage:
+    if os.path.exists("./build/coverage"):
+        shutil.rmtree("./build/coverage")
+    os.makedirs("./build/coverage/reports", exist_ok=True)
+    os.makedirs("./build/coverage/diagnostics", exist_ok=True)
 
 if (args.targets != None) :
     print("Targets specified: " + str(args.targets))
@@ -424,7 +459,7 @@ targets = []
 
 for spec in target_specifiers :
     if (args.targets == None or spec["target"] in args.targets) :
-        targets.append(BuildTarget(spec))
+        targets.append(BuildTarget(spec, enable_coverage=enable_coverage))
 
 if requires_simulator(targets) :
     launch_simulator(targets)
@@ -434,7 +469,7 @@ os.makedirs("./build/logs", exist_ok=True)
 os.makedirs("./build/reports", exist_ok=True)
 
 # start by cleaning up any derived data that might be lying around
-if (clean) :
+if (clean and not enable_coverage) :
     derived_folders = set()
     for target in targets :
         build_dir = target.get_build_settings()["BUILD_DIR"]
