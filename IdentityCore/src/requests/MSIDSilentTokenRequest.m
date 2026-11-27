@@ -55,6 +55,11 @@
 #import "MSIDExecutionFlowConstants.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAADTenant.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAadAuthorityResolver.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDOpenIdConfigurationInfoRequest.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -76,6 +81,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
 @property (nonatomic) MSIDAccessToken *unexpiredRefreshNeededAccessToken;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
+@property (atomic, nullable) MSIDHttpRequest *activeHttpRequest;
+@property (atomic) BOOL isCancelled;
 #if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 @property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
@@ -118,6 +125,24 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         completionBlock(nil, error);
         return;
     }
+
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_SILENT_REQUEST_AUTHORITY_AND_BG_TASK_IMPROVEMENTS]
+        && [self canTryAccessTokenBeforeAuthorityResolution])
+    {
+        MSIDTokenResult *cachedResult = [self validCachedAccessTokenResult];
+        if (cachedResult)
+        {
+            if (self.requestParameters.authority.openIdConfigurationEndpoint == nil)
+            {
+                self.requestParameters.authority.openIdConfigurationEndpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:self.requestParameters.authority.url];
+            }
+#if !EXCLUDE_FROM_MSALCPP
+            [self.lastRequestTelemetry increaseSilentSuccessfulCount];
+#endif
+            completionBlock(cachedResult, nil);
+            return;
+        }
+    }
     
     NSString *upn = self.requestParameters.accountIdentifier.displayableId;
     
@@ -127,6 +152,13 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                          completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
                                                            __unused BOOL validated, NSError *localError)
      {
+        if (self.isCancelled)
+        {
+            NSError *cancelError = localError ?: [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+            completionBlock(nil, cancelError);
+            return;
+        }
+
         if (localError)
         {
             completionBlock(nil, localError);
@@ -135,6 +167,104 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         
         [self executeRequestImpl:completionBlock];
     }];
+}
+
+- (void)cancel
+{
+    self.isCancelled = YES;
+    [self.activeHttpRequest cancel];
+    self.activeHttpRequest = nil;
+    if ([self.requestParameters.authority isKindOfClass:MSIDAADAuthority.class])
+    {
+        NSError *cancelError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+        [MSIDAadAuthorityResolver cancelPendingRequestsWithError:cancelError];
+    }
+}
+
+- (BOOL)canTryAccessTokenBeforeAuthorityResolution
+{
+    if (self.forceRefresh || [self.requestParameters.claimsRequest hasClaims])
+    {
+        return NO;
+    }
+
+    MSIDAuthority *authority = self.requestParameters.authority;
+    if (![authority isKindOfClass:MSIDAADAuthority.class])
+    {
+        return NO;
+    }
+
+    if ([[MSIDAadAuthorityCache sharedInstance] objectForKey:authority.environment])
+    {
+        return YES;
+    }
+
+    if (self.requestParameters.validateAuthority && ![authority isKnown])
+    {
+        return NO;
+    }
+
+    return YES;
+}
+
+- (nullable MSIDTokenResult *)validCachedAccessTokenResult
+{
+    NSError *accessTokenError = nil;
+    MSIDAccessToken *accessToken = [self accessTokenWithError:&accessTokenError];
+    if (!accessToken || accessTokenError)
+    {
+        return nil;
+    }
+
+    BOOL accessTokenExpired = [accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer];
+    if (accessTokenExpired || accessToken.refreshNeeded)
+    {
+        return nil;
+    }
+
+    if (self.requestParameters.msidConfiguration.authority.supportsMAMScenarios
+        && [MSIDIntuneApplicationStateManager isAppCapableForMAMCA]
+        && ![NSString msidIsStringNilOrBlank:accessToken.enrollmentId])
+    {
+        NSString *currentEnrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accessToken.accountIdentifier.homeAccountId
+                                                                                                    legacyUserId:accessToken.accountIdentifier.displayableId
+                                                                                                         context:self.requestParameters
+                                                                                                           error:nil];
+        if (!currentEnrollmentId || ![currentEnrollmentId isEqualToString:accessToken.enrollmentId])
+        {
+            return nil;
+        }
+    }
+
+    if (![NSString msidIsStringNilOrBlank:accessToken.kid]
+        && ![self.requestParameters.authScheme matchAccessTokenKeyThumbprint:accessToken])
+    {
+        return nil;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:accessToken.redirectUri]
+        && self.requestParameters.isNestedAuthProtocol
+        && ![self.requestParameters.redirectUri.msidNormalizedString isEqualToString:accessToken.redirectUri.msidNormalizedString])
+    {
+        return nil;
+    }
+
+    __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
+    [self fetchCachedTokenAndCheckForFRTFirst:YES shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error)
+    {
+        refreshableToken = token;
+    }];
+
+    NSError *resultError = nil;
+    MSIDTokenResult *tokenResult = [self resultWithAccessToken:accessToken
+                                                  refreshToken:refreshableToken
+                                                         error:&resultError];
+    if (tokenResult)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token before authority resolution.");
+    }
+
+    return tokenResult;
 }
 
 - (void)executeRequestImpl:(MSIDRequestCompletionBlock)completionBlock
@@ -634,8 +764,15 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                 refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                 tokenRequest:(MSIDRefreshTokenGrantRequest *)tokenRequest
 {
+    self.activeHttpRequest = tokenRequest;
+    if (self.isCancelled)
+    {
+        [tokenRequest cancel];
+    }
+
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
      {
+        self.activeHttpRequest = nil;
         if (error)
         {
             /**

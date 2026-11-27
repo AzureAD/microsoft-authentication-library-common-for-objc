@@ -66,5 +66,6 @@
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (void)cancel;
 
 @end

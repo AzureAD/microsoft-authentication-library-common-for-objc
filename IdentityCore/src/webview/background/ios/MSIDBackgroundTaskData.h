@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 /// Tracks count of  background operation requested to be started or stopped.
 @property (atomic) NSUInteger callerReferenceCount;
+/// Keyed expiration callbacks for active callers of this background task type.
+@property (nonatomic, readonly) NSMutableDictionary<NSUUID *, dispatch_block_t> *expirationHandlers;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;

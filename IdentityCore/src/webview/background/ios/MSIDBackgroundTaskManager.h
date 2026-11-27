@@ -45,6 +45,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)startOperationWithType:(MSIDBackgroundTaskType)type;
 - (void)stopOperationWithType:(MSIDBackgroundTaskType)type;
+- (nullable NSUUID *)startOperationWithType:(MSIDBackgroundTaskType)type
+                          expirationHandler:(nullable dispatch_block_t)expirationHandler;
+- (void)stopOperationWithType:(MSIDBackgroundTaskType)type
+                        token:(nullable NSUUID *)token;
+- (void)expireOperationWithType:(MSIDBackgroundTaskType)type;
 
 @end
 

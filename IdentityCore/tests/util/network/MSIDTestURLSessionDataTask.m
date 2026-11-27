@@ -65,6 +65,11 @@
     return self;
 }
 
+- (void)cancel
+{
+    // No-op in mock data task
+}
+
 - (void)resume
 {
     MSIDTestURLResponse *response = [MSIDTestURLSession removeResponseForRequest:self.request];
@@ -87,13 +92,12 @@
     }
     
     [session dispatchIfNeed:^{
+        if (response->_waitSemaphore)
+        {
+            dispatch_semaphore_wait(response->_waitSemaphore, DISPATCH_TIME_FOREVER);
+        }
         if (self.completionHandler) self.completionHandler(response->_responseData, response->_response, response->_error);
     }];
-
-    if (response->_waitSemaphore)
-    {
-        dispatch_semaphore_wait(response->_waitSemaphore, DISPATCH_TIME_FOREVER);
-    }
     
     if (response->_error)
     {
